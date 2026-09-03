@@ -93,6 +93,88 @@ class RunContractTests(unittest.TestCase):
         run["missing"]["workload.vla.denoise_steps"] = "not_applicable"
         self.assertEqual(self.validate_run(run), [])
 
+    def test_present_workload_number_rejects_missing_entry(self):
+        run = valid_run("run-present-workload")
+        run["missing"]["workload.vla.denoise_steps"] = "not_applicable"
+        self.assertEqual(
+            [issue.code for issue in self.validate_run(run)],
+            ["unexpected_missing_reason"],
+        )
+
+    def test_present_precision_number_rejects_missing_entry(self):
+        run = valid_run("run-present-zero-point")
+        run["missing"]["precision.scale_zero_point_bytes"] = "not_applicable"
+        self.assertEqual(
+            [issue.code for issue in self.validate_run(run)],
+            ["unexpected_missing_reason"],
+        )
+
+    def test_null_precision_number_requires_missing_entry(self):
+        run = valid_run("run-null-zero-point")
+        run["precision"]["scale_zero_point_bytes"] = None
+        run["comparison_context"]["precision"] = copy.deepcopy(run["precision"])
+        self.assertEqual(
+            [issue.code for issue in self.validate_run(run)],
+            ["missing_reason_required"],
+        )
+        run["missing"]["precision.scale_zero_point_bytes"] = "not_applicable"
+        self.assertEqual(self.validate_run(run), [])
+
+    def test_full_timing_object_must_match_context(self):
+        run = valid_run("run-timing-copy")
+        run["comparison_context"]["timing"]["state_reuse"] = "no_reuse"
+        self.assertEqual(
+            [issue.code for issue in self.validate_run(run)],
+            ["context_mismatch"],
+        )
+
+    def test_non_vla_workloads_are_controlled_unsupported_cases(self):
+        for extension in ("world_model", "world_action_model", "hybrid"):
+            with self.subTest(extension=extension):
+                run = valid_run(f"run-{extension}")
+                workload = {"common": run["workload"]["common"], extension: {}}
+                run["workload"] = workload
+                run["comparison_context"]["workload"] = copy.deepcopy(workload)
+                self.assertEqual(
+                    [issue.code for issue in self.validate_run(run)],
+                    ["unsupported_workload"],
+                )
+
+    def test_null_system_reason_must_match_evidence(self):
+        cases = (
+            ("analytical", "reported_external_no_physical_system"),
+            ("reported_external", "analytical_no_physical_system"),
+        )
+        for evidence, reason in cases:
+            with self.subTest(evidence=evidence):
+                run = valid_run(f"run-{evidence}-wrong-system-reason")
+                run["evidence"] = evidence
+                run["system_id"] = None
+                run["comparison_context"]["evidence"] = evidence
+                run["comparison_context"]["platform"]["system_id"] = None
+                run["missing"]["system_id"] = reason
+                self.assertEqual(
+                    [issue.code for issue in self.validate_run(run)],
+                    ["system_missing_reason"],
+                )
+
+    def test_reported_external_null_system_accepts_matching_reason(self):
+        run = valid_run("run-external-system")
+        run["evidence"] = "reported_external"
+        run["system_id"] = None
+        run["comparison_context"]["evidence"] = "reported_external"
+        run["comparison_context"]["platform"]["system_id"] = None
+        run["missing"]["system_id"] = "reported_external_no_physical_system"
+        self.assertEqual(self.validate_run(run), [])
+
+    def test_non_null_system_rejects_missing_entry(self):
+        run = valid_run("run-present-system")
+        run["missing"]["system_id"] = "analytical_no_physical_system"
+        self.assertEqual(
+            [issue.code for issue in self.validate_run(run)],
+            ["unexpected_missing_reason"],
+        )
+
 
 class MeasurementContractTests(unittest.TestCase):
     def validate(self, dataset: str, record: dict[str, object]):
@@ -124,62 +206,164 @@ class MeasurementContractTests(unittest.TestCase):
 
     def test_stage_operator_and_roofline_records_pass(self):
         records = {
-            "stages": {
-                "measurement_id": "stage-001",
-                "run_id": "run-001",
-                "source_id": "source-test",
-                "evidence": "measured_local",
-                "measurement_method": "cuda_event",
-                "metric": "latency",
-                "statistics": [{"statistic": "mean", "value": 4.2, "unit": "ms"}],
-                "sample_count": 10,
+            "stages": self.valid_stage(),
+            "operators": self.valid_operator(),
+            "rooflines": self.valid_roofline(),
+        }
+        for dataset, record in records.items():
+            with self.subTest(dataset=dataset):
+                self.assertEqual(self.validate(dataset, record), [])
+
+    def test_end_to_end_and_stage_missing_reason_matches_null_statistics(self):
+        e2e = self.valid_end_to_end()
+        stage = self.valid_stage()
+        for dataset, record in (("end_to_end", e2e), ("stages", stage)):
+            with self.subTest(dataset=dataset, direction="null_requires_reason"):
+                record["statistics"][0]["value"] = None
+                self.assertEqual(
+                    [issue.code for issue in self.validate(dataset, record)],
+                    ["missing_reason_required"],
+                )
+                record["missing_reason"] = "not_collected"
+                self.assertEqual(self.validate(dataset, record), [])
+            with self.subTest(dataset=dataset, direction="value_rejects_reason"):
+                record["statistics"][0]["value"] = 4.2
+                self.assertEqual(
+                    [issue.code for issue in self.validate(dataset, record)],
+                    ["unexpected_missing_reason"],
+                )
+
+    def test_operator_and_roofline_missing_maps_match_null_metrics(self):
+        cases = (
+            ("operators", self.valid_operator(), "work_gflop"),
+            ("rooflines", self.valid_roofline(), "predicted_ms"),
+        )
+        for dataset, record, field in cases:
+            with self.subTest(dataset=dataset, direction="null_requires_reason"):
+                record[field] = None
+                self.assertEqual(
+                    [issue.code for issue in self.validate(dataset, record)],
+                    ["missing_reason_required"],
+                )
+                record["missing"][field] = "not_collected"
+                self.assertEqual(self.validate(dataset, record), [])
+            with self.subTest(dataset=dataset, direction="value_rejects_reason"):
+                record[field] = 1.0
+                self.assertEqual(
+                    [issue.code for issue in self.validate(dataset, record)],
+                    ["unexpected_missing_reason"],
+                )
+
+    def test_analytical_end_to_end_requires_canonical_estimate_shape(self):
+        valid = self.valid_end_to_end()
+        valid.update(
+            {
+                "evidence": "analytical",
+                "measurement_method": "vla_perf",
+                "statistics": [
+                    {"statistic": "analytical_estimate", "value": 4.2, "unit": "ms"}
+                ],
+                "sample_count": 0,
                 "percentile_method": None,
-                "work_unit": "action_chunk",
-                "timing_boundary_id": "predict_cached_graph_sync",
-                "missing_reason": None,
+            }
+        )
+        self.assertEqual(self.validate("end_to_end", valid), [])
+
+        mutations = (
+            ("sample_count", 1),
+            ("percentile_method", "source_reported"),
+            (
+                "statistics",
+                [{"statistic": "mean", "value": 4.2, "unit": "ms"}],
+            ),
+            (
+                "statistics",
+                [
+                    {"statistic": "analytical_estimate", "value": 4.2, "unit": "ms"},
+                    {"statistic": "analytical_estimate", "value": 4.3, "unit": "ms"},
+                ],
+            ),
+        )
+        for field, value in mutations:
+            with self.subTest(field=field, value=value):
+                record = copy.deepcopy(valid)
+                record[field] = value
+                self.assertEqual(
+                    [issue.code for issue in self.validate("end_to_end", record)],
+                    ["analytical_measurement"],
+                )
+
+    @staticmethod
+    def valid_end_to_end():
+        return {
+            "measurement_id": "e2e-001",
+            "run_id": "run-001",
+            "source_id": "source-test",
+            "evidence": "measured_local",
+            "measurement_method": "wall_clock",
+            "metric": "latency",
+            "statistics": [{"statistic": "mean", "value": 4.2, "unit": "ms"}],
+            "sample_count": 10,
+            "percentile_method": None,
+            "work_unit": "action_chunk",
+            "timing_boundary_id": "predict_cached_graph_sync",
+            "missing_reason": None,
+        }
+
+    @staticmethod
+    def valid_stage():
+        record = MeasurementContractTests.valid_end_to_end()
+        record.update(
+            {
+                "measurement_id": "stage-001",
+                "measurement_method": "cuda_event",
                 "stage_id": "denoise",
                 "parent_stage_id": None,
                 "aggregation": "summary",
                 "additive": False,
                 "execution_count": 10,
-            },
-            "operators": {
-                "operator_id": "operator-001",
-                "run_id": "run-001",
-                "source_id": "source-test",
-                "evidence": "analytical",
-                "module_id": "action",
-                "granularity": "component",
-                "operator_kind": "matmul",
-                "shape": "M=10,N=32,K=64",
-                "execution_count": 10,
-                "work_gflop": 1.5,
-                "traffic_gib": 0.2,
-                "arithmetic_intensity_flop_per_byte": 6.9849193096,
-                "source_method": "vla_perf",
-                "missing": {},
-            },
-            "rooflines": {
-                "roofline_id": "roofline-001",
-                "run_id": "run-001",
-                "source_id": "source-test",
-                "evidence": "analytical",
-                "operator_id": "operator-001",
-                "device_id": "nvidia-jetson-agx-thor",
-                "precision_id": "uniform-fp16",
-                "memory_level": "dram",
-                "compute_peak_gflop_per_s": 400000.0,
-                "bandwidth_gib_per_s": 270.0,
-                "peak_source": "analytical_assumption",
-                "predicted_ms": 0.8,
-                "limiter": "memory",
-                "modeling_fidelity": "native",
-                "missing": {},
-            },
+            }
+        )
+        return record
+
+    @staticmethod
+    def valid_operator():
+        return {
+            "operator_id": "operator-001",
+            "run_id": "run-001",
+            "source_id": "source-test",
+            "evidence": "analytical",
+            "module_id": "action",
+            "granularity": "component",
+            "operator_kind": "matmul",
+            "shape": "M=10,N=32,K=64",
+            "execution_count": 10,
+            "work_gflop": 1.5,
+            "traffic_gib": 0.2,
+            "arithmetic_intensity_flop_per_byte": 6.9849193096,
+            "source_method": "vla_perf",
+            "missing": {},
         }
-        for dataset, record in records.items():
-            with self.subTest(dataset=dataset):
-                self.assertEqual(self.validate(dataset, record), [])
+
+    @staticmethod
+    def valid_roofline():
+        return {
+            "roofline_id": "roofline-001",
+            "run_id": "run-001",
+            "source_id": "source-test",
+            "evidence": "analytical",
+            "operator_id": "operator-001",
+            "device_id": "nvidia-jetson-agx-thor",
+            "precision_id": "uniform-fp16",
+            "memory_level": "dram",
+            "compute_peak_gflop_per_s": 400000.0,
+            "bandwidth_gib_per_s": 270.0,
+            "peak_source": "analytical_assumption",
+            "predicted_ms": 0.8,
+            "limiter": "memory",
+            "modeling_fidelity": "native",
+            "missing": {},
+        }
 
 
 class ComparisonTests(unittest.TestCase):
@@ -200,6 +384,18 @@ class ComparisonTests(unittest.TestCase):
         right = valid_run("right", correctness="failed")
         self.assertEqual(ratio_eligibility(left, right), "blocked_known_unequal")
 
+    def test_passed_correctness_allows_validated_speedup(self):
+        left = valid_run("left", correctness="passed")
+        right = valid_run("right", correctness="passed")
+        self.assertEqual(ratio_eligibility(left, right), "validated_speedup")
+
+    def test_unassessed_correctness_allows_only_unvalidated_ratio(self):
+        left = valid_run("left", correctness="passed")
+        right = valid_run("right", correctness="not_assessed")
+        self.assertEqual(
+            ratio_eligibility(left, right), "latency_ratio_unvalidated"
+        )
+
     def test_workload_scale_removes_only_named_leaf(self):
         one_view = valid_run("one-view", views=1)
         two_views = valid_run("two-views", views=2)
@@ -215,3 +411,10 @@ class ComparisonTests(unittest.TestCase):
             [one_view, two_views], "workload_scale", "workload.vla.camera_views"
         )
         self.assertNotEqual(groups["one-view"], groups["two-views"])
+
+    def test_workload_scale_rejects_subtree_paths(self):
+        run = valid_run("one-view", views=1)
+        for varying_field in ("workload.vla", "workload.common"):
+            with self.subTest(varying_field=varying_field):
+                with self.assertRaisesRegex(ValueError, "scalar leaf"):
+                    assign_group_ids([run], "workload_scale", varying_field)

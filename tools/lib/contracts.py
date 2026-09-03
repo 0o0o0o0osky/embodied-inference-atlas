@@ -72,10 +72,16 @@ def validate_document(
                 )
             )
         seen.add(key)
-    if dataset == "runs":
-        for index, record in enumerate(document["records"]):
-            if isinstance(record, Mapping):
+    for index, record in enumerate(document["records"]):
+        if isinstance(record, Mapping):
+            if dataset == "runs":
                 issues.extend(_validate_run_semantics(record, f"$.records[{index}]"))
+            elif dataset in {"end_to_end", "stages", "operators", "rooflines"}:
+                issues.extend(
+                    _validate_measurement_semantics(
+                        dataset, record, f"$.records[{index}]"
+                    )
+                )
     return issues
 
 
@@ -100,10 +106,19 @@ def _validate_run_semantics(run: Mapping, path: str) -> list[Issue]:
                     "workload must contain exactly one type extension",
                 )
             )
+        elif extensions != {"vla"}:
+            issues.append(
+                Issue(
+                    f"{path}.workload",
+                    "unsupported_workload",
+                    "only vla workloads are supported by this schema version",
+                )
+            )
 
     copied_fields = (
         ("workload", workload, context.get("workload")),
         ("precision", run.get("precision"), context.get("precision")),
+        ("timing", run.get("timing"), context.get("timing")),
     )
     for name, original, copied in copied_fields:
         if original != copied:
@@ -117,10 +132,6 @@ def _validate_run_semantics(run: Mapping, path: str) -> list[Issue]:
 
     platform = context.get("platform")
     platform = platform if isinstance(platform, Mapping) else {}
-    timing = run.get("timing")
-    timing = timing if isinstance(timing, Mapping) else {}
-    context_timing = context.get("timing")
-    context_timing = context_timing if isinstance(context_timing, Mapping) else {}
     operating_point = run.get("operating_point")
     operating_point = operating_point if isinstance(operating_point, Mapping) else {}
     common = workload.get("common") if isinstance(workload, Mapping) else {}
@@ -145,11 +156,6 @@ def _validate_run_semantics(run: Mapping, path: str) -> list[Issue]:
             "platform.operating_point_id",
             operating_point.get("operating_point_id"),
             platform.get("operating_point_id"),
-        ),
-        (
-            "timing.timing_boundary_id",
-            timing.get("timing_boundary_id"),
-            context_timing.get("timing_boundary_id"),
         ),
         (
             "task.input_contract_id",
@@ -181,6 +187,10 @@ def _validate_run_semantics(run: Mapping, path: str) -> list[Issue]:
     system_id = run.get("system_id")
     missing = run.get("missing")
     missing = missing if isinstance(missing, Mapping) else {}
+    system_reasons = {
+        "analytical": "analytical_no_physical_system",
+        "reported_external": "reported_external_no_physical_system",
+    }
     if system_id is None:
         if evidence == "measured_local":
             issues.append(
@@ -190,8 +200,8 @@ def _validate_run_semantics(run: Mapping, path: str) -> list[Issue]:
                     "measured_local runs require a physical system",
                 )
             )
-        elif evidence in {"analytical", "reported_external"}:
-            if "system_id" not in missing:
+        elif evidence in system_reasons:
+            if missing.get("system_id") != system_reasons[evidence]:
                 issues.append(
                     Issue(
                         f"{path}.missing.system_id",
@@ -207,30 +217,150 @@ def _validate_run_semantics(run: Mapping, path: str) -> list[Issue]:
                     "a null system is limited to analytical or external evidence",
                 )
             )
+    elif "system_id" in missing:
+        issues.append(
+            Issue(
+                f"{path}.missing.system_id",
+                "unexpected_missing_reason",
+                "a present system must not have a missing reason",
+            )
+        )
 
     if isinstance(workload, Mapping):
-        for missing_path in _null_leaf_paths(workload, "workload"):
-            if missing_path not in missing:
-                issues.append(
-                    Issue(
-                        f"{path}.missing.{missing_path}",
-                        "missing_reason_required",
-                        "a null workload value requires a controlled missing reason",
+        vla = workload.get("vla")
+        if isinstance(vla, Mapping):
+            for field in (
+                "camera_views",
+                "image_height",
+                "image_width",
+                "semantic_prompt_tokens",
+                "executed_prompt_tokens",
+                "action_dimension",
+                "action_chunk",
+                "denoise_steps",
+            ):
+                if field in vla:
+                    issues.extend(
+                        _validate_missing_value(
+                            vla[field],
+                            missing,
+                            f"workload.vla.{field}",
+                            path,
+                        )
                     )
+
+    precision = run.get("precision")
+    if isinstance(precision, Mapping) and "scale_zero_point_bytes" in precision:
+        issues.extend(
+            _validate_missing_value(
+                precision["scale_zero_point_bytes"],
+                missing,
+                "precision.scale_zero_point_bytes",
+                path,
+            )
+        )
+    return issues
+
+
+def _validate_measurement_semantics(
+    dataset: str, record: Mapping, path: str
+) -> list[Issue]:
+    issues: list[Issue] = []
+    if dataset in {"end_to_end", "stages"}:
+        statistics = record.get("statistics")
+        if isinstance(statistics, list):
+            values = [
+                item["value"]
+                for item in statistics
+                if isinstance(item, Mapping) and "value" in item
+            ]
+            if values:
+                missing_reason = record.get("missing_reason")
+                if any(value is None for value in values) and missing_reason is None:
+                    issues.append(
+                        Issue(
+                            f"{path}.missing_reason",
+                            "missing_reason_required",
+                            "a null statistic requires a controlled missing reason",
+                        )
+                    )
+                elif all(_is_number(value) for value in values) and missing_reason is not None:
+                    issues.append(
+                        Issue(
+                            f"{path}.missing_reason",
+                            "unexpected_missing_reason",
+                            "present statistics must not have a missing reason",
+                        )
+                    )
+
+    if dataset == "end_to_end" and record.get("evidence") == "analytical":
+        statistics = record.get("statistics")
+        canonical_statistics = (
+            isinstance(statistics, list)
+            and len(statistics) == 1
+            and isinstance(statistics[0], Mapping)
+            and statistics[0].get("statistic") == "analytical_estimate"
+        )
+        if (
+            record.get("sample_count") != 0
+            or record.get("percentile_method") is not None
+            or not canonical_statistics
+        ):
+            issues.append(
+                Issue(
+                    path,
+                    "analytical_measurement",
+                    "analytical E2E records require one canonical estimate",
+                )
+            )
+
+    missing_fields = {
+        "operators": (
+            "work_gflop",
+            "traffic_gib",
+            "arithmetic_intensity_flop_per_byte",
+        ),
+        "rooflines": (
+            "compute_peak_gflop_per_s",
+            "bandwidth_gib_per_s",
+            "predicted_ms",
+        ),
+    }
+    fields = missing_fields.get(dataset)
+    missing = record.get("missing")
+    if fields is not None and isinstance(missing, Mapping):
+        for field in fields:
+            if field in record:
+                issues.extend(
+                    _validate_missing_value(record[field], missing, field, path)
                 )
     return issues
 
 
-def _null_leaf_paths(value: Mapping, prefix: str) -> list[str]:
-    paths: list[str] = []
-    for key in sorted(value):
-        child = value[key]
-        child_path = f"{prefix}.{key}"
-        if isinstance(child, Mapping):
-            paths.extend(_null_leaf_paths(child, child_path))
-        elif child is None:
-            paths.append(child_path)
-    return paths
+def _validate_missing_value(
+    value: object, missing: Mapping, field: str, path: str
+) -> list[Issue]:
+    if value is None and field not in missing:
+        return [
+            Issue(
+                f"{path}.missing.{field}",
+                "missing_reason_required",
+                "a null numeric value requires a controlled missing reason",
+            )
+        ]
+    if _is_number(value) and field in missing:
+        return [
+            Issue(
+                f"{path}.missing.{field}",
+                "unexpected_missing_reason",
+                "a present numeric value must not have a missing reason",
+            )
+        ]
+    return []
+
+
+def _is_number(value: object) -> bool:
+    return isinstance(value, (int, float)) and not isinstance(value, bool)
 
 
 def _validate(value: object, rule: Mapping[str, object], path: str) -> list[Issue]:

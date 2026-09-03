@@ -25,7 +25,7 @@ def comparison_key(
 ) -> str:
     projected = copy.deepcopy(dict(context))
     for path in _removals(kind, varying_field):
-        _remove_path(projected, path)
+        _remove_path(projected, path, require_leaf=kind == "workload_scale")
     return json.dumps(projected, sort_keys=True, separators=(",", ":"))
 
 
@@ -79,7 +79,9 @@ def _removals(kind: str, varying_field: str | None) -> tuple[tuple[str, ...], ..
         raise ValueError(f"unknown comparison kind: {kind}") from error
 
 
-def _remove_path(context: dict, path: tuple[str, ...]) -> None:
+def _remove_path(
+    context: dict, path: tuple[str, ...], *, require_leaf: bool = False
+) -> None:
     parent = context
     for part in path[:-1]:
         child = parent.get(part)
@@ -88,6 +90,8 @@ def _remove_path(context: dict, path: tuple[str, ...]) -> None:
         parent = child
     if path[-1] not in parent:
         raise ValueError(f"comparison context is missing {'.'.join(path)}")
+    if require_leaf and isinstance(parent[path[-1]], Mapping):
+        raise ValueError("workload_scale varying_field must identify a scalar leaf")
     del parent[path[-1]]
 
 
