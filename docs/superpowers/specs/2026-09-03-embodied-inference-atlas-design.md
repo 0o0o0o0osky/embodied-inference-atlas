@@ -16,6 +16,8 @@ Embodied Inference Atlas 是一个独立、纯数据、完全离线的具身模�
 
 仓库呈现证据，不预设 CPU 协同、量化、调度或 kernel 重写一定有效。结论必须能追溯到本地测量、公开外部报告或显式分析假设。
 
+这里的“纯数据”是指仓库不包含推理 runtime、模型权重或在线应用逻辑。规范化数据和由同一份数据生成的静态 HTML 报告共同构成数据产品；静态页面明确属于首版范围。
+
 ## 2. 范围与非目标
 
 ### 2.1 范围内
@@ -47,7 +49,7 @@ Embodied Inference Atlas 是一个独立、纯数据、完全离线的具身模�
 
 1. **证据优先**：所有数字带有证据类型、测量方法和配置上下文。
 2. **缺失不是零**：未采集或不适用的指标使用 `null` 和原因，不进行推断填充。
-3. **可比性显式化**：只有处于同一 `comparability_group` 的结果才能生成 speedup 或排名。
+3. **可比性显式化**：只有 `comparison_contract` 完全一致并被构建器归入同组的结果才能生成 speedup 或排名。
 4. **瓶颈分层**：模型工作量、运行时、系统并行、kernel 和硬件工作点分开分析。
 5. **真实运行优先**：NCU kernel 必须来自被评估推理栈的真实推理路径。
 6. **离线优先**：构建和网页浏览不依赖网络、CDN、数据库或后端服务。
@@ -56,7 +58,7 @@ Embodied Inference Atlas 是一个独立、纯数据、完全离线的具身模�
 
 ## 4. 模型分类与工作负载描述
 
-模型使用公共字段和类型扩展，而不是以 VLA 字段作为全局结构。`model_type` 支持：
+模型使用带判别字段（discriminator）的公共结构和类型扩展，而不是以 VLA 字段作为全局结构。`model_type` 支持：
 
 - `vla`
 - `world_model`
@@ -64,7 +66,7 @@ Embodied Inference Atlas 是一个独立、纯数据、完全离线的具身模�
 - `hybrid`
 - `other`
 
-所有模型共享以下描述：
+模型 catalog 只保存架构固有属性。所有模型共享以下描述：
 
 - 参数规模、默认精度、公开模型 ID 和架构版本。
 - 输入与输出模态。
@@ -72,14 +74,14 @@ Embodied Inference Atlas 是一个独立、纯数据、完全离线的具身模�
 - 模块执行次数、循环结构和关键状态。
 - 推理契约，包括输入准备点、输出可用点和状态复用规则。
 
-类型扩展仅在适用时出现：
+每次测量的动态工作负载统一放在 `workload` 下：`workload.common` 保存 batch、输入模态和任务契约；`workload.vla`、`workload.world_model`、`workload.world_action_model` 是互不复用字段名的类型命名空间。类型扩展仅在适用时出现：
 
-- VLA：相机 views、图像分辨率、prompt tokens、action dimension、action chunk、NFE。
-- WM：历史帧、latent/token 数、rollout horizon、生成帧数和采样步骤。
-- WAM：观测上下文、规划 horizon、候选轨迹数、动作生成与评估轮数。
-- Hybrid：引用多个扩展，并明确各模块的执行模式。
+- VLA：`camera_views`、图像分辨率、`prompt_tokens`、`action_dimension`、`action_chunk`、`denoise_steps`。
+- WM：`history_frames`、`latent_tokens`、`rollout_frames`、生成分辨率和 `sampling_steps`。
+- WAM：`observation_steps`、`planning_horizon_actions`、`candidate_trajectories`、动作生成与评估轮次。
+- Hybrid：`components` 按顺序引用上述有类型的 payload，并明确模块边界和数据交换。
 
-执行模式独立记录，例如 autoregressive、diffusion、flow matching、video generation、single-pass encoder 和 iterative planner。模型页按适用字段展示，不适用字段不会被伪装成零。
+每个扩展在 schema 中明确 required 字段、数值类型和单位；不适用的扩展不得出现。执行模式独立记录，例如 autoregressive、diffusion、flow matching、video generation、single-pass encoder 和 iterative planner。模型页按适用字段展示，不适用字段不会被伪装成零。
 
 ## 5. 总体架构
 
@@ -120,6 +122,7 @@ embodied-inference-atlas/
 │       ├── stages.json
 │       ├── operators.json
 │       ├── kernels.json
+│       ├── operator_kernel_links.json
 │       ├── timelines.json
 │       ├── telemetry.json
 │       └── rooflines.json
@@ -159,28 +162,46 @@ embodied-inference-atlas/
 - 理论内存带宽和可选的经验可达带宽。
 - 支持的功耗模式、时钟策略和规格来源。
 
-`runtimes.json` 记录 runtime 名称、版本、commit、后端和能力。能力项包括 CUDA Graph、异步预处理、KV/paged cache、prefix/radix reuse、batching、step batching、multi-stage、multi-device、量化和流水执行。每项能力均标记为 `verified_measured`、`reported`、`not_supported` 或 `unknown`，避免把项目宣传直接当成本机事实。
+`runtimes.json` 记录 runtime 名称、版本、公开上游 commit、后端和能力。私有 fork 不保存 commit，只使用匿名版本标签。能力项包括 CUDA Graph、异步预处理、KV/paged cache、prefix/radix reuse、batching、step batching、multi-stage、multi-device、量化和流水执行。每项能力均标记为 `verified_measured`、`reported`、`not_supported` 或 `unknown`，避免把项目宣传直接当成本机事实。
 
 `sources.json` 记录外部来源 URL、标题、发布日期、访问日期、证据范围和简要转述，不复制大段原文。
 
-### 7.2 Run 核心记录
+URL 必须是明确公开的 HTTP(S) 页面；拒绝 localhost、私网/IP 地址、内嵌用户名密码和本机文件链接，并移除非必要 query、fragment 与跟踪参数。
 
-每次测量由稳定的 `run_id` 关联。核心字段包括：
+### 7.2 Configuration、Run 与 Measurement
+
+数据使用三个层级，避免把不同 profiler replay 伪装成同一次运行：
+
+- `configuration_id`：规范化实验配置，可关联具有相同模型、workload、runtime、设备和工作点意图的多种采集。
+- `run_id`：一次具体的 benchmark、Nsys、NCU、telemetry、分析计算或外部报告记录。不同采集工具必须使用不同 `run_id`。
+- `measurement_id`：run 中的一个数值、分布、事件集合或分析结论，拥有自己的 method、window 和证据来源。
+
+跨 run 页面只能将记录标为“同配置关联测量”，不能声称它们来自同一热状态或同一执行样本。核心字段包括：
 
 - `schema_version`
 - `model_id`、`runtime_id`、`device_id`
 - `evidence`：`measured_local | reported_external | analytical`
-- `measurement_method`：`wall_clock | cuda_event | nsys | ncu | vla_perf | reported`
-- `comparability_group`
+- run 级 `capture_method` 和 measurement 级 `measurement_method`：`wall_clock | cuda_event | nsys | ncu | telemetry | vla_perf | reported | derived`
+- `comparison_contract` 和由构建器分配的 `comparability_group`
 - 模型类型对应的 workload 参数
-- batch、views、分辨率、prompt tokens、context length、NFE、rollout/action horizon 等适用字段
+- `workload.common` 和由模型类型判定的 VLA、WM、WAM 或 Hybrid workload payload
 - precision/quantization 配置
 - timing boundary 和状态复用策略
 - 样本数、warmup 和聚合方法
 - 正确性状态与无效原因
 - 设备工作点、telemetry 和 throttle 状态
 
-`comparability_group` 必须同时约束模型或等价工作负载、checkpoint/版本、输入输出契约、shape、精度语义、timing boundary 和正确性要求。网页只在该字段一致且记录有效时计算 speedup。
+measurement 继承 run 的证据来源，但可以使用更具体的 method。`derived` measurement 必须列出输入 `measurement_id`、公式/分析版本和假设；不能只保存一个脱离来源的结果。
+
+`comparability_group` 不是可自由填写的比较依据，只是页面显示标签。实际比较依据是结构化的 `comparison_contract`，至少包含：
+
+- 模型 artifact 或被明确声明为等价的 artifact 组。
+- 任务、输入来源、预处理、输出语义和正确性门槛。
+- 完整 workload payload、shape 和 solver/sampling schedule。
+- precision/quantization 语义。
+- timing boundary、state/prefix reuse 和 warm/cold policy。
+
+构建器只对 canonical JSON 完全相等的 `comparison_contract` 分组，再分配无语义的顺序标签，例如 `cg-0001`；不通过路径、文件 hash 或时间戳生成 ID。人工标签不能覆盖字段不一致。网页只在 contract 一致且记录有效时计算 speedup。
 
 ### 7.3 精度与量化配置
 
@@ -201,12 +222,17 @@ embodied-inference-atlas/
 ### 7.4 测量数据集
 
 - `end_to_end.json`：samples、p50、p95、mean、吞吐、功耗和单位工作能耗。
-- `stages.json`：可嵌套阶段、inclusive/exclusive 时间、执行次数和 critical-path 属性。
+- `stages.json`：可嵌套阶段、相对时间区间或统计摘要、资源 lane、覆盖率、inclusive/exclusive 时间、执行次数和 critical-path 属性。
 - `operators.json`：模块归属、类型、M/N/K 或其他 shape、调用次数、FLOPs、各层级 bytes 和算术强度。
-- `kernels.json`：规范化 kernel 类型、真实 kernel 标签、launch shape、时长、调用次数和 NCU 指标。
+- `kernels.json`：规范化 kernel 类型、白名单生成的 `kernel_label_sanitized`、launch shape、时长、调用次数和 NCU 指标；不保存原始实例名或从原字符串生成的可逆 ID。
+- `operator_kernel_links.json`：算子与 kernel 的多对多关联、关联依据、覆盖率、置信度和 ambiguous/unknown 状态。
 - `timelines.json`：脱敏、降采样后的 CPU/GPU lane 与事件，不保存原始 trace 字符串。
 - `telemetry.json`：降采样时间序列及统计摘要。
 - `rooflines.json`：设备 ceiling、操作点、下界、峰值来源和分析假设。
+
+所有数值 measurement 明确记录 `value`、`unit`、`statistic`、`sample_count`、`population`、warmup/steady-state 划分和采样窗口；百分位数同时记录 `percentile_method`。延迟规范单位为毫秒，功率为同一 timing window 上的平均瓦特，能量为该窗口积分得到的焦耳。吞吐和单位工作能耗必须带 `work_unit`，例如 `action`、`action_chunk`、`generated_frame`、`rollout` 或 `token`，不同 work unit 不进入同一比较图。
+
+stage 的 `inclusive/exclusive` 只对同一个 run 中具有时间区间的事件按时间并集计算。阶段堆叠图只接受覆盖同一 timing window、互斥且完整的 partition。只有 p50/p95 等独立摘要时，各阶段不能相加；页面改用并列图并提示“统计量不可加”。
 
 ## 8. 瓶颈分层与延迟差距
 
@@ -235,6 +261,8 @@ embodied-inference-atlas/
 - GPU streams、kernels、CUDA Graph 和 memcpy。
 - NVTX、模块和 stage 边界。
 - GPU busy/idle、launch gap 和跨设备重叠。
+
+进入正式数据的所有时间均改为相对 inference window 起点；PID、TID、原始 stream ID 和 wall-clock 时间被移除。CPU/GPU lane 使用本次 run 内的顺序匿名 ID，NVTX 和事件名映射到受控 stage/event 枚举。保留脱敏后的相对事件顺序是分析负载结构所必需的数据，但它不能携带原始文本或本机标识。
 
 在一个明确的 inference window 内计算：
 
@@ -266,6 +294,8 @@ embodied-inference-atlas/
 
 kernel 名称被规范化为可聚合类型；只保留分析所需的脱敏标签。完整实例名称或编译路径不进入 Git。
 
+算子与 kernel 不是一对一关系。关联表允许 fusion、一个算子多次 launch、一个 kernel 服务多个算子以及 CUDA Graph replay。每条关联必须记录 `mapping_method`（例如 NVTX correlation、runtime correlation 或 shape heuristic）、`confidence`、覆盖率和来源 run。仅靠名称或 shape 猜测的关联不得显示为确定归因；无法判定时保留 `unknown/ambiguous`。
+
 每个 kernel 分开展示：
 
 - roofline 预测的限制侧：compute 或 memory。
@@ -274,6 +304,8 @@ kernel 名称被规范化为可聚合类型；只保留分析所需的脱敏标�
 - 根因提示：`compute_bound | memory_bound | latency_tail | occupancy_limited | unknown`。
 
 分类规则和阈值必须版本化并显示在页面中。缺少 DRAM 指标时保持 `null`，不能用 L2 或笼统的 Memory SOL 代替 LPDDR/HBM 饱和度结论。NCU replay 是独立测量，不能与端到端采样直接相加。
+
+`roofline_limiter` 只表示算术强度下更低的理论/经验 ceiling；`observed_bottleneck` 还必须有对应 NCU 饱和度证据。仅看到低 SM 或低带宽不能判为 compute-bound 或 memory-bound。证据不足时默认 `unknown`。
 
 ## 11. 浮点与量化 Roofline
 
@@ -312,6 +344,8 @@ VLA-Perf 导入结果标记为 `analytical`，并保留其模型、算子、shap
 - GPU、CPU 和内存利用率。
 - 温度 start/max/end。
 - board/GPU/CPU 功耗。
+
+正式 telemetry 只允许上述数值字段和 schema 中声明的 throttle 标记。时间轴相对 run 起点，记录 `sampling_period_ms`，并按固定窗口降采样；不保留 wall-clock、进程/主机标识、网络接口或采集工具附带的任意扩展文本。
 
 `throttle_status` 使用：
 
@@ -415,19 +449,24 @@ NCU replay、Nsys trace 和纯 wall-clock benchmark 是不同 run，通过共同
 
 公开 checkpoint 使用公开模型 ID；非公开 checkpoint 使用仓库内匿名标签。prompt 只保留 token 数、模板类别等结构化信息。
 
+正式 schema 是闭合白名单：对象拒绝未知字段，每个自由文本字段都有明确用途和长度限制。`run_id`、`measurement_id` 与匿名 checkpoint 标签使用仓库内顺序 ID，不从路径、报告 hash、wall-clock 或私有名称派生。
+
+`.gitignore` 是第一道保护，提交前校验是强制边界：拒绝 `.local/`、符号链接、`.nsys-rep`、`.ncu-rep`、SQLite 导出和未规范化日志出现在待提交文件中。private GitHub 只是访问控制，不替代脱敏。
+
 ## 16. 校验、错误处理与构建
 
 `validate.py` 校验：
 
 - schema 类型、必填字段、单位和枚举。
 - catalog 引用、run ID 和数据集引用完整性。
-- timing boundary、precision、workload 与 comparability group 一致性。
+- timing boundary、precision、workload 与 `comparison_contract` 一致性，以及派生 comparability group 的正确性。
 - 绝对路径、敏感字符串和禁止字段。
 - throttle/正确性状态对应的比较资格。
+- `data/`、生成的 `site/` 和整个 Git staged tree 的发布边界。
 
 失败记录停留在 staging，不部分写入正式数据。缺失指标使用 `null`、`missing_reason` 和可选 `collection_status`。页面对合法缺失显示 `N/A` 或 `unknown`，而不是构建失败或显示零。
 
-`build.py` 仅使用 Python 标准库和 vendored 前端资源。相同输入应生成确定性输出。生成后的 `site/` 可在断网环境中直接打开。
+`build.py` 仅使用 Python 标准库和 vendored 前端资源。相同输入应生成确定性输出。生成后的 `site/` 可在断网环境中直接打开，并在构建后接受与 `data/` 相同的阻断式隐私扫描。构建器不能读取 `.local/raw` 或 `.local/staging`。
 
 ## 17. 测试策略
 
@@ -456,6 +495,14 @@ NCU replay、Nsys trace 和纯 wall-clock benchmark 是不同 run，通过共同
 
 WM、WAM 和 hybrid 模型按同一入口逐步加入。新增模型不要求全量 runtime/device 覆盖，只要求其数据和任务契约完整。
 
+首版实现按三个可独立验收的切片推进，避免先搭建一个没有真实结论的通用平台：
+
+1. **数据基础**：闭合 schema、现有结构化 benchmark/VLA-Perf 导入、覆盖首页和模型/性能/算子/roofline 基础页面。
+2. **Profiler 证据链**：至少为 Thor 上一个真实模型配置关联 wall-clock、Nsys、代表性 NCU、telemetry 和分析下界；随后为第二个独立推理栈补充同类证据，才形成跨栈瓶颈结论。不同工具仍是独立 run。
+3. **模型类型扩展**：在不改变公共 schema 的前提下加入第一组 WM 或 WAM 数据。没有合格数据时只保留 schema 支持，不发布空洞结论。
+
+切片 1 本身必须产生可浏览的真实数据页面；切片 2 才宣称能够诊断 CPU/GPU 与 kernel 瓶颈；切片 3 才宣称具有 VLA 之外的实测覆盖。
+
 ## 19. 成功标准
 
 首版完成后，使用者应能在完全离线环境中：
@@ -479,4 +526,4 @@ WM、WAM 和 hybrid 模型按同一入口逐步加入。新增模型不要求全
 6. 静态构建 `site/` 并离线检查。
 7. 提交规范化数据、构建产物和必要的方法说明。
 
-GitHub remote 最终设置为 private。仓库不复制既有评测仓库的 Git 历史，也不通过 submodule 或路径引用依赖那些仓库。
+GitHub remote 最终设置为 private。private 状态不改变任何脱敏要求。首版不启用 GitHub Pages、Actions artifact 或 Release 原始附件；仓库不复制既有评测仓库的 Git 历史，也不通过 submodule 或路径引用依赖那些仓库。
