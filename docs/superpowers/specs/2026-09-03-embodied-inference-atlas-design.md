@@ -38,7 +38,6 @@ Embodied Inference Atlas 是一个独立、纯数据、完全离线的具身模�
 - 自动安装、配置或维护任何推理栈。
 - 成为新的推理框架、benchmark 调度平台或在线服务。
 - 修改、生成或优化推理 kernel。
-- 将 AutoMegakernel 的代码、dashboard、测量或报告纳入本仓库。
 - 在 Git 中保存原始 `.nsys-rep`、`.ncu-rep`、完整日志或高频 telemetry。
 - 在网页中提供原始 profiler 报告查看器。
 - 将不同任务契约、不同输出语义的数据强行计算 speedup。
@@ -53,7 +52,7 @@ Embodied Inference Atlas 是一个独立、纯数据、完全离线的具身模�
 4. **瓶颈分层**：模型工作量、运行时、系统并行、kernel 和硬件工作点分开分析。
 5. **真实运行优先**：NCU kernel 必须来自被评估推理栈的真实推理路径。
 6. **离线优先**：构建和网页浏览不依赖网络、CDN、数据库或后端服务。
-7. **隐私默认关闭**：原始数据留在本机，只有白名单字段可进入版本库。
+7. **隐私默认关闭**：原始数据留在产生它的采集机器，只有白名单字段可进入版本库。
 8. **避免伪精度**：理论峰值、经验峰值和真实测量分别展示。
 
 ## 4. 模型分类与工作负载描述
@@ -88,7 +87,7 @@ Embodied Inference Atlas 是一个独立、纯数据、完全离线的具身模�
 采用“静态数据编译器”架构：
 
 ```text
-本机原始报告（不入库）
+各采集机器的本地原始报告（不入库）
         ↓
 本地提取器
         ↓
@@ -113,6 +112,7 @@ embodied-inference-atlas/
 │   ├── catalog/
 │   │   ├── models.json
 │   │   ├── devices.json
+│   │   ├── systems.json
 │   │   ├── runtimes.json
 │   │   └── sources.json
 │   ├── architectures/
@@ -147,7 +147,7 @@ embodied-inference-atlas/
 
 `schema/` 定义可以进入版本库的数据契约；`web/` 保存页面模板和前端源文件；`site/` 是可直接打开的生成结果。这三者职责不重叠。
 
-`.local/` 保存原始报告、临时导出和 staging 数据，并整体加入 `.gitignore`。提取器默认只能写入 `.local/staging`，不能直接修改 `data/`。
+每台采集机器在自己的 checkout 或工作目录中使用 `.local/` 保存原始报告、临时导出和 staging 数据，并整体加入 `.gitignore`。提取器默认只能写入 `.local/staging`，不能直接修改 `data/`。机器之间只交换通过校验的规范化 JSON，不集中复制原始 profiler 文件。
 
 ## 7. 规范化数据模型
 
@@ -161,6 +161,8 @@ embodied-inference-atlas/
 - 各精度理论计算峰值。
 - 理论内存带宽和可选的经验可达带宽。
 - 支持的功耗模式、时钟策略和规格来源。
+
+`systems.json` 区分同型号的不同物理机器和多设备拓扑。它使用匿名 `system_id`（例如 `thor-unit-01`）关联 device model、CPU、内存配置、设备数量、互连、OS、驱动和 CUDA 版本；不保存 hostname、资产编号、IP 或机房位置。同一型号的多台机器不会被默认为同一运行环境。
 
 `runtimes.json` 记录 runtime 名称、版本、公开上游 commit、后端和能力。私有 fork 不保存 commit，只使用匿名版本标签。能力项包括 CUDA Graph、异步预处理、KV/paged cache、prefix/radix reuse、batching、step batching、multi-stage、multi-device、量化和流水执行。每项能力均标记为 `verified_measured`、`reported`、`not_supported` 或 `unknown`，避免把项目宣传直接当成本机事实。
 
@@ -179,7 +181,7 @@ URL 必须是明确公开的 HTTP(S) 页面；拒绝 localhost、私网/IP 地�
 跨 run 页面只能将记录标为“同配置关联测量”，不能声称它们来自同一热状态或同一执行样本。核心字段包括：
 
 - `schema_version`
-- `model_id`、`runtime_id`、`device_id`
+- `model_id`、`runtime_id`、`device_id`、匿名 `system_id` 及本次分配的设备拓扑
 - `evidence`：`measured_local | reported_external | analytical`
 - run 级 `capture_method` 和 measurement 级 `measurement_method`：`wall_clock | cuda_event | nsys | ncu | telemetry | vla_perf | reported | derived`
 - `comparison_contract` 和由构建器分配的 `comparability_group`
@@ -421,7 +423,7 @@ NCU replay、Nsys trace 和纯 wall-clock benchmark 是不同 run，通过共同
 
 ## 15. 提取、脱敏与 Promotion
 
-本机目录约定：
+每台采集机器的本地目录约定：
 
 ```text
 .local/raw/nsys/
@@ -518,12 +520,12 @@ WM、WAM 和 hybrid 模型按同一入口逐步加入。新增模型不要求全
 
 ## 20. 发布与维护流程
 
-1. 在仓库外运行目标推理栈并采集报告。
-2. 将原始产物放入 `.local/raw`。
-3. 运行对应提取器生成 `.local/staging`。
+1. 在任意采集机器上、仓库之外运行目标推理栈并采集报告。
+2. 将该机器的原始产物放入它自己的 `.local/raw`。
+3. 运行对应提取器生成 `.local/staging`，并绑定匿名 `system_id`。
 4. 人工查看 staging 和 promotion diff。
-5. 运行校验与隐私检查，promotion 到 `data/`。
-6. 静态构建 `site/` 并离线检查。
+5. 运行校验与隐私检查，promotion 到 `data/`；跨机器只移动这份规范化结果。
+6. 在汇总 checkout 中静态构建 `site/` 并离线检查。
 7. 提交规范化数据、构建产物和必要的方法说明。
 
 GitHub remote 最终设置为 private。private 状态不改变任何脱敏要求。首版不启用 GitHub Pages、Actions artifact 或 Release 原始附件；仓库不复制既有评测仓库的 Git 历史，也不通过 submodule 或路径引用依赖那些仓库。
