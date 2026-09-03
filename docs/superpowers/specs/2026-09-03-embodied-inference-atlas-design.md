@@ -108,6 +108,11 @@ site/ 中的离线 HTML（入库）
 
 ```text
 embodied-inference-atlas/
+├── AGENTS.md
+├── CLAUDE.md
+├── .cursor/
+│   └── rules/
+│       └── project.mdc
 ├── data/
 │   ├── catalog/
 │   │   ├── models.json
@@ -148,6 +153,12 @@ embodied-inference-atlas/
 `schema/` 定义可以进入版本库的数据契约；`web/` 保存页面模板和前端源文件；`site/` 是可直接打开的生成结果。这三者职责不重叠。
 
 每台采集机器在自己的 checkout 或工作目录中使用 `.local/` 保存原始报告、临时导出和 staging 数据，并整体加入 `.gitignore`。提取器默认只能写入 `.local/staging`，不能直接修改 `data/`。机器之间只交换通过校验的规范化 JSON，不集中复制原始 profiler 文件。
+
+### 6.1 Agent 协作说明
+
+根目录 `AGENTS.md` 是唯一的项目规则源，保持简短，只说明仓库定位、原始数据边界、promotion 流程、核心校验/构建命令和禁止提交的内容。`CLAUDE.md` 与 `.cursor/rules/project.mdc` 只是分别面向 Claude Code 和 Cursor 的薄入口，要求先阅读 `AGENTS.md`，不复制整套规则。
+
+首版不为 Codex、Cursor 或 Claude Code 分别维护复杂工作流，也不让任何 agent 框架成为构建依赖。只有当某个真实流程已经反复执行且接口稳定时，才增加一个小型、工具中立的 skill；机器专属路径、账号信息和 profiler 原始参数不得写入这些文件。
 
 ## 7. 规范化数据模型
 
@@ -529,3 +540,5 @@ WM、WAM 和 hybrid 模型按同一入口逐步加入。新增模型不要求全
 7. 提交规范化数据、构建产物和必要的方法说明。
 
 GitHub remote 最终设置为 private。private 状态不改变任何脱敏要求。首版不启用 GitHub Pages、Actions artifact 或 Release 原始附件；仓库不复制既有评测仓库的 Git 历史，也不通过 submodule 或路径引用依赖那些仓库。
+
+`docs/superpowers/` 下的设计、计划和审阅过程仅保留在本地工作历史。首次创建远端前整理出干净的 `main` 历史，远端只包含正式方法说明、数据、提取/构建工具、静态页面和轻量 agent 协作文件。
