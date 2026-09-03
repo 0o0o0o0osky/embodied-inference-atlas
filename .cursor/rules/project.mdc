@@ -1,0 +1,6 @@
+---
+description: Embodied Inference Atlas repository guidance
+alwaysApply: true
+---
+
+Read and follow the root `AGENTS.md`. Do not duplicate or override its repository rules in Cursor-specific files.
