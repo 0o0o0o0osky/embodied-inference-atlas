@@ -1,13 +1,193 @@
 import copy
+import tempfile
 import unittest
 from pathlib import Path
 
 from tests.helpers import valid_model_document, valid_run
 from tools.lib.contracts import validate_document
 from tools.lib.comparison import assign_group_ids, ratio_eligibility
+from tools.lib.privacy import scan_json, scan_release_tree
+from tools.validate import validate_references
 
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+class PrivacyTests(unittest.TestCase):
+    def test_forbidden_key_and_local_path_are_rejected(self):
+        issues = scan_json({"checkpoint_path": "/home/isrc/private/model"})
+        self.assertEqual({issue.code for issue in issues}, {"forbidden_key", "local_path"})
+
+    def test_public_url_is_allowed(self):
+        self.assertEqual(scan_json({"url": "https://github.com/NVlabs/vla-perf"}), [])
+
+    def test_nonpublic_or_credential_bearing_urls_are_rejected(self):
+        urls = (
+            "http://localhost/report",
+            "https://127.0.0.1/report",
+            "https://user:secret@example.com/report",
+        )
+        for url in urls:
+            with self.subTest(url=url):
+                self.assertIn("invalid_url", [issue.code for issue in scan_json({"url": url})])
+        self.assertIn("invalid_url", [issue.code for issue in scan_json({"url": 42})])
+
+    def test_sensitive_string_patterns_are_rejected(self):
+        values = (
+            "/Users/alice/models/private",
+            "/root/checkpoints/private",
+            r"C:\\models\\private",
+            r"\\server\share\private",
+            ".local/staging/private.json",
+            "connected to 192.168.1.10",
+            "-----BEGIN OPENSSH PRIVATE KEY-----",
+            "https://user:secret@example.com/report",
+        )
+        for value in values:
+            with self.subTest(value=value):
+                self.assertTrue(scan_json({"note": value}))
+
+    def test_release_tree_rejects_every_blocked_suffix_and_local_directory(self):
+        suffixes = (
+            ".nsys-rep", ".ncu-rep", ".sqlite", ".sqlite3", ".db", ".log",
+            ".safetensors", ".gguf", ".onnx", ".engine", ".plan", ".pt",
+            ".pth", ".jpg", ".jpeg", ".png", ".mp4", ".mov",
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            for index, suffix in enumerate(suffixes):
+                (root / f"blocked-{index}{suffix}").touch()
+            local = root / ".local"
+            local.mkdir()
+            (local / "staging.json").write_text("{}\n", encoding="utf-8")
+
+            issues = scan_release_tree(root)
+
+        self.assertEqual(
+            sum(issue.code == "blocked_suffix" for issue in issues), len(suffixes)
+        )
+        self.assertIn("forbidden_path", [issue.code for issue in issues])
+
+    def test_release_tree_rejects_symlinks(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            target = root / "target.json"
+            target.write_text("{}\n", encoding="utf-8")
+            (root / "linked.json").symlink_to(target)
+            issues = scan_release_tree(root)
+        self.assertIn("symlink", [issue.code for issue in issues])
+
+
+class ReferenceValidationTests(unittest.TestCase):
+    @staticmethod
+    def valid_records():
+        return {
+            "sources": [{"source_id": "source-test"}],
+            "models": [{
+                "model_id": "model-test",
+                "architecture_id": "arch-test",
+                "artifacts": [{"artifact_id": "artifact-test"}],
+                "source_ids": ["source-test"],
+            }],
+            "architectures": [{
+                "architecture_id": "arch-test",
+                "model_id": "model-test",
+                "nodes": [{"node_id": "input"}, {"node_id": "output"}],
+                "edges": [{"source": "input", "target": "output"}],
+                "source_ids": ["source-test"],
+            }],
+            "devices": [{"device_id": "device-test"}],
+            "systems": [{"system_id": "system-test", "device_ids": ["device-test"]}],
+            "runtimes": [{
+                "runtime_id": "runtime-test",
+                "features": [{"source_id": "source-test"}],
+                "model_support": [{
+                    "model_id": "model-test", "source_id": "source-test"
+                }],
+                "source_ids": ["source-test"],
+            }],
+            "runs": [{
+                "run_id": "run-test",
+                "model_id": "model-test",
+                "model_artifact_id": "artifact-test",
+                "runtime_id": "runtime-test",
+                "device_id": "device-test",
+                "system_id": "system-test",
+                "source_id": "source-test",
+            }],
+            "end_to_end": [{
+                "measurement_id": "e2e-test", "run_id": "run-test",
+                "source_id": "source-test",
+            }],
+            "stages": [{
+                "measurement_id": "stage-test", "run_id": "run-test",
+                "source_id": "source-test",
+            }],
+            "operators": [{
+                "operator_id": "operator-test", "run_id": "run-test",
+                "source_id": "source-test",
+            }],
+            "rooflines": [{
+                "roofline_id": "roofline-test", "run_id": "run-test",
+                "operator_id": "operator-test", "device_id": "device-test",
+                "source_id": "source-test",
+            }],
+        }
+
+    def test_every_required_reference_relation_is_blocking(self):
+        cases = (
+            ("model_architecture", "models", (0, "architecture_id"), "missing"),
+            ("model_source", "models", (0, "source_ids", 0), "missing"),
+            ("architecture_model", "architectures", (0, "model_id"), "missing"),
+            ("architecture_source", "architectures", (0, "source_ids", 0), "missing"),
+            ("edge_source", "architectures", (0, "edges", 0, "source"), "missing"),
+            ("edge_target", "architectures", (0, "edges", 0, "target"), "missing"),
+            ("system_device", "systems", (0, "device_ids", 0), "missing"),
+            ("runtime_model", "runtimes", (0, "model_support", 0, "model_id"), "missing"),
+            ("runtime_feature_source", "runtimes", (0, "features", 0, "source_id"), "missing"),
+            ("runtime_support_source", "runtimes", (0, "model_support", 0, "source_id"), "missing"),
+            ("runtime_source", "runtimes", (0, "source_ids", 0), "missing"),
+            ("run_model", "runs", (0, "model_id"), "missing"),
+            ("run_artifact", "runs", (0, "model_artifact_id"), "missing"),
+            ("run_runtime", "runs", (0, "runtime_id"), "missing"),
+            ("run_device", "runs", (0, "device_id"), "missing"),
+            ("run_system", "runs", (0, "system_id"), "missing"),
+            ("run_source", "runs", (0, "source_id"), "missing"),
+            ("e2e_run", "end_to_end", (0, "run_id"), "missing"),
+            ("e2e_source", "end_to_end", (0, "source_id"), "missing"),
+            ("stage_run", "stages", (0, "run_id"), "missing"),
+            ("stage_source", "stages", (0, "source_id"), "missing"),
+            ("operator_run", "operators", (0, "run_id"), "missing"),
+            ("operator_source", "operators", (0, "source_id"), "missing"),
+            ("roofline_run", "rooflines", (0, "run_id"), "missing"),
+            ("roofline_operator", "rooflines", (0, "operator_id"), "missing"),
+            ("roofline_device", "rooflines", (0, "device_id"), "missing"),
+            ("roofline_source", "rooflines", (0, "source_id"), "missing"),
+        )
+        for name, dataset, path, value in cases:
+            with self.subTest(name=name):
+                records = copy.deepcopy(self.valid_records())
+                target = records[dataset]
+                for part in path[:-1]:
+                    target = target[part]
+                target[path[-1]] = value
+                self.assertIn(
+                    "broken_reference",
+                    [issue.code for issue in validate_references(records)],
+                )
+
+    def test_null_run_system_does_not_require_a_target(self):
+        records = self.valid_records()
+        records["runs"][0]["system_id"] = None
+        self.assertEqual(validate_references(records), [])
+
+    def test_invalid_collection_shapes_do_not_crash_reference_validation(self):
+        records = self.valid_records()
+        records["architectures"][0]["nodes"] = None
+        records["architectures"][0]["edges"] = None
+        records["runtimes"][0]["features"] = None
+        records["runtimes"][0]["model_support"] = None
+        self.assertIsInstance(validate_references(records), list)
 
 
 class ContractTests(unittest.TestCase):

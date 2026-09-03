@@ -1,0 +1,257 @@
+from __future__ import annotations
+
+import ipaddress
+import json
+import os
+import re
+from collections.abc import Mapping
+from pathlib import Path
+from urllib.parse import parse_qsl, urlsplit
+
+from tools.lib.contracts import Issue
+
+
+FORBIDDEN_KEYS = {
+    "path", "checkpoint", "checkpoint_path", "prompt_text", "raw_log", "error",
+    "sha256", "checkpoint_safetensors_sha256", "noise_sha256_float32",
+    "output_sha256_float32", "hostname", "ip", "command", "environment",
+}
+
+BLOCKED_SUFFIXES = {
+    ".nsys-rep", ".ncu-rep", ".sqlite", ".sqlite3", ".db", ".log",
+    ".safetensors", ".gguf", ".onnx", ".engine", ".plan", ".pt", ".pth",
+    ".jpg", ".jpeg", ".png", ".mp4", ".mov",
+}
+
+_WINDOWS_PATH = re.compile(r"(?i)(?:^|[\s\"'=:(])\b[a-z]:[\\/]")
+_UNC_PATH = re.compile(r"(?:^|[\s\"'=:(])\\\\[^\\\s]+\\[^\\\s]+")
+_POSIX_PATH = re.compile(r"(?:^|[\s\"'=:(])/(?!/)[^\s]+")
+_PRIVATE_KEY = re.compile(r"-----BEGIN (?:[A-Z0-9 ]+ )?PRIVATE KEY-----")
+_URL = re.compile(r"[a-z][a-z0-9+.-]*://[^\s<>'\"]+", re.IGNORECASE)
+_IPV4 = re.compile(r"(?<![\d.])(?:\d{1,3}\.){3}\d{1,3}(?![\d.])")
+_IPV6 = re.compile(
+    r"(?<![0-9a-f:])(?:[0-9a-f]{0,4}:){2,7}[0-9a-f]{0,4}(?![0-9a-f:])",
+    re.IGNORECASE,
+)
+_HOST_LABEL = re.compile(r"[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?", re.IGNORECASE)
+_CREDENTIAL_QUERY_KEYS = {
+    "access_token", "api_key", "apikey", "auth", "credential", "key",
+    "password", "passwd", "secret", "signature", "token",
+}
+_CREDENTIAL_QUERY_SUFFIXES = (
+    "_credential", "_password", "_secret", "_signature", "_token",
+)
+
+
+def scan_json(value: object, path: str = "$") -> list[Issue]:
+    issues: list[Issue] = []
+    if isinstance(value, Mapping):
+        for key, child in sorted(value.items(), key=lambda item: str(item[0])):
+            key_text = str(key)
+            child_path = f"{path}.{key_text}"
+            if key_text in FORBIDDEN_KEYS:
+                issues.append(
+                    Issue(
+                        child_path,
+                        "forbidden_key",
+                        "field is forbidden in release data",
+                    )
+                )
+            if key_text == "url" and child is not None and (
+                not isinstance(child, str) or not _is_public_url(child)
+            ):
+                issues.append(
+                    Issue(
+                        child_path,
+                        "invalid_url",
+                        "URL must be public and credential-free",
+                    )
+                )
+            issues.extend(scan_json(child, child_path))
+    elif isinstance(value, (list, tuple)):
+        for index, child in enumerate(value):
+            issues.extend(scan_json(child, f"{path}[{index}]"))
+    elif isinstance(value, str):
+        issues.extend(_scan_string(value, path))
+    return issues
+
+
+def scan_release_tree(root: Path) -> list[Issue]:
+    issues: list[Issue] = []
+    if root.is_symlink():
+        return [Issue("$", "symlink", "release trees must not contain symlinks")]
+    if not root.exists():
+        return issues
+    if not root.is_dir():
+        return _scan_release_file(root, Path(root.name))
+
+    for directory, names, filenames in os.walk(root, followlinks=False):
+        parent = Path(directory)
+        for name in sorted(names):
+            path = parent / name
+            relative = path.relative_to(root)
+            if path.is_symlink():
+                issues.append(
+                    Issue(
+                        _release_path(relative),
+                        "symlink",
+                        "release trees must not contain symlinks",
+                    )
+                )
+            if ".local" in relative.parts:
+                issues.append(
+                    Issue(
+                        _release_path(relative),
+                        "forbidden_path",
+                        ".local must not enter a release",
+                    )
+                )
+        names[:] = [
+            name for name in names
+            if not (parent / name).is_symlink() and name != ".local"
+        ]
+        for name in sorted(filenames):
+            path = parent / name
+            relative = path.relative_to(root)
+            issues.extend(_scan_release_file(path, relative))
+    return issues
+
+
+def scan_release_name(path: Path, *, symlink: bool = False) -> list[Issue]:
+    issues: list[Issue] = []
+    display = _release_path(path)
+    if path.is_absolute() or ".." in path.parts or ".local" in path.parts:
+        issues.append(
+            Issue(display, "forbidden_path", "path is outside the release boundary")
+        )
+    if symlink:
+        issues.append(Issue(display, "symlink", "release trees must not contain symlinks"))
+    if _blocked_suffix(path.name):
+        issues.append(
+            Issue(display, "blocked_suffix", "file type is forbidden in a release")
+        )
+    return issues
+
+
+def _scan_release_file(path: Path, relative: Path) -> list[Issue]:
+    issues = scan_release_name(relative, symlink=path.is_symlink())
+    if path.is_symlink() or any(issue.code == "blocked_suffix" for issue in issues):
+        return issues
+    try:
+        payload = path.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError):
+        return issues
+    content_path = _release_path(relative)
+    if path.suffix.lower() == ".json":
+        try:
+            value = json.loads(payload)
+        except json.JSONDecodeError:
+            issues.append(
+                Issue(content_path, "invalid_json", "release JSON is malformed")
+            )
+        else:
+            issues.extend(scan_json(value, content_path))
+    else:
+        issues.extend(_scan_string(payload, content_path))
+    return issues
+
+
+def _scan_string(value: str, path: str) -> list[Issue]:
+    issues: list[Issue] = []
+    if (
+        "/home/" in value
+        or "/Users/" in value
+        or "/root/" in value
+        or ".local/" in value
+        or ".local\\" in value
+        or _WINDOWS_PATH.search(value)
+        or _UNC_PATH.search(value)
+        or _POSIX_PATH.search(value)
+    ):
+        issues.append(
+            Issue(path, "local_path", "string contains an absolute local path")
+        )
+    if _PRIVATE_KEY.search(value):
+        issues.append(Issue(path, "private_key", "string contains a private-key header"))
+    if any(_url_has_credentials(match.group(0)) for match in _URL.finditer(value)):
+        issues.append(
+            Issue(
+                path,
+                "credential_url",
+                "string contains a credential-bearing URL",
+            )
+        )
+    if _contains_ip_address(value):
+        issues.append(Issue(path, "ip_address", "literal IP addresses are forbidden"))
+    return issues
+
+
+def _is_public_url(value: str) -> bool:
+    try:
+        parsed = urlsplit(value)
+        port = parsed.port
+    except ValueError:
+        return False
+    hostname = parsed.hostname
+    if (
+        parsed.scheme not in {"http", "https"}
+        or hostname is None
+        or port is not None and not 0 < port < 65536
+    ):
+        return False
+    if parsed.username is not None or parsed.password is not None or _url_has_credentials(value):
+        return False
+    hostname = hostname.rstrip(".").lower()
+    if hostname == "localhost" or hostname.endswith((".localhost", ".local", ".internal")):
+        return False
+    try:
+        ipaddress.ip_address(hostname)
+    except ValueError:
+        pass
+    else:
+        return False
+    labels = hostname.split(".")
+    return len(labels) >= 2 and all(_HOST_LABEL.fullmatch(label) for label in labels)
+
+
+def _url_has_credentials(value: str) -> bool:
+    try:
+        parsed = urlsplit(value)
+    except ValueError:
+        return True
+    if parsed.username is not None or parsed.password is not None:
+        return True
+    parameters = parse_qsl(parsed.query, keep_blank_values=True)
+    parameters.extend(parse_qsl(parsed.fragment, keep_blank_values=True))
+    for key, _ in parameters:
+        normalized = key.lower().replace("-", "_")
+        if (
+            normalized in _CREDENTIAL_QUERY_KEYS
+            or normalized.endswith(_CREDENTIAL_QUERY_SUFFIXES)
+            or normalized.startswith("x_amz_")
+        ):
+            return True
+    return False
+
+
+def _blocked_suffix(name: str) -> bool:
+    lowered = name.lower()
+    return any(lowered.endswith(suffix) for suffix in BLOCKED_SUFFIXES)
+
+
+def _contains_ip_address(value: str) -> bool:
+    candidates = [value.strip().strip("[]")]
+    candidates.extend(match.group(0) for match in _IPV4.finditer(value))
+    candidates.extend(match.group(0) for match in _IPV6.finditer(value))
+    for candidate in candidates:
+        try:
+            ipaddress.ip_address(candidate)
+        except ValueError:
+            continue
+        return True
+    return False
+
+
+def _release_path(path: Path) -> str:
+    escaped = path.as_posix().encode("unicode_escape").decode("ascii")
+    return f"$/{escaped}"
