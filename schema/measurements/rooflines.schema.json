@@ -1,0 +1,34 @@
+{
+  "dataset": "rooflines",
+  "record": {
+    "type": "object",
+    "required": ["roofline_id", "run_id", "source_id", "evidence", "operator_id", "device_id", "precision_id", "memory_level", "compute_peak_gflop_per_s", "bandwidth_gib_per_s", "peak_source", "predicted_ms", "limiter", "modeling_fidelity", "missing"],
+    "additional_properties": false,
+    "properties": {
+      "roofline_id": {"type": "string", "min_length": 1, "max_length": 120},
+      "run_id": {"type": "string", "min_length": 1, "max_length": 120},
+      "source_id": {"type": "string", "min_length": 1, "max_length": 80},
+      "evidence": {"type": "string", "enum": ["measured_local", "reported_external", "analytical"]},
+      "operator_id": {"type": "string", "min_length": 1, "max_length": 120},
+      "device_id": {"type": "string", "min_length": 1, "max_length": 80},
+      "precision_id": {"type": "string", "min_length": 1, "max_length": 120},
+      "memory_level": {"type": "string", "min_length": 1, "max_length": 80},
+      "compute_peak_gflop_per_s": {"type": ["number", "null"], "minimum": 0},
+      "bandwidth_gib_per_s": {"type": ["number", "null"], "minimum": 0},
+      "peak_source": {"type": "string", "enum": ["vendor_theoretical", "measured_empirical", "reported_external", "analytical_assumption"]},
+      "predicted_ms": {"type": ["number", "null"], "minimum": 0},
+      "limiter": {"type": "string", "enum": ["compute", "memory", "unknown"]},
+      "modeling_fidelity": {"type": "string", "enum": ["native", "proxy", "custom_operator_model"]},
+      "missing": {
+        "type": "object",
+        "required": [],
+        "additional_properties": false,
+        "properties": {
+          "compute_peak_gflop_per_s": {"type": "string", "enum": ["not_applicable", "not_collected", "not_reported", "unavailable_from_source"]},
+          "bandwidth_gib_per_s": {"type": "string", "enum": ["not_applicable", "not_collected", "not_reported", "unavailable_from_source"]},
+          "predicted_ms": {"type": "string", "enum": ["not_applicable", "not_collected", "not_reported", "unavailable_from_source"]}
+        }
+      }
+    }
+  }
+}

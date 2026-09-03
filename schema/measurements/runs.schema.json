@@ -1,0 +1,220 @@
+{
+  "dataset": "runs",
+  "record": {
+    "type": "object",
+    "required": ["schema_version", "configuration_id", "run_id", "model_id", "model_artifact_id", "runtime_id", "device_id", "system_id", "source_id", "evidence", "capture_method", "workload", "precision", "timing", "operating_point", "correctness", "comparison_context", "missing"],
+    "additional_properties": false,
+    "properties": {
+      "schema_version": {"type": "string", "enum": ["1.0.0"]},
+      "configuration_id": {"type": "string", "min_length": 1, "max_length": 120},
+      "run_id": {"type": "string", "min_length": 1, "max_length": 120},
+      "model_id": {"type": "string", "min_length": 1, "max_length": 80},
+      "model_artifact_id": {"type": "string", "min_length": 1, "max_length": 120},
+      "runtime_id": {"type": "string", "min_length": 1, "max_length": 80},
+      "device_id": {"type": "string", "min_length": 1, "max_length": 80},
+      "system_id": {"type": ["string", "null"], "min_length": 1, "max_length": 80},
+      "source_id": {"type": "string", "min_length": 1, "max_length": 80},
+      "evidence": {"type": "string", "enum": ["measured_local", "reported_external", "analytical"]},
+      "capture_method": {"type": "string", "enum": ["wall_clock", "cuda_event", "nsys", "ncu", "telemetry", "vla_perf", "reported", "derived"]},
+      "workload": {
+        "type": "object",
+        "required": ["common"],
+        "additional_properties": false,
+        "properties": {
+          "common": {
+            "type": "object",
+            "required": ["batch_size", "input_contract_id", "output_contract_id"],
+            "additional_properties": false,
+            "properties": {
+              "batch_size": {"type": "integer", "minimum": 1},
+              "input_contract_id": {"type": "string", "min_length": 1, "max_length": 120},
+              "output_contract_id": {"type": "string", "min_length": 1, "max_length": 120}
+            }
+          },
+          "vla": {
+            "type": "object",
+            "required": ["camera_views", "image_height", "image_width", "semantic_prompt_tokens", "executed_prompt_tokens", "action_dimension", "action_chunk", "denoise_steps"],
+            "additional_properties": false,
+            "properties": {
+              "camera_views": {"type": ["integer", "null"], "minimum": 0},
+              "image_height": {"type": ["integer", "null"], "minimum": 0},
+              "image_width": {"type": ["integer", "null"], "minimum": 0},
+              "semantic_prompt_tokens": {"type": ["integer", "null"], "minimum": 0},
+              "executed_prompt_tokens": {"type": ["integer", "null"], "minimum": 0},
+              "action_dimension": {"type": ["integer", "null"], "minimum": 0},
+              "action_chunk": {"type": ["integer", "null"], "minimum": 0},
+              "denoise_steps": {"type": ["integer", "null"], "minimum": 0}
+            }
+          },
+          "world_model": {"type": "object", "required": [], "additional_properties": false, "properties": {}},
+          "world_action_model": {"type": "object", "required": [], "additional_properties": false, "properties": {}},
+          "hybrid": {"type": "object", "required": [], "additional_properties": false, "properties": {}}
+        }
+      },
+      "precision": {
+        "type": "object",
+        "required": ["precision_id", "requested", "weight_dtype", "activation_dtype", "accumulation_dtype", "execution_dtype", "quant_scheme", "granularity", "scale_zero_point_bytes", "dequant_strategy", "fused"],
+        "additional_properties": false,
+        "properties": {
+          "precision_id": {"type": "string", "min_length": 1, "max_length": 120},
+          "requested": {"type": "string", "min_length": 1, "max_length": 120},
+          "weight_dtype": {"type": "string", "min_length": 1, "max_length": 80},
+          "activation_dtype": {"type": "string", "min_length": 1, "max_length": 80},
+          "accumulation_dtype": {"type": "string", "min_length": 1, "max_length": 80},
+          "execution_dtype": {"type": "string", "min_length": 1, "max_length": 80},
+          "quant_scheme": {"type": "string", "min_length": 1, "max_length": 120},
+          "granularity": {"type": "string", "min_length": 1, "max_length": 120},
+          "scale_zero_point_bytes": {"type": ["integer", "null"], "minimum": 0},
+          "dequant_strategy": {"type": "string", "min_length": 1, "max_length": 120},
+          "fused": {"type": "boolean"}
+        }
+      },
+      "timing": {
+        "type": "object",
+        "required": ["timing_boundary_id", "state_reuse", "warm_policy"],
+        "additional_properties": false,
+        "properties": {
+          "timing_boundary_id": {"type": "string", "min_length": 1, "max_length": 120},
+          "state_reuse": {"type": "string", "min_length": 1, "max_length": 120},
+          "warm_policy": {"type": "string", "min_length": 1, "max_length": 120}
+        }
+      },
+      "operating_point": {
+        "type": "object",
+        "required": ["operating_point_id", "power_mode", "clock_policy", "throttle_status"],
+        "additional_properties": false,
+        "properties": {
+          "operating_point_id": {"type": "string", "min_length": 1, "max_length": 120},
+          "power_mode": {"type": ["string", "null"], "min_length": 1, "max_length": 120},
+          "clock_policy": {"type": ["string", "null"], "min_length": 1, "max_length": 120},
+          "throttle_status": {"type": ["string", "null"], "enum": ["none", "observed", "not_observed", "unknown", null]}
+        }
+      },
+      "correctness": {
+        "type": "object",
+        "required": ["status", "criterion"],
+        "additional_properties": false,
+        "properties": {
+          "status": {"type": "string", "enum": ["passed", "failed", "not_assessed"]},
+          "criterion": {"type": "string", "min_length": 1, "max_length": 120}
+        }
+      },
+      "comparison_context": {
+        "type": "object",
+        "required": ["model_id", "model_artifact_id", "runtime_id", "evidence", "platform", "task", "workload", "precision", "timing", "runtime_overhead"],
+        "additional_properties": false,
+        "properties": {
+          "model_id": {"type": "string", "min_length": 1, "max_length": 80},
+          "model_artifact_id": {"type": "string", "min_length": 1, "max_length": 120},
+          "runtime_id": {"type": "string", "min_length": 1, "max_length": 80},
+          "evidence": {"type": "string", "enum": ["measured_local", "reported_external", "analytical"]},
+          "platform": {
+            "type": "object",
+            "required": ["device_id", "system_id", "operating_point_id"],
+            "additional_properties": false,
+            "properties": {
+              "device_id": {"type": "string", "min_length": 1, "max_length": 80},
+              "system_id": {"type": ["string", "null"], "min_length": 1, "max_length": 80},
+              "operating_point_id": {"type": "string", "min_length": 1, "max_length": 120}
+            }
+          },
+          "task": {
+            "type": "object",
+            "required": ["task_id", "input_contract_id", "output_contract_id", "correctness_policy_id"],
+            "additional_properties": false,
+            "properties": {
+              "task_id": {"type": "string", "min_length": 1, "max_length": 120},
+              "input_contract_id": {"type": "string", "min_length": 1, "max_length": 120},
+              "output_contract_id": {"type": "string", "min_length": 1, "max_length": 120},
+              "correctness_policy_id": {"type": "string", "min_length": 1, "max_length": 120}
+            }
+          },
+          "workload": {
+            "type": "object",
+            "required": ["common"],
+            "additional_properties": false,
+            "properties": {
+              "common": {
+                "type": "object",
+                "required": ["batch_size", "input_contract_id", "output_contract_id"],
+                "additional_properties": false,
+                "properties": {
+                  "batch_size": {"type": "integer", "minimum": 1},
+                  "input_contract_id": {"type": "string", "min_length": 1, "max_length": 120},
+                  "output_contract_id": {"type": "string", "min_length": 1, "max_length": 120}
+                }
+              },
+              "vla": {
+                "type": "object",
+                "required": ["camera_views", "image_height", "image_width", "semantic_prompt_tokens", "executed_prompt_tokens", "action_dimension", "action_chunk", "denoise_steps"],
+                "additional_properties": false,
+                "properties": {
+                  "camera_views": {"type": ["integer", "null"], "minimum": 0},
+                  "image_height": {"type": ["integer", "null"], "minimum": 0},
+                  "image_width": {"type": ["integer", "null"], "minimum": 0},
+                  "semantic_prompt_tokens": {"type": ["integer", "null"], "minimum": 0},
+                  "executed_prompt_tokens": {"type": ["integer", "null"], "minimum": 0},
+                  "action_dimension": {"type": ["integer", "null"], "minimum": 0},
+                  "action_chunk": {"type": ["integer", "null"], "minimum": 0},
+                  "denoise_steps": {"type": ["integer", "null"], "minimum": 0}
+                }
+              },
+              "world_model": {"type": "object", "required": [], "additional_properties": false, "properties": {}},
+              "world_action_model": {"type": "object", "required": [], "additional_properties": false, "properties": {}},
+              "hybrid": {"type": "object", "required": [], "additional_properties": false, "properties": {}}
+            }
+          },
+          "precision": {
+            "type": "object",
+            "required": ["precision_id", "requested", "weight_dtype", "activation_dtype", "accumulation_dtype", "execution_dtype", "quant_scheme", "granularity", "scale_zero_point_bytes", "dequant_strategy", "fused"],
+            "additional_properties": false,
+            "properties": {
+              "precision_id": {"type": "string", "min_length": 1, "max_length": 120},
+              "requested": {"type": "string", "min_length": 1, "max_length": 120},
+              "weight_dtype": {"type": "string", "min_length": 1, "max_length": 80},
+              "activation_dtype": {"type": "string", "min_length": 1, "max_length": 80},
+              "accumulation_dtype": {"type": "string", "min_length": 1, "max_length": 80},
+              "execution_dtype": {"type": "string", "min_length": 1, "max_length": 80},
+              "quant_scheme": {"type": "string", "min_length": 1, "max_length": 120},
+              "granularity": {"type": "string", "min_length": 1, "max_length": 120},
+              "scale_zero_point_bytes": {"type": ["integer", "null"], "minimum": 0},
+              "dequant_strategy": {"type": "string", "min_length": 1, "max_length": 120},
+              "fused": {"type": "boolean"}
+            }
+          },
+          "timing": {
+            "type": "object",
+            "required": ["timing_boundary_id", "state_reuse", "warm_policy"],
+            "additional_properties": false,
+            "properties": {
+              "timing_boundary_id": {"type": "string", "min_length": 1, "max_length": 120},
+              "state_reuse": {"type": "string", "min_length": 1, "max_length": 120},
+              "warm_policy": {"type": "string", "min_length": 1, "max_length": 120}
+            }
+          },
+          "runtime_overhead": {"type": "string", "min_length": 1, "max_length": 120}
+        }
+      },
+      "missing": {
+        "type": "object",
+        "required": [],
+        "additional_properties": false,
+        "properties": {
+          "system_id": {"type": "string", "enum": ["analytical_no_physical_system", "reported_external_no_physical_system"]},
+          "workload.vla.camera_views": {"type": "string", "enum": ["not_applicable", "not_collected", "not_reported", "unavailable_from_source"]},
+          "workload.vla.image_height": {"type": "string", "enum": ["not_applicable", "not_collected", "not_reported", "unavailable_from_source"]},
+          "workload.vla.image_width": {"type": "string", "enum": ["not_applicable", "not_collected", "not_reported", "unavailable_from_source"]},
+          "workload.vla.semantic_prompt_tokens": {"type": "string", "enum": ["not_applicable", "not_collected", "not_reported", "unavailable_from_source"]},
+          "workload.vla.executed_prompt_tokens": {"type": "string", "enum": ["not_applicable", "not_collected", "not_reported", "unavailable_from_source"]},
+          "workload.vla.action_dimension": {"type": "string", "enum": ["not_applicable", "not_collected", "not_reported", "unavailable_from_source"]},
+          "workload.vla.action_chunk": {"type": "string", "enum": ["not_applicable", "not_collected", "not_reported", "unavailable_from_source"]},
+          "workload.vla.denoise_steps": {"type": "string", "enum": ["not_applicable", "not_collected", "not_reported", "unavailable_from_source"]},
+          "precision.scale_zero_point_bytes": {"type": "string", "enum": ["not_applicable", "not_collected", "not_reported", "unavailable_from_source"]},
+          "operating_point.power_mode": {"type": "string", "enum": ["not_collected", "not_reported", "unavailable_from_source"]},
+          "operating_point.clock_policy": {"type": "string", "enum": ["not_collected", "not_reported", "unavailable_from_source"]},
+          "operating_point.throttle_status": {"type": "string", "enum": ["not_collected", "not_reported", "unavailable_from_source"]}
+        }
+      }
+    }
+  }
+}

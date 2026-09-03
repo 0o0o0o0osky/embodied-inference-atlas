@@ -72,7 +72,165 @@ def validate_document(
                 )
             )
         seen.add(key)
+    if dataset == "runs":
+        for index, record in enumerate(document["records"]):
+            if isinstance(record, Mapping):
+                issues.extend(_validate_run_semantics(record, f"$.records[{index}]"))
     return issues
+
+
+def _validate_run_semantics(run: Mapping, path: str) -> list[Issue]:
+    issues: list[Issue] = []
+    workload = run.get("workload")
+    comparison_context = run.get("comparison_context")
+    context = comparison_context if isinstance(comparison_context, Mapping) else {}
+
+    if isinstance(workload, Mapping):
+        extensions = {
+            "vla",
+            "world_model",
+            "world_action_model",
+            "hybrid",
+        } & workload.keys()
+        if len(extensions) != 1:
+            issues.append(
+                Issue(
+                    f"{path}.workload",
+                    "workload_extension",
+                    "workload must contain exactly one type extension",
+                )
+            )
+
+    copied_fields = (
+        ("workload", workload, context.get("workload")),
+        ("precision", run.get("precision"), context.get("precision")),
+    )
+    for name, original, copied in copied_fields:
+        if original != copied:
+            issues.append(
+                Issue(
+                    f"{path}.comparison_context.{name}",
+                    "context_mismatch",
+                    f"comparison context {name} must equal the run value",
+                )
+            )
+
+    platform = context.get("platform")
+    platform = platform if isinstance(platform, Mapping) else {}
+    timing = run.get("timing")
+    timing = timing if isinstance(timing, Mapping) else {}
+    context_timing = context.get("timing")
+    context_timing = context_timing if isinstance(context_timing, Mapping) else {}
+    operating_point = run.get("operating_point")
+    operating_point = operating_point if isinstance(operating_point, Mapping) else {}
+    common = workload.get("common") if isinstance(workload, Mapping) else {}
+    common = common if isinstance(common, Mapping) else {}
+    task = context.get("task")
+    task = task if isinstance(task, Mapping) else {}
+    correctness = run.get("correctness")
+    correctness = correctness if isinstance(correctness, Mapping) else {}
+
+    duplicated = (
+        ("model_id", run.get("model_id"), context.get("model_id")),
+        (
+            "model_artifact_id",
+            run.get("model_artifact_id"),
+            context.get("model_artifact_id"),
+        ),
+        ("runtime_id", run.get("runtime_id"), context.get("runtime_id")),
+        ("evidence", run.get("evidence"), context.get("evidence")),
+        ("platform.device_id", run.get("device_id"), platform.get("device_id")),
+        ("platform.system_id", run.get("system_id"), platform.get("system_id")),
+        (
+            "platform.operating_point_id",
+            operating_point.get("operating_point_id"),
+            platform.get("operating_point_id"),
+        ),
+        (
+            "timing.timing_boundary_id",
+            timing.get("timing_boundary_id"),
+            context_timing.get("timing_boundary_id"),
+        ),
+        (
+            "task.input_contract_id",
+            common.get("input_contract_id"),
+            task.get("input_contract_id"),
+        ),
+        (
+            "task.output_contract_id",
+            common.get("output_contract_id"),
+            task.get("output_contract_id"),
+        ),
+        (
+            "task.correctness_policy_id",
+            correctness.get("criterion"),
+            task.get("correctness_policy_id"),
+        ),
+    )
+    for name, original, copied in duplicated:
+        if original != copied:
+            issues.append(
+                Issue(
+                    f"{path}.comparison_context.{name}",
+                    "context_mismatch",
+                    f"comparison context {name} must match the run",
+                )
+            )
+
+    evidence = run.get("evidence")
+    system_id = run.get("system_id")
+    missing = run.get("missing")
+    missing = missing if isinstance(missing, Mapping) else {}
+    if system_id is None:
+        if evidence == "measured_local":
+            issues.append(
+                Issue(
+                    f"{path}.system_id",
+                    "system_required",
+                    "measured_local runs require a physical system",
+                )
+            )
+        elif evidence in {"analytical", "reported_external"}:
+            if "system_id" not in missing:
+                issues.append(
+                    Issue(
+                        f"{path}.missing.system_id",
+                        "system_missing_reason",
+                        "a null system requires a controlled missing reason",
+                    )
+                )
+        else:
+            issues.append(
+                Issue(
+                    f"{path}.system_id",
+                    "system_required",
+                    "a null system is limited to analytical or external evidence",
+                )
+            )
+
+    if isinstance(workload, Mapping):
+        for missing_path in _null_leaf_paths(workload, "workload"):
+            if missing_path not in missing:
+                issues.append(
+                    Issue(
+                        f"{path}.missing.{missing_path}",
+                        "missing_reason_required",
+                        "a null workload value requires a controlled missing reason",
+                    )
+                )
+    return issues
+
+
+def _null_leaf_paths(value: Mapping, prefix: str) -> list[str]:
+    paths: list[str] = []
+    for key in sorted(value):
+        child = value[key]
+        child_path = f"{prefix}.{key}"
+        if isinstance(child, Mapping):
+            paths.extend(_null_leaf_paths(child, child_path))
+        elif child is None:
+            paths.append(child_path)
+    return paths
 
 
 def _validate(value: object, rule: Mapping[str, object], path: str) -> list[Issue]:

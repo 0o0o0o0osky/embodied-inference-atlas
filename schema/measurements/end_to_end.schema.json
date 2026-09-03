@@ -1,0 +1,34 @@
+{
+  "dataset": "end_to_end",
+  "record": {
+    "type": "object",
+    "required": ["measurement_id", "run_id", "source_id", "evidence", "measurement_method", "metric", "statistics", "sample_count", "percentile_method", "work_unit", "timing_boundary_id", "missing_reason"],
+    "additional_properties": false,
+    "properties": {
+      "measurement_id": {"type": "string", "min_length": 1, "max_length": 120},
+      "run_id": {"type": "string", "min_length": 1, "max_length": 120},
+      "source_id": {"type": "string", "min_length": 1, "max_length": 80},
+      "evidence": {"type": "string", "enum": ["measured_local", "reported_external", "analytical"]},
+      "measurement_method": {"type": "string", "enum": ["wall_clock", "cuda_event", "nsys", "ncu", "telemetry", "vla_perf", "reported", "derived"]},
+      "metric": {"type": "string", "min_length": 1, "max_length": 80},
+      "statistics": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["statistic", "value", "unit"],
+          "additional_properties": false,
+          "properties": {
+            "statistic": {"type": "string", "enum": ["min", "mean", "p50", "p95", "max", "sum", "analytical_estimate"]},
+            "value": {"type": ["number", "null"], "minimum": 0},
+            "unit": {"type": "string", "min_length": 1, "max_length": 40}
+          }
+        }
+      },
+      "sample_count": {"type": "integer", "minimum": 0},
+      "percentile_method": {"type": ["string", "null"], "min_length": 1, "max_length": 120},
+      "work_unit": {"type": "string", "enum": ["action", "action_chunk", "generated_frame", "rollout", "token"]},
+      "timing_boundary_id": {"type": "string", "min_length": 1, "max_length": 120},
+      "missing_reason": {"type": ["string", "null"], "enum": ["not_applicable", "not_collected", "not_reported", "unavailable_from_source", null]}
+    }
+  }
+}

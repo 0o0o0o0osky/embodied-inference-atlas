@@ -1,0 +1,33 @@
+{
+  "dataset": "operators",
+  "record": {
+    "type": "object",
+    "required": ["operator_id", "run_id", "source_id", "evidence", "module_id", "granularity", "operator_kind", "shape", "execution_count", "work_gflop", "traffic_gib", "arithmetic_intensity_flop_per_byte", "source_method", "missing"],
+    "additional_properties": false,
+    "properties": {
+      "operator_id": {"type": "string", "min_length": 1, "max_length": 120},
+      "run_id": {"type": "string", "min_length": 1, "max_length": 120},
+      "source_id": {"type": "string", "min_length": 1, "max_length": 80},
+      "evidence": {"type": "string", "enum": ["measured_local", "reported_external", "analytical"]},
+      "module_id": {"type": "string", "min_length": 1, "max_length": 120},
+      "granularity": {"type": "string", "min_length": 1, "max_length": 80},
+      "operator_kind": {"type": "string", "min_length": 1, "max_length": 120},
+      "shape": {"type": "string", "min_length": 1, "max_length": 500},
+      "execution_count": {"type": "integer", "minimum": 0},
+      "work_gflop": {"type": ["number", "null"], "minimum": 0},
+      "traffic_gib": {"type": ["number", "null"], "minimum": 0},
+      "arithmetic_intensity_flop_per_byte": {"type": ["number", "null"], "minimum": 0},
+      "source_method": {"type": "string", "min_length": 1, "max_length": 120},
+      "missing": {
+        "type": "object",
+        "required": [],
+        "additional_properties": false,
+        "properties": {
+          "work_gflop": {"type": "string", "enum": ["not_applicable", "not_collected", "not_reported", "unavailable_from_source"]},
+          "traffic_gib": {"type": "string", "enum": ["not_applicable", "not_collected", "not_reported", "unavailable_from_source"]},
+          "arithmetic_intensity_flop_per_byte": {"type": "string", "enum": ["not_applicable", "not_collected", "not_reported", "unavailable_from_source"]}
+        }
+      }
+    }
+  }
+}
