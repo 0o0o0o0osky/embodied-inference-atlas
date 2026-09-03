@@ -48,7 +48,7 @@ Embodied Inference Atlas 是一个独立、纯数据、完全离线的具身模�
 
 1. **证据优先**：所有数字带有证据类型、测量方法和配置上下文。
 2. **缺失不是零**：未采集或不适用的指标使用 `null` 和原因，不进行推断填充。
-3. **可比性显式化**：只有 `comparison_contract` 完全一致并被构建器归入同组的结果才能生成 speedup 或排名。
+3. **可比性显式化**：每个数值对照声明比较目的和唯一变化轴；只有该策略要求的其余字段完全一致时才能生成 ratio、speedup 或排名。
 4. **瓶颈分层**：模型工作量、运行时、系统并行、kernel 和硬件工作点分开分析。
 5. **真实运行优先**：NCU kernel 必须来自被评估推理栈的真实推理路径。
 6. **离线优先**：构建和网页浏览不依赖网络、CDN、数据库或后端服务。
@@ -195,7 +195,7 @@ URL 必须是明确公开的 HTTP(S) 页面；拒绝 localhost、私网/IP 地�
 - `model_id`、`runtime_id`、`device_id`、匿名 `system_id` 及本次分配的设备拓扑
 - `evidence`：`measured_local | reported_external | analytical`
 - run 级 `capture_method` 和 measurement 级 `measurement_method`：`wall_clock | cuda_event | nsys | ncu | telemetry | vla_perf | reported | derived`
-- `comparison_contract` 和由构建器分配的 `comparability_group`
+- 完整 `comparison_context` 和由构建器按比较策略分配的 `comparability_groups`
 - 模型类型对应的 workload 参数
 - `workload.common` 和由模型类型判定的 VLA、WM、WAM 或 Hybrid workload payload
 - precision/quantization 配置
@@ -206,15 +206,25 @@ URL 必须是明确公开的 HTTP(S) 页面；拒绝 localhost、私网/IP 地�
 
 measurement 继承 run 的证据来源，但可以使用更具体的 method。`derived` measurement 必须列出输入 `measurement_id`、公式/分析版本和假设；不能只保存一个脱离来源的结果。
 
-`comparability_group` 不是可自由填写的比较依据，只是页面显示标签。实际比较依据是结构化的 `comparison_contract`，至少包含：
+`comparability_groups` 不是可自由填写的比较依据，只是页面显示标签。每条记录先保存完整、结构化的 `comparison_context`，至少包含：
 
 - 模型 artifact 或被明确声明为等价的 artifact 组。
 - 任务、输入来源、预处理、输出语义和正确性门槛。
 - 完整 workload payload、shape 和 solver/sampling schedule。
-- precision/quantization 语义。
+- runtime、device/system、工作点和 precision/quantization 语义。
 - timing boundary、state/prefix reuse 和 warm/cold policy。
 
-构建器只对 canonical JSON 完全相等的 `comparison_contract` 分组，再分配无语义的顺序标签，例如 `cg-0001`；不通过路径、文件 hash 或时间戳生成 ID。人工标签不能覆盖字段不一致。网页只在 contract 一致且记录有效时计算 speedup。
+构建器使用版本化比较策略，从完整 context 中仅排除该对照允许变化的轴，再对其余 canonical JSON 完全相等的记录分组：
+
+- `runtime`：只允许 runtime 变化；模型 artifact、任务/workload、precision、timing、device/system 和工作点固定。
+- `precision`：只允许 precision/quantization 配置变化；模型 artifact、runtime、任务/workload、timing 和 device/system 固定。
+- `platform`：只允许 device/system 及其公开工作点变化；模型 artifact、runtime、任务/workload、precision 和 timing 固定。
+- `workload_scale`：只允许一个明确命名的 workload 字段变化，例如 views、prompt tokens、NFE 或 rollout horizon。
+- `measured_vs_bound`：只允许 measured/analytical evidence 和 runtime-specific overhead 变化，用于显示距分析下界的 gap，不称为 runtime speedup。
+
+每张比较图必须声明 `comparison_kind`；`workload_scale` 还必须声明唯一的 `varying_field`。禁止同时放开两个轴。构建器为每种策略分配无语义顺序标签，例如 `cg-precision-0001`，不通过路径、文件 hash 或时间戳生成 ID，人工标签不能覆盖字段不一致。
+
+正确性通过既定门槛时可以标为 `validated_speedup`；正确性未评估但其余不变量相同时只能标为 `latency_ratio_unvalidated`；已知输出不等价时只并排展示，不计算 ratio。
 
 ### 7.3 精度与量化配置
 
@@ -472,7 +482,7 @@ NCU replay、Nsys trace 和纯 wall-clock benchmark 是不同 run，通过共同
 
 - schema 类型、必填字段、单位和枚举。
 - catalog 引用、run ID 和数据集引用完整性。
-- timing boundary、precision、workload 与 `comparison_contract` 一致性，以及派生 comparability group 的正确性。
+- timing boundary、precision、workload 与完整 `comparison_context` 一致性，以及各比较策略派生 group 的正确性。
 - 绝对路径、敏感字符串和禁止字段。
 - throttle/正确性状态对应的比较资格。
 - `data/`、生成的 `site/` 和整个 Git staged tree 的发布边界。
