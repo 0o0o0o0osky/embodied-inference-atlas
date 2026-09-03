@@ -1,0 +1,46 @@
+{
+  "dataset": "runtimes",
+  "record": {
+    "type": "object",
+    "required": ["runtime_id", "display_name", "version_label", "public_commit", "backend", "features", "model_support", "source_ids"],
+    "additional_properties": false,
+    "properties": {
+      "runtime_id": {"type": "string", "min_length": 1, "max_length": 80},
+      "display_name": {"type": "string", "min_length": 1, "max_length": 120},
+      "version_label": {"type": "string", "min_length": 1, "max_length": 120},
+      "public_commit": {"type": ["string", "null"], "min_length": 1, "max_length": 200},
+      "backend": {"type": "string", "min_length": 1, "max_length": 80},
+      "features": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["feature_id", "status", "evidence", "source_id"],
+          "additional_properties": false,
+          "properties": {
+            "feature_id": {"type": "string", "min_length": 1, "max_length": 80},
+            "status": {"type": "string", "enum": ["measured", "analytical", "reported", "blocked", "not_run", "not_supported", "unknown"]},
+            "evidence": {"type": "string", "enum": ["measured_local", "reported_external", "analytical"]},
+            "source_id": {"type": "string", "min_length": 1, "max_length": 80}
+          }
+        }
+      },
+      "model_support": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["model_id", "status", "evidence", "reason_code", "has_canonical_measurement", "source_id"],
+          "additional_properties": false,
+          "properties": {
+            "model_id": {"type": "string", "min_length": 1, "max_length": 80},
+            "status": {"type": "string", "enum": ["measured", "analytical", "reported", "blocked", "not_run", "not_supported", "unknown"]},
+            "evidence": {"type": "string", "enum": ["measured_local", "reported_external", "analytical"]},
+            "reason_code": {"type": "string", "min_length": 1, "max_length": 120},
+            "has_canonical_measurement": {"type": "boolean"},
+            "source_id": {"type": "string", "min_length": 1, "max_length": 80}
+          }
+        }
+      },
+      "source_ids": {"type": "array", "items": {"type": "string", "min_length": 1, "max_length": 80}}
+    }
+  }
+}

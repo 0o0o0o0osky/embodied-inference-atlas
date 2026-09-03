@@ -1,0 +1,32 @@
+{
+  "dataset": "devices",
+  "record": {
+    "type": "object",
+    "required": ["device_id", "display_name", "accelerator_architecture", "memory_capacity_gib", "memory_type", "compute_capability", "peak_claims", "source_ids"],
+    "additional_properties": false,
+    "properties": {
+      "device_id": {"type": "string", "min_length": 1, "max_length": 80},
+      "display_name": {"type": "string", "min_length": 1, "max_length": 120},
+      "accelerator_architecture": {"type": "string", "min_length": 1, "max_length": 120},
+      "memory_capacity_gib": {"type": "number", "minimum": 0},
+      "memory_type": {"type": "string", "min_length": 1, "max_length": 80},
+      "compute_capability": {"type": "string", "min_length": 1, "max_length": 80},
+      "peak_claims": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["precision_id", "value", "unit", "peak_source", "source_id"],
+          "additional_properties": false,
+          "properties": {
+            "precision_id": {"type": "string", "min_length": 1, "max_length": 80},
+            "value": {"type": "number", "minimum": 0},
+            "unit": {"type": "string", "min_length": 1, "max_length": 40},
+            "peak_source": {"type": "string", "min_length": 1, "max_length": 120},
+            "source_id": {"type": "string", "min_length": 1, "max_length": 80}
+          }
+        }
+      },
+      "source_ids": {"type": "array", "items": {"type": "string", "min_length": 1, "max_length": 80}}
+    }
+  }
+}

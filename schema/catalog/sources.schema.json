@@ -1,0 +1,17 @@
+{
+  "dataset": "sources",
+  "record": {
+    "type": "object",
+    "required": ["source_id", "evidence", "title", "url", "published_date", "accessed_date", "summary"],
+    "additional_properties": false,
+    "properties": {
+      "source_id": {"type": "string", "min_length": 1, "max_length": 80},
+      "evidence": {"type": "string", "enum": ["measured_local", "reported_external", "analytical"]},
+      "title": {"type": "string", "min_length": 1, "max_length": 500},
+      "url": {"type": ["string", "null"], "min_length": 1, "max_length": 500},
+      "published_date": {"type": ["string", "null"], "min_length": 1, "max_length": 32},
+      "accessed_date": {"type": ["string", "null"], "min_length": 1, "max_length": 32},
+      "summary": {"type": "string", "max_length": 500}
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "dataset": "systems",
+  "record": {
+    "type": "object",
+    "required": ["system_id", "device_ids", "device_count", "cpu_label", "memory_capacity_gib", "os_family", "cuda_version", "notes_code"],
+    "additional_properties": false,
+    "properties": {
+      "system_id": {"type": "string", "min_length": 1, "max_length": 80},
+      "device_ids": {"type": "array", "items": {"type": "string", "min_length": 1, "max_length": 80}},
+      "device_count": {"type": "integer", "minimum": 0},
+      "cpu_label": {"type": "string", "min_length": 1, "max_length": 200},
+      "memory_capacity_gib": {"type": "number", "minimum": 0},
+      "os_family": {"type": "string", "min_length": 1, "max_length": 80},
+      "cuda_version": {"type": "string", "min_length": 1, "max_length": 80},
+      "notes_code": {"type": "string", "min_length": 1, "max_length": 500}
+    }
+  }
+}

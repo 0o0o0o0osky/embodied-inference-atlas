@@ -1,0 +1,41 @@
+{
+  "dataset": "architectures",
+  "record": {
+    "type": "object",
+    "required": ["architecture_id", "model_id", "nodes", "edges", "shape_symbols", "source_ids"],
+    "additional_properties": false,
+    "properties": {
+      "architecture_id": {"type": "string", "min_length": 1, "max_length": 80},
+      "model_id": {"type": "string", "min_length": 1, "max_length": 80},
+      "nodes": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["node_id", "label", "kind", "multiplicity"],
+          "additional_properties": false,
+          "properties": {
+            "node_id": {"type": "string", "min_length": 1, "max_length": 80},
+            "label": {"type": "string", "min_length": 1, "max_length": 120},
+            "kind": {"type": "string", "min_length": 1, "max_length": 80},
+            "multiplicity": {"type": "integer", "minimum": 1}
+          }
+        }
+      },
+      "edges": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["source", "target", "tensor_label"],
+          "additional_properties": false,
+          "properties": {
+            "source": {"type": "string", "min_length": 1, "max_length": 80},
+            "target": {"type": "string", "min_length": 1, "max_length": 80},
+            "tensor_label": {"type": "string", "min_length": 1, "max_length": 120}
+          }
+        }
+      },
+      "shape_symbols": {"type": "array", "items": {"type": "string", "min_length": 1, "max_length": 80}},
+      "source_ids": {"type": "array", "items": {"type": "string", "min_length": 1, "max_length": 80}}
+    }
+  }
+}

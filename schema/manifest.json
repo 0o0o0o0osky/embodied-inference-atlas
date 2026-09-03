@@ -1,0 +1,16 @@
+{
+  "schema_version": "1.0.0",
+  "datasets": {
+    "architectures": {"data_glob": "data/architectures/*.json", "schema": "schema/architectures.schema.json", "primary_key": "architecture_id"},
+    "devices": {"data": "data/catalog/devices.json", "schema": "schema/catalog/devices.schema.json", "primary_key": "device_id"},
+    "end_to_end": {"data": "data/measurements/end_to_end.json", "schema": "schema/measurements/end_to_end.schema.json", "primary_key": "measurement_id"},
+    "models": {"data": "data/catalog/models.json", "schema": "schema/catalog/models.schema.json", "primary_key": "model_id"},
+    "operators": {"data": "data/measurements/operators.json", "schema": "schema/measurements/operators.schema.json", "primary_key": "operator_id"},
+    "rooflines": {"data": "data/measurements/rooflines.json", "schema": "schema/measurements/rooflines.schema.json", "primary_key": "roofline_id"},
+    "runs": {"data": "data/measurements/runs.json", "schema": "schema/measurements/runs.schema.json", "primary_key": "run_id"},
+    "runtimes": {"data": "data/catalog/runtimes.json", "schema": "schema/catalog/runtimes.schema.json", "primary_key": "runtime_id"},
+    "sources": {"data": "data/catalog/sources.json", "schema": "schema/catalog/sources.schema.json", "primary_key": "source_id"},
+    "stages": {"data": "data/measurements/stages.json", "schema": "schema/measurements/stages.schema.json", "primary_key": "measurement_id"},
+    "systems": {"data": "data/catalog/systems.json", "schema": "schema/catalog/systems.schema.json", "primary_key": "system_id"}
+  }
+}

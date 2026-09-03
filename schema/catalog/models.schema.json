@@ -1,0 +1,33 @@
+{
+  "dataset": "models",
+  "record": {
+    "type": "object",
+    "required": ["model_id", "display_name", "model_type", "artifacts", "parameter_count", "architecture_id", "input_modalities", "output_modalities", "execution_modes", "source_ids"],
+    "additional_properties": false,
+    "properties": {
+      "model_id": {"type": "string", "min_length": 1, "max_length": 80},
+      "display_name": {"type": "string", "min_length": 1, "max_length": 120},
+      "model_type": {"type": "string", "enum": ["vla", "world_model", "world_action_model", "hybrid", "other"]},
+      "artifacts": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["artifact_id", "label", "public_model_id", "public_revision"],
+          "additional_properties": false,
+          "properties": {
+            "artifact_id": {"type": "string", "min_length": 1, "max_length": 80},
+            "label": {"type": "string", "min_length": 1, "max_length": 120},
+            "public_model_id": {"type": ["string", "null"], "min_length": 1, "max_length": 200},
+            "public_revision": {"type": ["string", "null"], "min_length": 1, "max_length": 200}
+          }
+        }
+      },
+      "parameter_count": {"type": ["integer", "null"], "minimum": 0},
+      "architecture_id": {"type": "string", "min_length": 1, "max_length": 80},
+      "input_modalities": {"type": "array", "items": {"type": "string", "min_length": 1, "max_length": 80}},
+      "output_modalities": {"type": "array", "items": {"type": "string", "min_length": 1, "max_length": 80}},
+      "execution_modes": {"type": "array", "items": {"type": "string", "min_length": 1, "max_length": 80}},
+      "source_ids": {"type": "array", "items": {"type": "string", "min_length": 1, "max_length": 80}}
+    }
+  }
+}
