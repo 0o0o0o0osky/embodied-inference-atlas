@@ -21,11 +21,26 @@ class PrivacyTests(unittest.TestCase):
     def test_public_url_is_allowed(self):
         self.assertEqual(scan_json({"url": "https://github.com/NVlabs/vla-perf"}), [])
 
+    def test_public_url_paths_and_benign_queries_are_allowed(self):
+        urls = (
+            "https://example.com/home/docs",
+            "https://example.com/releases/1.2.3.4",
+            "https://example.com/report?author=alice&x-amz-date=20260903T000000Z",
+        )
+        for url in urls:
+            with self.subTest(url=url):
+                self.assertEqual(scan_json({"url": url}), [])
+
+    def test_root_relative_html_link_is_not_a_local_path(self):
+        self.assertEqual(scan_json('<a href="/models/pi0.html">Pi0</a>'), [])
+
     def test_nonpublic_or_credential_bearing_urls_are_rejected(self):
         urls = (
             "http://localhost/report",
             "https://127.0.0.1/report",
             "https://user:secret@example.com/report",
+            "https://example.com/report?sig=secret",
+            "https://example.com/report?AccessKey=secret",
         )
         for url in urls:
             with self.subTest(url=url):
@@ -40,6 +55,8 @@ class PrivacyTests(unittest.TestCase):
             r"\\server\share\private",
             ".local/staging/private.json",
             "connected to 192.168.1.10",
+            "saved,/tmp/private/model",
+            r"saved,C:\models\private",
             "-----BEGIN OPENSSH PRIVATE KEY-----",
             "https://user:secret@example.com/report",
         )

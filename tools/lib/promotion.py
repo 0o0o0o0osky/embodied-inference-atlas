@@ -3,7 +3,9 @@ from __future__ import annotations
 import copy
 import difflib
 import json
+import os
 import re
+import tempfile
 from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
@@ -25,6 +27,7 @@ class PromotionChange:
     path: Path
     document: dict[str, object]
     original: bytes | None
+    safe_before: bytes
 
 
 @dataclass(frozen=True)
@@ -71,6 +74,7 @@ def plan_promotion(bundle: Mapping, repo_root: Path) -> PromotionPlan:
             path = repo_root / entry["data"]
             _ensure_safe_path(path, repo_root)
             current, original = _load_current(path, dataset, manifest)
+            _validate_current_privacy(dataset, current)
             current_records = current.get("records")
             current_keys = _record_keys(current_records, primary_key)
             assert isinstance(current_records, list)
@@ -80,7 +84,10 @@ def plan_promotion(bundle: Mapping, repo_root: Path) -> PromotionPlan:
             updates += sum(record[primary_key] in current_keys for record in copied)
             _validate_candidate(dataset, candidate, repo_root)
             if _json_bytes(candidate) != (original or b""):
-                planned.append(PromotionChange(dataset, path, candidate, original))
+                safe_before = _json_bytes(current) if original is not None else b""
+                planned.append(
+                    PromotionChange(dataset, path, candidate, original, safe_before)
+                )
         elif isinstance(entry.get("data_glob"), str):
             changes, added, updated = _plan_glob_dataset(
                 dataset, entry["data_glob"], primary_key, copied, repo_root, manifest
@@ -97,13 +104,37 @@ def plan_promotion(bundle: Mapping, repo_root: Path) -> PromotionPlan:
 
 
 def apply_promotion(plan: PromotionPlan) -> None:
-    for change in plan.changes:
-        _ensure_safe_path(change.path, plan.repo_root)
-        current = change.path.read_bytes() if change.path.exists() else None
-        if current != change.original:
-            raise PromotionError("canonical data changed after the promotion plan was created")
-    for change in plan.changes:
-        write_json_atomic(change.path, change.document)
+    try:
+        for change in plan.changes:
+            _ensure_safe_path(change.path, plan.repo_root)
+            current = change.path.read_bytes() if change.path.exists() else None
+            if current != change.original:
+                raise PromotionError(
+                    "canonical data changed after the promotion plan was created"
+                )
+    except PromotionError:
+        raise
+    except Exception as error:
+        raise PromotionError("promotion apply preflight failed") from error
+
+    attempted: list[PromotionChange] = []
+    try:
+        for change in plan.changes:
+            attempted.append(change)
+            write_json_atomic(change.path, change.document)
+    except Exception as error:
+        rollback_failed = False
+        for change in reversed(attempted):
+            try:
+                _restore_original(change)
+            except Exception:
+                rollback_failed = True
+        message = (
+            "promotion apply failed and rollback was incomplete"
+            if rollback_failed
+            else "promotion apply failed; canonical documents were restored"
+        )
+        raise PromotionError(message) from error
 
 
 def _merge_records(
@@ -217,6 +248,7 @@ def _plan_glob_dataset(
     changes: list[PromotionChange] = []
     for path in sorted(grouped, key=lambda item: item.as_posix()):
         current, original = _load_current(path, dataset, manifest)
+        _validate_current_privacy(dataset, current)
         current_records = current.get("records")
         _record_keys(current_records, primary_key)
         assert isinstance(current_records, list)
@@ -224,7 +256,10 @@ def _plan_glob_dataset(
         candidate["records"] = _merge_records(current_records, grouped[path], primary_key)
         _validate_candidate(dataset, candidate, repo_root)
         if _json_bytes(candidate) != (original or b""):
-            changes.append(PromotionChange(dataset, path, candidate, original))
+            safe_before = _json_bytes(current) if original is not None else b""
+            changes.append(
+                PromotionChange(dataset, path, candidate, original, safe_before)
+            )
     return changes, additions, updates
 
 
@@ -237,6 +272,12 @@ def _validate_candidate(
         raise PromotionError(f"promotion candidate failed validation: {dataset}", issues)
 
 
+def _validate_current_privacy(dataset: str, current: Mapping[str, object]) -> None:
+    issues = scan_json(current)
+    if issues:
+        raise PromotionError(f"canonical document failed privacy scan: {dataset}", issues)
+
+
 def _json_bytes(value: object) -> bytes:
     payload = json.dumps(value, ensure_ascii=False, indent=2, sort_keys=True) + "\n"
     return payload.encode("utf-8")
@@ -244,7 +285,7 @@ def _json_bytes(value: object) -> bytes:
 
 def _change_diff(change: PromotionChange, repo_root: Path) -> str:
     relative = change.path.relative_to(repo_root).as_posix()
-    before = (change.original or b"").decode("utf-8").splitlines(keepends=True)
+    before = change.safe_before.decode("utf-8").splitlines(keepends=True)
     after = _json_bytes(change.document).decode("utf-8").splitlines(keepends=True)
     return "".join(
         difflib.unified_diff(
@@ -270,3 +311,16 @@ def _ensure_safe_path(path: Path, repo_root: Path) -> None:
         path.resolve(strict=False).relative_to(repo_root.resolve(strict=True))
     except (OSError, ValueError) as error:
         raise PromotionError("canonical path is outside the repository") from error
+
+
+def _restore_original(change: PromotionChange) -> None:
+    if change.original is None:
+        change.path.unlink(missing_ok=True)
+        return
+    with tempfile.NamedTemporaryFile("wb", dir=change.path.parent, delete=False) as handle:
+        handle.write(change.original)
+        temporary = Path(handle.name)
+    try:
+        os.replace(temporary, change.path)
+    finally:
+        temporary.unlink(missing_ok=True)

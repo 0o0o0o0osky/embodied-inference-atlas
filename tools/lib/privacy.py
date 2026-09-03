@@ -23,9 +23,12 @@ BLOCKED_SUFFIXES = {
     ".jpg", ".jpeg", ".png", ".mp4", ".mov",
 }
 
-_WINDOWS_PATH = re.compile(r"(?i)(?:^|[\s\"'=:(])\b[a-z]:[\\/]")
-_UNC_PATH = re.compile(r"(?:^|[\s\"'=:(])\\\\[^\\\s]+\\[^\\\s]+")
-_POSIX_PATH = re.compile(r"(?:^|[\s\"'=:(])/(?!/)[^\s]+")
+_WINDOWS_PATH = re.compile(r"(?i)(?<![a-z0-9])[a-z]:[\\/]")
+_UNC_PATH = re.compile(r"(?<![a-z0-9_\\])\\\\[^\\\s]+\\[^\\\s]+", re.IGNORECASE)
+_LOCAL_POSIX_PATH = re.compile(
+    r"(?<![a-z0-9._-])/(?:home|Users|root|tmp|private|var|etc|usr|opt|mnt|media|srv|dev|proc|sys|run)(?:/|$)",
+    re.IGNORECASE,
+)
 _PRIVATE_KEY = re.compile(r"-----BEGIN (?:[A-Z0-9 ]+ )?PRIVATE KEY-----")
 _URL = re.compile(r"[a-z][a-z0-9+.-]*://[^\s<>'\"]+", re.IGNORECASE)
 _IPV4 = re.compile(r"(?<![\d.])(?:\d{1,3}\.){3}\d{1,3}(?![\d.])")
@@ -35,11 +38,14 @@ _IPV6 = re.compile(
 )
 _HOST_LABEL = re.compile(r"[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?", re.IGNORECASE)
 _CREDENTIAL_QUERY_KEYS = {
-    "access_token", "api_key", "apikey", "auth", "credential", "key",
-    "password", "passwd", "secret", "signature", "token",
+    "access_token", "accesskey", "access_key", "accesskeyid", "access_key_id",
+    "api_key", "apikey", "auth", "awsaccesskeyid", "aws_access_key_id",
+    "credential", "key", "password", "passwd", "secret", "security_token",
+    "sig", "signature", "token",
 }
 _CREDENTIAL_QUERY_SUFFIXES = (
-    "_credential", "_password", "_secret", "_signature", "_token",
+    "_accesskey", "_access_key", "_credential", "_password", "_secret",
+    "_sig", "_signature", "_token",
 )
 
 
@@ -57,17 +63,21 @@ def scan_json(value: object, path: str = "$") -> list[Issue]:
                         "field is forbidden in release data",
                     )
                 )
-            if key_text == "url" and child is not None and (
-                not isinstance(child, str) or not _is_public_url(child)
-            ):
-                issues.append(
-                    Issue(
-                        child_path,
-                        "invalid_url",
-                        "URL must be public and credential-free",
+            if key_text == "url":
+                if child is not None and (
+                    not isinstance(child, str) or not _is_public_url(child)
+                ):
+                    issues.append(
+                        Issue(
+                            child_path,
+                            "invalid_url",
+                            "URL must be public and credential-free",
+                        )
                     )
-                )
-            issues.extend(scan_json(child, child_path))
+                if not isinstance(child, (str, type(None))):
+                    issues.extend(scan_json(child, child_path))
+            else:
+                issues.extend(scan_json(child, child_path))
     elif isinstance(value, (list, tuple)):
         for index, child in enumerate(value):
             issues.extend(scan_json(child, f"{path}[{index}]"))
@@ -158,22 +168,21 @@ def _scan_release_file(path: Path, relative: Path) -> list[Issue]:
 
 def _scan_string(value: str, path: str) -> list[Issue]:
     issues: list[Issue] = []
+    urls = list(_URL.finditer(value))
+    scrubbed = _without_matches(value, urls)
     if (
-        "/home/" in value
-        or "/Users/" in value
-        or "/root/" in value
-        or ".local/" in value
-        or ".local\\" in value
-        or _WINDOWS_PATH.search(value)
-        or _UNC_PATH.search(value)
-        or _POSIX_PATH.search(value)
+        ".local/" in scrubbed
+        or ".local\\" in scrubbed
+        or _WINDOWS_PATH.search(scrubbed)
+        or _UNC_PATH.search(scrubbed)
+        or _LOCAL_POSIX_PATH.search(scrubbed)
     ):
         issues.append(
             Issue(path, "local_path", "string contains an absolute local path")
         )
     if _PRIVATE_KEY.search(value):
         issues.append(Issue(path, "private_key", "string contains a private-key header"))
-    if any(_url_has_credentials(match.group(0)) for match in _URL.finditer(value)):
+    if any(_url_has_credentials(match.group(0)) for match in urls):
         issues.append(
             Issue(
                 path,
@@ -181,7 +190,7 @@ def _scan_string(value: str, path: str) -> list[Issue]:
                 "string contains a credential-bearing URL",
             )
         )
-    if _contains_ip_address(value):
+    if _contains_ip_address(scrubbed):
         issues.append(Issue(path, "ip_address", "literal IP addresses are forbidden"))
     return issues
 
@@ -228,7 +237,6 @@ def _url_has_credentials(value: str) -> bool:
         if (
             normalized in _CREDENTIAL_QUERY_KEYS
             or normalized.endswith(_CREDENTIAL_QUERY_SUFFIXES)
-            or normalized.startswith("x_amz_")
         ):
             return True
     return False
@@ -250,6 +258,15 @@ def _contains_ip_address(value: str) -> bool:
             continue
         return True
     return False
+
+
+def _without_matches(value: str, matches: list[re.Match]) -> str:
+    if not matches:
+        return value
+    characters = list(value)
+    for match in matches:
+        characters[match.start():match.end()] = " " * (match.end() - match.start())
+    return "".join(characters)
 
 
 def _release_path(path: Path) -> str:

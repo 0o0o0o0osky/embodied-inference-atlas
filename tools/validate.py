@@ -159,8 +159,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = parse_args(argv)
     repo_root = Path.cwd()
     issues = validate_repository(repo_root) if args.all else validate_staged(repo_root)
-    if args.all and (repo_root / "site").exists():
-        issues.extend(scan_release_tree(repo_root / "site"))
+    site_root = repo_root / "site"
+    if args.all and (site_root.exists() or site_root.is_symlink()):
+        issues.extend(scan_release_tree(site_root))
     for issue in issues:
         print(format_issue(issue), file=sys.stderr)
     return 1 if issues else 0
@@ -180,6 +181,8 @@ def validate_staged(repo_root: Path) -> list[Issue]:
     modes = _staged_modes(repo_root, names)
     issues: list[Issue] = []
     for name in names:
+        if name not in modes:
+            continue
         path = Path(name)
         issues.extend(scan_release_name(path, symlink=modes.get(name) == "120000"))
         if not path.parts or path.parts[0] not in {"data", "site"}:

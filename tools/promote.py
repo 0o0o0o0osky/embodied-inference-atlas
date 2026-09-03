@@ -37,6 +37,9 @@ def main(argv: Sequence[str] | None = None) -> int:
         except PromotionError as error:
             print(f"bundle: promotion_error: {error}", file=sys.stderr)
             return 1
+        except Exception:
+            print("bundle: promotion_error: promotion apply failed", file=sys.stderr)
+            return 1
     return 0
 
 
