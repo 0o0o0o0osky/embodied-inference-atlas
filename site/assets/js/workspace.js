@@ -96,6 +96,14 @@
     ], true);
   }
 
+  function paperCenteredMergeRow(sourceIds, targetId) {
+    return { slots: [targetId], centerBetween: sourceIds };
+  }
+
+  function paperAlignedRow(sourceId, targetId) {
+    return { slots: [targetId], alignTo: sourceId };
+  }
+
   const PI0_PAPER_LAYOUT = Object.freeze({
     "vision-encoder": [
       { slots: ["vision-encoder/image-patch-embedding/patch-project"] },
@@ -122,10 +130,22 @@
         "action-flow-decoder/action-suffix-builder/action-projection",
         "action-flow-decoder/action-suffix-builder/time-embedding",
       ] },
-      { slots: [null, "action-flow-decoder/action-suffix-builder/action-time-concat"] },
-      { slots: ["action-flow-decoder/action-suffix-builder/time-mlp-in"] },
-      { slots: ["action-flow-decoder/action-suffix-builder/time-mlp-silu"] },
-      { slots: ["action-flow-decoder/action-suffix-builder/time-mlp-out"] },
+      paperCenteredMergeRow([
+        "action-flow-decoder/action-suffix-builder/action-projection",
+        "action-flow-decoder/action-suffix-builder/time-embedding",
+      ], "action-flow-decoder/action-suffix-builder/action-time-concat"),
+      paperAlignedRow(
+        "action-flow-decoder/action-suffix-builder/action-time-concat",
+        "action-flow-decoder/action-suffix-builder/time-mlp-in",
+      ),
+      paperAlignedRow(
+        "action-flow-decoder/action-suffix-builder/action-time-concat",
+        "action-flow-decoder/action-suffix-builder/time-mlp-silu",
+      ),
+      paperAlignedRow(
+        "action-flow-decoder/action-suffix-builder/action-time-concat",
+        "action-flow-decoder/action-suffix-builder/time-mlp-out",
+      ),
       { gapBefore: true, slots: ["action-flow-decoder/action-suffix-builder/suffix-concat"] },
       ...paperAttentionRows("action-flow-decoder/action-expert-blocks/self-attention", {
         entry: ["extract-prefix-key", "attention-norm", "extract-prefix-value"],
@@ -1295,6 +1315,17 @@
         chainGap * (nodeIds.length - 1),
       );
       let x = stageLayout.contentX + slotIndex * slotWidth + (slotWidth - chainWidth) / 2;
+      if (row.centerBetween && row.slots.length === 1 && nodeIds.length === 1) {
+        const sourceBoxes = row.centerBetween.map((nodeId) => positions.get(nodeId)).filter(Boolean);
+        if (sourceBoxes.length === row.centerBetween.length) {
+          const sourceCenters = sourceBoxes.map((box) => box.x + box.width / 2);
+          x = sourceCenters.reduce((total, value) => total + value, 0) / sourceCenters.length
+            - chainWidth / 2;
+        }
+      } else if (row.alignTo && row.slots.length === 1 && nodeIds.length === 1) {
+        const sourceBox = positions.get(row.alignTo);
+        if (sourceBox) x = sourceBox.x + sourceBox.width / 2 - chainWidth / 2;
+      }
       nodeIds.forEach((nodeId, chainIndex) => {
         const node = nodes.get(nodeId);
         const size = sizes[chainIndex];
@@ -1508,7 +1539,7 @@
   function paperScopeExecutionNote(scope) {
     if (scope.moduleId !== "prefix-blocks") return null;
     return {
-      label: "17 full + L18 cache tail",
+      label: "17 full + L18 KV tail",
       description: "Optimized FlashRT / Realtime-VLA prefill: layer 18 still runs pre-attention RMSNorm, fused QKV, RoPE, and K/V cache write; its attention, output projection, and feed-forward tail are skipped. Fused QKV currently also produces an unused Q.",
     };
   }
@@ -2068,7 +2099,7 @@
         const noteGap = 6;
         const availableNoteWidth = bounds.width - 16 - badgeWidth - noteGap;
         const showExecutionNote = Boolean(executionNote && availableNoteWidth >= 112);
-        const noteWidth = showExecutionNote ? availableNoteWidth : 0;
+        const noteWidth = showExecutionNote ? Math.min(114, availableNoteWidth) : 0;
         const group = svgElement("g", {
           class: `dag-scope dag-scope--${scope.kind}`,
           "data-scope-kind": scope.kind,
@@ -2107,7 +2138,7 @@
           }, label),
         );
         if (showExecutionNote) {
-          const noteX = bounds.x + 8 + badgeWidth + noteGap;
+          const noteX = bounds.x + bounds.width - noteWidth - 8;
           const note = svgElement("g", { class: "dag-scope-execution-note" });
           note.append(
             svgElement("rect", {
