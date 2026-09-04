@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.0.0",
+  "dataset": "architectures",
+  "records": [
+    {
+      "architecture_id": "pi0",
+      "model_id": "pi0",
+      "nodes": [
+        {"node_id": "observations", "label": "Observations", "kind": "once_per_inference", "multiplicity": 1},
+        {"node_id": "vision-encoder", "label": "View-batched vision encoder", "kind": "once_per_inference", "multiplicity": 1},
+        {"node_id": "projector", "label": "Multimodal projector", "kind": "once_per_inference", "multiplicity": 1},
+        {"node_id": "context-encoder", "label": "Language/state context encoder", "kind": "once_per_inference", "multiplicity": 1},
+        {"node_id": "action-expert", "label": "Iterative action expert", "kind": "per_denoise_step", "multiplicity": 1},
+        {"node_id": "action-chunk", "label": "Action chunk", "kind": "once_per_inference", "multiplicity": 1}
+      ],
+      "edges": [
+        {"source": "observations", "target": "vision-encoder", "tensor_label": "images[B,V,H,W]"},
+        {"source": "vision-encoder", "target": "projector", "tensor_label": "view_tokens[B,V,T_view,D_vision]"},
+        {"source": "projector", "target": "context-encoder", "tensor_label": "projected_tokens[B,T_vision,D_context]"},
+        {"source": "context-encoder", "target": "action-expert", "tensor_label": "context[B,T_context,D_context]"},
+        {"source": "action-expert", "target": "action-chunk", "tensor_label": "actions[B,C_action,D_action]"}
+      ],
+      "shape_symbols": ["B", "V", "H", "W", "T_view", "T_vision", "T_context", "D_vision", "D_context", "C_action", "D_action", "N_denoise"],
+      "source_ids": ["source-flashrt"]
+    }
+  ]
+}

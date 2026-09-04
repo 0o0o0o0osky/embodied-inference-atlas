@@ -1,0 +1,109 @@
+{
+  "schema_version": "1.0.0",
+  "dataset": "runtimes",
+  "records": [
+    {
+      "runtime_id": "flashrt",
+      "display_name": "FlashRT",
+      "version_label": "public-upstream-audit",
+      "public_commit": "054bea4d02ebc63f6a0c45991c6061b1e1caa46c",
+      "backend": "pytorch-cuda",
+      "features": [],
+      "model_support": [
+        {"model_id": "pi0", "status": "measured", "evidence": "measured_local", "reason_code": "measured_matrix", "has_canonical_measurement": true, "source_id": "source-local-thor"},
+        {"model_id": "pi05", "status": "measured", "evidence": "measured_local", "reason_code": "measured_matrix", "has_canonical_measurement": true, "source_id": "source-local-thor"}
+      ],
+      "source_ids": ["source-flashrt", "source-local-thor"]
+    },
+    {
+      "runtime_id": "lerobot",
+      "display_name": "LeRobot",
+      "version_label": "public-upstream-audit",
+      "public_commit": "fbb811fca92504439792b97d216f0d00c2268382",
+      "backend": "pytorch-cuda",
+      "features": [],
+      "model_support": [
+        {"model_id": "smolvla", "status": "measured", "evidence": "measured_local", "reason_code": "measured_matrix", "has_canonical_measurement": true, "source_id": "source-local-thor"}
+      ],
+      "source_ids": ["source-lerobot", "source-local-thor"]
+    },
+    {
+      "runtime_id": "vla-cpp",
+      "display_name": "vla.cpp",
+      "version_label": "public-upstream-audit",
+      "public_commit": "4c105b8711b86c60828844d244b48db20619bdf8",
+      "backend": "ggml-cuda",
+      "features": [],
+      "model_support": [
+        {"model_id": "pi0", "status": "measured", "evidence": "measured_local", "reason_code": "measured_matrix", "has_canonical_measurement": true, "source_id": "source-local-thor"},
+        {"model_id": "smolvla", "status": "measured", "evidence": "measured_local", "reason_code": "measured_bf16", "has_canonical_measurement": true, "source_id": "source-local-thor"},
+        {"model_id": "smolvla", "status": "not_supported", "evidence": "measured_local", "reason_code": "loader_rejects_q8_tensor", "has_canonical_measurement": false, "source_id": "source-local-thor"}
+      ],
+      "source_ids": ["source-vla-cpp", "source-local-thor"]
+    },
+    {
+      "runtime_id": "embodied-cpp",
+      "display_name": "Embodied.cpp",
+      "version_label": "unmodified-public-upstream-audit",
+      "public_commit": "1dad33f2c87ee1d390808cb5d776cd8c998f4a36",
+      "backend": "native-cuda",
+      "features": [],
+      "model_support": [
+        {"model_id": "smolvla", "status": "blocked", "evidence": "measured_local", "reason_code": "unsupported_projector", "has_canonical_measurement": false, "source_id": "source-local-thor"}
+      ],
+      "source_ids": ["source-embodied-cpp", "source-local-thor"]
+    },
+    {
+      "runtime_id": "vllm-omni",
+      "display_name": "vLLM-Omni",
+      "version_label": "public-upstream-audit",
+      "public_commit": "5d20f6b900dfcf22b42068e28a3cbbdb5b4707e7",
+      "backend": "vllm-cuda",
+      "features": [],
+      "model_support": [
+        {"model_id": "pi0", "status": "blocked", "evidence": "measured_local", "reason_code": "startup_before_inference", "has_canonical_measurement": false, "source_id": "source-local-thor"},
+        {"model_id": "pi05", "status": "not_supported", "evidence": "measured_local", "reason_code": "not_supported_by_audit", "has_canonical_measurement": false, "source_id": "source-local-thor"},
+        {"model_id": "smolvla", "status": "not_supported", "evidence": "measured_local", "reason_code": "not_supported_by_audit", "has_canonical_measurement": false, "source_id": "source-local-thor"}
+      ],
+      "source_ids": ["source-vllm-omni", "source-local-thor"]
+    },
+    {
+      "runtime_id": "tether",
+      "display_name": "Tether",
+      "version_label": "public-upstream-audit",
+      "public_commit": "8bcfc680f0863fc2cc028ecb8b0bce2215ea609e",
+      "backend": "pytorch-export",
+      "features": [],
+      "model_support": [
+        {"model_id": "smolvla", "status": "blocked", "evidence": "measured_local", "reason_code": "dependency_resolution_before_export", "has_canonical_measurement": false, "source_id": "source-local-thor"}
+      ],
+      "source_ids": ["source-tether", "source-local-thor"]
+    },
+    {
+      "runtime_id": "realtime-vla",
+      "display_name": "Realtime-VLA",
+      "version_label": "public-upstream-audit",
+      "public_commit": "b86a942a073ea241f9bd6916a705f81906f4638b",
+      "backend": "pytorch-cuda",
+      "features": [],
+      "model_support": [
+        {"model_id": "pi0", "status": "not_run", "evidence": "measured_local", "reason_code": "source_audit_only", "has_canonical_measurement": false, "source_id": "source-local-thor"}
+      ],
+      "source_ids": ["source-realtime-vla", "source-local-thor"]
+    },
+    {
+      "runtime_id": "vla-perf",
+      "display_name": "VLA-Perf",
+      "version_label": "public-upstream-analytical",
+      "public_commit": "1e2b9a7ef9d4188c7e1e2befbdc758222c60d760",
+      "backend": "analytical-roofline",
+      "features": [],
+      "model_support": [
+        {"model_id": "pi0", "status": "analytical", "evidence": "analytical", "reason_code": "native", "has_canonical_measurement": true, "source_id": "source-vla-perf"},
+        {"model_id": "pi05", "status": "analytical", "evidence": "analytical", "reason_code": "proxy", "has_canonical_measurement": true, "source_id": "source-vla-perf"},
+        {"model_id": "smolvla", "status": "analytical", "evidence": "analytical", "reason_code": "custom_operator_model", "has_canonical_measurement": true, "source_id": "source-vla-perf"}
+      ],
+      "source_ids": ["source-vla-perf"]
+    }
+  ]
+}

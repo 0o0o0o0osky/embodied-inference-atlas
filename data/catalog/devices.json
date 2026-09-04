@@ -1,0 +1,16 @@
+{
+  "schema_version": "1.0.0",
+  "dataset": "devices",
+  "records": [
+    {
+      "device_id": "nvidia-jetson-agx-thor",
+      "display_name": "NVIDIA Jetson AGX Thor",
+      "accelerator_architecture": "NVIDIA Blackwell",
+      "memory_capacity_gib": 128,
+      "memory_type": "unified memory",
+      "compute_capability": "11.0",
+      "peak_claims": [],
+      "source_ids": ["source-local-thor", "source-vla-perf"]
+    }
+  ]
+}

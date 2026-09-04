@@ -1,0 +1,99 @@
+{
+  "schema_version": "1.0.0",
+  "dataset": "models",
+  "records": [
+    {
+      "model_id": "pi0",
+      "display_name": "Pi0",
+      "model_type": "vla",
+      "artifacts": [
+        {
+          "artifact_id": "pi0-flashrt-local-01",
+          "label": "Pi0 FlashRT local artifact",
+          "public_model_id": null,
+          "public_revision": null
+        },
+        {
+          "artifact_id": "pi0-vlacpp-source-01",
+          "label": "Pi0 vla.cpp source BF16/F32 artifact",
+          "public_model_id": null,
+          "public_revision": null
+        },
+        {
+          "artifact_id": "pi0-vlacpp-q8-0-weight-only-01",
+          "label": "Pi0 vla.cpp Q8_0 VLM/vision weight-only artifact",
+          "public_model_id": null,
+          "public_revision": null
+        },
+        {
+          "artifact_id": "pi0-vla-perf-stock-01",
+          "label": "Pi0 VLA-Perf stock analytical artifact",
+          "public_model_id": null,
+          "public_revision": null
+        }
+      ],
+      "parameter_count": null,
+      "architecture_id": "pi0",
+      "input_modalities": ["image", "language", "state"],
+      "output_modalities": ["action_chunk"],
+      "execution_modes": ["iterative_action_generation"],
+      "source_ids": ["source-flashrt", "source-vla-cpp", "source-vla-perf", "source-local-thor"]
+    },
+    {
+      "model_id": "pi05",
+      "display_name": "Pi0.5",
+      "model_type": "vla",
+      "artifacts": [
+        {
+          "artifact_id": "pi05-flashrt-local-01",
+          "label": "Pi0.5 FlashRT local artifact",
+          "public_model_id": null,
+          "public_revision": null
+        },
+        {
+          "artifact_id": "pi05-vla-perf-proxy-01",
+          "label": "Pi0.5 VLA-Perf Pi0 proxy analytical artifact",
+          "public_model_id": null,
+          "public_revision": null
+        }
+      ],
+      "parameter_count": null,
+      "architecture_id": "pi05",
+      "input_modalities": ["image", "language", "state"],
+      "output_modalities": ["action_chunk"],
+      "execution_modes": ["iterative_action_generation"],
+      "source_ids": ["source-flashrt", "source-vla-perf", "source-local-thor"]
+    },
+    {
+      "model_id": "smolvla",
+      "display_name": "SmolVLA",
+      "model_type": "vla",
+      "artifacts": [
+        {
+          "artifact_id": "smolvla-lerobot-local-01",
+          "label": "SmolVLA LeRobot local artifact",
+          "public_model_id": null,
+          "public_revision": null
+        },
+        {
+          "artifact_id": "smolvla-vlacpp-source-01",
+          "label": "SmolVLA vla.cpp source BF16/F32 artifact",
+          "public_model_id": null,
+          "public_revision": null
+        },
+        {
+          "artifact_id": "smolvla-vla-perf-custom-01",
+          "label": "SmolVLA VLA-Perf custom operator analytical artifact",
+          "public_model_id": null,
+          "public_revision": null
+        }
+      ],
+      "parameter_count": null,
+      "architecture_id": "smolvla",
+      "input_modalities": ["image", "language", "state"],
+      "output_modalities": ["action_chunk"],
+      "execution_modes": ["flow_matching_action_generation"],
+      "source_ids": ["source-lerobot", "source-vla-cpp", "source-vla-perf", "source-local-thor"]
+    }
+  ]
+}

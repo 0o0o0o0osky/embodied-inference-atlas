@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.0.0",
+  "dataset": "architectures",
+  "records": [
+    {
+      "architecture_id": "smolvla",
+      "model_id": "smolvla",
+      "nodes": [
+        {"node_id": "observations", "label": "Observations", "kind": "once_per_inference", "multiplicity": 1},
+        {"node_id": "vision-encoder", "label": "Per-view vision encoder", "kind": "per_view", "multiplicity": 1},
+        {"node_id": "connector-prefix", "label": "Connector + language/state prefix", "kind": "once_per_inference", "multiplicity": 1},
+        {"node_id": "vlm-prefill", "label": "VLM prefill/KV", "kind": "once_per_inference", "multiplicity": 1},
+        {"node_id": "flow-expert", "label": "Flow-matching expert", "kind": "per_denoise_step", "multiplicity": 1},
+        {"node_id": "action-chunk", "label": "Action chunk", "kind": "once_per_inference", "multiplicity": 1}
+      ],
+      "edges": [
+        {"source": "observations", "target": "vision-encoder", "tensor_label": "images[B,V,H,W]"},
+        {"source": "vision-encoder", "target": "connector-prefix", "tensor_label": "per_view_tokens[B,V,T_view,D_vision]"},
+        {"source": "connector-prefix", "target": "vlm-prefill", "tensor_label": "prefix[B,T_prefix,D_vlm]"},
+        {"source": "vlm-prefill", "target": "flow-expert", "tensor_label": "kv_context[B,T_prefix,D_vlm]"},
+        {"source": "flow-expert", "target": "action-chunk", "tensor_label": "actions[B,C_action,D_action]"}
+      ],
+      "shape_symbols": ["B", "V", "H", "W", "T_view", "T_prefix", "D_vision", "D_vlm", "C_action", "D_action", "N_denoise"],
+      "source_ids": ["source-lerobot"]
+    }
+  ]
+}

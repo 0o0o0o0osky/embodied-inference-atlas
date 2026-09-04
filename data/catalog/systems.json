@@ -1,0 +1,16 @@
+{
+  "schema_version": "1.0.0",
+  "dataset": "systems",
+  "records": [
+    {
+      "system_id": "thor-unit-01",
+      "device_ids": ["nvidia-jetson-agx-thor"],
+      "device_count": 1,
+      "cpu_label": "integrated aarch64 CPU",
+      "memory_capacity_gib": 128,
+      "os_family": "Linux",
+      "cuda_version": "13.0",
+      "notes_code": "anonymous_local_measurement_system"
+    }
+  ]
+}

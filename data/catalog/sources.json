@@ -1,0 +1,87 @@
+{
+  "schema_version": "1.0.0",
+  "dataset": "sources",
+  "records": [
+    {
+      "source_id": "source-local-thor",
+      "evidence": "measured_local",
+      "title": "Sanitized local Thor measurements",
+      "url": null,
+      "published_date": null,
+      "accessed_date": null,
+      "summary": ""
+    },
+    {
+      "source_id": "source-flashrt",
+      "evidence": "reported_external",
+      "title": "FlashRT public repository",
+      "url": "https://github.com/flashrt-project/FlashRT",
+      "published_date": null,
+      "accessed_date": "2026-09-03",
+      "summary": ""
+    },
+    {
+      "source_id": "source-lerobot",
+      "evidence": "reported_external",
+      "title": "LeRobot public repository",
+      "url": "https://github.com/huggingface/lerobot",
+      "published_date": null,
+      "accessed_date": "2026-09-03",
+      "summary": ""
+    },
+    {
+      "source_id": "source-vla-cpp",
+      "evidence": "reported_external",
+      "title": "vla.cpp public repository",
+      "url": "https://github.com/VinRobotics/vla.cpp",
+      "published_date": null,
+      "accessed_date": "2026-09-03",
+      "summary": ""
+    },
+    {
+      "source_id": "source-vla-perf",
+      "evidence": "analytical",
+      "title": "VLA-Perf public repository and analytical matrix",
+      "url": "https://github.com/NVlabs/vla-perf",
+      "published_date": null,
+      "accessed_date": "2026-09-03",
+      "summary": ""
+    },
+    {
+      "source_id": "source-embodied-cpp",
+      "evidence": "reported_external",
+      "title": "Embodied.cpp public repository",
+      "url": "https://github.com/SEU-PAISys/Embodied.cpp",
+      "published_date": null,
+      "accessed_date": "2026-09-03",
+      "summary": ""
+    },
+    {
+      "source_id": "source-vllm-omni",
+      "evidence": "reported_external",
+      "title": "vLLM-Omni public repository",
+      "url": "https://github.com/vllm-project/vllm-omni",
+      "published_date": null,
+      "accessed_date": "2026-09-03",
+      "summary": ""
+    },
+    {
+      "source_id": "source-tether",
+      "evidence": "reported_external",
+      "title": "Tether public repository",
+      "url": "https://github.com/FastCrest/tether",
+      "published_date": null,
+      "accessed_date": "2026-09-03",
+      "summary": ""
+    },
+    {
+      "source_id": "source-realtime-vla",
+      "evidence": "reported_external",
+      "title": "Realtime-VLA public repository",
+      "url": "https://github.com/Dexmal/realtime-vla",
+      "published_date": null,
+      "accessed_date": "2026-09-03",
+      "summary": ""
+    }
+  ]
+}

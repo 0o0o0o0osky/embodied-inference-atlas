@@ -1,0 +1,5676 @@
+{
+  "dataset": "stages",
+  "records": [
+    {
+      "additive": false,
+      "aggregation": "summary",
+      "evidence": "measured_local",
+      "execution_count": 1,
+      "measurement_id": "stage-lerobot-smolvla-matrix-001",
+      "measurement_method": "cuda_event",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-lerobot-smolvla-matrix-001",
+      "sample_count": 50,
+      "source_id": "source-local-thor",
+      "stage_id": "fixed-prefix",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 79.3544921875
+        },
+        {
+          "statistic": "mean",
+          "unit": "ms",
+          "value": 79.80846755981446
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 79.6286735534668
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 80.72003784179688
+        },
+        {
+          "statistic": "max",
+          "unit": "ms",
+          "value": 81.072509765625
+        }
+      ],
+      "timing_boundary_id": "predict_action_chunk_preprocessed",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": false,
+      "aggregation": "summary",
+      "evidence": "measured_local",
+      "execution_count": 1,
+      "measurement_id": "stage-lerobot-smolvla-matrix-002",
+      "measurement_method": "cuda_event",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-lerobot-smolvla-matrix-001",
+      "sample_count": 50,
+      "source_id": "source-local-thor",
+      "stage_id": "prefix-prefill",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 17.575359344482422
+        },
+        {
+          "statistic": "mean",
+          "unit": "ms",
+          "value": 17.86568126678467
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 17.751728057861328
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 18.48157625198364
+        },
+        {
+          "statistic": "max",
+          "unit": "ms",
+          "value": 18.765151977539062
+        }
+      ],
+      "timing_boundary_id": "predict_action_chunk_preprocessed",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": false,
+      "aggregation": "summary",
+      "evidence": "measured_local",
+      "execution_count": 10,
+      "measurement_id": "stage-lerobot-smolvla-matrix-003",
+      "measurement_method": "cuda_event",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-lerobot-smolvla-matrix-001",
+      "sample_count": 50,
+      "source_id": "source-local-thor",
+      "stage_id": "denoise",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 167.38192749023438
+        },
+        {
+          "statistic": "mean",
+          "unit": "ms",
+          "value": 168.67081268310548
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 168.41484832763672
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 170.19042205810547
+        },
+        {
+          "statistic": "max",
+          "unit": "ms",
+          "value": 170.2887420654297
+        }
+      ],
+      "timing_boundary_id": "predict_action_chunk_preprocessed",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": false,
+      "aggregation": "summary",
+      "evidence": "measured_local",
+      "execution_count": 1,
+      "measurement_id": "stage-lerobot-smolvla-matrix-004",
+      "measurement_method": "cuda_event",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-lerobot-smolvla-matrix-001",
+      "sample_count": 50,
+      "source_id": "source-local-thor",
+      "stage_id": "outside-prefix-denoise",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 2.6885757446289062
+        },
+        {
+          "statistic": "mean",
+          "unit": "ms",
+          "value": 2.7630970764160154
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 2.7418174743652344
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 2.8860649108886722
+        },
+        {
+          "statistic": "max",
+          "unit": "ms",
+          "value": 2.9130020141601562
+        }
+      ],
+      "timing_boundary_id": "predict_action_chunk_preprocessed",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": false,
+      "aggregation": "summary",
+      "evidence": "measured_local",
+      "execution_count": 1,
+      "measurement_id": "stage-lerobot-smolvla-matrix-005",
+      "measurement_method": "cuda_event",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-lerobot-smolvla-matrix-002",
+      "sample_count": 50,
+      "source_id": "source-local-thor",
+      "stage_id": "fixed-prefix",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 142.4000701904297
+        },
+        {
+          "statistic": "mean",
+          "unit": "ms",
+          "value": 144.2352767944336
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 143.78971099853516
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 146.3189270019531
+        },
+        {
+          "statistic": "max",
+          "unit": "ms",
+          "value": 147.84725952148438
+        }
+      ],
+      "timing_boundary_id": "predict_action_chunk_preprocessed",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": false,
+      "aggregation": "summary",
+      "evidence": "measured_local",
+      "execution_count": 1,
+      "measurement_id": "stage-lerobot-smolvla-matrix-006",
+      "measurement_method": "cuda_event",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-lerobot-smolvla-matrix-002",
+      "sample_count": 50,
+      "source_id": "source-local-thor",
+      "stage_id": "prefix-prefill",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 19.746976852416992
+        },
+        {
+          "statistic": "mean",
+          "unit": "ms",
+          "value": 20.699598121643067
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 20.244624137878418
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 22.42894115447998
+        },
+        {
+          "statistic": "max",
+          "unit": "ms",
+          "value": 23.8973445892334
+        }
+      ],
+      "timing_boundary_id": "predict_action_chunk_preprocessed",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": false,
+      "aggregation": "summary",
+      "evidence": "measured_local",
+      "execution_count": 10,
+      "measurement_id": "stage-lerobot-smolvla-matrix-007",
+      "measurement_method": "cuda_event",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-lerobot-smolvla-matrix-002",
+      "sample_count": 50,
+      "source_id": "source-local-thor",
+      "stage_id": "denoise",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 179.5344696044922
+        },
+        {
+          "statistic": "mean",
+          "unit": "ms",
+          "value": 184.71699798583984
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 184.00475311279297
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 190.30496139526366
+        },
+        {
+          "statistic": "max",
+          "unit": "ms",
+          "value": 195.0633544921875
+        }
+      ],
+      "timing_boundary_id": "predict_action_chunk_preprocessed",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": false,
+      "aggregation": "summary",
+      "evidence": "measured_local",
+      "execution_count": 1,
+      "measurement_id": "stage-lerobot-smolvla-matrix-008",
+      "measurement_method": "cuda_event",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-lerobot-smolvla-matrix-002",
+      "sample_count": 50,
+      "source_id": "source-local-thor",
+      "stage_id": "outside-prefix-denoise",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 2.7578277587890625
+        },
+        {
+          "statistic": "mean",
+          "unit": "ms",
+          "value": 2.8384185791015626
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 2.8280029296875
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 2.9305877685546875
+        },
+        {
+          "statistic": "max",
+          "unit": "ms",
+          "value": 3.1206207275390625
+        }
+      ],
+      "timing_boundary_id": "predict_action_chunk_preprocessed",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": false,
+      "aggregation": "summary",
+      "evidence": "measured_local",
+      "execution_count": 1,
+      "measurement_id": "stage-lerobot-smolvla-matrix-009",
+      "measurement_method": "cuda_event",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-lerobot-smolvla-matrix-003",
+      "sample_count": 50,
+      "source_id": "source-local-thor",
+      "stage_id": "fixed-prefix",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 210.92381286621094
+        },
+        {
+          "statistic": "mean",
+          "unit": "ms",
+          "value": 212.9881787109375
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 212.65013122558594
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 216.53149490356446
+        },
+        {
+          "statistic": "max",
+          "unit": "ms",
+          "value": 218.87709045410156
+        }
+      ],
+      "timing_boundary_id": "predict_action_chunk_preprocessed",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": false,
+      "aggregation": "summary",
+      "evidence": "measured_local",
+      "execution_count": 1,
+      "measurement_id": "stage-lerobot-smolvla-matrix-010",
+      "measurement_method": "cuda_event",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-lerobot-smolvla-matrix-003",
+      "sample_count": 50,
+      "source_id": "source-local-thor",
+      "stage_id": "prefix-prefill",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 26.257728576660156
+        },
+        {
+          "statistic": "mean",
+          "unit": "ms",
+          "value": 28.11745273590088
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 27.73755168914795
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 31.669034671783447
+        },
+        {
+          "statistic": "max",
+          "unit": "ms",
+          "value": 33.74156951904297
+        }
+      ],
+      "timing_boundary_id": "predict_action_chunk_preprocessed",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": false,
+      "aggregation": "summary",
+      "evidence": "measured_local",
+      "execution_count": 10,
+      "measurement_id": "stage-lerobot-smolvla-matrix-011",
+      "measurement_method": "cuda_event",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-lerobot-smolvla-matrix-003",
+      "sample_count": 50,
+      "source_id": "source-local-thor",
+      "stage_id": "denoise",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 197.3357391357422
+        },
+        {
+          "statistic": "mean",
+          "unit": "ms",
+          "value": 204.2712860107422
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 204.59847259521484
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 208.10241012573243
+        },
+        {
+          "statistic": "max",
+          "unit": "ms",
+          "value": 208.98431396484375
+        }
+      ],
+      "timing_boundary_id": "predict_action_chunk_preprocessed",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": false,
+      "aggregation": "summary",
+      "evidence": "measured_local",
+      "execution_count": 1,
+      "measurement_id": "stage-lerobot-smolvla-matrix-012",
+      "measurement_method": "cuda_event",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-lerobot-smolvla-matrix-003",
+      "sample_count": 50,
+      "source_id": "source-local-thor",
+      "stage_id": "outside-prefix-denoise",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 2.7469635009765625
+        },
+        {
+          "statistic": "mean",
+          "unit": "ms",
+          "value": 2.8895947265625
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 2.8629913330078125
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 3.0246566772460937
+        },
+        {
+          "statistic": "max",
+          "unit": "ms",
+          "value": 3.255859375
+        }
+      ],
+      "timing_boundary_id": "predict_action_chunk_preprocessed",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": false,
+      "aggregation": "summary",
+      "evidence": "measured_local",
+      "execution_count": 1,
+      "measurement_id": "stage-lerobot-smolvla-matrix-013",
+      "measurement_method": "cuda_event",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-lerobot-smolvla-matrix-004",
+      "sample_count": 50,
+      "source_id": "source-local-thor",
+      "stage_id": "fixed-prefix",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 79.1310043334961
+        },
+        {
+          "statistic": "mean",
+          "unit": "ms",
+          "value": 79.48705993652344
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 79.37287902832031
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 80.33607940673828
+        },
+        {
+          "statistic": "max",
+          "unit": "ms",
+          "value": 80.65888214111328
+        }
+      ],
+      "timing_boundary_id": "predict_action_chunk_preprocessed",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": false,
+      "aggregation": "summary",
+      "evidence": "measured_local",
+      "execution_count": 1,
+      "measurement_id": "stage-lerobot-smolvla-matrix-014",
+      "measurement_method": "cuda_event",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-lerobot-smolvla-matrix-004",
+      "sample_count": 50,
+      "source_id": "source-local-thor",
+      "stage_id": "prefix-prefill",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 17.3591365814209
+        },
+        {
+          "statistic": "mean",
+          "unit": "ms",
+          "value": 17.619721069335938
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 17.541263580322266
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 18.200676822662352
+        },
+        {
+          "statistic": "max",
+          "unit": "ms",
+          "value": 18.426143646240234
+        }
+      ],
+      "timing_boundary_id": "predict_action_chunk_preprocessed",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": false,
+      "aggregation": "summary",
+      "evidence": "measured_local",
+      "execution_count": 10,
+      "measurement_id": "stage-lerobot-smolvla-matrix-015",
+      "measurement_method": "cuda_event",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-lerobot-smolvla-matrix-004",
+      "sample_count": 50,
+      "source_id": "source-local-thor",
+      "stage_id": "denoise",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 165.33692932128906
+        },
+        {
+          "statistic": "mean",
+          "unit": "ms",
+          "value": 166.89526306152345
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 166.93020629882812
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 168.14969635009766
+        },
+        {
+          "statistic": "max",
+          "unit": "ms",
+          "value": 169.42124938964844
+        }
+      ],
+      "timing_boundary_id": "predict_action_chunk_preprocessed",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": false,
+      "aggregation": "summary",
+      "evidence": "measured_local",
+      "execution_count": 1,
+      "measurement_id": "stage-lerobot-smolvla-matrix-016",
+      "measurement_method": "cuda_event",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-lerobot-smolvla-matrix-004",
+      "sample_count": 50,
+      "source_id": "source-local-thor",
+      "stage_id": "outside-prefix-denoise",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 2.6544265747070312
+        },
+        {
+          "statistic": "mean",
+          "unit": "ms",
+          "value": 2.7312747192382814
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 2.7136154174804688
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 2.8467346191406246
+        },
+        {
+          "statistic": "max",
+          "unit": "ms",
+          "value": 2.8784103393554688
+        }
+      ],
+      "timing_boundary_id": "predict_action_chunk_preprocessed",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": false,
+      "aggregation": "summary",
+      "evidence": "measured_local",
+      "execution_count": 1,
+      "measurement_id": "stage-lerobot-smolvla-matrix-017",
+      "measurement_method": "cuda_event",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-lerobot-smolvla-matrix-005",
+      "sample_count": 50,
+      "source_id": "source-local-thor",
+      "stage_id": "fixed-prefix",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 142.29603576660156
+        },
+        {
+          "statistic": "mean",
+          "unit": "ms",
+          "value": 143.87868286132812
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 144.066650390625
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 145.32621383666992
+        },
+        {
+          "statistic": "max",
+          "unit": "ms",
+          "value": 145.610107421875
+        }
+      ],
+      "timing_boundary_id": "predict_action_chunk_preprocessed",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": false,
+      "aggregation": "summary",
+      "evidence": "measured_local",
+      "execution_count": 1,
+      "measurement_id": "stage-lerobot-smolvla-matrix-018",
+      "measurement_method": "cuda_event",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-lerobot-smolvla-matrix-005",
+      "sample_count": 50,
+      "source_id": "source-local-thor",
+      "stage_id": "prefix-prefill",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 19.33420753479004
+        },
+        {
+          "statistic": "mean",
+          "unit": "ms",
+          "value": 20.686814002990722
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 20.928863525390625
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 21.9527247428894
+        },
+        {
+          "statistic": "max",
+          "unit": "ms",
+          "value": 22.28438377380371
+        }
+      ],
+      "timing_boundary_id": "predict_action_chunk_preprocessed",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": false,
+      "aggregation": "summary",
+      "evidence": "measured_local",
+      "execution_count": 10,
+      "measurement_id": "stage-lerobot-smolvla-matrix-019",
+      "measurement_method": "cuda_event",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-lerobot-smolvla-matrix-005",
+      "sample_count": 50,
+      "source_id": "source-local-thor",
+      "stage_id": "denoise",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 178.0109405517578
+        },
+        {
+          "statistic": "mean",
+          "unit": "ms",
+          "value": 182.2774334716797
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 181.84476470947266
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 186.80647888183594
+        },
+        {
+          "statistic": "max",
+          "unit": "ms",
+          "value": 189.8842315673828
+        }
+      ],
+      "timing_boundary_id": "predict_action_chunk_preprocessed",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": false,
+      "aggregation": "summary",
+      "evidence": "measured_local",
+      "execution_count": 1,
+      "measurement_id": "stage-lerobot-smolvla-matrix-020",
+      "measurement_method": "cuda_event",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-lerobot-smolvla-matrix-005",
+      "sample_count": 50,
+      "source_id": "source-local-thor",
+      "stage_id": "outside-prefix-denoise",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 2.6834869384765625
+        },
+        {
+          "statistic": "mean",
+          "unit": "ms",
+          "value": 2.780743408203125
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 2.7653884887695312
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 2.8910171508789064
+        },
+        {
+          "statistic": "max",
+          "unit": "ms",
+          "value": 2.923431396484375
+        }
+      ],
+      "timing_boundary_id": "predict_action_chunk_preprocessed",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": false,
+      "aggregation": "summary",
+      "evidence": "measured_local",
+      "execution_count": 1,
+      "measurement_id": "stage-lerobot-smolvla-matrix-021",
+      "measurement_method": "cuda_event",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-lerobot-smolvla-matrix-006",
+      "sample_count": 50,
+      "source_id": "source-local-thor",
+      "stage_id": "fixed-prefix",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 210.6302032470703
+        },
+        {
+          "statistic": "mean",
+          "unit": "ms",
+          "value": 215.42046508789062
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 215.35875701904297
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 219.55967330932617
+        },
+        {
+          "statistic": "max",
+          "unit": "ms",
+          "value": 220.5377655029297
+        }
+      ],
+      "timing_boundary_id": "predict_action_chunk_preprocessed",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": false,
+      "aggregation": "summary",
+      "evidence": "measured_local",
+      "execution_count": 1,
+      "measurement_id": "stage-lerobot-smolvla-matrix-022",
+      "measurement_method": "cuda_event",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-lerobot-smolvla-matrix-006",
+      "sample_count": 50,
+      "source_id": "source-local-thor",
+      "stage_id": "prefix-prefill",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 25.660255432128906
+        },
+        {
+          "statistic": "mean",
+          "unit": "ms",
+          "value": 30.33799606323242
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 30.260560035705566
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 34.344495391845705
+        },
+        {
+          "statistic": "max",
+          "unit": "ms",
+          "value": 35.27167892456055
+        }
+      ],
+      "timing_boundary_id": "predict_action_chunk_preprocessed",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": false,
+      "aggregation": "summary",
+      "evidence": "measured_local",
+      "execution_count": 10,
+      "measurement_id": "stage-lerobot-smolvla-matrix-023",
+      "measurement_method": "cuda_event",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-lerobot-smolvla-matrix-006",
+      "sample_count": 50,
+      "source_id": "source-local-thor",
+      "stage_id": "denoise",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 199.9529266357422
+        },
+        {
+          "statistic": "mean",
+          "unit": "ms",
+          "value": 207.18200958251953
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 206.88687896728516
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 213.81316757202148
+        },
+        {
+          "statistic": "max",
+          "unit": "ms",
+          "value": 217.05526733398438
+        }
+      ],
+      "timing_boundary_id": "predict_action_chunk_preprocessed",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": false,
+      "aggregation": "summary",
+      "evidence": "measured_local",
+      "execution_count": 1,
+      "measurement_id": "stage-lerobot-smolvla-matrix-024",
+      "measurement_method": "cuda_event",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-lerobot-smolvla-matrix-006",
+      "sample_count": 50,
+      "source_id": "source-local-thor",
+      "stage_id": "outside-prefix-denoise",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 2.7252960205078125
+        },
+        {
+          "statistic": "mean",
+          "unit": "ms",
+          "value": 2.822665100097656
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 2.823486328125
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 2.9110687255859373
+        },
+        {
+          "statistic": "max",
+          "unit": "ms",
+          "value": 2.952667236328125
+        }
+      ],
+      "timing_boundary_id": "predict_action_chunk_preprocessed",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": false,
+      "aggregation": "summary",
+      "evidence": "measured_local",
+      "execution_count": 1,
+      "measurement_id": "stage-lerobot-smolvla-matrix-025",
+      "measurement_method": "cuda_event",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-lerobot-smolvla-matrix-007",
+      "sample_count": 50,
+      "source_id": "source-local-thor",
+      "stage_id": "fixed-prefix",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 79.2425308227539
+        },
+        {
+          "statistic": "mean",
+          "unit": "ms",
+          "value": 79.67434371948242
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 79.49252700805664
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 80.51963539123535
+        },
+        {
+          "statistic": "max",
+          "unit": "ms",
+          "value": 81.02899169921875
+        }
+      ],
+      "timing_boundary_id": "predict_action_chunk_preprocessed",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": false,
+      "aggregation": "summary",
+      "evidence": "measured_local",
+      "execution_count": 1,
+      "measurement_id": "stage-lerobot-smolvla-matrix-026",
+      "measurement_method": "cuda_event",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-lerobot-smolvla-matrix-007",
+      "sample_count": 50,
+      "source_id": "source-local-thor",
+      "stage_id": "prefix-prefill",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 17.419200897216797
+        },
+        {
+          "statistic": "mean",
+          "unit": "ms",
+          "value": 17.719306335449218
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 17.63740825653076
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 18.378540992736816
+        },
+        {
+          "statistic": "max",
+          "unit": "ms",
+          "value": 18.534400939941406
+        }
+      ],
+      "timing_boundary_id": "predict_action_chunk_preprocessed",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": false,
+      "aggregation": "summary",
+      "evidence": "measured_local",
+      "execution_count": 10,
+      "measurement_id": "stage-lerobot-smolvla-matrix-027",
+      "measurement_method": "cuda_event",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-lerobot-smolvla-matrix-007",
+      "sample_count": 50,
+      "source_id": "source-local-thor",
+      "stage_id": "denoise",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 165.5696258544922
+        },
+        {
+          "statistic": "mean",
+          "unit": "ms",
+          "value": 167.2773178100586
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 167.1164779663086
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 168.95331420898435
+        },
+        {
+          "statistic": "max",
+          "unit": "ms",
+          "value": 169.54412841796875
+        }
+      ],
+      "timing_boundary_id": "predict_action_chunk_preprocessed",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": false,
+      "aggregation": "summary",
+      "evidence": "measured_local",
+      "execution_count": 1,
+      "measurement_id": "stage-lerobot-smolvla-matrix-028",
+      "measurement_method": "cuda_event",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-lerobot-smolvla-matrix-007",
+      "sample_count": 50,
+      "source_id": "source-local-thor",
+      "stage_id": "outside-prefix-denoise",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 2.6575088500976562
+        },
+        {
+          "statistic": "mean",
+          "unit": "ms",
+          "value": 2.752590789794922
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 2.73516845703125
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 2.8396530151367188
+        },
+        {
+          "statistic": "max",
+          "unit": "ms",
+          "value": 2.8650970458984375
+        }
+      ],
+      "timing_boundary_id": "predict_action_chunk_preprocessed",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": false,
+      "aggregation": "summary",
+      "evidence": "measured_local",
+      "execution_count": 1,
+      "measurement_id": "stage-lerobot-smolvla-matrix-029",
+      "measurement_method": "cuda_event",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-lerobot-smolvla-matrix-008",
+      "sample_count": 50,
+      "source_id": "source-local-thor",
+      "stage_id": "fixed-prefix",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 142.9344024658203
+        },
+        {
+          "statistic": "mean",
+          "unit": "ms",
+          "value": 144.17061614990234
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 143.84461212158203
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 145.73691406249998
+        },
+        {
+          "statistic": "max",
+          "unit": "ms",
+          "value": 146.3318328857422
+        }
+      ],
+      "timing_boundary_id": "predict_action_chunk_preprocessed",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": false,
+      "aggregation": "summary",
+      "evidence": "measured_local",
+      "execution_count": 1,
+      "measurement_id": "stage-lerobot-smolvla-matrix-030",
+      "measurement_method": "cuda_event",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-lerobot-smolvla-matrix-008",
+      "sample_count": 50,
+      "source_id": "source-local-thor",
+      "stage_id": "prefix-prefill",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 19.417503356933594
+        },
+        {
+          "statistic": "mean",
+          "unit": "ms",
+          "value": 20.616666259765626
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 20.1844482421875
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 22.123211097717284
+        },
+        {
+          "statistic": "max",
+          "unit": "ms",
+          "value": 23.289600372314453
+        }
+      ],
+      "timing_boundary_id": "predict_action_chunk_preprocessed",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": false,
+      "aggregation": "summary",
+      "evidence": "measured_local",
+      "execution_count": 10,
+      "measurement_id": "stage-lerobot-smolvla-matrix-031",
+      "measurement_method": "cuda_event",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-lerobot-smolvla-matrix-008",
+      "sample_count": 50,
+      "source_id": "source-local-thor",
+      "stage_id": "denoise",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 178.30828857421875
+        },
+        {
+          "statistic": "mean",
+          "unit": "ms",
+          "value": 184.50433349609375
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 183.81187438964844
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 189.88052978515623
+        },
+        {
+          "statistic": "max",
+          "unit": "ms",
+          "value": 196.2645721435547
+        }
+      ],
+      "timing_boundary_id": "predict_action_chunk_preprocessed",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": false,
+      "aggregation": "summary",
+      "evidence": "measured_local",
+      "execution_count": 1,
+      "measurement_id": "stage-lerobot-smolvla-matrix-032",
+      "measurement_method": "cuda_event",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-lerobot-smolvla-matrix-008",
+      "sample_count": 50,
+      "source_id": "source-local-thor",
+      "stage_id": "outside-prefix-denoise",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 2.7417755126953125
+        },
+        {
+          "statistic": "mean",
+          "unit": "ms",
+          "value": 2.814977722167969
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 2.8082275390625
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 2.9000488281249996
+        },
+        {
+          "statistic": "max",
+          "unit": "ms",
+          "value": 2.941009521484375
+        }
+      ],
+      "timing_boundary_id": "predict_action_chunk_preprocessed",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": false,
+      "aggregation": "summary",
+      "evidence": "measured_local",
+      "execution_count": 1,
+      "measurement_id": "stage-lerobot-smolvla-matrix-033",
+      "measurement_method": "cuda_event",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-lerobot-smolvla-matrix-009",
+      "sample_count": 50,
+      "source_id": "source-local-thor",
+      "stage_id": "fixed-prefix",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 211.58912658691406
+        },
+        {
+          "statistic": "mean",
+          "unit": "ms",
+          "value": 214.84054473876952
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 215.27603149414062
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 217.6648712158203
+        },
+        {
+          "statistic": "max",
+          "unit": "ms",
+          "value": 219.5111083984375
+        }
+      ],
+      "timing_boundary_id": "predict_action_chunk_preprocessed",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": false,
+      "aggregation": "summary",
+      "evidence": "measured_local",
+      "execution_count": 1,
+      "measurement_id": "stage-lerobot-smolvla-matrix-034",
+      "measurement_method": "cuda_event",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-lerobot-smolvla-matrix-009",
+      "sample_count": 50,
+      "source_id": "source-local-thor",
+      "stage_id": "prefix-prefill",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 26.790496826171875
+        },
+        {
+          "statistic": "mean",
+          "unit": "ms",
+          "value": 29.445365219116212
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 29.97809600830078
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 31.981021118164062
+        },
+        {
+          "statistic": "max",
+          "unit": "ms",
+          "value": 34.27635192871094
+        }
+      ],
+      "timing_boundary_id": "predict_action_chunk_preprocessed",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": false,
+      "aggregation": "summary",
+      "evidence": "measured_local",
+      "execution_count": 10,
+      "measurement_id": "stage-lerobot-smolvla-matrix-035",
+      "measurement_method": "cuda_event",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-lerobot-smolvla-matrix-009",
+      "sample_count": 50,
+      "source_id": "source-local-thor",
+      "stage_id": "denoise",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 199.34722900390625
+        },
+        {
+          "statistic": "mean",
+          "unit": "ms",
+          "value": 207.47686645507812
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 207.6872329711914
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 210.86170120239257
+        },
+        {
+          "statistic": "max",
+          "unit": "ms",
+          "value": 213.6611785888672
+        }
+      ],
+      "timing_boundary_id": "predict_action_chunk_preprocessed",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": false,
+      "aggregation": "summary",
+      "evidence": "measured_local",
+      "execution_count": 1,
+      "measurement_id": "stage-lerobot-smolvla-matrix-036",
+      "measurement_method": "cuda_event",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-lerobot-smolvla-matrix-009",
+      "sample_count": 50,
+      "source_id": "source-local-thor",
+      "stage_id": "outside-prefix-denoise",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 2.79345703125
+        },
+        {
+          "statistic": "mean",
+          "unit": "ms",
+          "value": 2.8842568969726563
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 2.8851699829101562
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 2.9699684143066403
+        },
+        {
+          "statistic": "max",
+          "unit": "ms",
+          "value": 3.0229949951171875
+        }
+      ],
+      "timing_boundary_id": "predict_action_chunk_preprocessed",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-001",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-001",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vision",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 3.911346435546875
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-002",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-001",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vlm",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 15.822835763295492
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 10,
+      "measurement_id": "stage-vla-perf-matrix-003",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-001",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "action",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 25.093501806259155
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-004",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-002",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vision",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 1.9556732177734375
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-005",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-002",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vlm",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 7.911417881647746
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 10,
+      "measurement_id": "stage-vla-perf-matrix-006",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-002",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "action",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 12.546750903129578
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-007",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-003",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vision",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 3.911346435546875
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-008",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-003",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vlm",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 15.971897562344868
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 10,
+      "measurement_id": "stage-vla-perf-matrix-009",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-003",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "action",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 25.104999542236328
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-010",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-004",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vision",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 1.9556732177734375
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-011",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-004",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vlm",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 7.985948781172434
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 10,
+      "measurement_id": "stage-vla-perf-matrix-012",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-004",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "action",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 12.552499771118164
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-013",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-005",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vision",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 3.911346435546875
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-014",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-005",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vlm",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 16.137544433275856
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 10,
+      "measurement_id": "stage-vla-perf-matrix-015",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-005",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "action",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 25.11777480443319
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-016",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-006",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vision",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 1.9556732177734375
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-017",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-006",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vlm",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 8.068772216637928
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 10,
+      "measurement_id": "stage-vla-perf-matrix-018",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-006",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "action",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 12.558887402216595
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-019",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-007",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vision",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 4.986846923828125
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-020",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-007",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vlm",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 17.944641590118408
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 10,
+      "measurement_id": "stage-vla-perf-matrix-021",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-007",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "action",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 25.25702516237895
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-022",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-008",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vision",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 2.4934234619140625
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-023",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-008",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vlm",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 8.972320795059204
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 10,
+      "measurement_id": "stage-vla-perf-matrix-024",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-008",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "action",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 12.628512581189476
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-025",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-009",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vision",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 4.986846923828125
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-026",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-009",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vlm",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 18.09397804737091
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 10,
+      "measurement_id": "stage-vla-perf-matrix-027",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-009",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "action",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 25.268522898356125
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-028",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-010",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vision",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 2.4934234619140625
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-029",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-010",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vlm",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 9.046989023685455
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 10,
+      "measurement_id": "stage-vla-perf-matrix-030",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-010",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "action",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 12.634261449178062
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-031",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-011",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vision",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 4.986846923828125
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-032",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-011",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vlm",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 18.25993009408315
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 10,
+      "measurement_id": "stage-vla-perf-matrix-033",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-011",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "action",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 25.28129816055298
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-034",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-012",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vision",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 2.4934234619140625
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-035",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-012",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vlm",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 9.129965047041575
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 10,
+      "measurement_id": "stage-vla-perf-matrix-036",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-012",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "action",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 12.64064908027649
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-037",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-013",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vision",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 6.062347412109375
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-038",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-013",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vlm",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 20.070353666941326
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 10,
+      "measurement_id": "stage-vla-perf-matrix-039",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-013",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "action",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 25.42054851849874
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-040",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-014",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vision",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 3.0311737060546875
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-041",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-014",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vlm",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 10.035176833470663
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 10,
+      "measurement_id": "stage-vla-perf-matrix-042",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-014",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "action",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 12.71027425924937
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-043",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-015",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vision",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 6.062347412109375
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-044",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-015",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vlm",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 20.219964782396953
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 10,
+      "measurement_id": "stage-vla-perf-matrix-045",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-015",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "action",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 25.432046254475914
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-046",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-016",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vision",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 3.0311737060546875
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-047",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-016",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vlm",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 10.109982391198477
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 10,
+      "measurement_id": "stage-vla-perf-matrix-048",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-016",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "action",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 12.716023127237957
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-049",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-017",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vision",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 6.062347412109375
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-050",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-017",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vlm",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 20.386222004890442
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 10,
+      "measurement_id": "stage-vla-perf-matrix-051",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-017",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "action",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 25.444821516672775
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-052",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-018",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vision",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 3.0311737060546875
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-053",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-018",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vlm",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 10.193111002445221
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 10,
+      "measurement_id": "stage-vla-perf-matrix-054",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-018",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "action",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 12.722410758336387
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-055",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-019",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vision",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 3.911346435546875
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-056",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-019",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vlm",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 16.9495587348938
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 10,
+      "measurement_id": "stage-vla-perf-matrix-057",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-019",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "action",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 25.1803735891978
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-058",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-020",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vision",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 1.9556732177734375
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-059",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-020",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vlm",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 8.4747793674469
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 10,
+      "measurement_id": "stage-vla-perf-matrix-060",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-020",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "action",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 12.5901867945989
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-061",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-021",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vision",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 3.911346435546875
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-062",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-021",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vlm",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 17.11534627278646
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 10,
+      "measurement_id": "stage-vla-perf-matrix-063",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-021",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "action",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 25.193148851394653
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-064",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-022",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vision",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 1.9556732177734375
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-065",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-022",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vlm",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 8.55767313639323
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 10,
+      "measurement_id": "stage-vla-perf-matrix-066",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-022",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "action",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 12.596574425697327
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-067",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-023",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vision",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 3.911346435546875
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-068",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-023",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vlm",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 17.281157652537033
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 10,
+      "measurement_id": "stage-vla-perf-matrix-069",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-023",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "action",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 25.205924113591514
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-070",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-024",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vision",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 1.9556732177734375
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-071",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-024",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vlm",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 8.640578826268516
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 10,
+      "measurement_id": "stage-vla-perf-matrix-072",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-024",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "action",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 12.602962056795757
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-073",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-025",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vision",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 4.986846923828125
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-074",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-025",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vlm",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 19.073439757029217
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 10,
+      "measurement_id": "stage-vla-perf-matrix-075",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-025",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "action",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 25.34389694531759
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-076",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-026",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vision",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 2.4934234619140625
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-077",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-026",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vlm",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 9.536719878514608
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 10,
+      "measurement_id": "stage-vla-perf-matrix-078",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-026",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "action",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 12.671948472658794
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-079",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-027",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vision",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 4.986846923828125
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-080",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-027",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vlm",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 19.23953247070313
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 10,
+      "measurement_id": "stage-vla-perf-matrix-081",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-027",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "action",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 25.35667220751445
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-082",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-028",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vision",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 2.4934234619140625
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-083",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-028",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vlm",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 9.619766235351564
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 10,
+      "measurement_id": "stage-vla-perf-matrix-084",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-028",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "action",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 12.678336103757225
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-085",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-029",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vision",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 4.986846923828125
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-086",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-029",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vlm",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 19.405649026234947
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 10,
+      "measurement_id": "stage-vla-perf-matrix-087",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-029",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "action",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 25.369447469711304
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-088",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-030",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vision",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 2.4934234619140625
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-089",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-030",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vlm",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 9.702824513117474
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 10,
+      "measurement_id": "stage-vla-perf-matrix-090",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-030",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "action",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 12.684723734855652
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-091",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-031",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vision",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 6.062347412109375
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-092",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-031",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vlm",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 21.201227029164635
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 10,
+      "measurement_id": "stage-vla-perf-matrix-093",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-031",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "action",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 25.507420301437378
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-094",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-032",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vision",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 3.0311737060546875
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-095",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-032",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vlm",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 10.600613514582317
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 10,
+      "measurement_id": "stage-vla-perf-matrix-096",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-032",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "action",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 12.753710150718689
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-097",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-033",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vision",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 6.062347412109375
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-098",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-033",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vlm",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 21.367624918619793
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 10,
+      "measurement_id": "stage-vla-perf-matrix-099",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-033",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "action",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 25.52019556363424
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-100",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-034",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vision",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 3.0311737060546875
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-101",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-034",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vlm",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 10.683812459309896
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 10,
+      "measurement_id": "stage-vla-perf-matrix-102",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-034",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "action",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 12.76009778181712
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-103",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-035",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vision",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 6.062347412109375
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-104",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-035",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vlm",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 21.53404664993286
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 10,
+      "measurement_id": "stage-vla-perf-matrix-105",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-035",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "action",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 25.5329708258311
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-106",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-036",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vision",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 3.0311737060546875
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-107",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-036",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vlm",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 10.76702332496643
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 10,
+      "measurement_id": "stage-vla-perf-matrix-108",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-036",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "action",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 12.76648541291555
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-109",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-037",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vision",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 2.136654324001736
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-110",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-037",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vlm",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 1.3287577364179821
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 10,
+      "measurement_id": "stage-vla-perf-matrix-111",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-037",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "action",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 7.88850916756524
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-112",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-038",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vision",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 1.068327162000868
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-113",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-038",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vlm",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 0.6643788682089911
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 10,
+      "measurement_id": "stage-vla-perf-matrix-114",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-038",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "action",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 3.94425458378262
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-115",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-039",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vision",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 2.136654324001736
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-116",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-039",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vlm",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 1.3287577364179821
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 10,
+      "measurement_id": "stage-vla-perf-matrix-117",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-039",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "action",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 7.88850916756524
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-118",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-040",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vision",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 1.068327162000868
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-119",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-040",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vlm",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 0.6643788682089911
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 10,
+      "measurement_id": "stage-vla-perf-matrix-120",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-040",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "action",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 3.94425458378262
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-121",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-041",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vision",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 2.136654324001736
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-122",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-041",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vlm",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 1.3287577364179821
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 10,
+      "measurement_id": "stage-vla-perf-matrix-123",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-041",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "action",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 7.88850916756524
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-124",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-042",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vision",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 1.068327162000868
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-125",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-042",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vlm",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 0.6643788682089911
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 10,
+      "measurement_id": "stage-vla-perf-matrix-126",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-042",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "action",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 3.94425458378262
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-127",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-043",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vision",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 4.273308648003472
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-128",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-043",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vlm",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 1.4666519783161305
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 10,
+      "measurement_id": "stage-vla-perf-matrix-129",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-043",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "action",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 7.978931621268944
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-130",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-044",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vision",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 2.136654324001736
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-131",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-044",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vlm",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 0.7333259891580652
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 10,
+      "measurement_id": "stage-vla-perf-matrix-132",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-044",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "action",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 3.989465810634472
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-133",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-045",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vision",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 4.273308648003472
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-134",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-045",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vlm",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 1.4666519783161305
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 10,
+      "measurement_id": "stage-vla-perf-matrix-135",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-045",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "action",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 7.978931621268944
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-136",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-046",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vision",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 2.136654324001736
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-137",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-046",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vlm",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 0.7333259891580652
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 10,
+      "measurement_id": "stage-vla-perf-matrix-138",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-046",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "action",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 3.989465810634472
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-139",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-047",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vision",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 4.273308648003472
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-140",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-047",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vlm",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 1.4666519783161305
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 10,
+      "measurement_id": "stage-vla-perf-matrix-141",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-047",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "action",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 7.978931621268944
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-142",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-048",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vision",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 2.136654324001736
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-143",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-048",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vlm",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 0.7333259891580652
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 10,
+      "measurement_id": "stage-vla-perf-matrix-144",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-048",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "action",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 3.989465810634472
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-145",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-049",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vision",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 6.409962972005208
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-146",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-049",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vlm",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 1.6045462202142786
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 10,
+      "measurement_id": "stage-vla-perf-matrix-147",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-049",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "action",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 8.069354074972647
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-148",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-050",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vision",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 3.204981486002604
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-149",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-050",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vlm",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 0.8022731101071393
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 10,
+      "measurement_id": "stage-vla-perf-matrix-150",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-050",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "action",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 4.034677037486324
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-151",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-051",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vision",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 6.409962972005208
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-152",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-051",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vlm",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 1.6045462202142786
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 10,
+      "measurement_id": "stage-vla-perf-matrix-153",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-051",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "action",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 8.069354074972647
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-154",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-052",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vision",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 3.204981486002604
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-155",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-052",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vlm",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 0.8022731101071393
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 10,
+      "measurement_id": "stage-vla-perf-matrix-156",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-052",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "action",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 4.034677037486324
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-157",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-053",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vision",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 6.409962972005208
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-158",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-053",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vlm",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 1.6045462202142786
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 10,
+      "measurement_id": "stage-vla-perf-matrix-159",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-053",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "action",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 8.069354074972647
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-160",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-054",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vision",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 3.204981486002604
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 1,
+      "measurement_id": "stage-vla-perf-matrix-161",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-054",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "vlm",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 0.8022731101071393
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "additive": true,
+      "aggregation": "analytical",
+      "evidence": "analytical",
+      "execution_count": 10,
+      "measurement_id": "stage-vla-perf-matrix-162",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "parent_stage_id": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-054",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "stage_id": "action",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 4.034677037486324
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    }
+  ],
+  "schema_version": "1.0.0"
+}

@@ -1,0 +1,3336 @@
+{
+  "dataset": "end_to_end",
+  "records": [
+    {
+      "evidence": "measured_local",
+      "measurement_id": "e2e-flashrt-pi0-matrix-001",
+      "measurement_method": "wall_clock",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-flashrt-pi0-matrix-001",
+      "sample_count": 100,
+      "source_id": "source-local-thor",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 39.159955
+        },
+        {
+          "statistic": "mean",
+          "unit": "ms",
+          "value": 40.08087131
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 40.1136125
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 40.4523936
+        },
+        {
+          "statistic": "max",
+          "unit": "ms",
+          "value": 40.71642
+        }
+      ],
+      "timing_boundary_id": "predict_cached_graph_sync",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "measured_local",
+      "measurement_id": "e2e-flashrt-pi0-matrix-002",
+      "measurement_method": "wall_clock",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-flashrt-pi0-matrix-002",
+      "sample_count": 100,
+      "source_id": "source-local-thor",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 40.028891
+        },
+        {
+          "statistic": "mean",
+          "unit": "ms",
+          "value": 40.540361929999996
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 40.579147500000005
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 40.8248593
+        },
+        {
+          "statistic": "max",
+          "unit": "ms",
+          "value": 41.086425
+        }
+      ],
+      "timing_boundary_id": "predict_cached_graph_sync",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "measured_local",
+      "measurement_id": "e2e-flashrt-pi0-matrix-003",
+      "measurement_method": "wall_clock",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-flashrt-pi0-matrix-003",
+      "sample_count": 100,
+      "source_id": "source-local-thor",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 42.175427
+        },
+        {
+          "statistic": "mean",
+          "unit": "ms",
+          "value": 42.847702250000005
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 42.8317185
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 43.13071895
+        },
+        {
+          "statistic": "max",
+          "unit": "ms",
+          "value": 43.243806
+        }
+      ],
+      "timing_boundary_id": "predict_cached_graph_sync",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "measured_local",
+      "measurement_id": "e2e-flashrt-pi0-matrix-004",
+      "measurement_method": "wall_clock",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-flashrt-pi0-matrix-004",
+      "sample_count": 100,
+      "source_id": "source-local-thor",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 48.932379
+        },
+        {
+          "statistic": "mean",
+          "unit": "ms",
+          "value": 49.49113064
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 49.483647
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 49.65700675
+        },
+        {
+          "statistic": "max",
+          "unit": "ms",
+          "value": 49.893543
+        }
+      ],
+      "timing_boundary_id": "predict_cached_graph_sync",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "measured_local",
+      "measurement_id": "e2e-flashrt-pi0-matrix-005",
+      "measurement_method": "wall_clock",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-flashrt-pi0-matrix-005",
+      "sample_count": 100,
+      "source_id": "source-local-thor",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 49.223082
+        },
+        {
+          "statistic": "mean",
+          "unit": "ms",
+          "value": 49.8180686
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 49.8176505
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 49.964378599999996
+        },
+        {
+          "statistic": "max",
+          "unit": "ms",
+          "value": 50.255607
+        }
+      ],
+      "timing_boundary_id": "predict_cached_graph_sync",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "measured_local",
+      "measurement_id": "e2e-flashrt-pi0-matrix-006",
+      "measurement_method": "wall_clock",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-flashrt-pi0-matrix-006",
+      "sample_count": 100,
+      "source_id": "source-local-thor",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 49.742944
+        },
+        {
+          "statistic": "mean",
+          "unit": "ms",
+          "value": 50.37712208
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 50.351153
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 50.690114
+        },
+        {
+          "statistic": "max",
+          "unit": "ms",
+          "value": 50.987584
+        }
+      ],
+      "timing_boundary_id": "predict_cached_graph_sync",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "measured_local",
+      "measurement_id": "e2e-flashrt-pi0-matrix-007",
+      "measurement_method": "wall_clock",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-flashrt-pi0-matrix-007",
+      "sample_count": 100,
+      "source_id": "source-local-thor",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 59.924548
+        },
+        {
+          "statistic": "mean",
+          "unit": "ms",
+          "value": 60.1873205
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 60.165757
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 60.483979
+        },
+        {
+          "statistic": "max",
+          "unit": "ms",
+          "value": 60.878993
+        }
+      ],
+      "timing_boundary_id": "predict_cached_graph_sync",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "measured_local",
+      "measurement_id": "e2e-flashrt-pi0-matrix-008",
+      "measurement_method": "wall_clock",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-flashrt-pi0-matrix-008",
+      "sample_count": 100,
+      "source_id": "source-local-thor",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 56.955063
+        },
+        {
+          "statistic": "mean",
+          "unit": "ms",
+          "value": 57.59969584
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 57.356618
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 60.59687755
+        },
+        {
+          "statistic": "max",
+          "unit": "ms",
+          "value": 60.916464
+        }
+      ],
+      "timing_boundary_id": "predict_cached_graph_sync",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "measured_local",
+      "measurement_id": "e2e-flashrt-pi0-matrix-009",
+      "measurement_method": "wall_clock",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-flashrt-pi0-matrix-009",
+      "sample_count": 100,
+      "source_id": "source-local-thor",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 57.532741
+        },
+        {
+          "statistic": "mean",
+          "unit": "ms",
+          "value": 58.17809287
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 58.157295500000004
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 58.36437355
+        },
+        {
+          "statistic": "max",
+          "unit": "ms",
+          "value": 59.233107
+        }
+      ],
+      "timing_boundary_id": "predict_cached_graph_sync",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "measured_local",
+      "measurement_id": "e2e-flashrt-pi05-matrix-001",
+      "measurement_method": "wall_clock",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-flashrt-pi05-matrix-001",
+      "sample_count": 100,
+      "source_id": "source-local-thor",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 38.787984
+        },
+        {
+          "statistic": "mean",
+          "unit": "ms",
+          "value": 39.42483611
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 39.426655
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 39.5514536
+        },
+        {
+          "statistic": "max",
+          "unit": "ms",
+          "value": 42.44359
+        }
+      ],
+      "timing_boundary_id": "predict_cached_graph_sync",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "measured_local",
+      "measurement_id": "e2e-flashrt-pi05-matrix-002",
+      "measurement_method": "wall_clock",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-flashrt-pi05-matrix-002",
+      "sample_count": 100,
+      "source_id": "source-local-thor",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 38.076513
+        },
+        {
+          "statistic": "mean",
+          "unit": "ms",
+          "value": 38.53314814
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 38.520170500000006
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 39.043304899999995
+        },
+        {
+          "statistic": "max",
+          "unit": "ms",
+          "value": 39.215973
+        }
+      ],
+      "timing_boundary_id": "predict_cached_graph_sync",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "measured_local",
+      "measurement_id": "e2e-flashrt-pi05-matrix-003",
+      "measurement_method": "wall_clock",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-flashrt-pi05-matrix-003",
+      "sample_count": 100,
+      "source_id": "source-local-thor",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 41.237216
+        },
+        {
+          "statistic": "mean",
+          "unit": "ms",
+          "value": 41.758493310000006
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 41.74817
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 41.93939295
+        },
+        {
+          "statistic": "max",
+          "unit": "ms",
+          "value": 42.294126
+        }
+      ],
+      "timing_boundary_id": "predict_cached_graph_sync",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "measured_local",
+      "measurement_id": "e2e-flashrt-pi05-matrix-004",
+      "measurement_method": "wall_clock",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-flashrt-pi05-matrix-004",
+      "sample_count": 100,
+      "source_id": "source-local-thor",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 48.027177
+        },
+        {
+          "statistic": "mean",
+          "unit": "ms",
+          "value": 48.54420538
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 48.5727655
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 48.763905349999995
+        },
+        {
+          "statistic": "max",
+          "unit": "ms",
+          "value": 48.863823
+        }
+      ],
+      "timing_boundary_id": "predict_cached_graph_sync",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "measured_local",
+      "measurement_id": "e2e-flashrt-pi05-matrix-005",
+      "measurement_method": "wall_clock",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-flashrt-pi05-matrix-005",
+      "sample_count": 100,
+      "source_id": "source-local-thor",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 47.613661
+        },
+        {
+          "statistic": "mean",
+          "unit": "ms",
+          "value": 47.82429256
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 47.818408500000004
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 47.998465350000004
+        },
+        {
+          "statistic": "max",
+          "unit": "ms",
+          "value": 48.196325
+        }
+      ],
+      "timing_boundary_id": "predict_cached_graph_sync",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "measured_local",
+      "measurement_id": "e2e-flashrt-pi05-matrix-006",
+      "measurement_method": "wall_clock",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-flashrt-pi05-matrix-006",
+      "sample_count": 100,
+      "source_id": "source-local-thor",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 49.367754
+        },
+        {
+          "statistic": "mean",
+          "unit": "ms",
+          "value": 49.55649364
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 49.537368
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 49.75411045
+        },
+        {
+          "statistic": "max",
+          "unit": "ms",
+          "value": 50.066339
+        }
+      ],
+      "timing_boundary_id": "predict_cached_graph_sync",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "measured_local",
+      "measurement_id": "e2e-flashrt-pi05-matrix-007",
+      "measurement_method": "wall_clock",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-flashrt-pi05-matrix-007",
+      "sample_count": 100,
+      "source_id": "source-local-thor",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 59.256756
+        },
+        {
+          "statistic": "mean",
+          "unit": "ms",
+          "value": 59.73174753
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 59.7357045
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 59.84359545
+        },
+        {
+          "statistic": "max",
+          "unit": "ms",
+          "value": 59.89692
+        }
+      ],
+      "timing_boundary_id": "predict_cached_graph_sync",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "measured_local",
+      "measurement_id": "e2e-flashrt-pi05-matrix-008",
+      "measurement_method": "wall_clock",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-flashrt-pi05-matrix-008",
+      "sample_count": 100,
+      "source_id": "source-local-thor",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 55.692883
+        },
+        {
+          "statistic": "mean",
+          "unit": "ms",
+          "value": 56.254006849999996
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 56.206746499999994
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 56.8140887
+        },
+        {
+          "statistic": "max",
+          "unit": "ms",
+          "value": 57.889424
+        }
+      ],
+      "timing_boundary_id": "predict_cached_graph_sync",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "measured_local",
+      "measurement_id": "e2e-flashrt-pi05-matrix-009",
+      "measurement_method": "wall_clock",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-flashrt-pi05-matrix-009",
+      "sample_count": 100,
+      "source_id": "source-local-thor",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 59.885452
+        },
+        {
+          "statistic": "mean",
+          "unit": "ms",
+          "value": 60.400558499999995
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 60.4204855
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 60.527466249999996
+        },
+        {
+          "statistic": "max",
+          "unit": "ms",
+          "value": 60.689655
+        }
+      ],
+      "timing_boundary_id": "predict_cached_graph_sync",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "measured_local",
+      "measurement_id": "e2e-flashrt-pi05-matrix-010",
+      "measurement_method": "wall_clock",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-flashrt-pi05-matrix-010",
+      "sample_count": 100,
+      "source_id": "source-local-thor",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 64.81375
+        },
+        {
+          "statistic": "mean",
+          "unit": "ms",
+          "value": 65.05971168
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 65.055898
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 65.16083435
+        },
+        {
+          "statistic": "max",
+          "unit": "ms",
+          "value": 65.305539
+        }
+      ],
+      "timing_boundary_id": "predict_cached_graph_sync",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "measured_local",
+      "measurement_id": "e2e-flashrt-pi05-matrix-011",
+      "measurement_method": "wall_clock",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-flashrt-pi05-matrix-011",
+      "sample_count": 100,
+      "source_id": "source-local-thor",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 63.459589
+        },
+        {
+          "statistic": "mean",
+          "unit": "ms",
+          "value": 63.63349974
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 63.613074
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 63.86429835
+        },
+        {
+          "statistic": "max",
+          "unit": "ms",
+          "value": 64.029588
+        }
+      ],
+      "timing_boundary_id": "predict_cached_graph_sync",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "measured_local",
+      "measurement_id": "e2e-flashrt-pi05-matrix-012",
+      "measurement_method": "wall_clock",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-flashrt-pi05-matrix-012",
+      "sample_count": 100,
+      "source_id": "source-local-thor",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 65.019769
+        },
+        {
+          "statistic": "mean",
+          "unit": "ms",
+          "value": 65.58000298
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 65.575772
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 65.76176655
+        },
+        {
+          "statistic": "max",
+          "unit": "ms",
+          "value": 66.065552
+        }
+      ],
+      "timing_boundary_id": "predict_cached_graph_sync",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "measured_local",
+      "measurement_id": "e2e-flashrt-pi05-matrix-013",
+      "measurement_method": "wall_clock",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-flashrt-pi05-matrix-013",
+      "sample_count": 100,
+      "source_id": "source-local-thor",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 79.447478
+        },
+        {
+          "statistic": "mean",
+          "unit": "ms",
+          "value": 79.86415273
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 79.86247399999999
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 80.15884715
+        },
+        {
+          "statistic": "max",
+          "unit": "ms",
+          "value": 80.432304
+        }
+      ],
+      "timing_boundary_id": "predict_cached_graph_sync",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "measured_local",
+      "measurement_id": "e2e-flashrt-pi05-matrix-014",
+      "measurement_method": "wall_clock",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-flashrt-pi05-matrix-014",
+      "sample_count": 100,
+      "source_id": "source-local-thor",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 76.879681
+        },
+        {
+          "statistic": "mean",
+          "unit": "ms",
+          "value": 77.39090756
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 77.4203105
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 77.7072758
+        },
+        {
+          "statistic": "max",
+          "unit": "ms",
+          "value": 77.957824
+        }
+      ],
+      "timing_boundary_id": "predict_cached_graph_sync",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "measured_local",
+      "measurement_id": "e2e-flashrt-pi05-matrix-015",
+      "measurement_method": "wall_clock",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-flashrt-pi05-matrix-015",
+      "sample_count": 100,
+      "source_id": "source-local-thor",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 79.839549
+        },
+        {
+          "statistic": "mean",
+          "unit": "ms",
+          "value": 80.45476218
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 80.50909100000001
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 80.78514440000001
+        },
+        {
+          "statistic": "max",
+          "unit": "ms",
+          "value": 80.99354
+        }
+      ],
+      "timing_boundary_id": "predict_cached_graph_sync",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "measured_local",
+      "measurement_id": "e2e-flashrt-pi05-matrix-016",
+      "measurement_method": "wall_clock",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-flashrt-pi05-matrix-016",
+      "sample_count": 100,
+      "source_id": "source-local-thor",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 96.32874
+        },
+        {
+          "statistic": "mean",
+          "unit": "ms",
+          "value": 96.54685136
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 96.52192199999999
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 96.8840532
+        },
+        {
+          "statistic": "max",
+          "unit": "ms",
+          "value": 97.150234
+        }
+      ],
+      "timing_boundary_id": "predict_cached_graph_sync",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "measured_local",
+      "measurement_id": "e2e-flashrt-pi05-matrix-017",
+      "measurement_method": "wall_clock",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-flashrt-pi05-matrix-017",
+      "sample_count": 100,
+      "source_id": "source-local-thor",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 92.997031
+        },
+        {
+          "statistic": "mean",
+          "unit": "ms",
+          "value": 93.52790539
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 93.53509700000001
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 93.85394015
+        },
+        {
+          "statistic": "max",
+          "unit": "ms",
+          "value": 95.301656
+        }
+      ],
+      "timing_boundary_id": "predict_cached_graph_sync",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "measured_local",
+      "measurement_id": "e2e-flashrt-pi05-matrix-018",
+      "measurement_method": "wall_clock",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-flashrt-pi05-matrix-018",
+      "sample_count": 100,
+      "source_id": "source-local-thor",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 98.626944
+        },
+        {
+          "statistic": "mean",
+          "unit": "ms",
+          "value": 99.15647168
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 99.1499215
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 99.3483485
+        },
+        {
+          "statistic": "max",
+          "unit": "ms",
+          "value": 99.559414
+        }
+      ],
+      "timing_boundary_id": "predict_cached_graph_sync",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "measured_local",
+      "measurement_id": "e2e-lerobot-smolvla-matrix-001",
+      "measurement_method": "wall_clock",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-lerobot-smolvla-matrix-001",
+      "sample_count": 50,
+      "source_id": "source-local-thor",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 249.670298
+        },
+        {
+          "statistic": "mean",
+          "unit": "ms",
+          "value": 251.35023156
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 250.9788625
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 252.89540675
+        },
+        {
+          "statistic": "max",
+          "unit": "ms",
+          "value": 253.636617
+        }
+      ],
+      "timing_boundary_id": "predict_action_chunk_preprocessed",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "measured_local",
+      "measurement_id": "e2e-lerobot-smolvla-matrix-002",
+      "measurement_method": "wall_clock",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-lerobot-smolvla-matrix-002",
+      "sample_count": 50,
+      "source_id": "source-local-thor",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 325.960134
+        },
+        {
+          "statistic": "mean",
+          "unit": "ms",
+          "value": 331.9078621
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 330.619149
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 339.34597084999996
+        },
+        {
+          "statistic": "max",
+          "unit": "ms",
+          "value": 344.171406
+        }
+      ],
+      "timing_boundary_id": "predict_action_chunk_preprocessed",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "measured_local",
+      "measurement_id": "e2e-lerobot-smolvla-matrix-003",
+      "measurement_method": "wall_clock",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-lerobot-smolvla-matrix-003",
+      "sample_count": 50,
+      "source_id": "source-local-thor",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 414.114862
+        },
+        {
+          "statistic": "mean",
+          "unit": "ms",
+          "value": 420.26563278000003
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 420.1911
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 424.2686092
+        },
+        {
+          "statistic": "max",
+          "unit": "ms",
+          "value": 430.000448
+        }
+      ],
+      "timing_boundary_id": "predict_action_chunk_preprocessed",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "measured_local",
+      "measurement_id": "e2e-lerobot-smolvla-matrix-004",
+      "measurement_method": "wall_clock",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-lerobot-smolvla-matrix-004",
+      "sample_count": 50,
+      "source_id": "source-local-thor",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 247.707052
+        },
+        {
+          "statistic": "mean",
+          "unit": "ms",
+          "value": 249.21720990000003
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 249.0163645
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 250.96448629999998
+        },
+        {
+          "statistic": "max",
+          "unit": "ms",
+          "value": 251.560251
+        }
+      ],
+      "timing_boundary_id": "predict_action_chunk_preprocessed",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "measured_local",
+      "measurement_id": "e2e-lerobot-smolvla-matrix-005",
+      "measurement_method": "wall_clock",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-lerobot-smolvla-matrix-005",
+      "sample_count": 50,
+      "source_id": "source-local-thor",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 323.3255
+        },
+        {
+          "statistic": "mean",
+          "unit": "ms",
+          "value": 329.04575947999996
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 328.899009
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 334.5016243
+        },
+        {
+          "statistic": "max",
+          "unit": "ms",
+          "value": 336.89995
+        }
+      ],
+      "timing_boundary_id": "predict_action_chunk_preprocessed",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "measured_local",
+      "measurement_id": "e2e-lerobot-smolvla-matrix-006",
+      "measurement_method": "wall_clock",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-lerobot-smolvla-matrix-006",
+      "sample_count": 50,
+      "source_id": "source-local-thor",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 413.452239
+        },
+        {
+          "statistic": "mean",
+          "unit": "ms",
+          "value": 425.53935268000004
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 426.5640575
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 432.9599436
+        },
+        {
+          "statistic": "max",
+          "unit": "ms",
+          "value": 435.676987
+        }
+      ],
+      "timing_boundary_id": "predict_action_chunk_preprocessed",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "measured_local",
+      "measurement_id": "e2e-lerobot-smolvla-matrix-007",
+      "measurement_method": "wall_clock",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-lerobot-smolvla-matrix-007",
+      "sample_count": 50,
+      "source_id": "source-local-thor",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 247.737909
+        },
+        {
+          "statistic": "mean",
+          "unit": "ms",
+          "value": 249.81281012
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 249.573172
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 251.60800849999998
+        },
+        {
+          "statistic": "max",
+          "unit": "ms",
+          "value": 251.810181
+        }
+      ],
+      "timing_boundary_id": "predict_action_chunk_preprocessed",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "measured_local",
+      "measurement_id": "e2e-lerobot-smolvla-matrix-008",
+      "measurement_method": "wall_clock",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-lerobot-smolvla-matrix-008",
+      "sample_count": 50,
+      "source_id": "source-local-thor",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 324.457546
+        },
+        {
+          "statistic": "mean",
+          "unit": "ms",
+          "value": 331.60601662
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 330.7989025
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 338.73471775
+        },
+        {
+          "statistic": "max",
+          "unit": "ms",
+          "value": 344.621083
+        }
+      ],
+      "timing_boundary_id": "predict_action_chunk_preprocessed",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "measured_local",
+      "measurement_id": "e2e-lerobot-smolvla-matrix-009",
+      "measurement_method": "wall_clock",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-lerobot-smolvla-matrix-009",
+      "sample_count": 50,
+      "source_id": "source-local-thor",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 417.396363
+        },
+        {
+          "statistic": "mean",
+          "unit": "ms",
+          "value": 425.32308158
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 425.38052400000004
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 430.84221325
+        },
+        {
+          "statistic": "max",
+          "unit": "ms",
+          "value": 432.123617
+        }
+      ],
+      "timing_boundary_id": "predict_action_chunk_preprocessed",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "measured_local",
+      "measurement_id": "e2e-vla-cpp-controls-001",
+      "measurement_method": "wall_clock",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-cpp-controls-001",
+      "sample_count": 50,
+      "source_id": "source-local-thor",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 172.6
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 175.7
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 176.3
+        }
+      ],
+      "timing_boundary_id": "vlacpp_engine_predict_synthetic",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "measured_local",
+      "measurement_id": "e2e-vla-cpp-controls-002",
+      "measurement_method": "wall_clock",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-cpp-controls-002",
+      "sample_count": 50,
+      "source_id": "source-local-thor",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 174.7
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 175.5
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 175.8
+        }
+      ],
+      "timing_boundary_id": "vlacpp_engine_predict_synthetic",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "measured_local",
+      "measurement_id": "e2e-vla-cpp-controls-003",
+      "measurement_method": "wall_clock",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-cpp-controls-003",
+      "sample_count": 50,
+      "source_id": "source-local-thor",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 174.9
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 175.7
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 176.4
+        }
+      ],
+      "timing_boundary_id": "vlacpp_engine_predict_synthetic",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "measured_local",
+      "measurement_id": "e2e-vla-cpp-controls-004",
+      "measurement_method": "wall_clock",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-cpp-controls-004",
+      "sample_count": 50,
+      "source_id": "source-local-thor",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 226.6
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 227.9
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 228.8
+        }
+      ],
+      "timing_boundary_id": "vlacpp_engine_predict_synthetic",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "measured_local",
+      "measurement_id": "e2e-vla-cpp-controls-005",
+      "measurement_method": "wall_clock",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-cpp-controls-005",
+      "sample_count": 50,
+      "source_id": "source-local-thor",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 226.7
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 228.0
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 228.5
+        }
+      ],
+      "timing_boundary_id": "vlacpp_engine_predict_synthetic",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "measured_local",
+      "measurement_id": "e2e-vla-cpp-controls-006",
+      "measurement_method": "wall_clock",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-cpp-controls-006",
+      "sample_count": 50,
+      "source_id": "source-local-thor",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 226.6
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 227.3
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 227.7
+        }
+      ],
+      "timing_boundary_id": "vlacpp_engine_predict_synthetic",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "measured_local",
+      "measurement_id": "e2e-vla-cpp-controls-007",
+      "measurement_method": "wall_clock",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-cpp-controls-007",
+      "sample_count": 50,
+      "source_id": "source-local-thor",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 277.9
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 278.9
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 279.7
+        }
+      ],
+      "timing_boundary_id": "vlacpp_engine_predict_synthetic",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "measured_local",
+      "measurement_id": "e2e-vla-cpp-controls-008",
+      "measurement_method": "wall_clock",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-cpp-controls-008",
+      "sample_count": 50,
+      "source_id": "source-local-thor",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 277.4
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 278.3
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 279.1
+        }
+      ],
+      "timing_boundary_id": "vlacpp_engine_predict_synthetic",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "measured_local",
+      "measurement_id": "e2e-vla-cpp-controls-009",
+      "measurement_method": "wall_clock",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-cpp-controls-009",
+      "sample_count": 50,
+      "source_id": "source-local-thor",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 277.6
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 278.6
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 279.9
+        }
+      ],
+      "timing_boundary_id": "vlacpp_engine_predict_synthetic",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "measured_local",
+      "measurement_id": "e2e-vla-cpp-controls-010",
+      "measurement_method": "wall_clock",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-cpp-controls-010",
+      "sample_count": 50,
+      "source_id": "source-local-thor",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 145.5
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 146.0
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 146.8
+        }
+      ],
+      "timing_boundary_id": "vlacpp_engine_predict_synthetic",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "measured_local",
+      "measurement_id": "e2e-vla-cpp-controls-011",
+      "measurement_method": "wall_clock",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-cpp-controls-011",
+      "sample_count": 50,
+      "source_id": "source-local-thor",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 147.4
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 147.9
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 148.8
+        }
+      ],
+      "timing_boundary_id": "vlacpp_engine_predict_synthetic",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "measured_local",
+      "measurement_id": "e2e-vla-cpp-controls-012",
+      "measurement_method": "wall_clock",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-cpp-controls-012",
+      "sample_count": 50,
+      "source_id": "source-local-thor",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 150.4
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 150.9
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 151.4
+        }
+      ],
+      "timing_boundary_id": "vlacpp_engine_predict_synthetic",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "measured_local",
+      "measurement_id": "e2e-vla-cpp-controls-013",
+      "measurement_method": "wall_clock",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-cpp-controls-013",
+      "sample_count": 50,
+      "source_id": "source-local-thor",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 208.8
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 209.7
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 210.9
+        }
+      ],
+      "timing_boundary_id": "vlacpp_engine_predict_synthetic",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "measured_local",
+      "measurement_id": "e2e-vla-cpp-controls-014",
+      "measurement_method": "wall_clock",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-cpp-controls-014",
+      "sample_count": 50,
+      "source_id": "source-local-thor",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 214.2
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 215.1
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 216.2
+        }
+      ],
+      "timing_boundary_id": "vlacpp_engine_predict_synthetic",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "measured_local",
+      "measurement_id": "e2e-vla-cpp-controls-015",
+      "measurement_method": "wall_clock",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-cpp-controls-015",
+      "sample_count": 50,
+      "source_id": "source-local-thor",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 215.8
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 216.9
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 217.9
+        }
+      ],
+      "timing_boundary_id": "vlacpp_engine_predict_synthetic",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "measured_local",
+      "measurement_id": "e2e-vla-cpp-controls-016",
+      "measurement_method": "wall_clock",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-cpp-controls-016",
+      "sample_count": 50,
+      "source_id": "source-local-thor",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 248.8
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 285.9
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 287.7
+        }
+      ],
+      "timing_boundary_id": "vlacpp_engine_predict_synthetic",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "measured_local",
+      "measurement_id": "e2e-vla-cpp-controls-017",
+      "measurement_method": "wall_clock",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-cpp-controls-017",
+      "sample_count": 50,
+      "source_id": "source-local-thor",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 260.8
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 262.7
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 299.8
+        }
+      ],
+      "timing_boundary_id": "vlacpp_engine_predict_synthetic",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "measured_local",
+      "measurement_id": "e2e-vla-cpp-controls-018",
+      "measurement_method": "wall_clock",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-cpp-controls-018",
+      "sample_count": 50,
+      "source_id": "source-local-thor",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 284.6
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 286.0
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 287.6
+        }
+      ],
+      "timing_boundary_id": "vlacpp_engine_predict_synthetic",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "measured_local",
+      "measurement_id": "e2e-vla-cpp-controls-019",
+      "measurement_method": "wall_clock",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-cpp-controls-019",
+      "sample_count": 50,
+      "source_id": "source-local-thor",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 150.7
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 151.3
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 151.9
+        }
+      ],
+      "timing_boundary_id": "vlacpp_engine_predict_synthetic",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "measured_local",
+      "measurement_id": "e2e-vla-cpp-controls-020",
+      "measurement_method": "wall_clock",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-cpp-controls-020",
+      "sample_count": 50,
+      "source_id": "source-local-thor",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 155.2
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 155.9
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 156.4
+        }
+      ],
+      "timing_boundary_id": "vlacpp_engine_predict_synthetic",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "measured_local",
+      "measurement_id": "e2e-vla-cpp-controls-021",
+      "measurement_method": "wall_clock",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-cpp-controls-021",
+      "sample_count": 50,
+      "source_id": "source-local-thor",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 163.0
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 163.7
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 164.4
+        }
+      ],
+      "timing_boundary_id": "vlacpp_engine_predict_synthetic",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "measured_local",
+      "measurement_id": "e2e-vla-cpp-controls-022",
+      "measurement_method": "wall_clock",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-cpp-controls-022",
+      "sample_count": 50,
+      "source_id": "source-local-thor",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 250.2
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 251.2
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 265.9
+        }
+      ],
+      "timing_boundary_id": "vlacpp_engine_predict_synthetic",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "measured_local",
+      "measurement_id": "e2e-vla-cpp-controls-023",
+      "measurement_method": "wall_clock",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-cpp-controls-023",
+      "sample_count": 50,
+      "source_id": "source-local-thor",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 256.4
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 257.4
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 273.4
+        }
+      ],
+      "timing_boundary_id": "vlacpp_engine_predict_synthetic",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "measured_local",
+      "measurement_id": "e2e-vla-cpp-controls-024",
+      "measurement_method": "wall_clock",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-cpp-controls-024",
+      "sample_count": 50,
+      "source_id": "source-local-thor",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 258.0
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 258.9
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 275.9
+        }
+      ],
+      "timing_boundary_id": "vlacpp_engine_predict_synthetic",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "measured_local",
+      "measurement_id": "e2e-vla-cpp-controls-025",
+      "measurement_method": "wall_clock",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-cpp-controls-025",
+      "sample_count": 50,
+      "source_id": "source-local-thor",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 335.7
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 343.4
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 351.0
+        }
+      ],
+      "timing_boundary_id": "vlacpp_engine_predict_synthetic",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "measured_local",
+      "measurement_id": "e2e-vla-cpp-controls-026",
+      "measurement_method": "wall_clock",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-cpp-controls-026",
+      "sample_count": 50,
+      "source_id": "source-local-thor",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 369.1
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 370.3
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 374.1
+        }
+      ],
+      "timing_boundary_id": "vlacpp_engine_predict_synthetic",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "measured_local",
+      "measurement_id": "e2e-vla-cpp-controls-027",
+      "measurement_method": "wall_clock",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-cpp-controls-027",
+      "sample_count": 50,
+      "source_id": "source-local-thor",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 372.1
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 375.9
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 378.0
+        }
+      ],
+      "timing_boundary_id": "vlacpp_engine_predict_synthetic",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "analytical",
+      "measurement_id": "e2e-vla-perf-matrix-001",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-001",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 44.827684005101524
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "analytical",
+      "measurement_id": "e2e-vla-perf-matrix-002",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-002",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 22.413842002550762
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "analytical",
+      "measurement_id": "e2e-vla-perf-matrix-003",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-003",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 44.98824354012807
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "analytical",
+      "measurement_id": "e2e-vla-perf-matrix-004",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-004",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 22.494121770064034
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "analytical",
+      "measurement_id": "e2e-vla-perf-matrix-005",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-005",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 45.16666567325592
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "analytical",
+      "measurement_id": "e2e-vla-perf-matrix-006",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-006",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 22.58333283662796
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "analytical",
+      "measurement_id": "e2e-vla-perf-matrix-007",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-007",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 48.188513676325485
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "analytical",
+      "measurement_id": "e2e-vla-perf-matrix-008",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-008",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 24.094256838162742
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "analytical",
+      "measurement_id": "e2e-vla-perf-matrix-009",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-009",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 48.34934786955516
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "analytical",
+      "measurement_id": "e2e-vla-perf-matrix-010",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-010",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 24.17467393477758
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "analytical",
+      "measurement_id": "e2e-vla-perf-matrix-011",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-011",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 48.52807517846425
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "analytical",
+      "measurement_id": "e2e-vla-perf-matrix-012",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-012",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 24.264037589232125
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "analytical",
+      "measurement_id": "e2e-vla-perf-matrix-013",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-013",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 51.55324959754944
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "analytical",
+      "measurement_id": "e2e-vla-perf-matrix-014",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-014",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 25.77662479877472
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "analytical",
+      "measurement_id": "e2e-vla-perf-matrix-015",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-015",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 51.71435844898224
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "analytical",
+      "measurement_id": "e2e-vla-perf-matrix-016",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-016",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 25.85717922449112
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "analytical",
+      "measurement_id": "e2e-vla-perf-matrix-017",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-017",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 51.89339093367259
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "analytical",
+      "measurement_id": "e2e-vla-perf-matrix-018",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-018",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 25.946695466836296
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "analytical",
+      "measurement_id": "e2e-vla-perf-matrix-019",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-019",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 46.04127875963847
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "analytical",
+      "measurement_id": "e2e-vla-perf-matrix-020",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-020",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 23.020639379819237
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "analytical",
+      "measurement_id": "e2e-vla-perf-matrix-021",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-021",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 46.21984155972799
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "analytical",
+      "measurement_id": "e2e-vla-perf-matrix-022",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-022",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 23.109920779863995
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "analytical",
+      "measurement_id": "e2e-vla-perf-matrix-023",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-023",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 46.39842820167542
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "analytical",
+      "measurement_id": "e2e-vla-perf-matrix-024",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-024",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 23.19921410083771
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "analytical",
+      "measurement_id": "e2e-vla-perf-matrix-025",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-025",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 49.40418362617493
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "analytical",
+      "measurement_id": "e2e-vla-perf-matrix-026",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-026",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 24.702091813087463
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "analytical",
+      "measurement_id": "e2e-vla-perf-matrix-027",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-027",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 49.5830516020457
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "analytical",
+      "measurement_id": "e2e-vla-perf-matrix-028",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-028",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 24.79152580102285
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "analytical",
+      "measurement_id": "e2e-vla-perf-matrix-029",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-029",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 49.761943419774376
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "analytical",
+      "measurement_id": "e2e-vla-perf-matrix-030",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-030",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 24.880971709887188
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "analytical",
+      "measurement_id": "e2e-vla-perf-matrix-031",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-031",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 52.77099474271139
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "analytical",
+      "measurement_id": "e2e-vla-perf-matrix-032",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-032",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 26.385497371355694
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "analytical",
+      "measurement_id": "e2e-vla-perf-matrix-033",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-033",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 52.9501678943634
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "analytical",
+      "measurement_id": "e2e-vla-perf-matrix-034",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-034",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 26.4750839471817
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "analytical",
+      "measurement_id": "e2e-vla-perf-matrix-035",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-035",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 53.129364887873336
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "analytical",
+      "measurement_id": "e2e-vla-perf-matrix-036",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-036",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 26.564682443936668
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "analytical",
+      "measurement_id": "e2e-vla-perf-matrix-037",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-037",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 11.353921227984959
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "analytical",
+      "measurement_id": "e2e-vla-perf-matrix-038",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-038",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 5.676960613992479
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "analytical",
+      "measurement_id": "e2e-vla-perf-matrix-039",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-039",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 11.353921227984959
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "analytical",
+      "measurement_id": "e2e-vla-perf-matrix-040",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-040",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 5.676960613992479
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "analytical",
+      "measurement_id": "e2e-vla-perf-matrix-041",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-041",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 11.353921227984959
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "analytical",
+      "measurement_id": "e2e-vla-perf-matrix-042",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-042",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 5.676960613992479
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "analytical",
+      "measurement_id": "e2e-vla-perf-matrix-043",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-043",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 13.718892247588546
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "analytical",
+      "measurement_id": "e2e-vla-perf-matrix-044",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-044",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 6.859446123794273
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "analytical",
+      "measurement_id": "e2e-vla-perf-matrix-045",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-045",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 13.718892247588546
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "analytical",
+      "measurement_id": "e2e-vla-perf-matrix-046",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-046",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 6.859446123794273
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "analytical",
+      "measurement_id": "e2e-vla-perf-matrix-047",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-047",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 13.718892247588546
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "analytical",
+      "measurement_id": "e2e-vla-perf-matrix-048",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-048",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 6.859446123794273
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "analytical",
+      "measurement_id": "e2e-vla-perf-matrix-049",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-049",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 16.083863267192136
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "analytical",
+      "measurement_id": "e2e-vla-perf-matrix-050",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-050",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 8.041931633596068
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "analytical",
+      "measurement_id": "e2e-vla-perf-matrix-051",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-051",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 16.083863267192136
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "analytical",
+      "measurement_id": "e2e-vla-perf-matrix-052",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-052",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 8.041931633596068
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "analytical",
+      "measurement_id": "e2e-vla-perf-matrix-053",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-053",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 16.083863267192136
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "analytical",
+      "measurement_id": "e2e-vla-perf-matrix-054",
+      "measurement_method": "vla_perf",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": null,
+      "run_id": "run-vla-perf-matrix-054",
+      "sample_count": 0,
+      "source_id": "source-vla-perf",
+      "statistics": [
+        {
+          "statistic": "analytical_estimate",
+          "unit": "ms",
+          "value": 8.041931633596068
+        }
+      ],
+      "timing_boundary_id": "vla_perf_analytical_e2e",
+      "work_unit": "action_chunk"
+    }
+  ],
+  "schema_version": "1.0.0"
+}
