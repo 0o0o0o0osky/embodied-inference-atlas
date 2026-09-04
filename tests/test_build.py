@@ -1,3 +1,4 @@
+import json
 import tempfile
 import unittest
 from pathlib import Path
@@ -34,4 +35,12 @@ class BuildTests(unittest.TestCase):
             self.assertIn("measured_local", performance)
             self.assertIn("analytical", performance)
             self.assertIn("reported_external", performance)
-            self.assertNotIn('"ratio_kind":"validated_speedup","correctness":"failed"', performance)
+            page_data = json.loads(
+                performance.split('<script id="page-data" type="application/json">', 1)[1]
+                .split("</script>", 1)[0]
+            )
+            self.assertFalse(any(
+                row.get("ratio_kind") == "validated_speedup"
+                and row.get("correctness") == "failed"
+                for row in page_data["comparisons"]
+            ))

@@ -144,7 +144,8 @@ def render_foundation_pages(
                 "Performance comparisons",
                 "Latency comparisons are admitted only through the declared single-axis policy.",
                 '<section class="panel"><h2>Evidence classes</h2><div id="evidence-classes"></div></section>'
-                '<section class="panel"><h2>End-to-end latency</h2><div id="e2e-charts" class="chart-grid"></div></section>'
+                '<section class="panel"><h2>End-to-end latency by precision</h2><div id="e2e-charts" class="chart-grid"></div></section>'
+                '<section class="panel"><h2>End-to-end latency by runtime</h2><div id="runtime-charts" class="chart-grid"></div></section>'
                 '<section class="panel"><h2>Comparison labels</h2><div id="comparison-table"></div></section>'
                 '<section class="panel"><h2>Stage summaries</h2><p class="notice">independent summary statistics are not additive</p><div id="stage-charts" class="chart-grid"></div><div id="stage-table"></div></section>'
                 '<section class="panel"><h2>Analytical gap</h2><div id="gap-charts" class="chart-grid"></div></section>'
@@ -331,6 +332,7 @@ def _build_view_models(
         "performance": {
             "evidence_classes": evidence_classes,
             "e2e_charts": comparison_groups["precision"],
+            "runtime_charts": comparison_groups["runtime"],
             "comparisons": comparisons,
             "stages": stage_views,
             "stage_charts": stage_charts,
@@ -458,7 +460,10 @@ def _coverage_rows(
             model_id = str(support.get("model_id"))
             supported_pairs.add((model_id, runtime_id))
             model = next(row for row in models if row["model_id"] == model_id)
-            if (model_id, runtime_id) not in measured_pairs:
+            if (
+                (model_id, runtime_id) not in measured_pairs
+                or support.get("has_canonical_measurement") is not True
+            ):
                 rows.append(
                     _status_coverage_row(model, runtime, support, str(support.get("status")))
                 )

@@ -41,6 +41,7 @@
   }
 
   renderLatencyCharts(document.getElementById("e2e-charts"), pageData.e2e_charts, "No multi-record precision groups are available.");
+  renderLatencyCharts(document.getElementById("runtime-charts"), pageData.runtime_charts, "No multi-record runtime groups share an equivalent artifact and context.");
   renderLatencyCharts(document.getElementById("gap-charts"), pageData.analytical_gap_charts, "No measured and analytical records share a comparison-eligible artifact/context group.");
 
   Atlas.renderTable(document.getElementById("comparison-table"), [
