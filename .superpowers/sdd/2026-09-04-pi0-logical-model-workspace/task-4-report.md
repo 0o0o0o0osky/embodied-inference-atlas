@@ -14,6 +14,8 @@ Post-review connector collision correction: `a520a1a711ac1cff2daeb44561b561cddc2
 
 Post-review connector legibility correction: `e83d172fd8e30fecd45dcf094f253645254d6c67`
 
+Post-review inline-junction correction: `ff4d00d5dbf91f9978caa1b54b8b30f0f5d81061`
+
 The topology has no cumulative repeat badges. It resolves the Vision `×27`, Prefix `×18`, Action expert `×18`, and outer `Denoise loop ×N_DENOISE` labels from the materialized modules/stage; no atomic node is labelled `×180`.
 
 ## Implementation notes
@@ -180,6 +182,10 @@ The loop-to-Euler input uses the Euler right port seven units above center, whil
 The base flow stroke is now `#4f6f7e`, 1.5 units wide, and 95% opaque; de-emphasized paths remain visible at 42% opacity, while incident paths use a 2.2-unit teal stroke. Arrowheads are fixed 6-by-6 user-space open chevrons with a white separation halo and `context-stroke` foreground, so selecting a path no longer scales its marker from roughly 9 to 20 units. Row and mini-chain spacing now provide at least 10 units of clearance. The state-to-suffix edge uses a dedicated left rail to avoid crossing the action-time MLP after the spacing change.
 
 The same disposable offline geometry check reported zero unrelated-node intersections, duplicate arrow endpoints, cross-connector collinear overlaps, and invalid connectors; all 67 operators remained placed. JavaScript syntax, deterministic build, generated/source equality, and diff checks passed. No unit suite was run and no test was added.
+
+## Inline Add and Mul junctions
+
+All six residual additions and both gated elementwise multiplications now render as 20-by-20 inline junctions with `+` or `×`, rather than labelled operator boxes. They remain canonical operators with full title/ARIA metadata, mouse and keyboard selection, and complete inspector detail. A disposable DOM check confirmed all eight junctions and all 67 selectable operators; the geometry check remained at zero unrelated-node intersections, duplicate arrow endpoints, cross-connector collinear overlaps, and invalid connectors. No persistent test or unit-suite run was added.
 
 ## Files changed
 
