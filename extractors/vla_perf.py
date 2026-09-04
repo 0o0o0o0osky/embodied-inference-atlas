@@ -222,7 +222,9 @@ def _component(
     operator_id = record_id("operator", context, (run_index - 1) * len(COMPONENTS) + component_index)
     predicted_ms = _number(source, f"{component}_ms", context, "estimate")
     limiter = _limiter(source.get(f"{component}_boundness"), context)
-    work_gflop, traffic_gib, intensity = _work(source, assumptions, component, predicted_ms, limiter, context)
+    work_gflop, traffic_gib, intensity, source_method = _work(
+        source, assumptions, component, predicted_ms, limiter, context
+    )
     execution_count = (
         nonnegative_integer(source.get("denoising_steps"), context, "estimate")
         if component == "action" else 1
@@ -259,7 +261,7 @@ def _component(
         "work_gflop": work_gflop,
         "traffic_gib": traffic_gib,
         "arithmetic_intensity_flop_per_byte": intensity,
-        "source_method": "vla_perf_component_model",
+        "source_method": source_method,
         "missing": {},
     }
     resolved = precision["execution_dtype"]
@@ -287,21 +289,21 @@ def _component(
 def _work(
     source: Mapping[str, object], assumptions: Mapping[str, object], component: str,
     predicted_ms: float, limiter: str, context: ImportContext,
-) -> tuple[float, float, float]:
+) -> tuple[float, float, float, str]:
     intensity = _number(source, f"{component}_op_intensity", context, "estimate")
     work = source.get(f"{component}_gflop")
     traffic = source.get(f"{component}_gib")
     if isinstance(work, (int, float)) and not isinstance(work, bool) and work >= 0 and isinstance(traffic, (int, float)) and not isinstance(traffic, bool) and traffic >= 0:
-        return float(work), float(traffic), intensity
+        return float(work), float(traffic), intensity, "vla_perf_component_reported_v1"
     seconds = predicted_ms / 1000
     if limiter == "memory":
         traffic_gib = seconds * _number(assumptions, "memory_bandwidth_gib_per_s", context, "run")
         work_gflop = intensity * traffic_gib * (2**30) / 1_000_000_000
-        return work_gflop, traffic_gib, intensity
+        return work_gflop, traffic_gib, intensity, "vla_perf_inverse_roofline_v1"
     peak_key = "fp16_tflops" if source.get("resolved_precision") == "fp16" else "fp8_tflops"
     work_gflop = seconds * _number(assumptions, peak_key, context, "run") * 1000
     traffic_gib = work_gflop * 1_000_000_000 / (intensity * (2**30))
-    return work_gflop, traffic_gib, intensity
+    return work_gflop, traffic_gib, intensity, "vla_perf_inverse_roofline_v1"
 
 
 def _limiter(value: object, context: ImportContext) -> str:

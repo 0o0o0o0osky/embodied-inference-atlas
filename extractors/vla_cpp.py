@@ -32,6 +32,7 @@ def import_vla_cpp(records: Iterable[Mapping], context: ImportContext) -> dict[s
     require_measured_system(context)
     artifacts: dict[tuple[str, str], object] = {}
     timings: list[Mapping] = []
+    operating_point = _unknown_operating_point()
     for raw_source in records:
         source = source_record(raw_source, context)
         if source.get("record") == "artifact":
@@ -39,13 +40,17 @@ def import_vla_cpp(records: Iterable[Mapping], context: ImportContext) -> dict[s
             variant = source.get("variant")
             if (model_id, variant) in _ARTIFACTS:
                 artifacts[(model_id, variant)] = source.get("scale_zero_point_bytes")
+        elif source.get("record") == "run_config":
+            operating_point = _operating_point(source, context)
         elif source.get("record") == "timing":
             timings.append(source)
 
     runs: list[dict[str, object]] = []
     end_to_end: list[dict[str, object]] = []
     for index, timing_source in enumerate(timings, start=1):
-        run, measurement = _timing(timing_source, artifacts, context, index)
+        run, measurement = _timing(
+            timing_source, artifacts, operating_point, context, index
+        )
         runs.append(run)
         end_to_end.append(measurement)
     return {
@@ -57,7 +62,7 @@ def import_vla_cpp(records: Iterable[Mapping], context: ImportContext) -> dict[s
 
 def _timing(
     source: Mapping[str, object], artifacts: Mapping[tuple[str, str], object],
-    context: ImportContext, index: int,
+    operating_point: Mapping[str, object], context: ImportContext, index: int,
 ) -> tuple[dict[str, object], dict[str, object]]:
     model_id = source.get("model_family")
     variant = source.get("variant")
@@ -102,20 +107,16 @@ def _timing(
         "state_reuse": "synthetic_inputs",
         "warm_policy": "steady_state",
     }
-    operating_point = {
-        "operating_point_id": "unknown",
-        "power_mode": None,
-        "clock_policy": None,
-        "throttle_status": None,
-    }
     run_id = record_id("run", context, index)
     missing = {
         "workload.vla.denoise_steps": "unavailable_from_source",
-        "operating_point.power_mode": "not_collected",
-        "operating_point.clock_policy": "not_collected",
         "operating_point.throttle_status": "not_collected",
         **precision_missing,
     }
+    if operating_point["power_mode"] is None:
+        missing["operating_point.power_mode"] = "not_collected"
+    if operating_point["clock_policy"] is None:
+        missing["operating_point.clock_policy"] = "not_collected"
     run = {
         "schema_version": "1.0.0",
         "configuration_id": record_id("cfg", context, index),
@@ -141,7 +142,7 @@ def _timing(
             "platform": {
                 "device_id": _DEVICE_ID,
                 "system_id": context.system_id,
-                "operating_point_id": "unknown",
+                "operating_point_id": operating_point["operating_point_id"],
             },
             "task": {
                 "task_id": "vla-action-chunk-inference",
@@ -208,11 +209,36 @@ def _precision(
         "accumulation_dtype": "fp32",
         "execution_dtype": "fp16",
         "quant_scheme": "q8_0_weight_only",
-        "granularity": "tensor",
+        "granularity": "blockwise",
         "scale_zero_point_bytes": overhead,
         "dequant_strategy": "matmul_path",
         "fused": False,
     }, missing
+
+
+def _operating_point(source: Mapping[str, object], context: ImportContext) -> dict[str, object]:
+    if source.get("power_mode") is None and source.get("clock_policy") is None:
+        return _unknown_operating_point()
+    if (
+        source.get("power_mode") == "120W mode 1"
+        and source.get("clock_policy") == "dynamic (jetson_clocks not forced)"
+    ):
+        return {
+            "operating_point_id": "thor-120w-dynamic",
+            "power_mode": "120w-mode-1",
+            "clock_policy": "dynamic",
+            "throttle_status": None,
+        }
+    raise SourceFormatError(f"{context.source_label}: invalid run_config record")
+
+
+def _unknown_operating_point() -> dict[str, object]:
+    return {
+        "operating_point_id": "unknown",
+        "power_mode": None,
+        "clock_policy": None,
+        "throttle_status": None,
+    }
 
 
 def _statistics(source: Mapping[str, object], context: ImportContext) -> list[dict[str, object]]:
