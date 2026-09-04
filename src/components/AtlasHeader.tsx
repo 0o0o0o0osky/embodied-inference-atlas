@@ -15,6 +15,7 @@ const EMPTY_ROUTE: RoutePatch = {
   hardware: null,
   workload: null,
   precision: null,
+  runtimePrecision: null,
   entity: null,
 };
 

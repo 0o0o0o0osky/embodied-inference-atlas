@@ -281,11 +281,38 @@
           "observation_ids": []
         },
         {
-          "evidence_id": "lerobot-smol-policy-source",
+          "evidence_id": "lerobot-smol-prefix-source",
           "kind": "source_code",
           "source_id": "source-lerobot",
           "revision": "fbb811fca92504439792b97d216f0d00c2268382",
-          "locator": "src/lerobot/policies/smolvla/modeling_smolvla.py#denoise_step",
+          "locator": "src/lerobot/policies/smolvla/modeling_smolvla.py#VLAFlowMatching::embed_prefix",
+          "run_ids": [],
+          "observation_ids": []
+        },
+        {
+          "evidence_id": "lerobot-smol-public-slice-source",
+          "kind": "source_code",
+          "source_id": "source-lerobot",
+          "revision": "fbb811fca92504439792b97d216f0d00c2268382",
+          "locator": "src/lerobot/policies/smolvla/modeling_smolvla.py#SmolVLAPolicy::_get_action_chunk",
+          "run_ids": [],
+          "observation_ids": []
+        },
+        {
+          "evidence_id": "lerobot-smol-sampling-source",
+          "kind": "source_code",
+          "source_id": "source-lerobot",
+          "revision": "fbb811fca92504439792b97d216f0d00c2268382",
+          "locator": "src/lerobot/policies/smolvla/modeling_smolvla.py#VLAFlowMatching::sample_actions",
+          "run_ids": [],
+          "observation_ids": []
+        },
+        {
+          "evidence_id": "lerobot-smol-euler-source",
+          "kind": "source_code",
+          "source_id": "source-lerobot",
+          "revision": "fbb811fca92504439792b97d216f0d00c2268382",
+          "locator": "src/lerobot/policies/common/flow_matching.py#euler_integrate",
           "run_ids": [],
           "observation_ids": []
         },
@@ -324,7 +351,7 @@
           "kernel_signature_ids": [],
           "kernel_resolution": "not_collected",
           "unmapped_reason_code": null,
-          "evidence_ids": ["lerobot-smol-policy-source"]
+          "evidence_ids": ["lerobot-smol-prefix-source"]
         },
         {
           "execution_group_id": "state-projection",
@@ -337,7 +364,7 @@
           "kernel_signature_ids": [],
           "kernel_resolution": "not_collected",
           "unmapped_reason_code": null,
-          "evidence_ids": ["lerobot-smol-policy-source"]
+          "evidence_ids": ["lerobot-smol-prefix-source"]
         },
         {
           "execution_group_id": "attention-qk-mask",
@@ -389,7 +416,7 @@
           "kernel_signature_ids": [],
           "kernel_resolution": "not_collected",
           "unmapped_reason_code": null,
-          "evidence_ids": ["lerobot-smol-policy-source", "lerobot-smol-runs"]
+          "evidence_ids": ["lerobot-smol-public-slice-source", "lerobot-smol-runs"]
         },
         {
           "execution_group_id": "euler-integration",
@@ -402,7 +429,7 @@
           "kernel_signature_ids": [],
           "kernel_resolution": "not_collected",
           "unmapped_reason_code": null,
-          "evidence_ids": ["lerobot-smol-policy-source"]
+          "evidence_ids": ["lerobot-smol-sampling-source", "lerobot-smol-euler-source"]
         }
       ],
       "mappings": [
@@ -420,7 +447,7 @@
           "method": "source_audit",
           "confidence": "medium",
           "reason_code": "dependency_revision_not_pinned_for_internal_mapping",
-          "evidence_ids": ["lerobot-smol-policy-source"]
+          "evidence_ids": ["lerobot-smol-prefix-source"]
         },
         {
           "mapping_id": "map-state-projection",
@@ -432,7 +459,7 @@
           "method": "source_audit",
           "confidence": "high",
           "reason_code": null,
-          "evidence_ids": ["lerobot-smol-policy-source"]
+          "evidence_ids": ["lerobot-smol-prefix-source"]
         },
         {
           "mapping_id": "map-expert-attention-split",
@@ -456,7 +483,7 @@
           "method": "source_audit",
           "confidence": "high",
           "reason_code": null,
-          "evidence_ids": ["lerobot-smol-policy-source", "lerobot-smol-runs"]
+          "evidence_ids": ["lerobot-smol-public-slice-source", "lerobot-smol-runs"]
         },
         {
           "mapping_id": "map-euler-integration",
@@ -468,7 +495,7 @@
           "method": "source_audit",
           "confidence": "high",
           "reason_code": null,
-          "evidence_ids": ["lerobot-smol-policy-source"]
+          "evidence_ids": ["lerobot-smol-sampling-source", "lerobot-smol-euler-source"]
         }
       ]
     },

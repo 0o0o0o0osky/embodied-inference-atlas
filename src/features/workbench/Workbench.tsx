@@ -90,7 +90,8 @@ function RouteLedger({ route }: { route: RouteState }) {
     ["Runtime", route.runtime],
     ["Hardware", route.hardware],
     ["Workload", route.workload],
-    ["Precision", route.precision],
+    ["Analytical precision", route.precision],
+    ["Runtime precision", route.runtimePrecision],
     ["Selected entity", route.entity],
   ];
 

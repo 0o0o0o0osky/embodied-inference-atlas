@@ -2,7 +2,7 @@ import { logicalRefFromEntity } from "../../../app/routes";
 import type { LogicalDag } from "../../model-graph/domain/types";
 import { indexRuntimeRealization } from "../domain/indexRuntimeRealization";
 import type { RuntimeRealizationRecord } from "../domain/types";
-import { humanizeRuntime, targetRepeatLabel } from "./runtimePresentation";
+import { humanizeRuntime, repeatSelectorLabel, targetRepeatLabel } from "./runtimePresentation";
 
 interface ExecutionGroupInspectorProps {
   dag: LogicalDag;
@@ -53,8 +53,13 @@ export function ExecutionGroupInspector({ dag, realization, selectedEntity }: Ex
           <div><dt>Group kind</dt><dd>{humanizeRuntime(group.kind)}</dd></div>
           <div><dt>Precision path</dt><dd>{precision?.label ?? group.precisionPathId}</dd></div>
           <div><dt>Dependencies</dt><dd>{group.dependencyGroupIds.length ? group.dependencyGroupIds.join(", ") : "None declared"}</dd></div>
+          <div><dt>Repeat selector</dt><dd>{repeatSelectorLabel(group.repeatSelectors, dag) || "None"}</dd></div>
           <div><dt>Kernel resolution</dt><dd>{humanizeRuntime(group.kernelResolution)}</dd></div>
           <div><dt>Kernel IDs</dt><dd>{group.kernelSignatureIds.length ? group.kernelSignatureIds.join(", ") : "Not collected"}</dd></div>
+          {group.unmappedReasonCode ? (
+            <><div><dt>Logical mapping</dt><dd>None — runtime-only work; no logical highlight is expected.</dd></div>
+            <div><dt>Unmapped reason</dt><dd>{group.unmappedReasonCode}</dd></div></>
+          ) : null}
         </dl>
       ) : null}
 
@@ -76,6 +81,8 @@ export function ExecutionGroupInspector({ dag, realization, selectedEntity }: Ex
             </article>
           ))}
         </section>
+      ) : group ? (
+        <p className="runtime-inspector-prompt">This independently selectable execution group has no logical target by design.</p>
       ) : logicalRef ? <p className="runtime-inspector-prompt">No audited execution group maps to this logical node.</p> : null}
 
       {evidence.length ? (

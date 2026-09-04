@@ -1,11 +1,13 @@
 import { expect, it } from "vitest";
 
+import { readRoute, routeHref } from "../../../app/routes";
 import type { LogicalDag, LogicalLayout, LogicalNode } from "../../model-graph/domain/types";
 import type { ExecutionGroup, RuntimeMapping, RuntimeRealizationRecord } from "../domain/types";
+import { resolveRuntimeCandidates } from "../domain/resolveRuntimeRealization";
 import { buildRuntimeOverlay } from "./buildRuntimeOverlay";
 
-it("projects runtime mapping states and cross-selection without changing logical boxes", () => {
-  const refs = ["stage/a", "stage/b", "stage/c", "stage/d", "stage/e", "stage/f"];
+it("projects runtime states as row-local fragments without changing logical boxes", () => {
+  const refs = ["stage/a", "stage/gate", "stage/c", "stage/d", "stage/e", "stage/f", "stage/g", "stage/h"];
   const node = (ref: string): LogicalNode => ({
     ref, kind: "operator", stageId: "stage", moduleId: "module", componentId: null,
     operatorId: ref.at(-1)!, definitionId: "linear", label: ref, visual: "box", detail: null,
@@ -17,8 +19,8 @@ it("projects runtime mapping states and cross-selection without changing logical
   const layout: LogicalLayout = {
     width: 600, height: 220,
     nodeBoxes: new Map(refs.map((ref, index) => [ref, {
-      x: 30 + index * 90, y: index < 3 ? 40 : 130, width: 60, height: 30,
-      compact: false, inline: false, row: index < 3 ? 0 : 1, lane: index,
+      x: 30 + (index % 4) * 110, y: index < 4 ? 40 : 130, width: 60, height: 30,
+      compact: false, inline: false, row: index < 4 ? 0 : 1, lane: index,
     }])),
     stageBoxes: [], scopeBoxes: [], diagnostics: [],
   };
@@ -44,26 +46,39 @@ it("projects runtime mapping states and cross-selection without changing logical
     executionGroups: [
       group("g-fused"), group("g-split-a"), group("g-split-b"),
       group("g-opaque", "opaque_region"), group("g-preserved"),
+      { ...group("g-unmapped"), unmappedReasonCode: "extra_layer_work" },
     ],
     mappings: [
-      mapping("m-fused", refs.slice(0, 2), ["g-fused"], "fused"),
-      mapping("m-split", [refs[2]!], ["g-split-a", "g-split-b"], "split"),
-      mapping("m-eliminated", [refs[3]!], [], "eliminated"),
-      mapping("m-opaque", [refs[4]!], ["g-opaque"], "opaque", "fallback", "ambiguous"),
-      mapping("m-preserved", [refs[5]!], ["g-preserved"], "preserved"),
+      mapping("m-fused", [refs[0]!, refs[2]!, refs[4]!], ["g-fused"], "fused"),
+      mapping("m-split", [refs[3]!], ["g-split-a", "g-split-b"], "split"),
+      mapping("m-eliminated", [refs[5]!], [], "eliminated"),
+      mapping("m-opaque", [refs[6]!], ["g-opaque"], "opaque", "fallback", "ambiguous"),
+      mapping("m-preserved", [refs[7]!], ["g-preserved"], "preserved"),
     ],
   } as unknown as RuntimeRealizationRecord;
 
   const fromLogical = buildRuntimeOverlay(dag, layout, realization, "logical:stage%2Fa");
-  expect(fromLogical.boundaries).toEqual([
-    expect.objectContaining({ groupId: "g-fused", nodeRefs: refs.slice(0, 2), precisionPathId: "fp16" }),
-  ]);
-  expect(fromLogical.badgesByNode.get(refs[2]!)?.map(({ kind }) => kind)).toContain("split");
-  expect(fromLogical.badgesByNode.get(refs[3]!)?.map(({ kind }) => kind)).toContain("eliminated");
-  expect(fromLogical.badgesByNode.get(refs[4]!)?.map(({ kind }) => kind)).toEqual(expect.arrayContaining(["opaque", "ambiguous", "fallback"]));
-  expect(fromLogical.badgesByNode.get(refs[5]!)?.map(({ kind }) => kind)).toContain("preserved");
+  expect(fromLogical.boundaries.map(({ nodeRefs }) => nodeRefs)).toEqual([[refs[0]], [refs[2]], [refs[4]]]);
+  expect(fromLogical.boundaries.every(({ precisionPathId }) => precisionPathId === "fp16")).toBe(true);
+  expect(fromLogical.badgesByNode.get(refs[3]!)?.map(({ kind }) => kind)).toContain("split");
+  expect(fromLogical.badgesByNode.get(refs[5]!)?.map(({ kind }) => kind)).toContain("eliminated");
+  expect(fromLogical.badgesByNode.get(refs[6]!)?.map(({ kind }) => kind)).toEqual(expect.arrayContaining(["opaque", "ambiguous", "fallback"]));
+  expect(fromLogical.badgesByNode.get(refs[7]!)?.map(({ kind }) => kind)).toContain("preserved");
   expect(fromLogical.highlightedGroupIds).toEqual(new Set(["g-fused"]));
   expect(buildRuntimeOverlay(dag, layout, realization, "runtime-group:rr-fixture/g-fused").highlightedLogicalRefs)
-    .toEqual(new Set(refs.slice(0, 2)));
+    .toEqual(new Set([refs[0], refs[2], refs[4]]));
+  expect(buildRuntimeOverlay(dag, layout, realization, "runtime-group:rr-fixture/g-unmapped").highlightedLogicalRefs)
+    .toEqual(new Set());
   expect([...layout.nodeBoxes]).toEqual(before);
+  const route = readRoute("?model=pi0&tab=runtime&precision=dense-bf16&runtimePrecision=uniform-fp16");
+  expect(routeHref(route, { tab: "logical" })).toContain("precision=dense-bf16&runtimePrecision=uniform-fp16");
+  const unsupported = {
+    ...realization, modelId: "smolvla", modelGraphId: "smolvla-base-logical-v1", runtimeId: "vla-cpp",
+    availability: "not_supported", availabilityReasonCode: "loader_rejects_q8_tensor",
+    configurationIds: [], deviceIds: [], precisionPaths: [{ precisionPathId: "q8", label: "Q8" }],
+  } as unknown as RuntimeRealizationRecord;
+  expect(resolveRuntimeCandidates([unsupported], [], {
+    modelId: "smolvla", modelGraphId: "smolvla-base-logical-v1", runtimeId: "vla-cpp",
+    hardwareId: "thor", workload: "cfg-other", precisionId: "q8",
+  })[0]?.realization.availabilityReasonCode).toBe("loader_rejects_q8_tensor");
 });

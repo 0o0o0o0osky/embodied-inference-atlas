@@ -281,7 +281,7 @@
           "kind": "source_code",
           "source_id": "source-vla-cpp",
           "revision": "4c105b8711b86c60828844d244b48db20619bdf8",
-          "locator": "src/models/pi0.cpp#Pi0Model::predict",
+          "locator": "src/models/pi0.cpp#Pi0ModelArch::predict",
           "run_ids": [],
           "observation_ids": []
         },
@@ -487,7 +487,7 @@
           "kind": "source_code",
           "source_id": "source-vla-cpp",
           "revision": "4c105b8711b86c60828844d244b48db20619bdf8",
-          "locator": "src/models/pi0.cpp#Pi0Model::predict",
+          "locator": "src/models/pi0.cpp#Pi0ModelArch::predict",
           "run_ids": [],
           "observation_ids": []
         },

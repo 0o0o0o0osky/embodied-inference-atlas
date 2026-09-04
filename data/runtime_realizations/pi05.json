@@ -297,7 +297,7 @@
           "kind": "source_code",
           "source_id": "source-flashrt",
           "revision": "054bea4d02ebc63f6a0c45991c6061b1e1caa46c",
-          "locator": "flash_rt/models/pi05/pipeline_thor.py#decoder_forward_fp16",
+          "locator": "flash_rt/models/pi05/pipeline_thor.py#_decoder_forward_fp16",
           "run_ids": [],
           "observation_ids": []
         },

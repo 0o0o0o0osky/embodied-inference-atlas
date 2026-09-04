@@ -458,6 +458,10 @@
   color: var(--slate);
 }
 
+.runtime-mapping-register td code {
+  font-size: 1rem;
+}
+
 .runtime-mapping-register td button {
   margin: -0.2rem -0.2rem 0.35rem;
   padding: 0.2rem;

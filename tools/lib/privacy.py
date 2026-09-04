@@ -91,7 +91,11 @@ def scan_json(value: object, path: str = "$") -> list[Issue]:
             else:
                 child_issues = scan_json(child, child_path)
                 if key_text == "locator" and isinstance(child, str) and _CPP_LOCATOR.fullmatch(child):
-                    child_issues = [issue for issue in child_issues if issue.code != "ip_address"]
+                    locator_path, symbol = child.split("#", 1)
+                    child_issues = [
+                        *_scan_string(locator_path, child_path),
+                        *_scan_string(symbol.replace("::", "__"), child_path),
+                    ]
                 issues.extend(child_issues)
     elif isinstance(value, (list, tuple)):
         for index, child in enumerate(value):

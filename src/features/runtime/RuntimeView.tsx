@@ -96,15 +96,16 @@ function ResolvedRuntimeView({ data, model, record, route, navigate }: RuntimeVi
   );
   const candidates = useMemo(() => route.runtime ? resolveRuntimeCandidates(realizations, data.datasets.runs, {
     modelId: model.model_id,
+    modelGraphId: graph.graphId,
     runtimeId: route.runtime,
     hardwareId: route.hardware,
     workload: route.workload,
     precisionId: null,
-  }) : [], [data.datasets.runs, model.model_id, realizations, route.hardware, route.runtime, route.workload]);
-  const precisionMatches = route.precision
-    ? candidates.filter((candidate) => candidate.actualPrecisionId === route.precision)
+  }) : [], [data.datasets.runs, graph.graphId, model.model_id, realizations, route.hardware, route.runtime, route.workload]);
+  const precisionMatches = route.runtimePrecision
+    ? candidates.filter((candidate) => candidate.actualPrecisionId === route.runtimePrecision)
     : candidates;
-  const activeCandidate = precisionMatches.length === 1 && (route.precision !== null || candidates.length === 1)
+  const activeCandidate = precisionMatches.length === 1 && (route.runtimePrecision !== null || candidates.length === 1)
     ? precisionMatches[0]!
     : null;
   const activeRealization = activeCandidate?.realization.availability === "not_supported"
@@ -147,7 +148,7 @@ function ResolvedRuntimeView({ data, model, record, route, navigate }: RuntimeVi
             <p>Core-stack availability</p>
             <h3 id="runtime-availability-title">Select an implementation plane</h3>
           </div>
-          <button type="button" onClick={() => navigate({ runtime: null, precision: null, entity: null })}>
+          <button type="button" onClick={() => navigate({ runtime: null, runtimePrecision: null, entity: null })}>
             Runtime off
           </button>
         </header>
@@ -159,7 +160,7 @@ function ResolvedRuntimeView({ data, model, record, route, navigate }: RuntimeVi
                 type="button"
                 key={runtime.runtime_id}
                 className={[`is-${support.tone}`, route.runtime === runtime.runtime_id ? "is-active" : ""].filter(Boolean).join(" ")}
-                onClick={() => navigate({ runtime: runtime.runtime_id, precision: null, entity: null })}
+                onClick={() => navigate({ runtime: runtime.runtime_id, runtimePrecision: null, entity: null })}
               >
                 <strong>{runtime.display_name}</strong>
                 <span>{support.label}</span>
@@ -303,7 +304,7 @@ function RuntimeResolution({
   if (activeCandidate?.realization.availability === "not_supported") {
     return (
       <p className="runtime-resolution is-missing">
-        <strong>Not supported.</strong> {humanizeRuntime(activeCandidate.realization.availabilityReasonCode)}. No executable group or mapping is fabricated.
+        <strong>Not supported.</strong> {activeCandidate.realization.availabilityReasonCode}. No executable group or mapping is fabricated.
       </p>
     );
   }
@@ -314,7 +315,7 @@ function RuntimeResolution({
       </p>
     );
   }
-  if (!route.precision && candidates.length > 1) {
+  if (!route.runtimePrecision && candidates.length > 1) {
     return (
       <section className="runtime-resolution is-choice" aria-label="Actual runtime precision choices">
         <p><strong>Choose the actual runtime precision.</strong> Analytical precision scenarios are not used to select a realization.</p>
@@ -323,7 +324,7 @@ function RuntimeResolution({
             <button
               type="button"
               key={candidate.realization.realizationId}
-              onClick={() => navigate({ precision: candidate.actualPrecisionId, entity: null })}
+              onClick={() => navigate({ runtimePrecision: candidate.actualPrecisionId, entity: null })}
             >
               {candidate.precisionLabel}
               <small>{humanizeRuntime(candidate.realization.availability)}</small>

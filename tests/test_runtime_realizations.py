@@ -3,6 +3,7 @@ import unittest
 from pathlib import Path
 
 from tools.lib.jsonio import load_json
+from tools.lib.privacy import scan_json
 from tools.validate import validate_references
 
 
@@ -51,7 +52,7 @@ class RuntimeRealizationValidationTests(unittest.TestCase):
             }],
             "evidence": [{
                 "evidence_id": "e-source", "kind": "source_code", "source_id": "source-fixture",
-                "revision": "fixture-revision", "locator": "runtime/source.py#fixture",
+                "revision": "fixture-revision", "locator": "runtime/source.cpp#Type::method",
                 "run_ids": [], "observation_ids": [],
             }],
             "execution_groups": [
@@ -90,6 +91,10 @@ class RuntimeRealizationValidationTests(unittest.TestCase):
             "public-output/public-action-slice/public-action-slice"
         )
         self.assertIn("broken_logical_reference", {issue.code for issue in validate_references(foreign_ref)})
+        self.assertIn("ip_address", {
+            issue.code for issue in scan_json({"locator": "10.0.0.1/src/foo.cpp#Type::method"})
+        })
+        self.assertEqual(scan_json({"locator": "runtime/source.cpp#Type::method"}), [])
 
 
 if __name__ == "__main__":

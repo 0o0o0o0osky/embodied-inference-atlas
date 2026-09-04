@@ -17,7 +17,9 @@ function selectorLabel(selector: RepeatSelector, dag: LogicalDag) {
   const noun = isDenoise ? "denoise" : "layers";
   if (selector.selection === "all") return repeat ? `${noun} ×${repeat}` : `${noun}: all`;
   const indices = [...selector.indices].sort((a, b) => a - b);
-  if (repeat && indices.length === 1 && indices[0] === repeat - 1) return `L${repeat} only`;
+  if (repeat && indices.length === 1 && [repeat - 1, repeat].includes(indices[0]!)) {
+    return `L${indices[0]! + 1} only`;
+  }
   if (indices.length > 1 && indices.every((value, index) => value === indices[0]! + index)) {
     return `${noun} ${indices[0]}–${indices.at(-1)}`;
   }
@@ -25,5 +27,9 @@ function selectorLabel(selector: RepeatSelector, dag: LogicalDag) {
 }
 
 export function targetRepeatLabel(target: LogicalTarget, dag: LogicalDag) {
-  return target.repeatSelectors.map((selector) => selectorLabel(selector, dag)).join(" · ");
+  return repeatSelectorLabel(target.repeatSelectors, dag);
+}
+
+export function repeatSelectorLabel(selectors: readonly RepeatSelector[], dag: LogicalDag) {
+  return selectors.map((selector) => selectorLabel(selector, dag)).join(" · ");
 }

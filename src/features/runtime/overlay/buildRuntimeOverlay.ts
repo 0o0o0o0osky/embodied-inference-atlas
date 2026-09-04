@@ -1,3 +1,4 @@
+import { logicalRefFromEntity } from "../../../app/routes";
 import type { LogicalDag, LogicalLayout, LogicalRef, NodeBox } from "../../model-graph/domain/types";
 import { indexRuntimeRealization } from "../domain/indexRuntimeRealization";
 import type {
@@ -44,17 +45,21 @@ function visualClusters(refs: readonly LogicalRef[], layout: LogicalLayout): Log
     const ordered = [...rowRefs].sort((first, second) =>
       layout.nodeBoxes.get(first)!.x - layout.nodeBoxes.get(second)!.x,
     );
+    let current: LogicalRef[] | undefined;
     ordered.forEach((ref) => {
-      const current = clusters.at(-1);
       const previous = current?.at(-1);
       if (!current || !previous) {
-        clusters.push([ref]);
+        current = [ref];
+        clusters.push(current);
         return;
       }
       const previousBox = layout.nodeBoxes.get(previous)!;
       const box = layout.nodeBoxes.get(ref)!;
       if (box.x - previousBox.x - previousBox.width <= 72) current.push(ref);
-      else clusters.push([ref]);
+      else {
+        current = [ref];
+        clusters.push(current);
+      }
     });
   });
   return clusters;
@@ -96,13 +101,8 @@ function mappingBadges(mapping: RuntimeMapping): RuntimeBadge[] {
 
 function selectedParts(realizationId: string, selectedEntity: string | null) {
   if (!selectedEntity) return { logicalRef: null, groupId: null };
-  if (selectedEntity.startsWith("logical:")) {
-    try {
-      return { logicalRef: decodeURIComponent(selectedEntity.slice("logical:".length)), groupId: null };
-    } catch {
-      return { logicalRef: null, groupId: null };
-    }
-  }
+  const logicalRef = logicalRefFromEntity(selectedEntity);
+  if (logicalRef) return { logicalRef, groupId: null };
   const prefix = `runtime-group:${realizationId}/`;
   return selectedEntity.startsWith(prefix)
     ? { logicalRef: null, groupId: selectedEntity.slice(prefix.length) }

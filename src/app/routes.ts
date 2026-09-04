@@ -17,6 +17,7 @@ export interface RouteState {
   hardware: string | null;
   workload: string | null;
   precision: string | null;
+  runtimePrecision: string | null;
   entity: string | null;
 }
 
@@ -42,6 +43,7 @@ const ROUTE_FIELDS = [
   "hardware",
   "workload",
   "precision",
+  "runtimePrecision",
   "entity",
 ] as const;
 
@@ -55,6 +57,7 @@ export function readRoute(search = window.location.search): RouteState {
     hardware: readValue(params, "hardware"),
     workload: readValue(params, "workload"),
     precision: readValue(params, "precision"),
+    runtimePrecision: readValue(params, "runtimePrecision"),
     entity: readValue(params, "entity"),
   };
 }

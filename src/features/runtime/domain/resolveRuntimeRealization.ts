@@ -9,6 +9,7 @@ export interface RuntimeCandidate {
 
 interface RuntimeSelection {
   modelId: string;
+  modelGraphId: string;
   runtimeId: string;
   hardwareId: string | null;
   workload: string | null;
@@ -74,20 +75,25 @@ export function resolveRuntimeCandidates(
   selection: RuntimeSelection,
 ): readonly RuntimeCandidate[] {
   return records.flatMap((record) => {
-    if (record.modelId !== selection.modelId || record.runtimeId !== selection.runtimeId) return [];
     if (
-      selection.hardwareId &&
-      record.availability !== "not_supported" &&
-      !record.deviceIds.includes(selection.hardwareId)
+      record.modelId !== selection.modelId ||
+      record.modelGraphId !== selection.modelGraphId ||
+      record.runtimeId !== selection.runtimeId
     ) return [];
-    if (!matchesWorkload(record, runs, selection.workload)) return [];
     const precisionId = actualPrecisionId(record, runs);
     if (!precisionId || (selection.precisionId && selection.precisionId !== precisionId)) return [];
     const precision = record.precisionPaths.find((path) => path.precisionPathId === precisionId);
-    return [{
+    const candidate = {
       realization: record,
       actualPrecisionId: precisionId,
       precisionLabel: precision?.label ?? precisionId,
-    }];
+    };
+    if (record.availability === "not_supported") return [candidate];
+    if (
+      selection.hardwareId &&
+      !record.deviceIds.includes(selection.hardwareId)
+    ) return [];
+    if (!matchesWorkload(record, runs, selection.workload)) return [];
+    return [candidate];
   });
 }
