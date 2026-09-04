@@ -1,21 +1,24 @@
-# Task 4 report: DAG-first Pi0 visual redesign
+# Task 4 report: paper-style Pi0 visual redesign
 
 ## Status
 
-Implemented the user-approved Pi0 redesign on `feature/pi0-logical-workspace`, starting from `80ac627`. The final refinement is a single always-visible tensor graph rather than a module-selected drill-down: Vision, Prefix, and Action bands simultaneously expose one representative atomic DAG, while rounded regions fold the repeated Transformer and denoise scopes.
+Implemented the user-approved Pi0 redesign on `feature/pi0-logical-workspace`, starting from `80ac627`. After visual review, the final refinement is a single responsive paper-style SVG rather than a module-selected drill-down or a generic topology layout. Vision, Prefix, and Action are three side-by-side columns, each with a compact top-to-bottom main trunk, local parallel branches, side rails, and rounded repeated scopes.
 
 Implementation commit: `1e3e96e19ffc3101ef058e4b2e787847cceed20b`
 
-The topology has no cumulative repeat badges. It shows `Transformer layers ×27`, two `Transformer layers ×18` scopes, and an outer `Denoise loop ×N_DENOISE`; no atomic node is labelled `×180`.
+Post-review paper-layout correction: `dd04f150e97fafa7a26f15b2870da7c3f1ad4333`
+
+The topology has no cumulative repeat badges. It resolves the Vision `×27`, Prefix `×18`, Action expert `×18`, and outer `Denoise loop ×N_DENOISE` labels from the materialized modules/stage; no atomic node is labelled `×180`.
 
 ## Implementation notes
 
-- Replaced the four array-ordered navigation strips with one deterministic native SVG graph under `#model-overview` and `#block-dag`, alongside the persistent `#operator-detail` inspector.
-- Derived every visible dependency edge from tensor `producer` and `consumers` endpoints. Recursive public-port resolution maps graph tensors through modules, block tensors through components, and component boundary tensors to the actual atomic producers/consumers.
-- Rendered component regions inside folded Transformer scopes. The total graph keeps Q/K/V and gate/up branches parallel, joins them only at their declared consumers, exposes residual skips, carries collected prefix K/V into cached key/value selection and concat, and draws layer/action feedback separately from acyclic ranking.
+- Replaced the four array-ordered navigation strips with one deterministic native SVG figure under `#model-overview` and `#block-dag`, alongside the persistent `#operator-detail` inspector. At desktop width the inspector uses `clamp(21.5rem, 24vw, 23rem)`; it stacks below the figure at `80rem` before the paper diagram becomes illegible.
+- Added a hand-authored `PI0_PAPER_LAYOUT` containing only canonical operator keys and row/lane slots. All names, matrix/output shapes, repeat counts, node metadata, and dataflow still resolve from the materialized graph. The current map places all 67 declared operators, and any future unplaced operator receives a visible fallback region.
+- Preserved recursive tensor endpoint resolution through graph, module, block, and component boundaries. Local paths come from those resolved producer/consumer edges. The only cross-column connector groups are projected Vision tokens into Prefix and collected Prefix K/V into Action; Euler feedback remains a separate dashed rail. All edge paths are deliberately unlabeled.
+- Rendered component regions inside folded Transformer scopes. Q/K/V, gate/up, suffix state versus action/time, and cached K/V are compact horizontal branches inside vertical column trunks. Long residual dependencies and denoise state use side rails; repeated layers are expressed by nested frames instead of unrolling or repeat-carry arrows.
 - Kept all three stage bands visible. Operator clicks update only selection styling, hash/breadcrumb, and the inspector; they do not hide or replace any stage.
 - Replaced decorative visualizers with controllable SVG microscopes for GEMM, attention, and convolution. Each supplies Play/Pause, Step, Reset, and speed controls; selection cancels the prior timer, and reduced-motion sessions start paused. Basic operators retain a static semantic flow.
-- The GEMM view labels actual M/N/K and illustrates A/B K-tile accumulation into an output tile with `D = A B + C`. Attention illustrates tiled `QKᵀ`, scale/mask, row softmax, and tiled `P V` while retaining actual attention dimensions. Patch embedding illustrates receptive-field/weight/output movement while retaining actual image, patch/stride, channel, token, and output-width labels.
+- The GEMM and attention microscopes remain unchanged after review. The rebuilt Conv microscope derives the exact patch lattice from `H/P` and `W/P` (currently `16×16`), highlights one true `P×P×C` non-overlapping patch, keeps a fixed `[P²C × D]` weight panel, and lights the matching output-token cell. Step advances row-major by stride `P` and reports patch index, row/column, pixel ranges, and token. It is explicitly labelled illustrative math rather than a runtime tile, with a static honest fallback for inconsistent dimensions.
 - Analytical metrics show both the per-atomic-invocation value and aggregate logical value, plus separate stage, layer, and intrinsic factors.
 - Added `conv` to the closed visualizer enum and assigned it to Pi0 patch embedding. No runtime tiling dataset or external asset was added.
 - Changed canonical `N_DENOISE` to default `10`, minimum `1`, and no maximum. Python and browser resolution accept safe integers above 10, reject invalid counts, and preserve all other true bounds.
@@ -75,7 +78,7 @@ git diff --check
 
 No inference, download, profiler, broad browser matrix, or additional test command was run.
 
-## Single offline DOM/interaction smoke
+## Initial offline DOM/interaction smoke
 
 Used the generated `site/models/pi0.html` and `site/assets/js/workspace.js` in one network-free minimal DOM session with reduced motion enabled. The single path checked only the requested review surface.
 
@@ -89,6 +92,37 @@ Result: exit code `0`, status `PASS`.
 - Confirmed the denoise input has `min=1`, no max, and the inspector has no out-of-scope panel.
 
 The subsequent `file:///home/isrc/Projects/embodied-inference-atlas/.worktrees/pi0-logical-workspace/site/models/pi0.html` desktop-open attempt returned exit code `0`.
+
+## Post-review correction verification
+
+The paper-layout correction did not change canonical data, validation, build logic, or tests, so the unit suite was deliberately not rerun. No test method or test file was added or edited. The final source state was checked with:
+
+```text
+node --check web/js/workspace.js
+python3 -m tools.build
+python3 -m tools.build --check
+git diff --check
+```
+
+- JavaScript syntax: exit code `0`; no output.
+- Final site build: exit code `0`; `built 7 page(s)`.
+- Deterministic build check: exit code `0`; `built 7 page(s) for check`.
+- Diff check: exit code `0`; no output, recorded immediately before the correction commit.
+
+One narrow, network-free DOM/layout smoke then executed the generated page and assets with a minimal DOM and reduced motion enabled. It passed with:
+
+```text
+PASS paper=0 0 1080 1678 operators=67/67 columns=14,370,726 globals=2 feedback=1 conv=16x16/256 step=token2
+```
+
+That single smoke confirmed:
+
+- a responsive `1080`-unit paper canvas with side-by-side Vision, Prefix, and Action columns;
+- 67/67 selectable operators in authored slots, zero canonical fallback operators, top-to-bottom Vision flow, and horizontal Vision Q/K/V slots;
+- exactly two cross-column connector groups, one Euler feedback group, and no `<textPath>` or other text inside any edge group;
+- materialized `×27`, `×18`, `×18`, and `Denoise loop ×10` scopes, with no `×180`;
+- 256 input patch cells and 256 output token cells for the current `224/14 = 16` lattice, a fixed symbolic `[P²C × D]` / concrete `[588 × 1152]` weight panel, and the illustrative/runtime disclaimer;
+- one Step transition from row 1 / column 1 / token 1 to row 1 / column 2 / pixel x range `14–27` / token 2.
 
 ## Files changed
 
@@ -113,9 +147,17 @@ Report:
 
 - `.superpowers/sdd/2026-09-04-pi0-logical-model-workspace/task-4-report.md`
 
+The post-review correction itself changed only:
+
+- `web/js/workspace.js`
+- `web/styles.css`
+- `site/assets/js/workspace.js`
+- `site/assets/styles.css`
+- this report
+
 ## Honest visual limitations
 
-- The environment had a desktop opener but no inspectable GUI browser or installed browser-automation engine. Behavior and DOM structure were exercised offline, but final typography, edge-label collision, sticky-inspector feel, and color perception still require the user's visual review in the opened page.
-- The complete representative graph is intentionally dense. Dependency ranks and horizontal overflow preserve branch truth, but smaller screens require panning before the inspector stacks below the graph.
-- Edge labels use compact truncation plus concrete shapes to limit clutter; full tensor/operator names remain available from node titles and the inspector, but edge hover expansion is not included in this slice.
-- Animation tile sizes and frame counts are explicitly illustrative mathematical views, not runtime scheduling claims.
+- The environment has no inspectable GUI browser or installed browser-automation engine. Generated DOM, coordinates, responsive structure, and interaction state were exercised offline, but final font rendering, sticky-inspector feel, and color perception still require visual review.
+- The complete 67-operator figure is intentionally tall. It fits the normal desktop width without horizontal panning; narrower layouts stack the inspector below, while the page continues vertically.
+- Edges are intentionally unlabeled to keep the paper overview legible. Tensor names and full symbolic/concrete shapes remain in node titles and the inspector rather than on paths.
+- The microscopes are explicitly illustrative mathematical views, not runtime scheduling, profiling, precision, performance, or roofline claims.
