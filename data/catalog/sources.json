@@ -91,6 +91,51 @@
       "published_date": null,
       "accessed_date": "2026-09-04",
       "summary": "Primary public implementation and configuration source for the Pi0 logical model definition."
+    },
+    {
+      "source_id": "source-pi05-droid",
+      "evidence": "reported_external",
+      "title": "Pi0.5 DROID artifact identifier (public revision unavailable)",
+      "url": "https://huggingface.co/pepijn223/pi05_droid",
+      "published_date": null,
+      "accessed_date": "2026-09-05",
+      "summary": "Artifact configuration and tensor-header evidence curated for the Pi0.5 logical graph; no trustworthy public revision was available."
+    },
+    {
+      "source_id": "source-smolvla-base-c83c316",
+      "evidence": "reported_external",
+      "title": "SmolVLA base artifact at c83c3163",
+      "url": "https://huggingface.co/lerobot/smolvla_base/tree/c83c3163b8ca9b7e67c509fffd9121e66cb96205",
+      "published_date": null,
+      "accessed_date": "2026-09-05",
+      "summary": "Pinned public artifact identity used for SmolVLA configuration and tensor-header curation."
+    },
+    {
+      "source_id": "source-smolvlm2-7b375e",
+      "evidence": "reported_external",
+      "title": "SmolVLM2 500M backbone configuration at 7b375e1b",
+      "url": "https://huggingface.co/HuggingFaceTB/SmolVLM2-500M-Video-Instruct/tree/7b375e1b73b11138ff12fe22c8f2822d8fe03467",
+      "published_date": null,
+      "accessed_date": "2026-09-05",
+      "summary": "Pinned backbone configuration used to establish native text, vision, connector, head, and positional dimensions."
+    },
+    {
+      "source_id": "source-lerobot-fbb811f",
+      "evidence": "reported_external",
+      "title": "LeRobot implementation at fbb811f",
+      "url": "https://github.com/huggingface/lerobot/tree/fbb811fca92504439792b97d216f0d00c2268382",
+      "published_date": null,
+      "accessed_date": "2026-09-05",
+      "summary": "Pinned implementation source used for preprocessing, attention masks, cache behavior, expert topology, and Euler flow semantics."
+    },
+    {
+      "source_id": "source-transformers-5-5-4",
+      "evidence": "reported_external",
+      "title": "Transformers 5.5.4 implementation defaults",
+      "url": "https://github.com/huggingface/transformers/tree/v5.5.4",
+      "published_date": null,
+      "accessed_date": "2026-09-05",
+      "summary": "Implementation defaults used only where the pinned SmolVLM vision configuration omitted values corroborated by artifact tensors."
     }
   ]
 }

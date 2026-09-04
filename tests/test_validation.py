@@ -578,6 +578,51 @@ class ValidationTests(unittest.TestCase):
         self.assertEqual(update_tensors["action-hidden"]["shape"], [1, 50, 1024])
         self.assertEqual(update_tensors["velocity"]["shape"], [1, 50, 32])
 
+    def test_curated_models_representative_workloads_materialize(self):
+        cases = (
+            ("pi05", {"V": 3, "L_PROMPT": 200, "T_ACTION": 15, "N_DENOISE": 10},
+             {"S_PREFIX": 968, "S_ATTENTION": 983},
+             {"vision-patch-tokens": [1, 3, 256, 1152],
+              "projected-vision-tokens": [1, 3, 256, 2048], "prefix-tokens": [1, 968, 2048],
+              "action-tokens": [1, 15, 1024], "time-condition": [1, 1024],
+              "velocity": [1, 15, 32], "final-action-state": [1, 15, 32]}, [1, 1, 968, 256],
+             {"vision-blocks": (27, 27), "prefix-blocks": (18, 18),
+              "action-expert-blocks": (18, 180)}, None),
+            ("smolvla", {"V": 3, "L_PROMPT": 48, "T_ACTION": 50, "N_DENOISE": 10},
+             {"S_PREFIX": 241, "S_ATTENTION": 291},
+             {"executed-images": [1, 3, 3, 512, 512],
+              "vision-patch-tokens": [1, 3, 1024, 768], "connector-tokens": [1, 3, 64, 960],
+              "prefix-tokens": [1, 241, 960], "state-token": [1, 1, 960],
+              "action-tokens": [1, 50, 720], "final-internal-action": [1, 50, 32],
+              "public-action-chunk": [1, 50, 6]}, [1, 5, 241, 64],
+             {"vision-blocks": (12, 12), "prefix-blocks": (16, 16),
+              "expert-layer-pairs": (8, 80)},
+             ["self-attention", "self-feed-forward", "cross-attention", "cross-feed-forward"]),
+        )
+
+        for model_id, workload, bindings, shapes, cache_shape, repeats, components in cases:
+            with self.subTest(model=model_id):
+                graph = load_json(ROOT / "data" / "model_graphs" / f"{model_id}.json")["records"][0]
+                materialized = materialize_model_graph(graph, workload)
+                self.assertEqual({key: materialized["bindings"][key] for key in bindings}, bindings)
+                tensors = {item["tensor_id"]: item["shape"] for item in materialized["graph_tensors"]}
+                self.assertEqual({key: tensors[key] for key in shapes}, shapes)
+                modules = {module["module_id"]: module for stage in materialized["stages"]
+                           for module in stage["modules"]}
+                cache_shapes = {item["port"]: item["element_shape"]
+                                for item in modules["prefix-blocks"]["collected_outputs"]}
+                self.assertEqual([cache_shapes["key_cache"], cache_shapes["value_cache"]],
+                                 [cache_shape, cache_shape])
+                self.assertEqual(
+                    {key: (modules[key]["module_repeat"], materialized["named_repeats"][key])
+                     for key in repeats}, repeats)
+                flow_stage = next(stage for stage in materialized["stages"]
+                                  if stage["stage_id"] == "action-flow-decoder")
+                self.assertEqual(flow_stage["stage_repeat"], 10)
+                if components:
+                    self.assertEqual([item["component_id"] for item in
+                                      modules["expert-layer-pairs"]["template"]["components"]], components)
+
     def test_run_context_must_match(self):
         run = valid_run("run-context")
         document = {"schema_version": "1.0.0", "dataset": "runs", "records": [run]}

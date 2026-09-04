@@ -26,7 +26,7 @@ export function Workbench({ data, model, route, navigate }: WorkbenchProps) {
       <nav className="breadcrumb" aria-label="Breadcrumb">
         <RouteLink
           route={route}
-          patch={{ model: null, entity: null }}
+          patch={{ model: null }}
           navigate={navigate}
         >
           Model register

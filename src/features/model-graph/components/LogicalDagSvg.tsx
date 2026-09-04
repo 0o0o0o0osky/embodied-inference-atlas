@@ -6,8 +6,10 @@ import type {
   LogicalDag,
   LogicalLayout,
   LogicalNode,
+  LogicalScope,
   NodeBox,
   NodeVisualKind,
+  ScopeBox,
 } from "../domain/types";
 
 interface LogicalDagSvgProps {
@@ -18,12 +20,14 @@ interface LogicalDagSvgProps {
   selectedRef: string;
   relatedRefs: ReadonlySet<string>;
   onSelect: (ref: string) => void;
+  ariaLabel: string;
 }
 
 function shortScopeLabel(moduleId: string | null, fallback: string) {
   if (moduleId === "vision-blocks") return fallback.replace("SigLIP transformer blocks", "SigLIP");
   if (moduleId === "prefix-blocks") return fallback.replace("Gemma prefix blocks", "Gemma");
   if (moduleId === "action-expert-blocks") return fallback.replace("Gemma action expert blocks", "Expert");
+  if (moduleId === "expert-layer-pairs") return fallback.replace("Expert layer pairs", "Expert pairs");
   return fallback;
 }
 
@@ -38,6 +42,26 @@ function nodeAlias(node: LogicalNode, presentation: GraphPresentation) {
 function nodeDescription(node: LogicalNode) {
   if (!node.detail) return `${node.label}. ${node.definitionId.replaceAll("-", " ")}.`;
   return `${node.label}. ${node.detail.definitionLabel}. ${node.detail.formula}`;
+}
+
+function ScopeBadge({ scope, box }: { scope: LogicalScope; box: ScopeBox }) {
+  const label = shortScopeLabel(scope.moduleId, scope.label);
+  const badgeWidth = Math.min(box.width - 16, Math.max(82, label.length * 6.1 + 18));
+  const tailLabel = scope.note?.split(":", 1)[0] ?? null;
+  const tailWidth = tailLabel ? 94 : 0;
+  return (
+    <g className={`logical-scope logical-scope--${scope.kind}`}>
+      <rect className="logical-scope-badge" x={box.x + 8} y={box.y} width={badgeWidth} height={box.headerHeight} rx={7} />
+      <text className="logical-scope-label" x={box.x + 17} y={box.y + 12.5}>{label}</text>
+      {tailLabel && box.width - badgeWidth > tailWidth + 22 ? (
+        <g className="logical-tail-badge">
+          <rect x={box.x + box.width - tailWidth - 8} y={box.y} width={tailWidth} height={box.headerHeight} rx={7} />
+          <text x={box.x + box.width - tailWidth / 2 - 8} y={box.y + 12.5} textAnchor="middle">{tailLabel}</text>
+          <title>{scope.note}</title>
+        </g>
+      ) : null}
+    </g>
+  );
 }
 
 function NodeShape({
@@ -113,6 +137,7 @@ export function LogicalDagSvg({
   selectedRef,
   relatedRefs,
   onSelect,
+  ariaLabel,
 }: LogicalDagSvgProps) {
   const selected = Boolean(selectedRef);
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -122,7 +147,7 @@ export function LogicalDagSvg({
   return (
     <div className="logical-viewport">
       <div className="logical-viewport-controls" aria-label="Logical graph viewport controls">
-        <span className="logical-viewport-note">Fixed 1080-unit layout · pan to inspect at full scale</span>
+        <span className="logical-viewport-note">{layout.width}-unit authored layout · pan to inspect at full scale</span>
         <span
           className="logical-edge-coverage"
           title="Folded repeat edges connect one represented block to the next; each named ×N boundary stands in for those paths."
@@ -155,8 +180,9 @@ export function LogicalDagSvg({
       <svg
         className="logical-dag"
         viewBox={`0 0 ${layout.width} ${layout.height}`}
+        style={{ minWidth: `${layout.width}px` }}
         role="img"
-        aria-label="Pi0 logical operator graph with three authored stage columns"
+        aria-label={ariaLabel}
         data-truth-edge-count={dag.edges.length}
         data-connector-count={connectors.connectors.length}
         data-invalid-connector-count={connectors.invalidHints.length}
@@ -200,22 +226,9 @@ export function LogicalDagSvg({
         {layout.scopeBoxes.map((box) => {
           const scope = dag.scopes.find((item) => item.id === box.scopeId);
           if (!scope) return null;
-          const label = shortScopeLabel(scope.moduleId, scope.label);
-          const badgeWidth = Math.min(box.width - 16, Math.max(82, label.length * 6.1 + 18));
-          const tailLabel = scope.note?.split(":", 1)[0] ?? null;
-          const tailWidth = tailLabel ? 94 : 0;
           return (
             <g className={`logical-scope logical-scope--${scope.kind}`} key={scope.id}>
               <rect className="logical-scope-frame" x={box.x} y={box.y} width={box.width} height={box.height} rx={14} />
-              <rect className="logical-scope-badge" x={box.x + 8} y={box.y} width={badgeWidth} height={box.headerHeight} rx={7} />
-              <text className="logical-scope-label" x={box.x + 17} y={box.y + 12.5}>{label}</text>
-              {tailLabel && box.width - badgeWidth > tailWidth + 22 ? (
-                <g className="logical-tail-badge">
-                  <rect x={box.x + box.width - tailWidth - 8} y={box.y} width={tailWidth} height={box.headerHeight} rx={7} />
-                  <text x={box.x + box.width - tailWidth / 2 - 8} y={box.y + 12.5} textAnchor="middle">{tailLabel}</text>
-                  <title>{scope.note}</title>
-                </g>
-              ) : null}
             </g>
           );
         })}
@@ -242,6 +255,11 @@ export function LogicalDagSvg({
             }),
           )}
         </g>
+
+        {layout.scopeBoxes.map((box) => {
+          const scope = dag.scopes.find((item) => item.id === box.scopeId);
+          return scope ? <ScopeBadge key={scope.id} scope={scope} box={box} /> : null;
+        })}
 
         {[...dag.nodes.values()].map((node) => {
           const box = layout.nodeBoxes.get(node.ref);

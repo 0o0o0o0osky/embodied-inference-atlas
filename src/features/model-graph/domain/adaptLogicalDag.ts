@@ -17,7 +17,11 @@ function genericVisual(definitionId: string): NodeVisualKind {
   if (definitionId === "residual-add" || definitionId === "elementwise-multiply") {
     return "inline";
   }
-  if (definitionId === "concat" || definitionId === "reshape") return "line-op";
+  if (
+    definitionId === "concat" ||
+    definitionId === "reshape" ||
+    definitionId === "permute-rearrange"
+  ) return "line-op";
   return "box";
 }
 

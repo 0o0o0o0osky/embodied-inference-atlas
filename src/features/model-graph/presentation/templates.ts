@@ -56,11 +56,11 @@ export function vitGeluMlpRows(scope: string): RowSpec[] {
   );
 }
 
-export function gatedMlpRows(scope: string): RowSpec[] {
+export function gatedMlpRows(scope: string, activation = "gate-gelu"): RowSpec[] {
   return [
     scopedRow(scope, ["mlp-norm"], true),
     scopedRow(scope, ["gate-projection", "up-projection"]),
-    scopedRow(scope, ["gate-gelu", null]),
+    scopedRow(scope, [activation, null]),
     scopedRow(scope, ["gate-product"]),
     scopedRow(scope, ["down-projection"]),
     scopedRow(scope, ["mlp-residual"]),

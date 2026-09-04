@@ -6,6 +6,7 @@ import type {
   EvidenceCounts,
   ModelRecord,
 } from "../../types/atlas";
+import { modelSwitchPatch } from "../model-graph/domain/modelSwitch";
 
 interface ModelCatalogProps {
   data: AtlasData;
@@ -89,11 +90,11 @@ function ModelRow({ data, index, model, route, navigate }: ModelRowProps) {
   const runtimeCount = data.datasets.runtimes.filter((runtime) =>
     runtime.model_support.some((support) => support.model_id === model.model_id),
   ).length;
-  const openPatch: RoutePatch = {
-    model: model.model_id,
-    tab: "logical",
-    entity: null,
-  };
+  const openPatch: RoutePatch = modelSwitchPatch(
+    data.datasets.model_graphs,
+    model.model_id,
+    route.entity,
+  );
 
   return (
     <li>

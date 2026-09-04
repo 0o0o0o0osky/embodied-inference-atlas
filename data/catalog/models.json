@@ -45,6 +45,12 @@
       "model_type": "vla",
       "artifacts": [
         {
+          "artifact_id": "pi05-droid-logical-01",
+          "label": "Pi0.5 DROID logical artifact",
+          "public_model_id": "pepijn223/pi05_droid",
+          "public_revision": null
+        },
+        {
           "artifact_id": "pi05-flashrt-local-01",
           "label": "Pi0.5 FlashRT local artifact",
           "public_model_id": null,
@@ -62,7 +68,7 @@
       "input_modalities": ["image", "language", "state"],
       "output_modalities": ["action_chunk"],
       "execution_modes": ["iterative_action_generation"],
-      "source_ids": ["source-flashrt", "source-vla-perf", "source-local-thor"]
+      "source_ids": ["source-pi05-droid", "source-lerobot-fbb811f", "source-flashrt", "source-vla-perf", "source-local-thor"]
     },
     {
       "model_id": "smolvla",
@@ -72,8 +78,8 @@
         {
           "artifact_id": "smolvla-lerobot-local-01",
           "label": "SmolVLA LeRobot local artifact",
-          "public_model_id": null,
-          "public_revision": null
+          "public_model_id": "lerobot/smolvla_base",
+          "public_revision": "c83c3163b8ca9b7e67c509fffd9121e66cb96205"
         },
         {
           "artifact_id": "smolvla-vlacpp-source-01",
@@ -93,7 +99,7 @@
       "input_modalities": ["image", "language", "state"],
       "output_modalities": ["action_chunk"],
       "execution_modes": ["flow_matching_action_generation"],
-      "source_ids": ["source-lerobot", "source-vla-cpp", "source-vla-perf", "source-local-thor"]
+      "source_ids": ["source-smolvla-base-c83c316", "source-smolvlm2-7b375e", "source-lerobot-fbb811f", "source-transformers-5-5-4", "source-lerobot", "source-vla-cpp", "source-vla-perf", "source-local-thor"]
     }
   ]
 }

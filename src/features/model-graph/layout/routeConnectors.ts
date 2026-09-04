@@ -233,6 +233,21 @@ function routeCross(
   const targets = targetBoxes.map((box) => anchor(box!));
   const gapX = (sourceStage.x + sourceStage.width + targetStage.x) / 2;
   if (targets.length === 1) {
+    if (hint.route === "top-bus") {
+      const inset = hint.railInset ?? 14;
+      const railX = hint.side === "right"
+        ? targetStage.x + targetStage.width - inset
+        : targetStage.x + inset;
+      const targetX = hint.side === "right" ? targets[0]!.right : targets[0]!.left;
+      const busY = targetStage.y + 48;
+      add(
+        `M ${source.right} ${source.y} H ${gapX} V ${busY} H ${railX} V ${targets[0]!.y} H ${targetX}`,
+        true,
+        [sourceRef],
+        targetRefs,
+      );
+      return;
+    }
     add(
       `M ${source.right} ${source.y} H ${gapX} V ${targets[0]!.y} H ${targets[0]!.left}`,
       true,

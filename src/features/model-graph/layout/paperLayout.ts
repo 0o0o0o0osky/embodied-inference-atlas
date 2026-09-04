@@ -319,7 +319,12 @@ export function layoutLogicalDag(
     .filter((box): box is ScopeBox => box !== null);
 
   return {
-    width: PAPER_LAYOUT.width,
+    width: Math.max(
+      PAPER_LAYOUT.width,
+      PAPER_LAYOUT.margin * 2 +
+        stageBoxes.length * PAPER_LAYOUT.columnWidth +
+        Math.max(0, stageBoxes.length - 1) * PAPER_LAYOUT.columnGap,
+    ),
     height: Math.max(170, ...stageBoxes.map((stage) => stage.height)) + 10,
     nodeBoxes,
     stageBoxes,

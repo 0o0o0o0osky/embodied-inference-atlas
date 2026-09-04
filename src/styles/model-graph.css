@@ -252,6 +252,15 @@
   align-items: start;
 }
 
+.logical-workspace-grid--wide {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.logical-workspace-grid--wide .logical-graph-panel {
+  border-right: 0;
+  border-bottom: 1px solid var(--line-dark);
+}
+
 .logical-graph-panel {
   min-width: 0;
   border-right: 1px solid var(--line-dark);
@@ -366,6 +375,10 @@
 
 .logical-stage--3 > rect {
   fill: rgba(239, 244, 242, 0.93);
+}
+
+.logical-stage--4 > rect {
+  fill: rgba(234, 238, 231, 0.93);
 }
 
 .logical-stage-index {

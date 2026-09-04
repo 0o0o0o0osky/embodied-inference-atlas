@@ -12,7 +12,7 @@ import { adaptV1ModelGraph, isV1ModelGraphRecord } from "./domain/adaptV1ModelGr
 import { encodeWorkload, workloadOverrides } from "./domain/workload";
 import { layoutLogicalDag } from "./layout/paperLayout";
 import { resolveConnectorHints } from "./layout/routeConnectors";
-import { pi0Presentation } from "./presentation/pi0Presentation";
+import { resolvePresentationProfile } from "./presentation/registry";
 
 interface ModelGraphWorkspaceProps {
   data: AtlasData;
@@ -74,13 +74,17 @@ function ResolvedModelGraph({
   );
   const structuralDag = useMemo(() => adaptLogicalDag(defaultGraph), [defaultGraph]);
   const dag = useMemo(() => adaptLogicalDag(graph), [graph]);
+  const profile = useMemo(
+    () => resolvePresentationProfile(defaultGraph, structuralDag),
+    [defaultGraph, structuralDag],
+  );
   const layout = useMemo(
-    () => layoutLogicalDag(structuralDag, pi0Presentation),
-    [structuralDag],
+    () => layoutLogicalDag(structuralDag, profile.presentation),
+    [profile.presentation, structuralDag],
   );
   const connectors = useMemo(
-    () => resolveConnectorHints(structuralDag, pi0Presentation, layout),
-    [layout, structuralDag],
+    () => resolveConnectorHints(structuralDag, profile.presentation, layout),
+    [layout, profile.presentation, structuralDag],
   );
   const firstOperator = [...dag.nodes.values()].find((node) => node.kind === "operator");
   const routedNode = route.entity ? dag.nodes.get(route.entity) : undefined;
@@ -105,15 +109,13 @@ function ResolvedModelGraph({
       <header className="logical-intro">
         <div>
           <p>{graph.graphId} / v{graph.version}</p>
-          <h2 id="logical-graph-title">Pi0 logical model</h2>
-          <span>
-            One authored dependency diagram. Select a short operator label to inspect its tensors and computation.
-          </span>
+          <h2 id="logical-graph-title">{profile.title}</h2>
+          <span>{profile.summary}</span>
         </div>
         <aside>
-          <strong>Required prefix output</strong>
-          <span>17 full blocks + L18 K/V tail</span>
-          <small>Logical semantics; runtime work is a later overlay.</small>
+          <strong>{profile.callout.label}</strong>
+          <span>{profile.callout.value}</span>
+          <small>{profile.callout.note}</small>
         </aside>
       </header>
 
@@ -125,7 +127,7 @@ function ResolvedModelGraph({
       />
       <DerivedSymbols symbols={graph.derivedSymbols} />
       <p className="workload-annotation">
-        Measured native workloads are evidence annotations, not limits on these logical bindings.
+        {profile.workloadNote}
       </p>
 
       <GraphBreadcrumb modelLabel={model.display_name} graph={graph} operator={operator} />
@@ -142,16 +144,20 @@ function ResolvedModelGraph({
         </div>
       ) : null}
 
-      <div className="logical-workspace-grid">
-        <section className="logical-graph-panel" aria-label="Pi0 logical operator graph">
+      <div className={[
+        "logical-workspace-grid",
+        layout.stageBoxes.length > 3 ? "logical-workspace-grid--wide" : "",
+      ].filter(Boolean).join(" ")}>
+        <section className="logical-graph-panel" aria-label={profile.panelLabel}>
           <LogicalDagSvg
             dag={dag}
             layout={layout}
             connectors={connectors}
-            presentation={pi0Presentation}
+            presentation={profile.presentation}
             selectedRef={resolvedRef}
             relatedRefs={related}
             onSelect={(ref) => navigate({ entity: ref }, true)}
+            ariaLabel={profile.diagramLabel}
           />
         </section>
         <OperatorInspector
