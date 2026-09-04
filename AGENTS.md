@@ -9,3 +9,4 @@ This repository stores sanitized inference evidence and generated offline report
 - Only compare records through the declared single-axis comparison policy.
 - Local commands: `python3 -m unittest`, `python3 -m tools.validate --all`, `python3 -m tools.build`, and `python3 -m tools.build --check`.
 - Open the generated report at `site/index.html`; commit deterministic `site/` output when a task requires a release snapshot.
+- When reviewing a rendered model or performance-workbench UI, read and use `skills/reviewing-technical-model-ui/SKILL.md`.
