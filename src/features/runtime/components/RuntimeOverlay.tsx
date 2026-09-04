@@ -39,7 +39,7 @@ const NODE_CLEARANCE = 8;
 const SHORT_PRECISION_LABELS: Readonly<Record<string, string>> = {
   "mixed-bf16-fp32": "BF16/FP32",
   "mixed-fp8-e4m3-fp16": "FP8/FP16",
-  "q8_0-weight-only": "Q8_0",
+  "q8_0-weight-only": "Q8_0 wt/FP16",
   "uniform-fp16": "FP16",
   "flashrt-fp16-control": "FP16 ctrl",
   "flashrt-pi05-fp16-control": "FP16 ctrl",
