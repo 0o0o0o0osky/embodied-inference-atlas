@@ -917,7 +917,8 @@ body {
   stroke-width: 1.5;
 }
 
-.dag-node rect {
+.dag-node rect,
+.dag-node--inline circle {
   fill: #fff;
   stroke: #9eb1bb;
   stroke-width: 1.2;
@@ -930,18 +931,22 @@ body {
 }
 
 .dag-node--operator:hover rect,
-.dag-node--operator:focus-visible rect {
+.dag-node--operator:focus-visible rect,
+.dag-node--inline:hover circle,
+.dag-node--inline:focus-visible circle {
   fill: #f1f9f8;
   stroke: var(--teal);
 }
 
-.dag-node.is-selected rect {
+.dag-node.is-selected rect,
+.dag-node.is-selected circle {
   fill: #d9f1ee;
   stroke: var(--teal);
   stroke-width: 3;
 }
 
-.dag-node.is-related rect {
+.dag-node.is-related rect,
+.dag-node.is-related circle {
   fill: #f0f9f7;
   stroke: #65aaa4;
   stroke-width: 1.8;
@@ -964,6 +969,11 @@ body {
   font-size: 11.75px;
   font-weight: 760;
   pointer-events: none;
+}
+
+.dag-node-junction-label {
+  font-size: 15px;
+  font-weight: 800;
 }
 
 .dag-node--input .dag-node-label,
@@ -1244,7 +1254,8 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .dag-node rect {
+  .dag-node rect,
+  .dag-node--inline circle {
     transition: none;
   }
 }

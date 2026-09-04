@@ -1154,17 +1154,16 @@
 
   const PAPER_COMPACT_DEFINITIONS = new Set([
     "concat",
-    "elementwise-multiply",
     "euler-update",
     "gelu",
     "layer-norm",
     "reshape",
-    "residual-add",
     "rms-norm",
     "rope",
     "silu",
     "slice",
   ]);
+  const PAPER_INLINE_DEFINITIONS = new Set(["residual-add", "elementwise-multiply"]);
 
   function paperNodeAlias(node) {
     if (node.kind !== "operator") return PAPER_BOUNDARY_ALIASES[node.id] || node.kind;
@@ -1188,12 +1187,17 @@
   }
 
   function paperNodeSize(node, availableWidth, solo) {
+    const inline = node.kind === "operator" && PAPER_INLINE_DEFINITIONS.has(node.definitionId);
+    if (inline) {
+      return { width: 20, height: 20, compact: true, inline: true };
+    }
     const compact = node.kind !== "operator" || PAPER_COMPACT_DEFINITIONS.has(node.definitionId);
     const aliasWidth = Math.max(54, paperNodeAlias(node).length * 6.4 + 20);
     return {
       width: Math.min(availableWidth, solo ? Math.max(84, aliasWidth) : aliasWidth),
       height: compact ? 28 : 38,
       compact,
+      inline: false,
     };
   }
 
@@ -1223,6 +1227,7 @@
           width: size.width,
           height: size.height,
           compact: size.compact,
+          inline: size.inline,
           row: rowIndex,
           lane: slotIndex,
           chain: chainIndex,
@@ -1683,8 +1688,9 @@
   function renderDagNode(svg, node, box) {
     const alias = paperNodeAlias(node);
     const description = paperNodeDescription(node);
+    const inline = Boolean(box.inline);
     const group = svgElement("g", {
-      class: `dag-node dag-node--${node.kind}${box.compact ? " dag-node--compact" : " dag-node--main"}`,
+      class: `dag-node dag-node--${node.kind}${box.compact ? " dag-node--compact" : " dag-node--main"}${inline ? " dag-node--inline" : ""}`,
       transform: `translate(${box.x} ${box.y})`,
       "data-node-id": node.id,
       "data-node-kind": node.kind,
@@ -1696,20 +1702,38 @@
       group.setAttribute("tabindex", "0");
       group.setAttribute("aria-label", `Inspect ${description}`);
     }
-    group.append(
-      svgElement("rect", {
-        width: box.width,
-        height: box.height,
-        rx: node.kind === "operator" ? 8 : 18,
-      }),
-      svgElement("text", {
-        x: box.width / 2,
-        y: box.height / 2 + 4,
-        class: "dag-node-label",
-        "text-anchor": "middle",
-      }, alias),
-      svgElement("title", {}, description),
-    );
+    if (inline) {
+      const symbol = node.definitionId === "residual-add" ? "+" : "×";
+      group.append(
+        svgElement("circle", {
+          cx: box.width / 2,
+          cy: box.height / 2,
+          r: 9,
+        }),
+        svgElement("text", {
+          x: box.width / 2,
+          y: box.height / 2 + 4.5,
+          class: "dag-node-label dag-node-junction-label",
+          "text-anchor": "middle",
+        }, symbol),
+        svgElement("title", {}, description),
+      );
+    } else {
+      group.append(
+        svgElement("rect", {
+          width: box.width,
+          height: box.height,
+          rx: node.kind === "operator" ? 8 : 18,
+        }),
+        svgElement("text", {
+          x: box.width / 2,
+          y: box.height / 2 + 4,
+          class: "dag-node-label",
+          "text-anchor": "middle",
+        }, alias),
+        svgElement("title", {}, description),
+      );
+    }
     if (node.kind === "operator") {
       const selectNode = () => select({
         stage: node.stageId,
