@@ -92,8 +92,6 @@ function ModelRow({ data, index, model, route, navigate }: ModelRowProps) {
   const openPatch: RoutePatch = {
     model: model.model_id,
     tab: "logical",
-    workload: route.workload ?? "canonical-default",
-    precision: route.precision ?? "dense-bf16",
     entity: null,
   };
 
