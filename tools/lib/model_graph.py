@@ -446,6 +446,56 @@ def _validate_ports_and_endpoints(
             problems.append(GraphProblem(f"{tensor_path}.consumers", "endpoint_mismatch", "consumers do not match node input bindings"))
 
 
+def _validate_atomic_template(
+    template: Mapping[str, object],
+    template_path: str,
+    definitions: Mapping[str, Mapping[str, object]],
+    problems: list[GraphProblem],
+) -> None:
+    parameters = template.get("parameters")
+    if not isinstance(parameters, list) or len(parameters) != len(set(parameters)):
+        problems.append(GraphProblem(f"{template_path}.parameters", "duplicate", "template parameters must be unique"))
+    template_environment = {name: 1 for name in parameters if isinstance(name, str)}
+    tensors = _ids(template.get("tensors"), "tensor_id", f"{template_path}.tensors", problems)
+    operators = _ids(template.get("operators"), "operator_id", f"{template_path}.operators", problems)
+    input_ports = _binding_map(template.get("input_ports"))
+    output_ports = _binding_map(template.get("output_ports"))
+    input_tensor_ids = {
+        binding.get("tensor_id")
+        for binding in input_ports.values()
+        if isinstance(binding.get("tensor_id"), str)
+    }
+    output_tensor_ids = {
+        binding.get("tensor_id")
+        for binding in output_ports.values()
+        if isinstance(binding.get("tensor_id"), str)
+    }
+    for port, binding in {**input_ports, **output_ports}.items():
+        if binding.get("tensor_id") not in tensors:
+            problems.append(GraphProblem(f"{template_path}.ports[{port}]", "broken_reference", "template port tensor does not resolve"))
+    _validate_axes(template.get("tensors"), template_environment, f"{template_path}.tensors", problems)
+    for operator_id, operator in operators.items():
+        operator_path = f"{template_path}.operators[{operator_id}]"
+        definition = definitions.get(operator.get("definition_id"))
+        if definition is None:
+            problems.append(GraphProblem(f"{operator_path}.definition_id", "broken_reference", "operator definition does not resolve"))
+            continue
+        _require_count(operator.get("multiplicity"), template_environment, f"{operator_path}.multiplicity", problems)
+        _validate_bindings(operator.get("bindings"), definition.get("parameters"), template_environment, f"{operator_path}.bindings", problems)
+        for direction, declared in (("inputs", definition.get("input_ports")), ("outputs", definition.get("output_ports"))):
+            actual = _binding_map(operator.get(direction))
+            expected = set(declared) if isinstance(declared, list) else set()
+            if set(actual) != expected:
+                problems.append(GraphProblem(f"{operator_path}.{direction}", "invalid_port", "operator ports must match the definition"))
+            for binding in actual.values():
+                if binding.get("tensor_id") not in tensors:
+                    problems.append(GraphProblem(f"{operator_path}.{direction}", "broken_reference", "operator tensor does not resolve"))
+    _validate_ports_and_endpoints(
+        template.get("tensors"), operators, "operator",
+        input_tensor_ids, output_tensor_ids, template_path, problems,
+    )
+
+
 def graph_semantic_problems(record: Mapping[str, object]) -> list[GraphProblem]:
     """Validate closed graph relationships and expression evaluation scopes."""
     problems: list[GraphProblem] = []
@@ -457,6 +507,12 @@ def graph_semantic_problems(record: Mapping[str, object]) -> list[GraphProblem]:
         globals_ = {}
 
     definitions = _ids(record.get("operator_definitions"), "definition_id", "$.operator_definitions", problems)
+    component_templates = _ids(
+        record.get("component_templates"),
+        "template_id",
+        "$.component_templates",
+        problems,
+    )
     templates = _ids(record.get("block_templates"), "template_id", "$.block_templates", problems)
     stages = _ids(record.get("stages"), "stage_id", "$.stages", problems)
     graph_tensors = _ids(record.get("graph_tensors"), "tensor_id", "$.graph_tensors", problems)
@@ -481,6 +537,14 @@ def graph_semantic_problems(record: Mapping[str, object]) -> list[GraphProblem]:
                 ),
             )
 
+    for template_id, template in component_templates.items():
+        _validate_atomic_template(
+            template,
+            f"$.component_templates[{template_id}]",
+            definitions,
+            problems,
+        )
+
     for template_id, template in templates.items():
         template_path = f"$.block_templates[{template_id}]"
         parameters = template.get("parameters")
@@ -489,6 +553,15 @@ def graph_semantic_problems(record: Mapping[str, object]) -> list[GraphProblem]:
         template_environment = {name: 1 for name in parameters if isinstance(name, str)}
         tensors = _ids(template.get("tensors"), "tensor_id", f"{template_path}.tensors", problems)
         operators = _ids(template.get("operators"), "operator_id", f"{template_path}.operators", problems)
+        components = _ids(template.get("components"), "component_id", f"{template_path}.components", problems)
+        if bool(operators) == bool(components):
+            problems.append(
+                GraphProblem(
+                    template_path,
+                    "invalid_composition",
+                    "exactly one of operators or components must be non-empty",
+                )
+            )
         input_ports = _binding_map(template.get("input_ports"))
         output_ports = _binding_map(template.get("output_ports"))
         input_tensor_ids = {binding.get("tensor_id") for binding in input_ports.values() if isinstance(binding.get("tensor_id"), str)}
@@ -513,7 +586,53 @@ def graph_semantic_problems(record: Mapping[str, object]) -> list[GraphProblem]:
                 for binding in actual.values():
                     if binding.get("tensor_id") not in tensors:
                         problems.append(GraphProblem(f"{operator_path}.{direction}", "broken_reference", "operator tensor does not resolve"))
-        _validate_ports_and_endpoints(template.get("tensors"), operators, "operator", input_tensor_ids, output_tensor_ids, template_path, problems)
+        for component_id, component in components.items():
+            component_path = f"{template_path}.components[{component_id}]"
+            component_template = component_templates.get(component.get("template_id"))
+            if component_template is None:
+                problems.append(GraphProblem(f"{component_path}.template_id", "broken_reference", "component template does not resolve"))
+                continue
+            component_bindings = _validate_bindings(
+                component.get("bindings"),
+                component_template.get("parameters"),
+                template_environment,
+                f"{component_path}.bindings",
+                problems,
+            )
+            component_tensors = {
+                item["tensor_id"]: item
+                for item in _mapping_list(component_template.get("tensors"))
+                if isinstance(item.get("tensor_id"), str)
+            }
+            for direction, ports in (
+                ("inputs", component_template.get("input_ports")),
+                ("outputs", component_template.get("output_ports")),
+            ):
+                actual = _binding_map(component.get(direction))
+                expected = _binding_map(ports)
+                if set(actual) != set(expected):
+                    problems.append(GraphProblem(f"{component_path}.{direction}", "invalid_port", "component ports must match the template"))
+                for port, binding in actual.items():
+                    tensor_id = binding.get("tensor_id")
+                    if tensor_id not in tensors:
+                        problems.append(GraphProblem(f"{component_path}.{direction}", "broken_reference", "component tensor does not resolve"))
+                        continue
+                    component_port = expected.get(port)
+                    if component_port is None:
+                        continue
+                    block_shape = _concrete_shape(tensors[tensor_id], template_environment)
+                    component_shape = _concrete_shape(
+                        component_tensors.get(component_port.get("tensor_id")),
+                        component_bindings,
+                    )
+                    if block_shape is not None and component_shape is not None and block_shape != component_shape:
+                        problems.append(GraphProblem(f"{component_path}.{direction}[{port}]", "boundary_mismatch", "component boundary tensor shapes must match"))
+        node_kind = "component" if components else "operator"
+        nodes = components if components else operators
+        _validate_ports_and_endpoints(
+            template.get("tensors"), nodes, node_kind,
+            input_tensor_ids, output_tensor_ids, template_path, problems,
+        )
 
     modules: dict[str, Mapping[str, object]] = {}
     repeat_carried_outputs: set[str] = set()
@@ -709,6 +828,47 @@ def _concrete_tensors(tensors: object, environment: Mapping[str, Number]) -> lis
     return result
 
 
+def _materialize_atomic_template(
+    template: Mapping[str, object],
+    environment: Mapping[str, Number],
+    effective_repeat: int,
+    key_prefix: str,
+    definitions: Mapping[str, Mapping[str, object]],
+    operators_by_id: dict[str, dict[str, object]],
+) -> dict[str, object]:
+    template_copy = dict(template)
+    template_copy["tensors"] = _concrete_tensors(template.get("tensors"), environment)
+    materialized_operators: list[dict[str, object]] = []
+    for operator in _mapping_list(template.get("operators")):
+        operator_copy = dict(operator)
+        definition = definitions[operator["definition_id"]]
+        definition_bindings = _evaluate_bindings(
+            operator.get("bindings"), definition.get("parameters"), environment
+        )
+        operator_copy["bindings"] = definition_bindings
+        operator_copy["multiplicity"] = int(
+            evaluate_expression(operator.get("multiplicity"), environment)
+        )
+        analysis = []
+        analysis_by_metric: dict[str, object] = {}
+        for metric in _mapping_list(definition.get("analysis")):
+            item = dict(metric)
+            item["value"] = evaluate_expression(
+                metric.get("expression"), definition_bindings
+            )
+            analysis.append(item)
+            analysis_by_metric[item["metric"]] = item["value"]
+        operator_copy["analysis"] = analysis
+        operator_copy["analysis_by_metric"] = analysis_by_metric
+        operator_copy["effective_repeat"] = (
+            effective_repeat * operator_copy["multiplicity"]
+        )
+        materialized_operators.append(operator_copy)
+        operators_by_id[f"{key_prefix}/{operator['operator_id']}"] = operator_copy
+    template_copy["operators"] = materialized_operators
+    return template_copy
+
+
 def materialize_model_graph(
     record: Mapping[str, object], overrides: Mapping[str, Number] | None = None
 ) -> dict[str, object]:
@@ -722,6 +882,10 @@ def materialize_model_graph(
     graph_shapes = {tensor["tensor_id"]: tensor["shape"] for tensor in graph_tensors}
     graph_tensors_by_id = {tensor["tensor_id"]: tensor for tensor in graph_tensors}
     templates = {item["template_id"]: item for item in _mapping_list(record.get("block_templates"))}
+    component_templates = {
+        item["template_id"]: item
+        for item in _mapping_list(record.get("component_templates"))
+    }
     definitions = {item["definition_id"]: item for item in _mapping_list(record.get("operator_definitions"))}
     named_repeats: dict[str, Number] = {}
     operators_by_id: dict[str, dict[str, object]] = {}
@@ -752,27 +916,47 @@ def materialize_model_graph(
             named_repeats[module["module_id"]] = effective_repeat
             template_copy = dict(template)
             template_copy["tensors"] = _concrete_tensors(template.get("tensors"), parameter_bindings)
-            materialized_operators: list[dict[str, object]] = []
-            for operator in _mapping_list(template.get("operators")):
-                operator_copy = dict(operator)
-                definition = definitions[operator["definition_id"]]
-                definition_bindings = _evaluate_bindings(operator.get("bindings"), definition.get("parameters"), parameter_bindings)
-                operator_copy["bindings"] = definition_bindings
-                operator_copy["multiplicity"] = int(evaluate_expression(operator.get("multiplicity"), parameter_bindings))
-                analysis = []
-                analysis_by_metric: dict[str, object] = {}
-                for metric in _mapping_list(definition.get("analysis")):
-                    item = dict(metric)
-                    item["value"] = evaluate_expression(metric.get("expression"), definition_bindings)
-                    analysis.append(item)
-                    analysis_by_metric[item["metric"]] = item["value"]
-                operator_copy["analysis"] = analysis
-                operator_copy["analysis_by_metric"] = analysis_by_metric
-                operator_copy["effective_repeat"] = effective_repeat * operator_copy["multiplicity"]
-                materialized_operators.append(operator_copy)
-                key = f"{stage['stage_id']}/{module['module_id']}/{operator['operator_id']}"
-                operators_by_id[key] = operator_copy
-            template_copy["operators"] = materialized_operators
+            key_prefix = f"{stage['stage_id']}/{module['module_id']}"
+            if _mapping_list(template.get("operators")):
+                template_copy = _materialize_atomic_template(
+                    template,
+                    parameter_bindings,
+                    effective_repeat,
+                    key_prefix,
+                    definitions,
+                    operators_by_id,
+                )
+            else:
+                block_shapes = {
+                    tensor["tensor_id"]: tensor["shape"]
+                    for tensor in template_copy["tensors"]
+                }
+                materialized_components: list[dict[str, object]] = []
+                for component in _mapping_list(template.get("components")):
+                    component_copy = dict(component)
+                    component_template = component_templates[component["template_id"]]
+                    component_bindings = _evaluate_bindings(
+                        component.get("bindings"),
+                        component_template.get("parameters"),
+                        parameter_bindings,
+                    )
+                    component_copy["bindings"] = component_bindings
+                    component_copy["inputs"] = _materialized_ports(
+                        component.get("inputs"), block_shapes
+                    )
+                    component_copy["outputs"] = _materialized_ports(
+                        component.get("outputs"), block_shapes
+                    )
+                    component_copy["template"] = _materialize_atomic_template(
+                        component_template,
+                        component_bindings,
+                        effective_repeat,
+                        f"{key_prefix}/{component['component_id']}",
+                        definitions,
+                        operators_by_id,
+                    )
+                    materialized_components.append(component_copy)
+                template_copy["components"] = materialized_components
             module_copy["template"] = template_copy
             materialized_modules.append(module_copy)
         stage_copy["modules"] = materialized_modules

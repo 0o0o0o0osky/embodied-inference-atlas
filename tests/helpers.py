@@ -38,8 +38,8 @@ def valid_model_graph_document() -> dict[str, object]:
                     "expression": {"op": "mul", "args": [2, {"symbol": "M"}, {"symbol": "N"}, {"symbol": "K"}]},
                 }],
             }],
-            "block_templates": [{
-                "template_id": "linear-block", "label": "Linear block",
+            "component_templates": [{
+                "template_id": "linear-component", "label": "Linear component",
                 "parameters": ["B", "M", "N", "K"],
                 "input_ports": [{"port": "input", "tensor_id": "input"}],
                 "output_ports": [{"port": "output", "tensor_id": "output"}],
@@ -63,6 +63,38 @@ def valid_model_graph_document() -> dict[str, object]:
                     "inputs": [{"port": "input", "tensor_id": "input"}],
                     "outputs": [{"port": "output", "tensor_id": "output"}],
                     "bindings": [
+                        {"symbol": "M", "expression": {"symbol": "M"}},
+                        {"symbol": "N", "expression": {"symbol": "N"}},
+                        {"symbol": "K", "expression": {"symbol": "K"}},
+                    ],
+                }],
+            }],
+            "block_templates": [{
+                "template_id": "linear-block", "label": "Linear block",
+                "parameters": ["B", "M", "N", "K"],
+                "input_ports": [{"port": "input", "tensor_id": "input"}],
+                "output_ports": [{"port": "output", "tensor_id": "output"}],
+                "tensors": [
+                    {
+                        "tensor_id": "input", "label": "Input", "semantic_role": "input",
+                        "axes": [{"axis": "batch", "expression": {"symbol": "B"}}, {"axis": "tokens", "expression": {"symbol": "M"}}, {"axis": "width", "expression": {"symbol": "K"}}],
+                        "producer": None,
+                        "consumers": [{"node_kind": "component", "node_id": "linear", "port": "input"}],
+                    },
+                    {
+                        "tensor_id": "output", "label": "Output", "semantic_role": "output",
+                        "axes": [{"axis": "batch", "expression": {"symbol": "B"}}, {"axis": "tokens", "expression": {"symbol": "M"}}, {"axis": "width", "expression": {"symbol": "N"}}],
+                        "producer": {"node_kind": "component", "node_id": "linear", "port": "output"},
+                        "consumers": [],
+                    },
+                ],
+                "operators": [],
+                "components": [{
+                    "component_id": "linear", "label": "Linear", "template_id": "linear-component",
+                    "inputs": [{"port": "input", "tensor_id": "input"}],
+                    "outputs": [{"port": "output", "tensor_id": "output"}],
+                    "bindings": [
+                        {"symbol": "B", "expression": {"symbol": "B"}},
                         {"symbol": "M", "expression": {"symbol": "M"}},
                         {"symbol": "N", "expression": {"symbol": "N"}},
                         {"symbol": "K", "expression": {"symbol": "K"}},

@@ -648,149 +648,17 @@
           "analysis": []
         }
       ],
-      "block_templates": [
+      "component_templates": [
         {
-          "template_id": "image-patch-embedding",
-          "label": "Image patch embedding",
-          "parameters": [
-            "B",
-            "V",
-            "H",
-            "W",
-            "C",
-            "P",
-            "T",
-            "D"
-          ],
-          "input_ports": [
-            {
-              "port": "images",
-              "tensor_id": "images"
-            }
-          ],
-          "output_ports": [
-            {
-              "port": "tokens",
-              "tensor_id": "patch-tokens"
-            }
-          ],
-          "tensors": [
-            {
-              "tensor_id": "images",
-              "label": "Images",
-              "semantic_role": "image",
-              "axes": [
-                {
-                  "axis": "batch",
-                  "expression": {
-                    "symbol": "B"
-                  }
-                },
-                {
-                  "axis": "views",
-                  "expression": {
-                    "symbol": "V"
-                  }
-                },
-                {
-                  "axis": "height",
-                  "expression": {
-                    "symbol": "H"
-                  }
-                },
-                {
-                  "axis": "width",
-                  "expression": {
-                    "symbol": "W"
-                  }
-                },
-                {
-                  "axis": "channels",
-                  "expression": {
-                    "symbol": "C"
-                  }
-                }
-              ],
-              "producer": null,
-              "consumers": [
-                {
-                  "node_kind": "operator",
-                  "node_id": "patch-project",
-                  "port": "image"
-                }
-              ]
-            },
-            {
-              "tensor_id": "patch-tokens",
-              "label": "Patch tokens",
-              "semantic_role": "tokens",
-              "axes": [
-                {
-                  "axis": "batch",
-                  "expression": {
-                    "symbol": "B"
-                  }
-                },
-                {
-                  "axis": "views",
-                  "expression": {
-                    "symbol": "V"
-                  }
-                },
-                {
-                  "axis": "tokens_per_view",
-                  "expression": {
-                    "symbol": "T"
-                  }
-                },
-                {
-                  "axis": "width",
-                  "expression": {
-                    "symbol": "D"
-                  }
-                }
-              ],
-              "producer": {
-                "node_kind": "operator",
-                "node_id": "patch-project",
-                "port": "output"
-              },
-              "consumers": []
-            }
-          ],
-          "operators": [
-            {
-              "operator_id": "patch-project",
-              "label": "Patch projection",
-              "definition_id": "patch-embedding",
-              "multiplicity": 1,
-              "inputs": [
-                {
-                  "port": "image",
-                  "tensor_id": "images"
-                }
-              ],
-              "outputs": [
-                {
-                  "port": "output",
-                  "tensor_id": "patch-tokens"
-                }
-              ],
-              "bindings": []
-            }
-          ]
-        },
-        {
-          "template_id": "siglip-transformer-block",
-          "label": "SigLIP transformer block",
+          "template_id": "layernorm-mha-self-attention",
+          "label": "LayerNorm MHA self-attention with residual",
           "parameters": [
             "B",
             "V",
             "T",
             "D",
             "H",
-            "HD",
-            "MLP"
+            "HD"
           ],
           "input_ports": [
             {
@@ -801,7 +669,7 @@
           "output_ports": [
             {
               "port": "output",
-              "tensor_id": "output"
+              "tensor_id": "post-attention"
             }
           ],
           "tensors": [
@@ -1176,226 +1044,6 @@
                 "node_id": "attention-residual",
                 "port": "output"
               },
-              "consumers": [
-                {
-                  "node_kind": "operator",
-                  "node_id": "mlp-norm",
-                  "port": "input"
-                },
-                {
-                  "node_kind": "operator",
-                  "node_id": "mlp-residual",
-                  "port": "residual"
-                }
-              ]
-            },
-            {
-              "tensor_id": "norm-mlp",
-              "label": "MLP-normalized hidden",
-              "semantic_role": "hidden",
-              "axes": [
-                {
-                  "axis": "batch",
-                  "expression": {
-                    "symbol": "B"
-                  }
-                },
-                {
-                  "axis": "views",
-                  "expression": {
-                    "symbol": "V"
-                  }
-                },
-                {
-                  "axis": "tokens",
-                  "expression": {
-                    "symbol": "T"
-                  }
-                },
-                {
-                  "axis": "width",
-                  "expression": {
-                    "symbol": "D"
-                  }
-                }
-              ],
-              "producer": {
-                "node_kind": "operator",
-                "node_id": "mlp-norm",
-                "port": "output"
-              },
-              "consumers": [
-                {
-                  "node_kind": "operator",
-                  "node_id": "mlp-up-projection",
-                  "port": "input"
-                }
-              ]
-            },
-            {
-              "tensor_id": "mlp-up",
-              "label": "MLP expanded hidden",
-              "semantic_role": "hidden",
-              "axes": [
-                {
-                  "axis": "batch",
-                  "expression": {
-                    "symbol": "B"
-                  }
-                },
-                {
-                  "axis": "views",
-                  "expression": {
-                    "symbol": "V"
-                  }
-                },
-                {
-                  "axis": "tokens",
-                  "expression": {
-                    "symbol": "T"
-                  }
-                },
-                {
-                  "axis": "width",
-                  "expression": {
-                    "symbol": "MLP"
-                  }
-                }
-              ],
-              "producer": {
-                "node_kind": "operator",
-                "node_id": "mlp-up-projection",
-                "port": "output"
-              },
-              "consumers": [
-                {
-                  "node_kind": "operator",
-                  "node_id": "mlp-gelu",
-                  "port": "input"
-                }
-              ]
-            },
-            {
-              "tensor_id": "mlp-activated",
-              "label": "Activated MLP hidden",
-              "semantic_role": "hidden",
-              "axes": [
-                {
-                  "axis": "batch",
-                  "expression": {
-                    "symbol": "B"
-                  }
-                },
-                {
-                  "axis": "views",
-                  "expression": {
-                    "symbol": "V"
-                  }
-                },
-                {
-                  "axis": "tokens",
-                  "expression": {
-                    "symbol": "T"
-                  }
-                },
-                {
-                  "axis": "width",
-                  "expression": {
-                    "symbol": "MLP"
-                  }
-                }
-              ],
-              "producer": {
-                "node_kind": "operator",
-                "node_id": "mlp-gelu",
-                "port": "output"
-              },
-              "consumers": [
-                {
-                  "node_kind": "operator",
-                  "node_id": "mlp-down-projection",
-                  "port": "input"
-                }
-              ]
-            },
-            {
-              "tensor_id": "mlp-update",
-              "label": "MLP update",
-              "semantic_role": "hidden",
-              "axes": [
-                {
-                  "axis": "batch",
-                  "expression": {
-                    "symbol": "B"
-                  }
-                },
-                {
-                  "axis": "views",
-                  "expression": {
-                    "symbol": "V"
-                  }
-                },
-                {
-                  "axis": "tokens",
-                  "expression": {
-                    "symbol": "T"
-                  }
-                },
-                {
-                  "axis": "width",
-                  "expression": {
-                    "symbol": "D"
-                  }
-                }
-              ],
-              "producer": {
-                "node_kind": "operator",
-                "node_id": "mlp-down-projection",
-                "port": "output"
-              },
-              "consumers": [
-                {
-                  "node_kind": "operator",
-                  "node_id": "mlp-residual",
-                  "port": "update"
-                }
-              ]
-            },
-            {
-              "tensor_id": "output",
-              "label": "Block output",
-              "semantic_role": "hidden",
-              "axes": [
-                {
-                  "axis": "batch",
-                  "expression": {
-                    "symbol": "B"
-                  }
-                },
-                {
-                  "axis": "views",
-                  "expression": {
-                    "symbol": "V"
-                  }
-                },
-                {
-                  "axis": "tokens",
-                  "expression": {
-                    "symbol": "T"
-                  }
-                },
-                {
-                  "axis": "width",
-                  "expression": {
-                    "symbol": "D"
-                  }
-                }
-              ],
-              "producer": {
-                "node_kind": "operator",
-                "node_id": "mlp-residual",
-                "port": "output"
-              },
               "consumers": []
             }
           ],
@@ -1688,7 +1336,287 @@
                 }
               ],
               "bindings": []
+            }
+          ]
+        },
+        {
+          "template_id": "layernorm-gelu-feed-forward",
+          "label": "LayerNorm GELU feed-forward with residual",
+          "parameters": [
+            "B",
+            "V",
+            "T",
+            "D",
+            "MLP"
+          ],
+          "input_ports": [
+            {
+              "port": "input",
+              "tensor_id": "post-attention"
+            }
+          ],
+          "output_ports": [
+            {
+              "port": "output",
+              "tensor_id": "output"
+            }
+          ],
+          "tensors": [
+            {
+              "tensor_id": "post-attention",
+              "label": "Post-attention hidden",
+              "semantic_role": "hidden",
+              "axes": [
+                {
+                  "axis": "batch",
+                  "expression": {
+                    "symbol": "B"
+                  }
+                },
+                {
+                  "axis": "views",
+                  "expression": {
+                    "symbol": "V"
+                  }
+                },
+                {
+                  "axis": "tokens",
+                  "expression": {
+                    "symbol": "T"
+                  }
+                },
+                {
+                  "axis": "width",
+                  "expression": {
+                    "symbol": "D"
+                  }
+                }
+              ],
+              "producer": null,
+              "consumers": [
+                {
+                  "node_kind": "operator",
+                  "node_id": "mlp-norm",
+                  "port": "input"
+                },
+                {
+                  "node_kind": "operator",
+                  "node_id": "mlp-residual",
+                  "port": "residual"
+                }
+              ]
             },
+            {
+              "tensor_id": "norm-mlp",
+              "label": "MLP-normalized hidden",
+              "semantic_role": "hidden",
+              "axes": [
+                {
+                  "axis": "batch",
+                  "expression": {
+                    "symbol": "B"
+                  }
+                },
+                {
+                  "axis": "views",
+                  "expression": {
+                    "symbol": "V"
+                  }
+                },
+                {
+                  "axis": "tokens",
+                  "expression": {
+                    "symbol": "T"
+                  }
+                },
+                {
+                  "axis": "width",
+                  "expression": {
+                    "symbol": "D"
+                  }
+                }
+              ],
+              "producer": {
+                "node_kind": "operator",
+                "node_id": "mlp-norm",
+                "port": "output"
+              },
+              "consumers": [
+                {
+                  "node_kind": "operator",
+                  "node_id": "mlp-up-projection",
+                  "port": "input"
+                }
+              ]
+            },
+            {
+              "tensor_id": "mlp-up",
+              "label": "MLP expanded hidden",
+              "semantic_role": "hidden",
+              "axes": [
+                {
+                  "axis": "batch",
+                  "expression": {
+                    "symbol": "B"
+                  }
+                },
+                {
+                  "axis": "views",
+                  "expression": {
+                    "symbol": "V"
+                  }
+                },
+                {
+                  "axis": "tokens",
+                  "expression": {
+                    "symbol": "T"
+                  }
+                },
+                {
+                  "axis": "width",
+                  "expression": {
+                    "symbol": "MLP"
+                  }
+                }
+              ],
+              "producer": {
+                "node_kind": "operator",
+                "node_id": "mlp-up-projection",
+                "port": "output"
+              },
+              "consumers": [
+                {
+                  "node_kind": "operator",
+                  "node_id": "mlp-gelu",
+                  "port": "input"
+                }
+              ]
+            },
+            {
+              "tensor_id": "mlp-activated",
+              "label": "Activated MLP hidden",
+              "semantic_role": "hidden",
+              "axes": [
+                {
+                  "axis": "batch",
+                  "expression": {
+                    "symbol": "B"
+                  }
+                },
+                {
+                  "axis": "views",
+                  "expression": {
+                    "symbol": "V"
+                  }
+                },
+                {
+                  "axis": "tokens",
+                  "expression": {
+                    "symbol": "T"
+                  }
+                },
+                {
+                  "axis": "width",
+                  "expression": {
+                    "symbol": "MLP"
+                  }
+                }
+              ],
+              "producer": {
+                "node_kind": "operator",
+                "node_id": "mlp-gelu",
+                "port": "output"
+              },
+              "consumers": [
+                {
+                  "node_kind": "operator",
+                  "node_id": "mlp-down-projection",
+                  "port": "input"
+                }
+              ]
+            },
+            {
+              "tensor_id": "mlp-update",
+              "label": "MLP update",
+              "semantic_role": "hidden",
+              "axes": [
+                {
+                  "axis": "batch",
+                  "expression": {
+                    "symbol": "B"
+                  }
+                },
+                {
+                  "axis": "views",
+                  "expression": {
+                    "symbol": "V"
+                  }
+                },
+                {
+                  "axis": "tokens",
+                  "expression": {
+                    "symbol": "T"
+                  }
+                },
+                {
+                  "axis": "width",
+                  "expression": {
+                    "symbol": "D"
+                  }
+                }
+              ],
+              "producer": {
+                "node_kind": "operator",
+                "node_id": "mlp-down-projection",
+                "port": "output"
+              },
+              "consumers": [
+                {
+                  "node_kind": "operator",
+                  "node_id": "mlp-residual",
+                  "port": "update"
+                }
+              ]
+            },
+            {
+              "tensor_id": "output",
+              "label": "Block output",
+              "semantic_role": "hidden",
+              "axes": [
+                {
+                  "axis": "batch",
+                  "expression": {
+                    "symbol": "B"
+                  }
+                },
+                {
+                  "axis": "views",
+                  "expression": {
+                    "symbol": "V"
+                  }
+                },
+                {
+                  "axis": "tokens",
+                  "expression": {
+                    "symbol": "T"
+                  }
+                },
+                {
+                  "axis": "width",
+                  "expression": {
+                    "symbol": "D"
+                  }
+                }
+              ],
+              "producer": {
+                "node_kind": "operator",
+                "node_id": "mlp-residual",
+                "port": "output"
+              },
+              "consumers": []
+            }
+          ],
+          "operators": [
             {
               "operator_id": "mlp-norm",
               "label": "MLP LayerNorm",
@@ -1851,561 +1779,15 @@
           ]
         },
         {
-          "template_id": "layer-normalization",
-          "label": "Layer normalization",
-          "parameters": [
-            "B",
-            "V",
-            "T",
-            "D"
-          ],
-          "input_ports": [
-            {
-              "port": "input",
-              "tensor_id": "input"
-            }
-          ],
-          "output_ports": [
-            {
-              "port": "output",
-              "tensor_id": "output"
-            }
-          ],
-          "tensors": [
-            {
-              "tensor_id": "input",
-              "label": "Normalization input",
-              "semantic_role": "hidden",
-              "axes": [
-                {
-                  "axis": "batch",
-                  "expression": {
-                    "symbol": "B"
-                  }
-                },
-                {
-                  "axis": "views",
-                  "expression": {
-                    "symbol": "V"
-                  }
-                },
-                {
-                  "axis": "tokens",
-                  "expression": {
-                    "symbol": "T"
-                  }
-                },
-                {
-                  "axis": "width",
-                  "expression": {
-                    "symbol": "D"
-                  }
-                }
-              ],
-              "producer": null,
-              "consumers": [
-                {
-                  "node_kind": "operator",
-                  "node_id": "normalize",
-                  "port": "input"
-                }
-              ]
-            },
-            {
-              "tensor_id": "output",
-              "label": "Normalized output",
-              "semantic_role": "hidden",
-              "axes": [
-                {
-                  "axis": "batch",
-                  "expression": {
-                    "symbol": "B"
-                  }
-                },
-                {
-                  "axis": "views",
-                  "expression": {
-                    "symbol": "V"
-                  }
-                },
-                {
-                  "axis": "tokens",
-                  "expression": {
-                    "symbol": "T"
-                  }
-                },
-                {
-                  "axis": "width",
-                  "expression": {
-                    "symbol": "D"
-                  }
-                }
-              ],
-              "producer": {
-                "node_kind": "operator",
-                "node_id": "normalize",
-                "port": "output"
-              },
-              "consumers": []
-            }
-          ],
-          "operators": [
-            {
-              "operator_id": "normalize",
-              "label": "Vision output LayerNorm",
-              "definition_id": "layer-norm",
-              "multiplicity": 1,
-              "inputs": [
-                {
-                  "port": "input",
-                  "tensor_id": "input"
-                }
-              ],
-              "outputs": [
-                {
-                  "port": "output",
-                  "tensor_id": "output"
-                }
-              ],
-              "bindings": []
-            }
-          ]
-        },
-        {
-          "template_id": "multimodal-projector",
-          "label": "Multimodal projector",
-          "parameters": [
-            "B",
-            "V",
-            "T",
-            "K",
-            "N"
-          ],
-          "input_ports": [
-            {
-              "port": "input",
-              "tensor_id": "input"
-            }
-          ],
-          "output_ports": [
-            {
-              "port": "output",
-              "tensor_id": "output"
-            }
-          ],
-          "tensors": [
-            {
-              "tensor_id": "input",
-              "label": "Projector input",
-              "semantic_role": "hidden",
-              "axes": [
-                {
-                  "axis": "batch",
-                  "expression": {
-                    "symbol": "B"
-                  }
-                },
-                {
-                  "axis": "views",
-                  "expression": {
-                    "symbol": "V"
-                  }
-                },
-                {
-                  "axis": "tokens",
-                  "expression": {
-                    "symbol": "T"
-                  }
-                },
-                {
-                  "axis": "width",
-                  "expression": {
-                    "symbol": "K"
-                  }
-                }
-              ],
-              "producer": null,
-              "consumers": [
-                {
-                  "node_kind": "operator",
-                  "node_id": "project",
-                  "port": "input"
-                }
-              ]
-            },
-            {
-              "tensor_id": "output",
-              "label": "Projected tokens",
-              "semantic_role": "hidden",
-              "axes": [
-                {
-                  "axis": "batch",
-                  "expression": {
-                    "symbol": "B"
-                  }
-                },
-                {
-                  "axis": "views",
-                  "expression": {
-                    "symbol": "V"
-                  }
-                },
-                {
-                  "axis": "tokens",
-                  "expression": {
-                    "symbol": "T"
-                  }
-                },
-                {
-                  "axis": "width",
-                  "expression": {
-                    "symbol": "N"
-                  }
-                }
-              ],
-              "producer": {
-                "node_kind": "operator",
-                "node_id": "project",
-                "port": "output"
-              },
-              "consumers": []
-            }
-          ],
-          "operators": [
-            {
-              "operator_id": "project",
-              "label": "Multimodal projection",
-              "definition_id": "linear",
-              "multiplicity": 1,
-              "inputs": [
-                {
-                  "port": "input",
-                  "tensor_id": "input"
-                }
-              ],
-              "outputs": [
-                {
-                  "port": "output",
-                  "tensor_id": "output"
-                }
-              ],
-              "bindings": [
-                {
-                  "symbol": "M",
-                  "expression": {
-                    "op": "mul",
-                    "args": [
-                      {
-                        "symbol": "B"
-                      },
-                      {
-                        "symbol": "V"
-                      },
-                      {
-                        "symbol": "T"
-                      }
-                    ]
-                  }
-                },
-                {
-                  "symbol": "N",
-                  "expression": {
-                    "symbol": "N"
-                  }
-                },
-                {
-                  "symbol": "K",
-                  "expression": {
-                    "symbol": "K"
-                  }
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "template_id": "prompt-prefix-builder",
-          "label": "Prompt and prefix builder",
-          "parameters": [
-            "B",
-            "V",
-            "T",
-            "D",
-            "L",
-            "S"
-          ],
-          "input_ports": [
-            {
-              "port": "view_tokens",
-              "tensor_id": "view-tokens"
-            },
-            {
-              "port": "prompt_token_ids",
-              "tensor_id": "prompt-token-ids"
-            }
-          ],
-          "output_ports": [
-            {
-              "port": "prefix",
-              "tensor_id": "prefix"
-            }
-          ],
-          "tensors": [
-            {
-              "tensor_id": "view-tokens",
-              "label": "Projected view tokens",
-              "semantic_role": "tokens",
-              "axes": [
-                {
-                  "axis": "batch",
-                  "expression": {
-                    "symbol": "B"
-                  }
-                },
-                {
-                  "axis": "views",
-                  "expression": {
-                    "symbol": "V"
-                  }
-                },
-                {
-                  "axis": "tokens_per_view",
-                  "expression": {
-                    "symbol": "T"
-                  }
-                },
-                {
-                  "axis": "width",
-                  "expression": {
-                    "symbol": "D"
-                  }
-                }
-              ],
-              "producer": null,
-              "consumers": [
-                {
-                  "node_kind": "operator",
-                  "node_id": "flatten-views",
-                  "port": "input"
-                }
-              ]
-            },
-            {
-              "tensor_id": "prompt-token-ids",
-              "label": "Prompt token IDs",
-              "semantic_role": "token_ids",
-              "axes": [
-                {
-                  "axis": "batch",
-                  "expression": {
-                    "symbol": "B"
-                  }
-                },
-                {
-                  "axis": "prompt_tokens",
-                  "expression": {
-                    "symbol": "L"
-                  }
-                }
-              ],
-              "producer": null,
-              "consumers": [
-                {
-                  "node_kind": "operator",
-                  "node_id": "embed-prompt",
-                  "port": "token_ids"
-                }
-              ]
-            },
-            {
-              "tensor_id": "flat-view-tokens",
-              "label": "Flattened view tokens",
-              "semantic_role": "tokens",
-              "axes": [
-                {
-                  "axis": "batch",
-                  "expression": {
-                    "symbol": "B"
-                  }
-                },
-                {
-                  "axis": "view_tokens",
-                  "expression": {
-                    "op": "mul",
-                    "args": [
-                      {
-                        "symbol": "V"
-                      },
-                      {
-                        "symbol": "T"
-                      }
-                    ]
-                  }
-                },
-                {
-                  "axis": "width",
-                  "expression": {
-                    "symbol": "D"
-                  }
-                }
-              ],
-              "producer": {
-                "node_kind": "operator",
-                "node_id": "flatten-views",
-                "port": "output"
-              },
-              "consumers": [
-                {
-                  "node_kind": "operator",
-                  "node_id": "build-prefix",
-                  "port": "left"
-                }
-              ]
-            },
-            {
-              "tensor_id": "prompt-embeddings",
-              "label": "Prompt embeddings",
-              "semantic_role": "tokens",
-              "axes": [
-                {
-                  "axis": "batch",
-                  "expression": {
-                    "symbol": "B"
-                  }
-                },
-                {
-                  "axis": "prompt_tokens",
-                  "expression": {
-                    "symbol": "L"
-                  }
-                },
-                {
-                  "axis": "width",
-                  "expression": {
-                    "symbol": "D"
-                  }
-                }
-              ],
-              "producer": {
-                "node_kind": "operator",
-                "node_id": "embed-prompt",
-                "port": "output"
-              },
-              "consumers": [
-                {
-                  "node_kind": "operator",
-                  "node_id": "build-prefix",
-                  "port": "right"
-                }
-              ]
-            },
-            {
-              "tensor_id": "prefix",
-              "label": "Prefix tokens",
-              "semantic_role": "tokens",
-              "axes": [
-                {
-                  "axis": "batch",
-                  "expression": {
-                    "symbol": "B"
-                  }
-                },
-                {
-                  "axis": "prefix_tokens",
-                  "expression": {
-                    "symbol": "S"
-                  }
-                },
-                {
-                  "axis": "width",
-                  "expression": {
-                    "symbol": "D"
-                  }
-                }
-              ],
-              "producer": {
-                "node_kind": "operator",
-                "node_id": "build-prefix",
-                "port": "output"
-              },
-              "consumers": []
-            }
-          ],
-          "operators": [
-            {
-              "operator_id": "flatten-views",
-              "label": "Flatten view tokens",
-              "definition_id": "reshape",
-              "multiplicity": 1,
-              "inputs": [
-                {
-                  "port": "input",
-                  "tensor_id": "view-tokens"
-                }
-              ],
-              "outputs": [
-                {
-                  "port": "output",
-                  "tensor_id": "flat-view-tokens"
-                }
-              ],
-              "bindings": []
-            },
-            {
-              "operator_id": "embed-prompt",
-              "label": "Prompt token embedding",
-              "definition_id": "token-embedding",
-              "multiplicity": 1,
-              "inputs": [
-                {
-                  "port": "token_ids",
-                  "tensor_id": "prompt-token-ids"
-                }
-              ],
-              "outputs": [
-                {
-                  "port": "output",
-                  "tensor_id": "prompt-embeddings"
-                }
-              ],
-              "bindings": []
-            },
-            {
-              "operator_id": "build-prefix",
-              "label": "Concatenate view and prompt tokens",
-              "definition_id": "concat",
-              "multiplicity": 1,
-              "inputs": [
-                {
-                  "port": "left",
-                  "tensor_id": "flat-view-tokens"
-                },
-                {
-                  "port": "right",
-                  "tensor_id": "prompt-embeddings"
-                }
-              ],
-              "outputs": [
-                {
-                  "port": "output",
-                  "tensor_id": "prefix"
-                }
-              ],
-              "bindings": []
-            }
-          ]
-        },
-        {
-          "template_id": "gemma-prefix-block",
-          "label": "Gemma prefix block",
+          "template_id": "rmsnorm-rope-mqa-prefill-attention",
+          "label": "RMSNorm RoPE MQA prefill attention with residual and cache output",
           "parameters": [
             "B",
             "S",
             "D",
             "H",
             "KVH",
-            "HD",
-            "MLP"
+            "HD"
           ],
           "input_ports": [
             {
@@ -2416,7 +1798,7 @@
           "output_ports": [
             {
               "port": "hidden",
-              "tensor_id": "block-output"
+              "tensor_id": "post-attention"
             },
             {
               "port": "prefix_kv",
@@ -2843,275 +2225,6 @@
                 "node_id": "attention-residual",
                 "port": "output"
               },
-              "consumers": [
-                {
-                  "node_kind": "operator",
-                  "node_id": "mlp-norm",
-                  "port": "input"
-                },
-                {
-                  "node_kind": "operator",
-                  "node_id": "mlp-residual",
-                  "port": "residual"
-                }
-              ]
-            },
-            {
-              "tensor_id": "norm-mlp",
-              "label": "MLP-normalized prefix",
-              "semantic_role": "hidden",
-              "axes": [
-                {
-                  "axis": "batch",
-                  "expression": {
-                    "symbol": "B"
-                  }
-                },
-                {
-                  "axis": "tokens",
-                  "expression": {
-                    "symbol": "S"
-                  }
-                },
-                {
-                  "axis": "width",
-                  "expression": {
-                    "symbol": "D"
-                  }
-                }
-              ],
-              "producer": {
-                "node_kind": "operator",
-                "node_id": "mlp-norm",
-                "port": "output"
-              },
-              "consumers": [
-                {
-                  "node_kind": "operator",
-                  "node_id": "gate-projection",
-                  "port": "input"
-                },
-                {
-                  "node_kind": "operator",
-                  "node_id": "up-projection",
-                  "port": "input"
-                }
-              ]
-            },
-            {
-              "tensor_id": "gate",
-              "label": "Gate projection",
-              "semantic_role": "hidden",
-              "axes": [
-                {
-                  "axis": "batch",
-                  "expression": {
-                    "symbol": "B"
-                  }
-                },
-                {
-                  "axis": "tokens",
-                  "expression": {
-                    "symbol": "S"
-                  }
-                },
-                {
-                  "axis": "width",
-                  "expression": {
-                    "symbol": "MLP"
-                  }
-                }
-              ],
-              "producer": {
-                "node_kind": "operator",
-                "node_id": "gate-projection",
-                "port": "output"
-              },
-              "consumers": [
-                {
-                  "node_kind": "operator",
-                  "node_id": "gate-gelu",
-                  "port": "input"
-                }
-              ]
-            },
-            {
-              "tensor_id": "up",
-              "label": "Up projection",
-              "semantic_role": "hidden",
-              "axes": [
-                {
-                  "axis": "batch",
-                  "expression": {
-                    "symbol": "B"
-                  }
-                },
-                {
-                  "axis": "tokens",
-                  "expression": {
-                    "symbol": "S"
-                  }
-                },
-                {
-                  "axis": "width",
-                  "expression": {
-                    "symbol": "MLP"
-                  }
-                }
-              ],
-              "producer": {
-                "node_kind": "operator",
-                "node_id": "up-projection",
-                "port": "output"
-              },
-              "consumers": [
-                {
-                  "node_kind": "operator",
-                  "node_id": "gate-product",
-                  "port": "right"
-                }
-              ]
-            },
-            {
-              "tensor_id": "gate-activated",
-              "label": "Activated gate",
-              "semantic_role": "hidden",
-              "axes": [
-                {
-                  "axis": "batch",
-                  "expression": {
-                    "symbol": "B"
-                  }
-                },
-                {
-                  "axis": "tokens",
-                  "expression": {
-                    "symbol": "S"
-                  }
-                },
-                {
-                  "axis": "width",
-                  "expression": {
-                    "symbol": "MLP"
-                  }
-                }
-              ],
-              "producer": {
-                "node_kind": "operator",
-                "node_id": "gate-gelu",
-                "port": "output"
-              },
-              "consumers": [
-                {
-                  "node_kind": "operator",
-                  "node_id": "gate-product",
-                  "port": "left"
-                }
-              ]
-            },
-            {
-              "tensor_id": "gated",
-              "label": "Gated MLP hidden",
-              "semantic_role": "hidden",
-              "axes": [
-                {
-                  "axis": "batch",
-                  "expression": {
-                    "symbol": "B"
-                  }
-                },
-                {
-                  "axis": "tokens",
-                  "expression": {
-                    "symbol": "S"
-                  }
-                },
-                {
-                  "axis": "width",
-                  "expression": {
-                    "symbol": "MLP"
-                  }
-                }
-              ],
-              "producer": {
-                "node_kind": "operator",
-                "node_id": "gate-product",
-                "port": "output"
-              },
-              "consumers": [
-                {
-                  "node_kind": "operator",
-                  "node_id": "down-projection",
-                  "port": "input"
-                }
-              ]
-            },
-            {
-              "tensor_id": "mlp-update",
-              "label": "MLP update",
-              "semantic_role": "hidden",
-              "axes": [
-                {
-                  "axis": "batch",
-                  "expression": {
-                    "symbol": "B"
-                  }
-                },
-                {
-                  "axis": "tokens",
-                  "expression": {
-                    "symbol": "S"
-                  }
-                },
-                {
-                  "axis": "width",
-                  "expression": {
-                    "symbol": "D"
-                  }
-                }
-              ],
-              "producer": {
-                "node_kind": "operator",
-                "node_id": "down-projection",
-                "port": "output"
-              },
-              "consumers": [
-                {
-                  "node_kind": "operator",
-                  "node_id": "mlp-residual",
-                  "port": "update"
-                }
-              ]
-            },
-            {
-              "tensor_id": "block-output",
-              "label": "Prefix block output",
-              "semantic_role": "hidden",
-              "axes": [
-                {
-                  "axis": "batch",
-                  "expression": {
-                    "symbol": "B"
-                  }
-                },
-                {
-                  "axis": "tokens",
-                  "expression": {
-                    "symbol": "S"
-                  }
-                },
-                {
-                  "axis": "width",
-                  "expression": {
-                    "symbol": "D"
-                  }
-                }
-              ],
-              "producer": {
-                "node_kind": "operator",
-                "node_id": "mlp-residual",
-                "port": "output"
-              },
               "consumers": []
             },
             {
@@ -3481,6 +2594,1423 @@
               "bindings": []
             },
             {
+              "operator_id": "cache-output",
+              "label": "Stack attention key and value",
+              "definition_id": "concat",
+              "multiplicity": 1,
+              "inputs": [
+                {
+                  "port": "left",
+                  "tensor_id": "key-rope"
+                },
+                {
+                  "port": "right",
+                  "tensor_id": "value"
+                }
+              ],
+              "outputs": [
+                {
+                  "port": "output",
+                  "tensor_id": "prefix-kv"
+                }
+              ],
+              "bindings": []
+            }
+          ]
+        },
+        {
+          "template_id": "rmsnorm-rope-mqa-cached-attention",
+          "label": "RMSNorm RoPE MQA cached attention with residual",
+          "parameters": [
+            "B",
+            "SQ",
+            "SP",
+            "SKV",
+            "D",
+            "H",
+            "KVH",
+            "HD"
+          ],
+          "input_ports": [
+            {
+              "port": "suffix",
+              "tensor_id": "suffix"
+            },
+            {
+              "port": "prefix_kv",
+              "tensor_id": "prefix-kv"
+            }
+          ],
+          "output_ports": [
+            {
+              "port": "hidden",
+              "tensor_id": "post-attention"
+            }
+          ],
+          "tensors": [
+            {
+              "tensor_id": "suffix",
+              "label": "Suffix block input",
+              "semantic_role": "hidden",
+              "axes": [
+                {
+                  "axis": "batch",
+                  "expression": {
+                    "symbol": "B"
+                  }
+                },
+                {
+                  "axis": "query_tokens",
+                  "expression": {
+                    "symbol": "SQ"
+                  }
+                },
+                {
+                  "axis": "width",
+                  "expression": {
+                    "symbol": "D"
+                  }
+                }
+              ],
+              "producer": null,
+              "consumers": [
+                {
+                  "node_kind": "operator",
+                  "node_id": "attention-norm",
+                  "port": "input"
+                },
+                {
+                  "node_kind": "operator",
+                  "node_id": "attention-residual",
+                  "port": "residual"
+                }
+              ]
+            },
+            {
+              "tensor_id": "prefix-kv",
+              "label": "Matching prefix K/V slice",
+              "semantic_role": "kv_cache",
+              "axes": [
+                {
+                  "axis": "kv",
+                  "expression": 2
+                },
+                {
+                  "axis": "batch",
+                  "expression": {
+                    "symbol": "B"
+                  }
+                },
+                {
+                  "axis": "sequence",
+                  "expression": {
+                    "symbol": "SP"
+                  }
+                },
+                {
+                  "axis": "kv_head",
+                  "expression": {
+                    "symbol": "KVH"
+                  }
+                },
+                {
+                  "axis": "head_dim",
+                  "expression": {
+                    "symbol": "HD"
+                  }
+                }
+              ],
+              "producer": null,
+              "consumers": [
+                {
+                  "node_kind": "operator",
+                  "node_id": "extract-prefix-key",
+                  "port": "input"
+                },
+                {
+                  "node_kind": "operator",
+                  "node_id": "extract-prefix-value",
+                  "port": "input"
+                }
+              ]
+            },
+            {
+              "tensor_id": "prefix-key",
+              "label": "Cached prefix key",
+              "semantic_role": "key",
+              "axes": [
+                {
+                  "axis": "batch",
+                  "expression": {
+                    "symbol": "B"
+                  }
+                },
+                {
+                  "axis": "sequence",
+                  "expression": {
+                    "symbol": "SP"
+                  }
+                },
+                {
+                  "axis": "kv_head",
+                  "expression": {
+                    "symbol": "KVH"
+                  }
+                },
+                {
+                  "axis": "head_dim",
+                  "expression": {
+                    "symbol": "HD"
+                  }
+                }
+              ],
+              "producer": {
+                "node_kind": "operator",
+                "node_id": "extract-prefix-key",
+                "port": "output"
+              },
+              "consumers": [
+                {
+                  "node_kind": "operator",
+                  "node_id": "key-concat",
+                  "port": "left"
+                }
+              ]
+            },
+            {
+              "tensor_id": "prefix-value",
+              "label": "Cached prefix value",
+              "semantic_role": "value",
+              "axes": [
+                {
+                  "axis": "batch",
+                  "expression": {
+                    "symbol": "B"
+                  }
+                },
+                {
+                  "axis": "sequence",
+                  "expression": {
+                    "symbol": "SP"
+                  }
+                },
+                {
+                  "axis": "kv_head",
+                  "expression": {
+                    "symbol": "KVH"
+                  }
+                },
+                {
+                  "axis": "head_dim",
+                  "expression": {
+                    "symbol": "HD"
+                  }
+                }
+              ],
+              "producer": {
+                "node_kind": "operator",
+                "node_id": "extract-prefix-value",
+                "port": "output"
+              },
+              "consumers": [
+                {
+                  "node_kind": "operator",
+                  "node_id": "value-concat",
+                  "port": "left"
+                }
+              ]
+            },
+            {
+              "tensor_id": "norm-attention",
+              "label": "Attention-normalized suffix",
+              "semantic_role": "hidden",
+              "axes": [
+                {
+                  "axis": "batch",
+                  "expression": {
+                    "symbol": "B"
+                  }
+                },
+                {
+                  "axis": "query_tokens",
+                  "expression": {
+                    "symbol": "SQ"
+                  }
+                },
+                {
+                  "axis": "width",
+                  "expression": {
+                    "symbol": "D"
+                  }
+                }
+              ],
+              "producer": {
+                "node_kind": "operator",
+                "node_id": "attention-norm",
+                "port": "output"
+              },
+              "consumers": [
+                {
+                  "node_kind": "operator",
+                  "node_id": "query-projection",
+                  "port": "input"
+                },
+                {
+                  "node_kind": "operator",
+                  "node_id": "key-projection",
+                  "port": "input"
+                },
+                {
+                  "node_kind": "operator",
+                  "node_id": "value-projection",
+                  "port": "input"
+                }
+              ]
+            },
+            {
+              "tensor_id": "query",
+              "label": "Action queries",
+              "semantic_role": "query",
+              "axes": [
+                {
+                  "axis": "batch",
+                  "expression": {
+                    "symbol": "B"
+                  }
+                },
+                {
+                  "axis": "query_sequence",
+                  "expression": {
+                    "symbol": "SQ"
+                  }
+                },
+                {
+                  "axis": "query_head",
+                  "expression": {
+                    "symbol": "H"
+                  }
+                },
+                {
+                  "axis": "head_dim",
+                  "expression": {
+                    "symbol": "HD"
+                  }
+                }
+              ],
+              "producer": {
+                "node_kind": "operator",
+                "node_id": "query-projection",
+                "port": "output"
+              },
+              "consumers": [
+                {
+                  "node_kind": "operator",
+                  "node_id": "query-rope",
+                  "port": "input"
+                }
+              ]
+            },
+            {
+              "tensor_id": "action-key",
+              "label": "Action keys",
+              "semantic_role": "key",
+              "axes": [
+                {
+                  "axis": "batch",
+                  "expression": {
+                    "symbol": "B"
+                  }
+                },
+                {
+                  "axis": "sequence",
+                  "expression": {
+                    "symbol": "SQ"
+                  }
+                },
+                {
+                  "axis": "kv_head",
+                  "expression": {
+                    "symbol": "KVH"
+                  }
+                },
+                {
+                  "axis": "head_dim",
+                  "expression": {
+                    "symbol": "HD"
+                  }
+                }
+              ],
+              "producer": {
+                "node_kind": "operator",
+                "node_id": "key-projection",
+                "port": "output"
+              },
+              "consumers": [
+                {
+                  "node_kind": "operator",
+                  "node_id": "key-rope",
+                  "port": "input"
+                }
+              ]
+            },
+            {
+              "tensor_id": "action-value",
+              "label": "Action values",
+              "semantic_role": "value",
+              "axes": [
+                {
+                  "axis": "batch",
+                  "expression": {
+                    "symbol": "B"
+                  }
+                },
+                {
+                  "axis": "sequence",
+                  "expression": {
+                    "symbol": "SQ"
+                  }
+                },
+                {
+                  "axis": "kv_head",
+                  "expression": {
+                    "symbol": "KVH"
+                  }
+                },
+                {
+                  "axis": "head_dim",
+                  "expression": {
+                    "symbol": "HD"
+                  }
+                }
+              ],
+              "producer": {
+                "node_kind": "operator",
+                "node_id": "value-projection",
+                "port": "output"
+              },
+              "consumers": [
+                {
+                  "node_kind": "operator",
+                  "node_id": "value-concat",
+                  "port": "right"
+                }
+              ]
+            },
+            {
+              "tensor_id": "query-rope",
+              "label": "Rotated action queries",
+              "semantic_role": "query",
+              "axes": [
+                {
+                  "axis": "batch",
+                  "expression": {
+                    "symbol": "B"
+                  }
+                },
+                {
+                  "axis": "query_sequence",
+                  "expression": {
+                    "symbol": "SQ"
+                  }
+                },
+                {
+                  "axis": "query_head",
+                  "expression": {
+                    "symbol": "H"
+                  }
+                },
+                {
+                  "axis": "head_dim",
+                  "expression": {
+                    "symbol": "HD"
+                  }
+                }
+              ],
+              "producer": {
+                "node_kind": "operator",
+                "node_id": "query-rope",
+                "port": "output"
+              },
+              "consumers": [
+                {
+                  "node_kind": "operator",
+                  "node_id": "attention",
+                  "port": "query"
+                }
+              ]
+            },
+            {
+              "tensor_id": "action-key-rope",
+              "label": "Rotated action keys",
+              "semantic_role": "key",
+              "axes": [
+                {
+                  "axis": "batch",
+                  "expression": {
+                    "symbol": "B"
+                  }
+                },
+                {
+                  "axis": "sequence",
+                  "expression": {
+                    "symbol": "SQ"
+                  }
+                },
+                {
+                  "axis": "kv_head",
+                  "expression": {
+                    "symbol": "KVH"
+                  }
+                },
+                {
+                  "axis": "head_dim",
+                  "expression": {
+                    "symbol": "HD"
+                  }
+                }
+              ],
+              "producer": {
+                "node_kind": "operator",
+                "node_id": "key-rope",
+                "port": "output"
+              },
+              "consumers": [
+                {
+                  "node_kind": "operator",
+                  "node_id": "key-concat",
+                  "port": "right"
+                }
+              ]
+            },
+            {
+              "tensor_id": "full-key",
+              "label": "Prefix and action keys",
+              "semantic_role": "key",
+              "axes": [
+                {
+                  "axis": "batch",
+                  "expression": {
+                    "symbol": "B"
+                  }
+                },
+                {
+                  "axis": "sequence",
+                  "expression": {
+                    "symbol": "SKV"
+                  }
+                },
+                {
+                  "axis": "kv_head",
+                  "expression": {
+                    "symbol": "KVH"
+                  }
+                },
+                {
+                  "axis": "head_dim",
+                  "expression": {
+                    "symbol": "HD"
+                  }
+                }
+              ],
+              "producer": {
+                "node_kind": "operator",
+                "node_id": "key-concat",
+                "port": "output"
+              },
+              "consumers": [
+                {
+                  "node_kind": "operator",
+                  "node_id": "attention",
+                  "port": "key"
+                }
+              ]
+            },
+            {
+              "tensor_id": "full-value",
+              "label": "Prefix and action values",
+              "semantic_role": "value",
+              "axes": [
+                {
+                  "axis": "batch",
+                  "expression": {
+                    "symbol": "B"
+                  }
+                },
+                {
+                  "axis": "sequence",
+                  "expression": {
+                    "symbol": "SKV"
+                  }
+                },
+                {
+                  "axis": "kv_head",
+                  "expression": {
+                    "symbol": "KVH"
+                  }
+                },
+                {
+                  "axis": "head_dim",
+                  "expression": {
+                    "symbol": "HD"
+                  }
+                }
+              ],
+              "producer": {
+                "node_kind": "operator",
+                "node_id": "value-concat",
+                "port": "output"
+              },
+              "consumers": [
+                {
+                  "node_kind": "operator",
+                  "node_id": "attention",
+                  "port": "value"
+                }
+              ]
+            },
+            {
+              "tensor_id": "attention-heads",
+              "label": "Action attention output",
+              "semantic_role": "attention",
+              "axes": [
+                {
+                  "axis": "batch",
+                  "expression": {
+                    "symbol": "B"
+                  }
+                },
+                {
+                  "axis": "query_sequence",
+                  "expression": {
+                    "symbol": "SQ"
+                  }
+                },
+                {
+                  "axis": "query_head",
+                  "expression": {
+                    "symbol": "H"
+                  }
+                },
+                {
+                  "axis": "head_dim",
+                  "expression": {
+                    "symbol": "HD"
+                  }
+                }
+              ],
+              "producer": {
+                "node_kind": "operator",
+                "node_id": "attention",
+                "port": "output"
+              },
+              "consumers": [
+                {
+                  "node_kind": "operator",
+                  "node_id": "output-projection",
+                  "port": "input"
+                }
+              ]
+            },
+            {
+              "tensor_id": "attention-update",
+              "label": "Action attention update",
+              "semantic_role": "hidden",
+              "axes": [
+                {
+                  "axis": "batch",
+                  "expression": {
+                    "symbol": "B"
+                  }
+                },
+                {
+                  "axis": "query_tokens",
+                  "expression": {
+                    "symbol": "SQ"
+                  }
+                },
+                {
+                  "axis": "width",
+                  "expression": {
+                    "symbol": "D"
+                  }
+                }
+              ],
+              "producer": {
+                "node_kind": "operator",
+                "node_id": "output-projection",
+                "port": "output"
+              },
+              "consumers": [
+                {
+                  "node_kind": "operator",
+                  "node_id": "attention-residual",
+                  "port": "update"
+                }
+              ]
+            },
+            {
+              "tensor_id": "post-attention",
+              "label": "Post-attention suffix",
+              "semantic_role": "hidden",
+              "axes": [
+                {
+                  "axis": "batch",
+                  "expression": {
+                    "symbol": "B"
+                  }
+                },
+                {
+                  "axis": "query_tokens",
+                  "expression": {
+                    "symbol": "SQ"
+                  }
+                },
+                {
+                  "axis": "width",
+                  "expression": {
+                    "symbol": "D"
+                  }
+                }
+              ],
+              "producer": {
+                "node_kind": "operator",
+                "node_id": "attention-residual",
+                "port": "output"
+              },
+              "consumers": []
+            }
+          ],
+          "operators": [
+            {
+              "operator_id": "extract-prefix-key",
+              "label": "Select cached prefix keys",
+              "definition_id": "slice",
+              "multiplicity": 1,
+              "inputs": [
+                {
+                  "port": "input",
+                  "tensor_id": "prefix-kv"
+                }
+              ],
+              "outputs": [
+                {
+                  "port": "output",
+                  "tensor_id": "prefix-key"
+                }
+              ],
+              "bindings": []
+            },
+            {
+              "operator_id": "extract-prefix-value",
+              "label": "Select cached prefix values",
+              "definition_id": "slice",
+              "multiplicity": 1,
+              "inputs": [
+                {
+                  "port": "input",
+                  "tensor_id": "prefix-kv"
+                }
+              ],
+              "outputs": [
+                {
+                  "port": "output",
+                  "tensor_id": "prefix-value"
+                }
+              ],
+              "bindings": []
+            },
+            {
+              "operator_id": "attention-norm",
+              "label": "Attention RMSNorm",
+              "definition_id": "rms-norm",
+              "multiplicity": 1,
+              "inputs": [
+                {
+                  "port": "input",
+                  "tensor_id": "suffix"
+                }
+              ],
+              "outputs": [
+                {
+                  "port": "output",
+                  "tensor_id": "norm-attention"
+                }
+              ],
+              "bindings": []
+            },
+            {
+              "operator_id": "query-projection",
+              "label": "Action query projection",
+              "definition_id": "linear",
+              "multiplicity": 1,
+              "inputs": [
+                {
+                  "port": "input",
+                  "tensor_id": "norm-attention"
+                }
+              ],
+              "outputs": [
+                {
+                  "port": "output",
+                  "tensor_id": "query"
+                }
+              ],
+              "bindings": [
+                {
+                  "symbol": "M",
+                  "expression": {
+                    "op": "mul",
+                    "args": [
+                      {
+                        "symbol": "B"
+                      },
+                      {
+                        "symbol": "SQ"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "symbol": "N",
+                  "expression": {
+                    "op": "mul",
+                    "args": [
+                      {
+                        "symbol": "H"
+                      },
+                      {
+                        "symbol": "HD"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "symbol": "K",
+                  "expression": {
+                    "symbol": "D"
+                  }
+                }
+              ]
+            },
+            {
+              "operator_id": "key-projection",
+              "label": "Action key projection",
+              "definition_id": "linear",
+              "multiplicity": 1,
+              "inputs": [
+                {
+                  "port": "input",
+                  "tensor_id": "norm-attention"
+                }
+              ],
+              "outputs": [
+                {
+                  "port": "output",
+                  "tensor_id": "action-key"
+                }
+              ],
+              "bindings": [
+                {
+                  "symbol": "M",
+                  "expression": {
+                    "op": "mul",
+                    "args": [
+                      {
+                        "symbol": "B"
+                      },
+                      {
+                        "symbol": "SQ"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "symbol": "N",
+                  "expression": {
+                    "op": "mul",
+                    "args": [
+                      {
+                        "symbol": "KVH"
+                      },
+                      {
+                        "symbol": "HD"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "symbol": "K",
+                  "expression": {
+                    "symbol": "D"
+                  }
+                }
+              ]
+            },
+            {
+              "operator_id": "value-projection",
+              "label": "Action value projection",
+              "definition_id": "linear",
+              "multiplicity": 1,
+              "inputs": [
+                {
+                  "port": "input",
+                  "tensor_id": "norm-attention"
+                }
+              ],
+              "outputs": [
+                {
+                  "port": "output",
+                  "tensor_id": "action-value"
+                }
+              ],
+              "bindings": [
+                {
+                  "symbol": "M",
+                  "expression": {
+                    "op": "mul",
+                    "args": [
+                      {
+                        "symbol": "B"
+                      },
+                      {
+                        "symbol": "SQ"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "symbol": "N",
+                  "expression": {
+                    "op": "mul",
+                    "args": [
+                      {
+                        "symbol": "KVH"
+                      },
+                      {
+                        "symbol": "HD"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "symbol": "K",
+                  "expression": {
+                    "symbol": "D"
+                  }
+                }
+              ]
+            },
+            {
+              "operator_id": "query-rope",
+              "label": "Action query RoPE",
+              "definition_id": "rope",
+              "multiplicity": 1,
+              "inputs": [
+                {
+                  "port": "input",
+                  "tensor_id": "query"
+                }
+              ],
+              "outputs": [
+                {
+                  "port": "output",
+                  "tensor_id": "query-rope"
+                }
+              ],
+              "bindings": []
+            },
+            {
+              "operator_id": "key-rope",
+              "label": "Action key RoPE",
+              "definition_id": "rope",
+              "multiplicity": 1,
+              "inputs": [
+                {
+                  "port": "input",
+                  "tensor_id": "action-key"
+                }
+              ],
+              "outputs": [
+                {
+                  "port": "output",
+                  "tensor_id": "action-key-rope"
+                }
+              ],
+              "bindings": []
+            },
+            {
+              "operator_id": "key-concat",
+              "label": "Concatenate prefix and action keys",
+              "definition_id": "concat",
+              "multiplicity": 1,
+              "inputs": [
+                {
+                  "port": "left",
+                  "tensor_id": "prefix-key"
+                },
+                {
+                  "port": "right",
+                  "tensor_id": "action-key-rope"
+                }
+              ],
+              "outputs": [
+                {
+                  "port": "output",
+                  "tensor_id": "full-key"
+                }
+              ],
+              "bindings": []
+            },
+            {
+              "operator_id": "value-concat",
+              "label": "Concatenate prefix and action values",
+              "definition_id": "concat",
+              "multiplicity": 1,
+              "inputs": [
+                {
+                  "port": "left",
+                  "tensor_id": "prefix-value"
+                },
+                {
+                  "port": "right",
+                  "tensor_id": "action-value"
+                }
+              ],
+              "outputs": [
+                {
+                  "port": "output",
+                  "tensor_id": "full-value"
+                }
+              ],
+              "bindings": []
+            },
+            {
+              "operator_id": "attention",
+              "label": "Action attention core",
+              "definition_id": "attention-core",
+              "multiplicity": 1,
+              "inputs": [
+                {
+                  "port": "query",
+                  "tensor_id": "query-rope"
+                },
+                {
+                  "port": "key",
+                  "tensor_id": "full-key"
+                },
+                {
+                  "port": "value",
+                  "tensor_id": "full-value"
+                }
+              ],
+              "outputs": [
+                {
+                  "port": "output",
+                  "tensor_id": "attention-heads"
+                }
+              ],
+              "bindings": []
+            },
+            {
+              "operator_id": "output-projection",
+              "label": "Attention output projection",
+              "definition_id": "linear",
+              "multiplicity": 1,
+              "inputs": [
+                {
+                  "port": "input",
+                  "tensor_id": "attention-heads"
+                }
+              ],
+              "outputs": [
+                {
+                  "port": "output",
+                  "tensor_id": "attention-update"
+                }
+              ],
+              "bindings": [
+                {
+                  "symbol": "M",
+                  "expression": {
+                    "op": "mul",
+                    "args": [
+                      {
+                        "symbol": "B"
+                      },
+                      {
+                        "symbol": "SQ"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "symbol": "N",
+                  "expression": {
+                    "symbol": "D"
+                  }
+                },
+                {
+                  "symbol": "K",
+                  "expression": {
+                    "op": "mul",
+                    "args": [
+                      {
+                        "symbol": "H"
+                      },
+                      {
+                        "symbol": "HD"
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "operator_id": "attention-residual",
+              "label": "Attention residual",
+              "definition_id": "residual-add",
+              "multiplicity": 1,
+              "inputs": [
+                {
+                  "port": "residual",
+                  "tensor_id": "suffix"
+                },
+                {
+                  "port": "update",
+                  "tensor_id": "attention-update"
+                }
+              ],
+              "outputs": [
+                {
+                  "port": "output",
+                  "tensor_id": "post-attention"
+                }
+              ],
+              "bindings": []
+            }
+          ]
+        },
+        {
+          "template_id": "rmsnorm-gated-gelu-feed-forward",
+          "label": "RMSNorm gated GELU feed-forward with residual",
+          "parameters": [
+            "B",
+            "S",
+            "D",
+            "MLP"
+          ],
+          "input_ports": [
+            {
+              "port": "input",
+              "tensor_id": "post-attention"
+            }
+          ],
+          "output_ports": [
+            {
+              "port": "output",
+              "tensor_id": "block-output"
+            }
+          ],
+          "tensors": [
+            {
+              "tensor_id": "post-attention",
+              "label": "Post-attention prefix",
+              "semantic_role": "hidden",
+              "axes": [
+                {
+                  "axis": "batch",
+                  "expression": {
+                    "symbol": "B"
+                  }
+                },
+                {
+                  "axis": "tokens",
+                  "expression": {
+                    "symbol": "S"
+                  }
+                },
+                {
+                  "axis": "width",
+                  "expression": {
+                    "symbol": "D"
+                  }
+                }
+              ],
+              "producer": null,
+              "consumers": [
+                {
+                  "node_kind": "operator",
+                  "node_id": "mlp-norm",
+                  "port": "input"
+                },
+                {
+                  "node_kind": "operator",
+                  "node_id": "mlp-residual",
+                  "port": "residual"
+                }
+              ]
+            },
+            {
+              "tensor_id": "norm-mlp",
+              "label": "MLP-normalized prefix",
+              "semantic_role": "hidden",
+              "axes": [
+                {
+                  "axis": "batch",
+                  "expression": {
+                    "symbol": "B"
+                  }
+                },
+                {
+                  "axis": "tokens",
+                  "expression": {
+                    "symbol": "S"
+                  }
+                },
+                {
+                  "axis": "width",
+                  "expression": {
+                    "symbol": "D"
+                  }
+                }
+              ],
+              "producer": {
+                "node_kind": "operator",
+                "node_id": "mlp-norm",
+                "port": "output"
+              },
+              "consumers": [
+                {
+                  "node_kind": "operator",
+                  "node_id": "gate-projection",
+                  "port": "input"
+                },
+                {
+                  "node_kind": "operator",
+                  "node_id": "up-projection",
+                  "port": "input"
+                }
+              ]
+            },
+            {
+              "tensor_id": "gate",
+              "label": "Gate projection",
+              "semantic_role": "hidden",
+              "axes": [
+                {
+                  "axis": "batch",
+                  "expression": {
+                    "symbol": "B"
+                  }
+                },
+                {
+                  "axis": "tokens",
+                  "expression": {
+                    "symbol": "S"
+                  }
+                },
+                {
+                  "axis": "width",
+                  "expression": {
+                    "symbol": "MLP"
+                  }
+                }
+              ],
+              "producer": {
+                "node_kind": "operator",
+                "node_id": "gate-projection",
+                "port": "output"
+              },
+              "consumers": [
+                {
+                  "node_kind": "operator",
+                  "node_id": "gate-gelu",
+                  "port": "input"
+                }
+              ]
+            },
+            {
+              "tensor_id": "up",
+              "label": "Up projection",
+              "semantic_role": "hidden",
+              "axes": [
+                {
+                  "axis": "batch",
+                  "expression": {
+                    "symbol": "B"
+                  }
+                },
+                {
+                  "axis": "tokens",
+                  "expression": {
+                    "symbol": "S"
+                  }
+                },
+                {
+                  "axis": "width",
+                  "expression": {
+                    "symbol": "MLP"
+                  }
+                }
+              ],
+              "producer": {
+                "node_kind": "operator",
+                "node_id": "up-projection",
+                "port": "output"
+              },
+              "consumers": [
+                {
+                  "node_kind": "operator",
+                  "node_id": "gate-product",
+                  "port": "right"
+                }
+              ]
+            },
+            {
+              "tensor_id": "gate-activated",
+              "label": "Activated gate",
+              "semantic_role": "hidden",
+              "axes": [
+                {
+                  "axis": "batch",
+                  "expression": {
+                    "symbol": "B"
+                  }
+                },
+                {
+                  "axis": "tokens",
+                  "expression": {
+                    "symbol": "S"
+                  }
+                },
+                {
+                  "axis": "width",
+                  "expression": {
+                    "symbol": "MLP"
+                  }
+                }
+              ],
+              "producer": {
+                "node_kind": "operator",
+                "node_id": "gate-gelu",
+                "port": "output"
+              },
+              "consumers": [
+                {
+                  "node_kind": "operator",
+                  "node_id": "gate-product",
+                  "port": "left"
+                }
+              ]
+            },
+            {
+              "tensor_id": "gated",
+              "label": "Gated MLP hidden",
+              "semantic_role": "hidden",
+              "axes": [
+                {
+                  "axis": "batch",
+                  "expression": {
+                    "symbol": "B"
+                  }
+                },
+                {
+                  "axis": "tokens",
+                  "expression": {
+                    "symbol": "S"
+                  }
+                },
+                {
+                  "axis": "width",
+                  "expression": {
+                    "symbol": "MLP"
+                  }
+                }
+              ],
+              "producer": {
+                "node_kind": "operator",
+                "node_id": "gate-product",
+                "port": "output"
+              },
+              "consumers": [
+                {
+                  "node_kind": "operator",
+                  "node_id": "down-projection",
+                  "port": "input"
+                }
+              ]
+            },
+            {
+              "tensor_id": "mlp-update",
+              "label": "MLP update",
+              "semantic_role": "hidden",
+              "axes": [
+                {
+                  "axis": "batch",
+                  "expression": {
+                    "symbol": "B"
+                  }
+                },
+                {
+                  "axis": "tokens",
+                  "expression": {
+                    "symbol": "S"
+                  }
+                },
+                {
+                  "axis": "width",
+                  "expression": {
+                    "symbol": "D"
+                  }
+                }
+              ],
+              "producer": {
+                "node_kind": "operator",
+                "node_id": "down-projection",
+                "port": "output"
+              },
+              "consumers": [
+                {
+                  "node_kind": "operator",
+                  "node_id": "mlp-residual",
+                  "port": "update"
+                }
+              ]
+            },
+            {
+              "tensor_id": "block-output",
+              "label": "Prefix block output",
+              "semantic_role": "hidden",
+              "axes": [
+                {
+                  "axis": "batch",
+                  "expression": {
+                    "symbol": "B"
+                  }
+                },
+                {
+                  "axis": "tokens",
+                  "expression": {
+                    "symbol": "S"
+                  }
+                },
+                {
+                  "axis": "width",
+                  "expression": {
+                    "symbol": "D"
+                  }
+                }
+              ],
+              "producer": {
+                "node_kind": "operator",
+                "node_id": "mlp-residual",
+                "port": "output"
+              },
+              "consumers": []
+            }
+          ],
+          "operators": [
+            {
               "operator_id": "mlp-norm",
               "label": "MLP RMSNorm",
               "definition_id": "rms-norm",
@@ -3701,29 +4231,1219 @@
                 }
               ],
               "bindings": []
+            }
+          ]
+        }
+      ],
+      "block_templates": [
+        {
+          "template_id": "image-patch-embedding",
+          "label": "Image patch embedding",
+          "parameters": [
+            "B",
+            "V",
+            "H",
+            "W",
+            "C",
+            "P",
+            "T",
+            "D"
+          ],
+          "input_ports": [
+            {
+              "port": "images",
+              "tensor_id": "images"
+            }
+          ],
+          "output_ports": [
+            {
+              "port": "tokens",
+              "tensor_id": "patch-tokens"
+            }
+          ],
+          "tensors": [
+            {
+              "tensor_id": "images",
+              "label": "Images",
+              "semantic_role": "image",
+              "axes": [
+                {
+                  "axis": "batch",
+                  "expression": {
+                    "symbol": "B"
+                  }
+                },
+                {
+                  "axis": "views",
+                  "expression": {
+                    "symbol": "V"
+                  }
+                },
+                {
+                  "axis": "height",
+                  "expression": {
+                    "symbol": "H"
+                  }
+                },
+                {
+                  "axis": "width",
+                  "expression": {
+                    "symbol": "W"
+                  }
+                },
+                {
+                  "axis": "channels",
+                  "expression": {
+                    "symbol": "C"
+                  }
+                }
+              ],
+              "producer": null,
+              "consumers": [
+                {
+                  "node_kind": "operator",
+                  "node_id": "patch-project",
+                  "port": "image"
+                }
+              ]
             },
             {
-              "operator_id": "cache-output",
-              "label": "Stack attention key and value",
-              "definition_id": "concat",
+              "tensor_id": "patch-tokens",
+              "label": "Patch tokens",
+              "semantic_role": "tokens",
+              "axes": [
+                {
+                  "axis": "batch",
+                  "expression": {
+                    "symbol": "B"
+                  }
+                },
+                {
+                  "axis": "views",
+                  "expression": {
+                    "symbol": "V"
+                  }
+                },
+                {
+                  "axis": "tokens_per_view",
+                  "expression": {
+                    "symbol": "T"
+                  }
+                },
+                {
+                  "axis": "width",
+                  "expression": {
+                    "symbol": "D"
+                  }
+                }
+              ],
+              "producer": {
+                "node_kind": "operator",
+                "node_id": "patch-project",
+                "port": "output"
+              },
+              "consumers": []
+            }
+          ],
+          "operators": [
+            {
+              "operator_id": "patch-project",
+              "label": "Patch projection",
+              "definition_id": "patch-embedding",
               "multiplicity": 1,
               "inputs": [
                 {
-                  "port": "left",
-                  "tensor_id": "key-rope"
-                },
-                {
-                  "port": "right",
-                  "tensor_id": "value"
+                  "port": "image",
+                  "tensor_id": "images"
                 }
               ],
               "outputs": [
                 {
                   "port": "output",
-                  "tensor_id": "prefix-kv"
+                  "tensor_id": "patch-tokens"
                 }
               ],
               "bindings": []
+            }
+          ],
+          "components": []
+        },
+        {
+          "template_id": "siglip-transformer-block",
+          "label": "SigLIP transformer block",
+          "parameters": [
+            "B",
+            "V",
+            "T",
+            "D",
+            "H",
+            "HD",
+            "MLP"
+          ],
+          "input_ports": [
+            {
+              "port": "input",
+              "tensor_id": "input"
+            }
+          ],
+          "output_ports": [
+            {
+              "port": "output",
+              "tensor_id": "output"
+            }
+          ],
+          "tensors": [
+            {
+              "tensor_id": "input",
+              "label": "Block input",
+              "semantic_role": "hidden",
+              "axes": [
+                {
+                  "axis": "batch",
+                  "expression": {
+                    "symbol": "B"
+                  }
+                },
+                {
+                  "axis": "views",
+                  "expression": {
+                    "symbol": "V"
+                  }
+                },
+                {
+                  "axis": "tokens",
+                  "expression": {
+                    "symbol": "T"
+                  }
+                },
+                {
+                  "axis": "width",
+                  "expression": {
+                    "symbol": "D"
+                  }
+                }
+              ],
+              "producer": null,
+              "consumers": [
+                {
+                  "node_kind": "component",
+                  "node_id": "self-attention",
+                  "port": "input"
+                }
+              ]
+            },
+            {
+              "tensor_id": "post-attention",
+              "label": "Post-attention hidden",
+              "semantic_role": "hidden",
+              "axes": [
+                {
+                  "axis": "batch",
+                  "expression": {
+                    "symbol": "B"
+                  }
+                },
+                {
+                  "axis": "views",
+                  "expression": {
+                    "symbol": "V"
+                  }
+                },
+                {
+                  "axis": "tokens",
+                  "expression": {
+                    "symbol": "T"
+                  }
+                },
+                {
+                  "axis": "width",
+                  "expression": {
+                    "symbol": "D"
+                  }
+                }
+              ],
+              "producer": {
+                "node_kind": "component",
+                "node_id": "self-attention",
+                "port": "output"
+              },
+              "consumers": [
+                {
+                  "node_kind": "component",
+                  "node_id": "feed-forward",
+                  "port": "input"
+                }
+              ]
+            },
+            {
+              "tensor_id": "output",
+              "label": "Block output",
+              "semantic_role": "hidden",
+              "axes": [
+                {
+                  "axis": "batch",
+                  "expression": {
+                    "symbol": "B"
+                  }
+                },
+                {
+                  "axis": "views",
+                  "expression": {
+                    "symbol": "V"
+                  }
+                },
+                {
+                  "axis": "tokens",
+                  "expression": {
+                    "symbol": "T"
+                  }
+                },
+                {
+                  "axis": "width",
+                  "expression": {
+                    "symbol": "D"
+                  }
+                }
+              ],
+              "producer": {
+                "node_kind": "component",
+                "node_id": "feed-forward",
+                "port": "output"
+              },
+              "consumers": []
+            }
+          ],
+          "operators": [],
+          "components": [
+            {
+              "component_id": "self-attention",
+              "label": "Self-attention",
+              "template_id": "layernorm-mha-self-attention",
+              "bindings": [
+                {
+                  "symbol": "B",
+                  "expression": {
+                    "symbol": "B"
+                  }
+                },
+                {
+                  "symbol": "V",
+                  "expression": {
+                    "symbol": "V"
+                  }
+                },
+                {
+                  "symbol": "T",
+                  "expression": {
+                    "symbol": "T"
+                  }
+                },
+                {
+                  "symbol": "D",
+                  "expression": {
+                    "symbol": "D"
+                  }
+                },
+                {
+                  "symbol": "H",
+                  "expression": {
+                    "symbol": "H"
+                  }
+                },
+                {
+                  "symbol": "HD",
+                  "expression": {
+                    "symbol": "HD"
+                  }
+                }
+              ],
+              "inputs": [
+                {
+                  "port": "input",
+                  "tensor_id": "input"
+                }
+              ],
+              "outputs": [
+                {
+                  "port": "output",
+                  "tensor_id": "post-attention"
+                }
+              ]
+            },
+            {
+              "component_id": "feed-forward",
+              "label": "Feed-forward",
+              "template_id": "layernorm-gelu-feed-forward",
+              "bindings": [
+                {
+                  "symbol": "B",
+                  "expression": {
+                    "symbol": "B"
+                  }
+                },
+                {
+                  "symbol": "V",
+                  "expression": {
+                    "symbol": "V"
+                  }
+                },
+                {
+                  "symbol": "T",
+                  "expression": {
+                    "symbol": "T"
+                  }
+                },
+                {
+                  "symbol": "D",
+                  "expression": {
+                    "symbol": "D"
+                  }
+                },
+                {
+                  "symbol": "MLP",
+                  "expression": {
+                    "symbol": "MLP"
+                  }
+                }
+              ],
+              "inputs": [
+                {
+                  "port": "input",
+                  "tensor_id": "post-attention"
+                }
+              ],
+              "outputs": [
+                {
+                  "port": "output",
+                  "tensor_id": "output"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "template_id": "layer-normalization",
+          "label": "Layer normalization",
+          "parameters": [
+            "B",
+            "V",
+            "T",
+            "D"
+          ],
+          "input_ports": [
+            {
+              "port": "input",
+              "tensor_id": "input"
+            }
+          ],
+          "output_ports": [
+            {
+              "port": "output",
+              "tensor_id": "output"
+            }
+          ],
+          "tensors": [
+            {
+              "tensor_id": "input",
+              "label": "Normalization input",
+              "semantic_role": "hidden",
+              "axes": [
+                {
+                  "axis": "batch",
+                  "expression": {
+                    "symbol": "B"
+                  }
+                },
+                {
+                  "axis": "views",
+                  "expression": {
+                    "symbol": "V"
+                  }
+                },
+                {
+                  "axis": "tokens",
+                  "expression": {
+                    "symbol": "T"
+                  }
+                },
+                {
+                  "axis": "width",
+                  "expression": {
+                    "symbol": "D"
+                  }
+                }
+              ],
+              "producer": null,
+              "consumers": [
+                {
+                  "node_kind": "operator",
+                  "node_id": "normalize",
+                  "port": "input"
+                }
+              ]
+            },
+            {
+              "tensor_id": "output",
+              "label": "Normalized output",
+              "semantic_role": "hidden",
+              "axes": [
+                {
+                  "axis": "batch",
+                  "expression": {
+                    "symbol": "B"
+                  }
+                },
+                {
+                  "axis": "views",
+                  "expression": {
+                    "symbol": "V"
+                  }
+                },
+                {
+                  "axis": "tokens",
+                  "expression": {
+                    "symbol": "T"
+                  }
+                },
+                {
+                  "axis": "width",
+                  "expression": {
+                    "symbol": "D"
+                  }
+                }
+              ],
+              "producer": {
+                "node_kind": "operator",
+                "node_id": "normalize",
+                "port": "output"
+              },
+              "consumers": []
+            }
+          ],
+          "operators": [
+            {
+              "operator_id": "normalize",
+              "label": "Vision output LayerNorm",
+              "definition_id": "layer-norm",
+              "multiplicity": 1,
+              "inputs": [
+                {
+                  "port": "input",
+                  "tensor_id": "input"
+                }
+              ],
+              "outputs": [
+                {
+                  "port": "output",
+                  "tensor_id": "output"
+                }
+              ],
+              "bindings": []
+            }
+          ],
+          "components": []
+        },
+        {
+          "template_id": "multimodal-projector",
+          "label": "Multimodal projector",
+          "parameters": [
+            "B",
+            "V",
+            "T",
+            "K",
+            "N"
+          ],
+          "input_ports": [
+            {
+              "port": "input",
+              "tensor_id": "input"
+            }
+          ],
+          "output_ports": [
+            {
+              "port": "output",
+              "tensor_id": "output"
+            }
+          ],
+          "tensors": [
+            {
+              "tensor_id": "input",
+              "label": "Projector input",
+              "semantic_role": "hidden",
+              "axes": [
+                {
+                  "axis": "batch",
+                  "expression": {
+                    "symbol": "B"
+                  }
+                },
+                {
+                  "axis": "views",
+                  "expression": {
+                    "symbol": "V"
+                  }
+                },
+                {
+                  "axis": "tokens",
+                  "expression": {
+                    "symbol": "T"
+                  }
+                },
+                {
+                  "axis": "width",
+                  "expression": {
+                    "symbol": "K"
+                  }
+                }
+              ],
+              "producer": null,
+              "consumers": [
+                {
+                  "node_kind": "operator",
+                  "node_id": "project",
+                  "port": "input"
+                }
+              ]
+            },
+            {
+              "tensor_id": "output",
+              "label": "Projected tokens",
+              "semantic_role": "hidden",
+              "axes": [
+                {
+                  "axis": "batch",
+                  "expression": {
+                    "symbol": "B"
+                  }
+                },
+                {
+                  "axis": "views",
+                  "expression": {
+                    "symbol": "V"
+                  }
+                },
+                {
+                  "axis": "tokens",
+                  "expression": {
+                    "symbol": "T"
+                  }
+                },
+                {
+                  "axis": "width",
+                  "expression": {
+                    "symbol": "N"
+                  }
+                }
+              ],
+              "producer": {
+                "node_kind": "operator",
+                "node_id": "project",
+                "port": "output"
+              },
+              "consumers": []
+            }
+          ],
+          "operators": [
+            {
+              "operator_id": "project",
+              "label": "Multimodal projection",
+              "definition_id": "linear",
+              "multiplicity": 1,
+              "inputs": [
+                {
+                  "port": "input",
+                  "tensor_id": "input"
+                }
+              ],
+              "outputs": [
+                {
+                  "port": "output",
+                  "tensor_id": "output"
+                }
+              ],
+              "bindings": [
+                {
+                  "symbol": "M",
+                  "expression": {
+                    "op": "mul",
+                    "args": [
+                      {
+                        "symbol": "B"
+                      },
+                      {
+                        "symbol": "V"
+                      },
+                      {
+                        "symbol": "T"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "symbol": "N",
+                  "expression": {
+                    "symbol": "N"
+                  }
+                },
+                {
+                  "symbol": "K",
+                  "expression": {
+                    "symbol": "K"
+                  }
+                }
+              ]
+            }
+          ],
+          "components": []
+        },
+        {
+          "template_id": "prompt-prefix-builder",
+          "label": "Prompt and prefix builder",
+          "parameters": [
+            "B",
+            "V",
+            "T",
+            "D",
+            "L",
+            "S"
+          ],
+          "input_ports": [
+            {
+              "port": "view_tokens",
+              "tensor_id": "view-tokens"
+            },
+            {
+              "port": "prompt_token_ids",
+              "tensor_id": "prompt-token-ids"
+            }
+          ],
+          "output_ports": [
+            {
+              "port": "prefix",
+              "tensor_id": "prefix"
+            }
+          ],
+          "tensors": [
+            {
+              "tensor_id": "view-tokens",
+              "label": "Projected view tokens",
+              "semantic_role": "tokens",
+              "axes": [
+                {
+                  "axis": "batch",
+                  "expression": {
+                    "symbol": "B"
+                  }
+                },
+                {
+                  "axis": "views",
+                  "expression": {
+                    "symbol": "V"
+                  }
+                },
+                {
+                  "axis": "tokens_per_view",
+                  "expression": {
+                    "symbol": "T"
+                  }
+                },
+                {
+                  "axis": "width",
+                  "expression": {
+                    "symbol": "D"
+                  }
+                }
+              ],
+              "producer": null,
+              "consumers": [
+                {
+                  "node_kind": "operator",
+                  "node_id": "flatten-views",
+                  "port": "input"
+                }
+              ]
+            },
+            {
+              "tensor_id": "prompt-token-ids",
+              "label": "Prompt token IDs",
+              "semantic_role": "token_ids",
+              "axes": [
+                {
+                  "axis": "batch",
+                  "expression": {
+                    "symbol": "B"
+                  }
+                },
+                {
+                  "axis": "prompt_tokens",
+                  "expression": {
+                    "symbol": "L"
+                  }
+                }
+              ],
+              "producer": null,
+              "consumers": [
+                {
+                  "node_kind": "operator",
+                  "node_id": "embed-prompt",
+                  "port": "token_ids"
+                }
+              ]
+            },
+            {
+              "tensor_id": "flat-view-tokens",
+              "label": "Flattened view tokens",
+              "semantic_role": "tokens",
+              "axes": [
+                {
+                  "axis": "batch",
+                  "expression": {
+                    "symbol": "B"
+                  }
+                },
+                {
+                  "axis": "view_tokens",
+                  "expression": {
+                    "op": "mul",
+                    "args": [
+                      {
+                        "symbol": "V"
+                      },
+                      {
+                        "symbol": "T"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "axis": "width",
+                  "expression": {
+                    "symbol": "D"
+                  }
+                }
+              ],
+              "producer": {
+                "node_kind": "operator",
+                "node_id": "flatten-views",
+                "port": "output"
+              },
+              "consumers": [
+                {
+                  "node_kind": "operator",
+                  "node_id": "build-prefix",
+                  "port": "left"
+                }
+              ]
+            },
+            {
+              "tensor_id": "prompt-embeddings",
+              "label": "Prompt embeddings",
+              "semantic_role": "tokens",
+              "axes": [
+                {
+                  "axis": "batch",
+                  "expression": {
+                    "symbol": "B"
+                  }
+                },
+                {
+                  "axis": "prompt_tokens",
+                  "expression": {
+                    "symbol": "L"
+                  }
+                },
+                {
+                  "axis": "width",
+                  "expression": {
+                    "symbol": "D"
+                  }
+                }
+              ],
+              "producer": {
+                "node_kind": "operator",
+                "node_id": "embed-prompt",
+                "port": "output"
+              },
+              "consumers": [
+                {
+                  "node_kind": "operator",
+                  "node_id": "build-prefix",
+                  "port": "right"
+                }
+              ]
+            },
+            {
+              "tensor_id": "prefix",
+              "label": "Prefix tokens",
+              "semantic_role": "tokens",
+              "axes": [
+                {
+                  "axis": "batch",
+                  "expression": {
+                    "symbol": "B"
+                  }
+                },
+                {
+                  "axis": "prefix_tokens",
+                  "expression": {
+                    "symbol": "S"
+                  }
+                },
+                {
+                  "axis": "width",
+                  "expression": {
+                    "symbol": "D"
+                  }
+                }
+              ],
+              "producer": {
+                "node_kind": "operator",
+                "node_id": "build-prefix",
+                "port": "output"
+              },
+              "consumers": []
+            }
+          ],
+          "operators": [
+            {
+              "operator_id": "flatten-views",
+              "label": "Flatten view tokens",
+              "definition_id": "reshape",
+              "multiplicity": 1,
+              "inputs": [
+                {
+                  "port": "input",
+                  "tensor_id": "view-tokens"
+                }
+              ],
+              "outputs": [
+                {
+                  "port": "output",
+                  "tensor_id": "flat-view-tokens"
+                }
+              ],
+              "bindings": []
+            },
+            {
+              "operator_id": "embed-prompt",
+              "label": "Prompt token embedding",
+              "definition_id": "token-embedding",
+              "multiplicity": 1,
+              "inputs": [
+                {
+                  "port": "token_ids",
+                  "tensor_id": "prompt-token-ids"
+                }
+              ],
+              "outputs": [
+                {
+                  "port": "output",
+                  "tensor_id": "prompt-embeddings"
+                }
+              ],
+              "bindings": []
+            },
+            {
+              "operator_id": "build-prefix",
+              "label": "Concatenate view and prompt tokens",
+              "definition_id": "concat",
+              "multiplicity": 1,
+              "inputs": [
+                {
+                  "port": "left",
+                  "tensor_id": "flat-view-tokens"
+                },
+                {
+                  "port": "right",
+                  "tensor_id": "prompt-embeddings"
+                }
+              ],
+              "outputs": [
+                {
+                  "port": "output",
+                  "tensor_id": "prefix"
+                }
+              ],
+              "bindings": []
+            }
+          ],
+          "components": []
+        },
+        {
+          "template_id": "gemma-prefix-block",
+          "label": "Gemma prefix block",
+          "parameters": [
+            "B",
+            "S",
+            "D",
+            "H",
+            "KVH",
+            "HD",
+            "MLP"
+          ],
+          "input_ports": [
+            {
+              "port": "input",
+              "tensor_id": "input"
+            }
+          ],
+          "output_ports": [
+            {
+              "port": "hidden",
+              "tensor_id": "block-output"
+            },
+            {
+              "port": "prefix_kv",
+              "tensor_id": "prefix-kv"
+            }
+          ],
+          "tensors": [
+            {
+              "tensor_id": "input",
+              "label": "Prefix block input",
+              "semantic_role": "hidden",
+              "axes": [
+                {
+                  "axis": "batch",
+                  "expression": {
+                    "symbol": "B"
+                  }
+                },
+                {
+                  "axis": "tokens",
+                  "expression": {
+                    "symbol": "S"
+                  }
+                },
+                {
+                  "axis": "width",
+                  "expression": {
+                    "symbol": "D"
+                  }
+                }
+              ],
+              "producer": null,
+              "consumers": [
+                {
+                  "node_kind": "component",
+                  "node_id": "self-attention",
+                  "port": "input"
+                }
+              ]
+            },
+            {
+              "tensor_id": "post-attention",
+              "label": "Post-attention prefix",
+              "semantic_role": "hidden",
+              "axes": [
+                {
+                  "axis": "batch",
+                  "expression": {
+                    "symbol": "B"
+                  }
+                },
+                {
+                  "axis": "tokens",
+                  "expression": {
+                    "symbol": "S"
+                  }
+                },
+                {
+                  "axis": "width",
+                  "expression": {
+                    "symbol": "D"
+                  }
+                }
+              ],
+              "producer": {
+                "node_kind": "component",
+                "node_id": "self-attention",
+                "port": "hidden"
+              },
+              "consumers": [
+                {
+                  "node_kind": "component",
+                  "node_id": "feed-forward",
+                  "port": "input"
+                }
+              ]
+            },
+            {
+              "tensor_id": "block-output",
+              "label": "Prefix block output",
+              "semantic_role": "hidden",
+              "axes": [
+                {
+                  "axis": "batch",
+                  "expression": {
+                    "symbol": "B"
+                  }
+                },
+                {
+                  "axis": "tokens",
+                  "expression": {
+                    "symbol": "S"
+                  }
+                },
+                {
+                  "axis": "width",
+                  "expression": {
+                    "symbol": "D"
+                  }
+                }
+              ],
+              "producer": {
+                "node_kind": "component",
+                "node_id": "feed-forward",
+                "port": "output"
+              },
+              "consumers": []
+            },
+            {
+              "tensor_id": "prefix-kv",
+              "label": "Logical prefix K/V slice",
+              "semantic_role": "kv_cache",
+              "axes": [
+                {
+                  "axis": "kv",
+                  "expression": 2
+                },
+                {
+                  "axis": "batch",
+                  "expression": {
+                    "symbol": "B"
+                  }
+                },
+                {
+                  "axis": "sequence",
+                  "expression": {
+                    "symbol": "S"
+                  }
+                },
+                {
+                  "axis": "kv_head",
+                  "expression": {
+                    "symbol": "KVH"
+                  }
+                },
+                {
+                  "axis": "head_dim",
+                  "expression": {
+                    "symbol": "HD"
+                  }
+                }
+              ],
+              "producer": {
+                "node_kind": "component",
+                "node_id": "self-attention",
+                "port": "prefix_kv"
+              },
+              "consumers": []
+            }
+          ],
+          "operators": [],
+          "components": [
+            {
+              "component_id": "self-attention",
+              "label": "Self-attention",
+              "template_id": "rmsnorm-rope-mqa-prefill-attention",
+              "bindings": [
+                {
+                  "symbol": "B",
+                  "expression": {
+                    "symbol": "B"
+                  }
+                },
+                {
+                  "symbol": "S",
+                  "expression": {
+                    "symbol": "S"
+                  }
+                },
+                {
+                  "symbol": "D",
+                  "expression": {
+                    "symbol": "D"
+                  }
+                },
+                {
+                  "symbol": "H",
+                  "expression": {
+                    "symbol": "H"
+                  }
+                },
+                {
+                  "symbol": "KVH",
+                  "expression": {
+                    "symbol": "KVH"
+                  }
+                },
+                {
+                  "symbol": "HD",
+                  "expression": {
+                    "symbol": "HD"
+                  }
+                }
+              ],
+              "inputs": [
+                {
+                  "port": "input",
+                  "tensor_id": "input"
+                }
+              ],
+              "outputs": [
+                {
+                  "port": "hidden",
+                  "tensor_id": "post-attention"
+                },
+                {
+                  "port": "prefix_kv",
+                  "tensor_id": "prefix-kv"
+                }
+              ]
+            },
+            {
+              "component_id": "feed-forward",
+              "label": "Feed-forward",
+              "template_id": "rmsnorm-gated-gelu-feed-forward",
+              "bindings": [
+                {
+                  "symbol": "B",
+                  "expression": {
+                    "symbol": "B"
+                  }
+                },
+                {
+                  "symbol": "S",
+                  "expression": {
+                    "symbol": "S"
+                  }
+                },
+                {
+                  "symbol": "D",
+                  "expression": {
+                    "symbol": "D"
+                  }
+                },
+                {
+                  "symbol": "MLP",
+                  "expression": {
+                    "symbol": "MLP"
+                  }
+                }
+              ],
+              "inputs": [
+                {
+                  "port": "input",
+                  "tensor_id": "post-attention"
+                }
+              ],
+              "outputs": [
+                {
+                  "port": "output",
+                  "tensor_id": "block-output"
+                }
+              ]
             }
           ]
         },
@@ -4371,7 +6091,8 @@
               ],
               "bindings": []
             }
-          ]
+          ],
+          "components": []
         },
         {
           "template_id": "gemma-action-expert-block",
@@ -4431,14 +6152,9 @@
               "producer": null,
               "consumers": [
                 {
-                  "node_kind": "operator",
-                  "node_id": "attention-norm",
-                  "port": "input"
-                },
-                {
-                  "node_kind": "operator",
-                  "node_id": "attention-residual",
-                  "port": "residual"
+                  "node_kind": "component",
+                  "node_id": "self-attention",
+                  "port": "suffix"
                 }
               ]
             },
@@ -4479,528 +6195,9 @@
               "producer": null,
               "consumers": [
                 {
-                  "node_kind": "operator",
-                  "node_id": "extract-prefix-key",
-                  "port": "input"
-                },
-                {
-                  "node_kind": "operator",
-                  "node_id": "extract-prefix-value",
-                  "port": "input"
-                }
-              ]
-            },
-            {
-              "tensor_id": "prefix-key",
-              "label": "Cached prefix key",
-              "semantic_role": "key",
-              "axes": [
-                {
-                  "axis": "batch",
-                  "expression": {
-                    "symbol": "B"
-                  }
-                },
-                {
-                  "axis": "sequence",
-                  "expression": {
-                    "symbol": "SP"
-                  }
-                },
-                {
-                  "axis": "kv_head",
-                  "expression": {
-                    "symbol": "KVH"
-                  }
-                },
-                {
-                  "axis": "head_dim",
-                  "expression": {
-                    "symbol": "HD"
-                  }
-                }
-              ],
-              "producer": {
-                "node_kind": "operator",
-                "node_id": "extract-prefix-key",
-                "port": "output"
-              },
-              "consumers": [
-                {
-                  "node_kind": "operator",
-                  "node_id": "key-concat",
-                  "port": "left"
-                }
-              ]
-            },
-            {
-              "tensor_id": "prefix-value",
-              "label": "Cached prefix value",
-              "semantic_role": "value",
-              "axes": [
-                {
-                  "axis": "batch",
-                  "expression": {
-                    "symbol": "B"
-                  }
-                },
-                {
-                  "axis": "sequence",
-                  "expression": {
-                    "symbol": "SP"
-                  }
-                },
-                {
-                  "axis": "kv_head",
-                  "expression": {
-                    "symbol": "KVH"
-                  }
-                },
-                {
-                  "axis": "head_dim",
-                  "expression": {
-                    "symbol": "HD"
-                  }
-                }
-              ],
-              "producer": {
-                "node_kind": "operator",
-                "node_id": "extract-prefix-value",
-                "port": "output"
-              },
-              "consumers": [
-                {
-                  "node_kind": "operator",
-                  "node_id": "value-concat",
-                  "port": "left"
-                }
-              ]
-            },
-            {
-              "tensor_id": "norm-attention",
-              "label": "Attention-normalized suffix",
-              "semantic_role": "hidden",
-              "axes": [
-                {
-                  "axis": "batch",
-                  "expression": {
-                    "symbol": "B"
-                  }
-                },
-                {
-                  "axis": "query_tokens",
-                  "expression": {
-                    "symbol": "SQ"
-                  }
-                },
-                {
-                  "axis": "width",
-                  "expression": {
-                    "symbol": "D"
-                  }
-                }
-              ],
-              "producer": {
-                "node_kind": "operator",
-                "node_id": "attention-norm",
-                "port": "output"
-              },
-              "consumers": [
-                {
-                  "node_kind": "operator",
-                  "node_id": "query-projection",
-                  "port": "input"
-                },
-                {
-                  "node_kind": "operator",
-                  "node_id": "key-projection",
-                  "port": "input"
-                },
-                {
-                  "node_kind": "operator",
-                  "node_id": "value-projection",
-                  "port": "input"
-                }
-              ]
-            },
-            {
-              "tensor_id": "query",
-              "label": "Action queries",
-              "semantic_role": "query",
-              "axes": [
-                {
-                  "axis": "batch",
-                  "expression": {
-                    "symbol": "B"
-                  }
-                },
-                {
-                  "axis": "query_sequence",
-                  "expression": {
-                    "symbol": "SQ"
-                  }
-                },
-                {
-                  "axis": "query_head",
-                  "expression": {
-                    "symbol": "H"
-                  }
-                },
-                {
-                  "axis": "head_dim",
-                  "expression": {
-                    "symbol": "HD"
-                  }
-                }
-              ],
-              "producer": {
-                "node_kind": "operator",
-                "node_id": "query-projection",
-                "port": "output"
-              },
-              "consumers": [
-                {
-                  "node_kind": "operator",
-                  "node_id": "query-rope",
-                  "port": "input"
-                }
-              ]
-            },
-            {
-              "tensor_id": "action-key",
-              "label": "Action keys",
-              "semantic_role": "key",
-              "axes": [
-                {
-                  "axis": "batch",
-                  "expression": {
-                    "symbol": "B"
-                  }
-                },
-                {
-                  "axis": "sequence",
-                  "expression": {
-                    "symbol": "SQ"
-                  }
-                },
-                {
-                  "axis": "kv_head",
-                  "expression": {
-                    "symbol": "KVH"
-                  }
-                },
-                {
-                  "axis": "head_dim",
-                  "expression": {
-                    "symbol": "HD"
-                  }
-                }
-              ],
-              "producer": {
-                "node_kind": "operator",
-                "node_id": "key-projection",
-                "port": "output"
-              },
-              "consumers": [
-                {
-                  "node_kind": "operator",
-                  "node_id": "key-rope",
-                  "port": "input"
-                }
-              ]
-            },
-            {
-              "tensor_id": "action-value",
-              "label": "Action values",
-              "semantic_role": "value",
-              "axes": [
-                {
-                  "axis": "batch",
-                  "expression": {
-                    "symbol": "B"
-                  }
-                },
-                {
-                  "axis": "sequence",
-                  "expression": {
-                    "symbol": "SQ"
-                  }
-                },
-                {
-                  "axis": "kv_head",
-                  "expression": {
-                    "symbol": "KVH"
-                  }
-                },
-                {
-                  "axis": "head_dim",
-                  "expression": {
-                    "symbol": "HD"
-                  }
-                }
-              ],
-              "producer": {
-                "node_kind": "operator",
-                "node_id": "value-projection",
-                "port": "output"
-              },
-              "consumers": [
-                {
-                  "node_kind": "operator",
-                  "node_id": "value-concat",
-                  "port": "right"
-                }
-              ]
-            },
-            {
-              "tensor_id": "query-rope",
-              "label": "Rotated action queries",
-              "semantic_role": "query",
-              "axes": [
-                {
-                  "axis": "batch",
-                  "expression": {
-                    "symbol": "B"
-                  }
-                },
-                {
-                  "axis": "query_sequence",
-                  "expression": {
-                    "symbol": "SQ"
-                  }
-                },
-                {
-                  "axis": "query_head",
-                  "expression": {
-                    "symbol": "H"
-                  }
-                },
-                {
-                  "axis": "head_dim",
-                  "expression": {
-                    "symbol": "HD"
-                  }
-                }
-              ],
-              "producer": {
-                "node_kind": "operator",
-                "node_id": "query-rope",
-                "port": "output"
-              },
-              "consumers": [
-                {
-                  "node_kind": "operator",
-                  "node_id": "attention",
-                  "port": "query"
-                }
-              ]
-            },
-            {
-              "tensor_id": "action-key-rope",
-              "label": "Rotated action keys",
-              "semantic_role": "key",
-              "axes": [
-                {
-                  "axis": "batch",
-                  "expression": {
-                    "symbol": "B"
-                  }
-                },
-                {
-                  "axis": "sequence",
-                  "expression": {
-                    "symbol": "SQ"
-                  }
-                },
-                {
-                  "axis": "kv_head",
-                  "expression": {
-                    "symbol": "KVH"
-                  }
-                },
-                {
-                  "axis": "head_dim",
-                  "expression": {
-                    "symbol": "HD"
-                  }
-                }
-              ],
-              "producer": {
-                "node_kind": "operator",
-                "node_id": "key-rope",
-                "port": "output"
-              },
-              "consumers": [
-                {
-                  "node_kind": "operator",
-                  "node_id": "key-concat",
-                  "port": "right"
-                }
-              ]
-            },
-            {
-              "tensor_id": "full-key",
-              "label": "Prefix and action keys",
-              "semantic_role": "key",
-              "axes": [
-                {
-                  "axis": "batch",
-                  "expression": {
-                    "symbol": "B"
-                  }
-                },
-                {
-                  "axis": "sequence",
-                  "expression": {
-                    "symbol": "SKV"
-                  }
-                },
-                {
-                  "axis": "kv_head",
-                  "expression": {
-                    "symbol": "KVH"
-                  }
-                },
-                {
-                  "axis": "head_dim",
-                  "expression": {
-                    "symbol": "HD"
-                  }
-                }
-              ],
-              "producer": {
-                "node_kind": "operator",
-                "node_id": "key-concat",
-                "port": "output"
-              },
-              "consumers": [
-                {
-                  "node_kind": "operator",
-                  "node_id": "attention",
-                  "port": "key"
-                }
-              ]
-            },
-            {
-              "tensor_id": "full-value",
-              "label": "Prefix and action values",
-              "semantic_role": "value",
-              "axes": [
-                {
-                  "axis": "batch",
-                  "expression": {
-                    "symbol": "B"
-                  }
-                },
-                {
-                  "axis": "sequence",
-                  "expression": {
-                    "symbol": "SKV"
-                  }
-                },
-                {
-                  "axis": "kv_head",
-                  "expression": {
-                    "symbol": "KVH"
-                  }
-                },
-                {
-                  "axis": "head_dim",
-                  "expression": {
-                    "symbol": "HD"
-                  }
-                }
-              ],
-              "producer": {
-                "node_kind": "operator",
-                "node_id": "value-concat",
-                "port": "output"
-              },
-              "consumers": [
-                {
-                  "node_kind": "operator",
-                  "node_id": "attention",
-                  "port": "value"
-                }
-              ]
-            },
-            {
-              "tensor_id": "attention-heads",
-              "label": "Action attention output",
-              "semantic_role": "attention",
-              "axes": [
-                {
-                  "axis": "batch",
-                  "expression": {
-                    "symbol": "B"
-                  }
-                },
-                {
-                  "axis": "query_sequence",
-                  "expression": {
-                    "symbol": "SQ"
-                  }
-                },
-                {
-                  "axis": "query_head",
-                  "expression": {
-                    "symbol": "H"
-                  }
-                },
-                {
-                  "axis": "head_dim",
-                  "expression": {
-                    "symbol": "HD"
-                  }
-                }
-              ],
-              "producer": {
-                "node_kind": "operator",
-                "node_id": "attention",
-                "port": "output"
-              },
-              "consumers": [
-                {
-                  "node_kind": "operator",
-                  "node_id": "output-projection",
-                  "port": "input"
-                }
-              ]
-            },
-            {
-              "tensor_id": "attention-update",
-              "label": "Action attention update",
-              "semantic_role": "hidden",
-              "axes": [
-                {
-                  "axis": "batch",
-                  "expression": {
-                    "symbol": "B"
-                  }
-                },
-                {
-                  "axis": "query_tokens",
-                  "expression": {
-                    "symbol": "SQ"
-                  }
-                },
-                {
-                  "axis": "width",
-                  "expression": {
-                    "symbol": "D"
-                  }
-                }
-              ],
-              "producer": {
-                "node_kind": "operator",
-                "node_id": "output-projection",
-                "port": "output"
-              },
-              "consumers": [
-                {
-                  "node_kind": "operator",
-                  "node_id": "attention-residual",
-                  "port": "update"
+                  "node_kind": "component",
+                  "node_id": "self-attention",
+                  "port": "prefix_kv"
                 }
               ]
             },
@@ -5029,247 +6226,15 @@
                 }
               ],
               "producer": {
-                "node_kind": "operator",
-                "node_id": "attention-residual",
-                "port": "output"
+                "node_kind": "component",
+                "node_id": "self-attention",
+                "port": "hidden"
               },
               "consumers": [
                 {
-                  "node_kind": "operator",
-                  "node_id": "mlp-norm",
+                  "node_kind": "component",
+                  "node_id": "feed-forward",
                   "port": "input"
-                },
-                {
-                  "node_kind": "operator",
-                  "node_id": "mlp-residual",
-                  "port": "residual"
-                }
-              ]
-            },
-            {
-              "tensor_id": "norm-mlp",
-              "label": "MLP-normalized suffix",
-              "semantic_role": "hidden",
-              "axes": [
-                {
-                  "axis": "batch",
-                  "expression": {
-                    "symbol": "B"
-                  }
-                },
-                {
-                  "axis": "query_tokens",
-                  "expression": {
-                    "symbol": "SQ"
-                  }
-                },
-                {
-                  "axis": "width",
-                  "expression": {
-                    "symbol": "D"
-                  }
-                }
-              ],
-              "producer": {
-                "node_kind": "operator",
-                "node_id": "mlp-norm",
-                "port": "output"
-              },
-              "consumers": [
-                {
-                  "node_kind": "operator",
-                  "node_id": "gate-projection",
-                  "port": "input"
-                },
-                {
-                  "node_kind": "operator",
-                  "node_id": "up-projection",
-                  "port": "input"
-                }
-              ]
-            },
-            {
-              "tensor_id": "gate",
-              "label": "Gate projection",
-              "semantic_role": "hidden",
-              "axes": [
-                {
-                  "axis": "batch",
-                  "expression": {
-                    "symbol": "B"
-                  }
-                },
-                {
-                  "axis": "query_tokens",
-                  "expression": {
-                    "symbol": "SQ"
-                  }
-                },
-                {
-                  "axis": "width",
-                  "expression": {
-                    "symbol": "MLP"
-                  }
-                }
-              ],
-              "producer": {
-                "node_kind": "operator",
-                "node_id": "gate-projection",
-                "port": "output"
-              },
-              "consumers": [
-                {
-                  "node_kind": "operator",
-                  "node_id": "gate-gelu",
-                  "port": "input"
-                }
-              ]
-            },
-            {
-              "tensor_id": "up",
-              "label": "Up projection",
-              "semantic_role": "hidden",
-              "axes": [
-                {
-                  "axis": "batch",
-                  "expression": {
-                    "symbol": "B"
-                  }
-                },
-                {
-                  "axis": "query_tokens",
-                  "expression": {
-                    "symbol": "SQ"
-                  }
-                },
-                {
-                  "axis": "width",
-                  "expression": {
-                    "symbol": "MLP"
-                  }
-                }
-              ],
-              "producer": {
-                "node_kind": "operator",
-                "node_id": "up-projection",
-                "port": "output"
-              },
-              "consumers": [
-                {
-                  "node_kind": "operator",
-                  "node_id": "gate-product",
-                  "port": "right"
-                }
-              ]
-            },
-            {
-              "tensor_id": "gate-activated",
-              "label": "Activated gate",
-              "semantic_role": "hidden",
-              "axes": [
-                {
-                  "axis": "batch",
-                  "expression": {
-                    "symbol": "B"
-                  }
-                },
-                {
-                  "axis": "query_tokens",
-                  "expression": {
-                    "symbol": "SQ"
-                  }
-                },
-                {
-                  "axis": "width",
-                  "expression": {
-                    "symbol": "MLP"
-                  }
-                }
-              ],
-              "producer": {
-                "node_kind": "operator",
-                "node_id": "gate-gelu",
-                "port": "output"
-              },
-              "consumers": [
-                {
-                  "node_kind": "operator",
-                  "node_id": "gate-product",
-                  "port": "left"
-                }
-              ]
-            },
-            {
-              "tensor_id": "gated",
-              "label": "Gated MLP hidden",
-              "semantic_role": "hidden",
-              "axes": [
-                {
-                  "axis": "batch",
-                  "expression": {
-                    "symbol": "B"
-                  }
-                },
-                {
-                  "axis": "query_tokens",
-                  "expression": {
-                    "symbol": "SQ"
-                  }
-                },
-                {
-                  "axis": "width",
-                  "expression": {
-                    "symbol": "MLP"
-                  }
-                }
-              ],
-              "producer": {
-                "node_kind": "operator",
-                "node_id": "gate-product",
-                "port": "output"
-              },
-              "consumers": [
-                {
-                  "node_kind": "operator",
-                  "node_id": "down-projection",
-                  "port": "input"
-                }
-              ]
-            },
-            {
-              "tensor_id": "mlp-update",
-              "label": "MLP update",
-              "semantic_role": "hidden",
-              "axes": [
-                {
-                  "axis": "batch",
-                  "expression": {
-                    "symbol": "B"
-                  }
-                },
-                {
-                  "axis": "query_tokens",
-                  "expression": {
-                    "symbol": "SQ"
-                  }
-                },
-                {
-                  "axis": "width",
-                  "expression": {
-                    "symbol": "D"
-                  }
-                }
-              ],
-              "producer": {
-                "node_kind": "operator",
-                "node_id": "down-projection",
-                "port": "output"
-              },
-              "consumers": [
-                {
-                  "node_kind": "operator",
-                  "node_id": "mlp-residual",
-                  "port": "update"
                 }
               ]
             },
@@ -5298,633 +6263,120 @@
                 }
               ],
               "producer": {
-                "node_kind": "operator",
-                "node_id": "mlp-residual",
+                "node_kind": "component",
+                "node_id": "feed-forward",
                 "port": "output"
               },
               "consumers": []
             }
           ],
-          "operators": [
+          "operators": [],
+          "components": [
             {
-              "operator_id": "extract-prefix-key",
-              "label": "Select cached prefix keys",
-              "definition_id": "slice",
-              "multiplicity": 1,
+              "component_id": "self-attention",
+              "label": "Self-attention",
+              "template_id": "rmsnorm-rope-mqa-cached-attention",
+              "bindings": [
+                {
+                  "symbol": "B",
+                  "expression": {
+                    "symbol": "B"
+                  }
+                },
+                {
+                  "symbol": "SQ",
+                  "expression": {
+                    "symbol": "SQ"
+                  }
+                },
+                {
+                  "symbol": "SP",
+                  "expression": {
+                    "symbol": "SP"
+                  }
+                },
+                {
+                  "symbol": "SKV",
+                  "expression": {
+                    "symbol": "SKV"
+                  }
+                },
+                {
+                  "symbol": "D",
+                  "expression": {
+                    "symbol": "D"
+                  }
+                },
+                {
+                  "symbol": "H",
+                  "expression": {
+                    "symbol": "H"
+                  }
+                },
+                {
+                  "symbol": "KVH",
+                  "expression": {
+                    "symbol": "KVH"
+                  }
+                },
+                {
+                  "symbol": "HD",
+                  "expression": {
+                    "symbol": "HD"
+                  }
+                }
+              ],
               "inputs": [
                 {
-                  "port": "input",
+                  "port": "suffix",
+                  "tensor_id": "suffix"
+                },
+                {
+                  "port": "prefix_kv",
                   "tensor_id": "prefix-kv"
                 }
               ],
               "outputs": [
                 {
-                  "port": "output",
-                  "tensor_id": "prefix-key"
-                }
-              ],
-              "bindings": []
-            },
-            {
-              "operator_id": "extract-prefix-value",
-              "label": "Select cached prefix values",
-              "definition_id": "slice",
-              "multiplicity": 1,
-              "inputs": [
-                {
-                  "port": "input",
-                  "tensor_id": "prefix-kv"
-                }
-              ],
-              "outputs": [
-                {
-                  "port": "output",
-                  "tensor_id": "prefix-value"
-                }
-              ],
-              "bindings": []
-            },
-            {
-              "operator_id": "attention-norm",
-              "label": "Attention RMSNorm",
-              "definition_id": "rms-norm",
-              "multiplicity": 1,
-              "inputs": [
-                {
-                  "port": "input",
-                  "tensor_id": "suffix"
-                }
-              ],
-              "outputs": [
-                {
-                  "port": "output",
-                  "tensor_id": "norm-attention"
-                }
-              ],
-              "bindings": []
-            },
-            {
-              "operator_id": "query-projection",
-              "label": "Action query projection",
-              "definition_id": "linear",
-              "multiplicity": 1,
-              "inputs": [
-                {
-                  "port": "input",
-                  "tensor_id": "norm-attention"
-                }
-              ],
-              "outputs": [
-                {
-                  "port": "output",
-                  "tensor_id": "query"
-                }
-              ],
-              "bindings": [
-                {
-                  "symbol": "M",
-                  "expression": {
-                    "op": "mul",
-                    "args": [
-                      {
-                        "symbol": "B"
-                      },
-                      {
-                        "symbol": "SQ"
-                      }
-                    ]
-                  }
-                },
-                {
-                  "symbol": "N",
-                  "expression": {
-                    "op": "mul",
-                    "args": [
-                      {
-                        "symbol": "H"
-                      },
-                      {
-                        "symbol": "HD"
-                      }
-                    ]
-                  }
-                },
-                {
-                  "symbol": "K",
-                  "expression": {
-                    "symbol": "D"
-                  }
-                }
-              ]
-            },
-            {
-              "operator_id": "key-projection",
-              "label": "Action key projection",
-              "definition_id": "linear",
-              "multiplicity": 1,
-              "inputs": [
-                {
-                  "port": "input",
-                  "tensor_id": "norm-attention"
-                }
-              ],
-              "outputs": [
-                {
-                  "port": "output",
-                  "tensor_id": "action-key"
-                }
-              ],
-              "bindings": [
-                {
-                  "symbol": "M",
-                  "expression": {
-                    "op": "mul",
-                    "args": [
-                      {
-                        "symbol": "B"
-                      },
-                      {
-                        "symbol": "SQ"
-                      }
-                    ]
-                  }
-                },
-                {
-                  "symbol": "N",
-                  "expression": {
-                    "op": "mul",
-                    "args": [
-                      {
-                        "symbol": "KVH"
-                      },
-                      {
-                        "symbol": "HD"
-                      }
-                    ]
-                  }
-                },
-                {
-                  "symbol": "K",
-                  "expression": {
-                    "symbol": "D"
-                  }
-                }
-              ]
-            },
-            {
-              "operator_id": "value-projection",
-              "label": "Action value projection",
-              "definition_id": "linear",
-              "multiplicity": 1,
-              "inputs": [
-                {
-                  "port": "input",
-                  "tensor_id": "norm-attention"
-                }
-              ],
-              "outputs": [
-                {
-                  "port": "output",
-                  "tensor_id": "action-value"
-                }
-              ],
-              "bindings": [
-                {
-                  "symbol": "M",
-                  "expression": {
-                    "op": "mul",
-                    "args": [
-                      {
-                        "symbol": "B"
-                      },
-                      {
-                        "symbol": "SQ"
-                      }
-                    ]
-                  }
-                },
-                {
-                  "symbol": "N",
-                  "expression": {
-                    "op": "mul",
-                    "args": [
-                      {
-                        "symbol": "KVH"
-                      },
-                      {
-                        "symbol": "HD"
-                      }
-                    ]
-                  }
-                },
-                {
-                  "symbol": "K",
-                  "expression": {
-                    "symbol": "D"
-                  }
-                }
-              ]
-            },
-            {
-              "operator_id": "query-rope",
-              "label": "Action query RoPE",
-              "definition_id": "rope",
-              "multiplicity": 1,
-              "inputs": [
-                {
-                  "port": "input",
-                  "tensor_id": "query"
-                }
-              ],
-              "outputs": [
-                {
-                  "port": "output",
-                  "tensor_id": "query-rope"
-                }
-              ],
-              "bindings": []
-            },
-            {
-              "operator_id": "key-rope",
-              "label": "Action key RoPE",
-              "definition_id": "rope",
-              "multiplicity": 1,
-              "inputs": [
-                {
-                  "port": "input",
-                  "tensor_id": "action-key"
-                }
-              ],
-              "outputs": [
-                {
-                  "port": "output",
-                  "tensor_id": "action-key-rope"
-                }
-              ],
-              "bindings": []
-            },
-            {
-              "operator_id": "key-concat",
-              "label": "Concatenate prefix and action keys",
-              "definition_id": "concat",
-              "multiplicity": 1,
-              "inputs": [
-                {
-                  "port": "left",
-                  "tensor_id": "prefix-key"
-                },
-                {
-                  "port": "right",
-                  "tensor_id": "action-key-rope"
-                }
-              ],
-              "outputs": [
-                {
-                  "port": "output",
-                  "tensor_id": "full-key"
-                }
-              ],
-              "bindings": []
-            },
-            {
-              "operator_id": "value-concat",
-              "label": "Concatenate prefix and action values",
-              "definition_id": "concat",
-              "multiplicity": 1,
-              "inputs": [
-                {
-                  "port": "left",
-                  "tensor_id": "prefix-value"
-                },
-                {
-                  "port": "right",
-                  "tensor_id": "action-value"
-                }
-              ],
-              "outputs": [
-                {
-                  "port": "output",
-                  "tensor_id": "full-value"
-                }
-              ],
-              "bindings": []
-            },
-            {
-              "operator_id": "attention",
-              "label": "Action attention core",
-              "definition_id": "attention-core",
-              "multiplicity": 1,
-              "inputs": [
-                {
-                  "port": "query",
-                  "tensor_id": "query-rope"
-                },
-                {
-                  "port": "key",
-                  "tensor_id": "full-key"
-                },
-                {
-                  "port": "value",
-                  "tensor_id": "full-value"
-                }
-              ],
-              "outputs": [
-                {
-                  "port": "output",
-                  "tensor_id": "attention-heads"
-                }
-              ],
-              "bindings": []
-            },
-            {
-              "operator_id": "output-projection",
-              "label": "Attention output projection",
-              "definition_id": "linear",
-              "multiplicity": 1,
-              "inputs": [
-                {
-                  "port": "input",
-                  "tensor_id": "attention-heads"
-                }
-              ],
-              "outputs": [
-                {
-                  "port": "output",
-                  "tensor_id": "attention-update"
-                }
-              ],
-              "bindings": [
-                {
-                  "symbol": "M",
-                  "expression": {
-                    "op": "mul",
-                    "args": [
-                      {
-                        "symbol": "B"
-                      },
-                      {
-                        "symbol": "SQ"
-                      }
-                    ]
-                  }
-                },
-                {
-                  "symbol": "N",
-                  "expression": {
-                    "symbol": "D"
-                  }
-                },
-                {
-                  "symbol": "K",
-                  "expression": {
-                    "op": "mul",
-                    "args": [
-                      {
-                        "symbol": "H"
-                      },
-                      {
-                        "symbol": "HD"
-                      }
-                    ]
-                  }
-                }
-              ]
-            },
-            {
-              "operator_id": "attention-residual",
-              "label": "Attention residual",
-              "definition_id": "residual-add",
-              "multiplicity": 1,
-              "inputs": [
-                {
-                  "port": "residual",
-                  "tensor_id": "suffix"
-                },
-                {
-                  "port": "update",
-                  "tensor_id": "attention-update"
-                }
-              ],
-              "outputs": [
-                {
-                  "port": "output",
+                  "port": "hidden",
                   "tensor_id": "post-attention"
                 }
-              ],
-              "bindings": []
-            },
-            {
-              "operator_id": "mlp-norm",
-              "label": "MLP RMSNorm",
-              "definition_id": "rms-norm",
-              "multiplicity": 1,
-              "inputs": [
-                {
-                  "port": "input",
-                  "tensor_id": "post-attention"
-                }
-              ],
-              "outputs": [
-                {
-                  "port": "output",
-                  "tensor_id": "norm-mlp"
-                }
-              ],
-              "bindings": []
-            },
-            {
-              "operator_id": "gate-projection",
-              "label": "Gate projection",
-              "definition_id": "linear",
-              "multiplicity": 1,
-              "inputs": [
-                {
-                  "port": "input",
-                  "tensor_id": "norm-mlp"
-                }
-              ],
-              "outputs": [
-                {
-                  "port": "output",
-                  "tensor_id": "gate"
-                }
-              ],
-              "bindings": [
-                {
-                  "symbol": "M",
-                  "expression": {
-                    "op": "mul",
-                    "args": [
-                      {
-                        "symbol": "B"
-                      },
-                      {
-                        "symbol": "SQ"
-                      }
-                    ]
-                  }
-                },
-                {
-                  "symbol": "N",
-                  "expression": {
-                    "symbol": "MLP"
-                  }
-                },
-                {
-                  "symbol": "K",
-                  "expression": {
-                    "symbol": "D"
-                  }
-                }
               ]
             },
             {
-              "operator_id": "up-projection",
-              "label": "Up projection",
-              "definition_id": "linear",
-              "multiplicity": 1,
-              "inputs": [
-                {
-                  "port": "input",
-                  "tensor_id": "norm-mlp"
-                }
-              ],
-              "outputs": [
-                {
-                  "port": "output",
-                  "tensor_id": "up"
-                }
-              ],
+              "component_id": "feed-forward",
+              "label": "Feed-forward",
+              "template_id": "rmsnorm-gated-gelu-feed-forward",
               "bindings": [
                 {
-                  "symbol": "M",
+                  "symbol": "B",
                   "expression": {
-                    "op": "mul",
-                    "args": [
-                      {
-                        "symbol": "B"
-                      },
-                      {
-                        "symbol": "SQ"
-                      }
-                    ]
+                    "symbol": "B"
                   }
                 },
                 {
-                  "symbol": "N",
+                  "symbol": "S",
                   "expression": {
-                    "symbol": "MLP"
+                    "symbol": "SQ"
                   }
                 },
                 {
-                  "symbol": "K",
-                  "expression": {
-                    "symbol": "D"
-                  }
-                }
-              ]
-            },
-            {
-              "operator_id": "gate-gelu",
-              "label": "Gate GELU",
-              "definition_id": "gelu",
-              "multiplicity": 1,
-              "inputs": [
-                {
-                  "port": "input",
-                  "tensor_id": "gate"
-                }
-              ],
-              "outputs": [
-                {
-                  "port": "output",
-                  "tensor_id": "gate-activated"
-                }
-              ],
-              "bindings": []
-            },
-            {
-              "operator_id": "gate-product",
-              "label": "Gated MLP product",
-              "definition_id": "elementwise-multiply",
-              "multiplicity": 1,
-              "inputs": [
-                {
-                  "port": "left",
-                  "tensor_id": "gate-activated"
-                },
-                {
-                  "port": "right",
-                  "tensor_id": "up"
-                }
-              ],
-              "outputs": [
-                {
-                  "port": "output",
-                  "tensor_id": "gated"
-                }
-              ],
-              "bindings": []
-            },
-            {
-              "operator_id": "down-projection",
-              "label": "Down projection",
-              "definition_id": "linear",
-              "multiplicity": 1,
-              "inputs": [
-                {
-                  "port": "input",
-                  "tensor_id": "gated"
-                }
-              ],
-              "outputs": [
-                {
-                  "port": "output",
-                  "tensor_id": "mlp-update"
-                }
-              ],
-              "bindings": [
-                {
-                  "symbol": "M",
-                  "expression": {
-                    "op": "mul",
-                    "args": [
-                      {
-                        "symbol": "B"
-                      },
-                      {
-                        "symbol": "SQ"
-                      }
-                    ]
-                  }
-                },
-                {
-                  "symbol": "N",
+                  "symbol": "D",
                   "expression": {
                     "symbol": "D"
                   }
                 },
                 {
-                  "symbol": "K",
+                  "symbol": "MLP",
                   "expression": {
                     "symbol": "MLP"
                   }
                 }
-              ]
-            },
-            {
-              "operator_id": "mlp-residual",
-              "label": "MLP residual",
-              "definition_id": "residual-add",
-              "multiplicity": 1,
+              ],
               "inputs": [
                 {
-                  "port": "residual",
+                  "port": "input",
                   "tensor_id": "post-attention"
-                },
-                {
-                  "port": "update",
-                  "tensor_id": "mlp-update"
                 }
               ],
               "outputs": [
@@ -5932,8 +6384,7 @@
                   "port": "output",
                   "tensor_id": "block-output"
                 }
-              ],
-              "bindings": []
+              ]
             }
           ]
         },
@@ -6281,7 +6732,8 @@
               ],
               "bindings": []
             }
-          ]
+          ],
+          "components": []
         }
       ],
       "graph_tensors": [

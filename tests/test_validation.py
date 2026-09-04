@@ -51,6 +51,19 @@ class ValidationTests(unittest.TestCase):
             materialized["stages"][0]["modules"][0]["outputs"][0]["shape"],
             [1, 768, 8],
         )
+        nested_operator = materialized["operators_by_id"][
+            "stage/module/linear/linear-op"
+        ]
+        self.assertEqual(nested_operator["analysis_by_metric"]["flops"], 98_304)
+        self.assertEqual(nested_operator["effective_repeat"], 1)
+
+        component = graph["block_templates"][0]["components"][0]
+        component["template_id"] = "missing-component-template"
+        self.assertIn(
+            "broken_reference",
+            [problem.code for problem in graph_semantic_problems(graph)],
+        )
+        component["template_id"] = "linear-component"
 
         module = graph["stages"][0]["modules"][0]
         module["repeat"] = 3
@@ -183,6 +196,55 @@ class ValidationTests(unittest.TestCase):
         ]
         self.assertEqual(projection["analysis_by_metric"]["flops"], 3_623_878_656)
 
+        component_template_ids = {
+            template["template_id"] for template in graph["component_templates"]
+        }
+        self.assertEqual(
+            component_template_ids,
+            {
+                "layernorm-mha-self-attention",
+                "layernorm-gelu-feed-forward",
+                "rmsnorm-rope-mqa-prefill-attention",
+                "rmsnorm-rope-mqa-cached-attention",
+                "rmsnorm-gated-gelu-feed-forward",
+            },
+        )
+        transformer_templates = {
+            template["template_id"]: template
+            for template in graph["block_templates"]
+            if template["template_id"] in {
+                "siglip-transformer-block",
+                "gemma-prefix-block",
+                "gemma-action-expert-block",
+            }
+        }
+        self.assertTrue(all(
+            not template["operators"] and len(template["components"]) == 2
+            for template in transformer_templates.values()
+        ))
+        gemma_feed_forward_references = [
+            component["template_id"]
+            for template in transformer_templates.values()
+            if template["template_id"].startswith("gemma-")
+            for component in template["components"]
+            if component["component_id"] == "feed-forward"
+        ]
+        self.assertEqual(
+            gemma_feed_forward_references,
+            [
+                "rmsnorm-gated-gelu-feed-forward",
+                "rmsnorm-gated-gelu-feed-forward",
+            ],
+        )
+        nested_projection = materialized["operators_by_id"][
+            "action-flow-decoder/action-expert-blocks/self-attention/query-projection"
+        ]
+        self.assertEqual(
+            nested_projection["analysis_by_metric"]["flops"],
+            213_909_504,
+        )
+        self.assertEqual(nested_projection["effective_repeat"], 180)
+
         definitions = {
             definition["definition_id"]: definition
             for definition in graph["operator_definitions"]
@@ -194,11 +256,14 @@ class ValidationTests(unittest.TestCase):
             template for template in graph["block_templates"]
             if template["template_id"] == "gemma-prefix-block"
         )
+        prefix_attention = next(
+            template for template in graph["component_templates"]
+            if template["template_id"] == "rmsnorm-rope-mqa-prefill-attention"
+        )
         prefix_operators = {
             operator["operator_id"]: operator
-            for operator in prefix_template["operators"]
+            for operator in prefix_attention["operators"]
         }
-        self.assertNotIn("cache-norm", prefix_operators)
         self.assertEqual(
             prefix_operators["cache-output"]["inputs"],
             [
@@ -208,7 +273,7 @@ class ValidationTests(unittest.TestCase):
         )
         self.assertEqual(
             [axis["axis"] for axis in next(
-                tensor for tensor in prefix_template["tensors"]
+                tensor for tensor in prefix_attention["tensors"]
                 if tensor["tensor_id"] == "prefix-kv"
             )["axes"]],
             ["kv", "batch", "sequence", "kv_head", "head_dim"],
@@ -246,11 +311,6 @@ class ValidationTests(unittest.TestCase):
             template for template in graph["block_templates"]
             if template["template_id"] == "gemma-action-expert-block"
         )
-        action_operators = {
-            operator["operator_id"]: operator
-            for operator in action_template["operators"]
-        }
-        self.assertNotIn("select-action-rows", action_operators)
         self.assertEqual(
             [axis["axis"] for axis in next(
                 tensor for tensor in action_template["tensors"]
