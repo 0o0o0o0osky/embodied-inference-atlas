@@ -37,7 +37,7 @@
       "input_modalities": ["image", "language", "state"],
       "output_modalities": ["action_chunk"],
       "execution_modes": ["iterative_action_generation"],
-      "source_ids": ["source-flashrt", "source-vla-cpp", "source-vla-perf", "source-local-thor"]
+      "source_ids": ["source-flashrt", "source-vla-cpp", "source-vla-perf", "source-local-thor", "source-openpi"]
     },
     {
       "model_id": "pi05",

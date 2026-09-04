@@ -5,6 +5,7 @@
     "devices": {"data": "data/catalog/devices.json", "schema": "schema/catalog/devices.schema.json", "primary_key": "device_id"},
     "end_to_end": {"data": "data/measurements/end_to_end.json", "schema": "schema/measurements/end_to_end.schema.json", "primary_key": "measurement_id"},
     "models": {"data": "data/catalog/models.json", "schema": "schema/catalog/models.schema.json", "primary_key": "model_id"},
+    "model_graphs": {"data_glob": "data/model_graphs/*.json", "schema": "schema/model_graphs.schema.json", "primary_key": "model_graph_id"},
     "operators": {"data": "data/measurements/operators.json", "schema": "schema/measurements/operators.schema.json", "primary_key": "operator_id"},
     "rooflines": {"data": "data/measurements/rooflines.json", "schema": "schema/measurements/rooflines.schema.json", "primary_key": "roofline_id"},
     "runs": {"data": "data/measurements/runs.json", "schema": "schema/measurements/runs.schema.json", "primary_key": "run_id"},

@@ -586,7 +586,7 @@ def materialize_model_graph(
                     item = dict(metric)
                     item["value"] = evaluate_expression(metric.get("expression"), definition_bindings)
                     analysis.append(item)
-                    analysis_by_metric[item["metric"]] = item
+                    analysis_by_metric[item["metric"]] = item["value"]
                 operator_copy["analysis"] = analysis
                 operator_copy["analysis_by_metric"] = analysis_by_metric
                 operator_copy["effective_repeat"] = effective_repeat * operator_copy["multiplicity"]

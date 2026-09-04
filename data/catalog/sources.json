@@ -82,6 +82,15 @@
       "published_date": null,
       "accessed_date": "2026-09-03",
       "summary": ""
+    },
+    {
+      "source_id": "source-openpi",
+      "evidence": "reported_external",
+      "title": "OpenPI public repository",
+      "url": "https://github.com/Physical-Intelligence/openpi",
+      "published_date": null,
+      "accessed_date": "2026-09-04",
+      "summary": "Primary public implementation and configuration source for the Pi0 logical model definition."
     }
   ]
 }

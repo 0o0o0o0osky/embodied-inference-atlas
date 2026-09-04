@@ -105,6 +105,10 @@ def validate_references(datasets: Mapping[str, list[Mapping]]) -> list[Issue]:
         for edge_index, edge in enumerate(_mapping_list(record.get("edges"))):
             _check(issues, f"{base}.edges[{edge_index}].source", edge.get("source"), node_ids)
             _check(issues, f"{base}.edges[{edge_index}].target", edge.get("target"), node_ids)
+    for index, record in enumerate(datasets.get("model_graphs", [])):
+        base = f"$.model_graphs[{index}]"
+        _check(issues, f"{base}.model_id", record.get("model_id"), models)
+        _check_many(issues, f"{base}.source_ids", record.get("source_ids"), sources)
     for index, record in enumerate(datasets.get("systems", [])):
         _check_many(
             issues,

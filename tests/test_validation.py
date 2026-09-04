@@ -5,6 +5,7 @@ from pathlib import Path
 from tests.helpers import valid_model_document, valid_model_graph_document, valid_run
 from tools.lib.comparison import assign_group_ids, ratio_eligibility
 from tools.lib.contracts import validate_document
+from tools.lib.jsonio import load_json
 from tools.lib.model_graph import (
     graph_semantic_problems,
     materialize_model_graph,
@@ -116,6 +117,26 @@ class ValidationTests(unittest.TestCase):
             [problem.code for problem in graph_semantic_problems(graph)],
         )
 
+    def test_pi0_representative_workload_materializes(self):
+        document = load_json(ROOT / "data" / "model_graphs" / "pi0.json")
+        self.assertEqual(validate_document("model_graphs", document, ROOT), [])
+        graph = document["records"][0]
+        materialized = materialize_model_graph(
+            graph,
+            {"V": 3, "L_PROMPT": 20, "T_ACTION": 50, "N_DENOISE": 10},
+        )
+        self.assertEqual(materialized["bindings"]["S_PREFIX"], 788)
+        self.assertEqual(materialized["bindings"]["S_SUFFIX"], 51)
+        self.assertEqual(materialized["bindings"]["S_ATTENTION"], 839)
+        self.assertEqual(materialized["named_repeats"]["vision-blocks"], 27)
+        self.assertEqual(materialized["named_repeats"]["prefix-blocks"], 18)
+        self.assertEqual(materialized["named_repeats"]["action-expert-blocks"], 180)
+        self.assertEqual(materialized["graph_outputs"][0]["shape"], [1, 50, 32])
+        projection = materialized["operators_by_id"][
+            "vision-encoder/vision-projector/project"
+        ]
+        self.assertEqual(projection["analysis_by_metric"]["flops"], 3_623_878_656)
+
     def test_run_context_must_match(self):
         run = valid_run("run-context")
         document = {"schema_version": "1.0.0", "dataset": "runs", "records": [run]}
@@ -149,6 +170,8 @@ class ValidationTests(unittest.TestCase):
         self.assertEqual(validate_document("end_to_end", document, ROOT), [])
 
     def test_representative_reference_is_blocking(self):
+        model_graph = valid_model_graph_document()["records"][0]
+        model_graph["model_id"] = "model-test"
         datasets = {
             "sources": [{"source_id": "source-test"}],
             "models": [{
@@ -164,6 +187,7 @@ class ValidationTests(unittest.TestCase):
                 "edges": [],
                 "source_ids": ["source-test"],
             }],
+            "model_graphs": [model_graph],
             "devices": [{"device_id": "device-test"}],
             "systems": [{"system_id": "system-test", "device_ids": ["device-test"]}],
             "runtimes": [{

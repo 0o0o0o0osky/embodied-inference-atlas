@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from tools.lib.jsonio import load_json
+from tools.lib.model_graph import graph_semantic_problems
 
 
 @dataclass(frozen=True)
@@ -74,7 +75,16 @@ def validate_document(
         seen.add(key)
     for index, record in enumerate(document["records"]):
         if isinstance(record, Mapping):
-            if dataset == "runs":
+            if dataset == "model_graphs":
+                for problem in graph_semantic_problems(record):
+                    issues.append(
+                        Issue(
+                            f"$.records[{index}]{problem.path[1:]}",
+                            problem.code,
+                            problem.message,
+                        )
+                    )
+            elif dataset == "runs":
                 issues.extend(_validate_run_semantics(record, f"$.records[{index}]"))
             elif dataset in {"end_to_end", "stages", "operators", "rooflines"}:
                 issues.extend(
