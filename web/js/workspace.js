@@ -1164,6 +1164,23 @@
     "slice",
   ]);
   const PAPER_INLINE_DEFINITIONS = new Set(["residual-add", "elementwise-multiply"]);
+  const PAPER_STORAGE_NODE_IDS = new Set([
+    "prefix-encoder/prefix-blocks/self-attention/cache-output",
+  ]);
+  const PAPER_READ_PORT_NODE_IDS = new Map([
+    ["action-flow-decoder/action-expert-blocks/self-attention/extract-prefix-key", "K"],
+    ["action-flow-decoder/action-expert-blocks/self-attention/extract-prefix-value", "V"],
+  ]);
+
+  function paperNodeVisual(node) {
+    if (node.kind !== "operator") return "box";
+    if (PAPER_STORAGE_NODE_IDS.has(node.id)) return "storage";
+    if (PAPER_READ_PORT_NODE_IDS.has(node.id)) return "read-port";
+    if (PAPER_INLINE_DEFINITIONS.has(node.definitionId) || node.definitionId === "concat") {
+      return "inline";
+    }
+    return "box";
+  }
 
   function paperNodeAlias(node) {
     if (node.kind !== "operator") return PAPER_BOUNDARY_ALIASES[node.id] || node.kind;
@@ -1187,9 +1204,15 @@
   }
 
   function paperNodeSize(node, availableWidth, solo) {
-    const inline = node.kind === "operator" && PAPER_INLINE_DEFINITIONS.has(node.definitionId);
-    if (inline) {
+    const visual = paperNodeVisual(node);
+    if (visual === "inline") {
       return { width: 20, height: 20, compact: true, inline: true };
+    }
+    if (visual === "storage") {
+      return { width: Math.min(38, availableWidth), height: 26, compact: true, inline: false };
+    }
+    if (visual === "read-port") {
+      return { width: Math.min(26, availableWidth), height: 22, compact: true, inline: false };
     }
     const compact = node.kind !== "operator" || PAPER_COMPACT_DEFINITIONS.has(node.definitionId);
     const aliasWidth = Math.max(54, paperNodeAlias(node).length * 6.4 + 20);
@@ -1688,9 +1711,11 @@
   function renderDagNode(svg, node, box) {
     const alias = paperNodeAlias(node);
     const description = paperNodeDescription(node);
-    const inline = Boolean(box.inline);
+    const visual = paperNodeVisual(node);
+    const inline = visual === "inline";
+    const visualClass = visual === "box" ? "" : ` dag-node--${visual}`;
     const group = svgElement("g", {
-      class: `dag-node dag-node--${node.kind}${box.compact ? " dag-node--compact" : " dag-node--main"}${inline ? " dag-node--inline" : ""}`,
+      class: `dag-node dag-node--${node.kind}${box.compact ? " dag-node--compact" : " dag-node--main"}${visualClass}`,
       transform: `translate(${box.x} ${box.y})`,
       "data-node-id": node.id,
       "data-node-kind": node.kind,
@@ -1703,7 +1728,7 @@
       group.setAttribute("aria-label", `Inspect ${description}`);
     }
     if (inline) {
-      const symbol = node.definitionId === "residual-add" ? "+" : "×";
+      const symbol = node.definitionId === "residual-add" ? "+" : node.definitionId === "elementwise-multiply" ? "×" : "∥";
       group.append(
         svgElement("circle", {
           cx: box.width / 2,
@@ -1716,6 +1741,32 @@
           class: "dag-node-label dag-node-junction-label",
           "text-anchor": "middle",
         }, symbol),
+        svgElement("title", {}, description),
+      );
+    } else if (visual === "storage") {
+      group.append(
+        svgElement("ellipse", { cx: box.width / 2, cy: 4, rx: box.width / 2, ry: 4 }),
+        svgElement("rect", { x: 0, y: 4, width: box.width, height: 18 }),
+        svgElement("ellipse", { cx: box.width / 2, cy: 22, rx: box.width / 2, ry: 4 }),
+        svgElement("text", {
+          x: box.width / 2,
+          y: 14.5,
+          class: "dag-node-label",
+          "text-anchor": "middle",
+        }, "K/V"),
+        svgElement("title", {}, description),
+      );
+    } else if (visual === "read-port") {
+      group.append(
+        svgElement("polygon", {
+          points: `${box.width / 2},0 ${box.width},${box.height / 2} ${box.width / 2},${box.height} 0,${box.height / 2}`,
+        }),
+        svgElement("text", {
+          x: box.width / 2 - 1,
+          y: box.height / 2 + 4,
+          class: "dag-node-label",
+          "text-anchor": "middle",
+        }, PAPER_READ_PORT_NODE_IDS.get(node.id)),
         svgElement("title", {}, description),
       );
     } else {

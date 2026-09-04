@@ -918,7 +918,10 @@ body {
 }
 
 .dag-node rect,
-.dag-node--inline circle {
+.dag-node--inline circle,
+.dag-node--storage ellipse,
+.dag-node--storage rect,
+.dag-node--read-port polygon {
   fill: #fff;
   stroke: #9eb1bb;
   stroke-width: 1.2;
@@ -932,6 +935,12 @@ body {
 
 .dag-node--operator:hover rect,
 .dag-node--operator:focus-visible rect,
+.dag-node--storage:hover ellipse,
+.dag-node--storage:hover rect,
+.dag-node--storage:focus-visible ellipse,
+.dag-node--storage:focus-visible rect,
+.dag-node--read-port:hover polygon,
+.dag-node--read-port:focus-visible polygon,
 .dag-node--inline:hover circle,
 .dag-node--inline:focus-visible circle {
   fill: #f1f9f8;
@@ -939,14 +948,18 @@ body {
 }
 
 .dag-node.is-selected rect,
-.dag-node.is-selected circle {
+.dag-node.is-selected circle,
+.dag-node.is-selected ellipse,
+.dag-node.is-selected polygon {
   fill: #d9f1ee;
   stroke: var(--teal);
   stroke-width: 3;
 }
 
 .dag-node.is-related rect,
-.dag-node.is-related circle {
+.dag-node.is-related circle,
+.dag-node.is-related ellipse,
+.dag-node.is-related polygon {
   fill: #f0f9f7;
   stroke: #65aaa4;
   stroke-width: 1.8;
@@ -1255,7 +1268,10 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   .dag-node rect,
-  .dag-node--inline circle {
+  .dag-node--inline circle,
+  .dag-node--storage ellipse,
+  .dag-node--storage rect,
+  .dag-node--read-port polygon {
     transition: none;
   }
 }
