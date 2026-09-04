@@ -1,0 +1,42 @@
+:root {
+  color-scheme: light;
+  font-family: system-ui, sans-serif;
+  color: #18212f;
+  background: #f7f9fc;
+}
+
+body {
+  margin: 0;
+}
+
+.atlas-shell {
+  box-sizing: border-box;
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 3rem 1.5rem;
+}
+
+.atlas-title {
+  margin: 0;
+  font-size: clamp(2rem, 5vw, 3.5rem);
+}
+
+.atlas-lede {
+  max-width: 42rem;
+  line-height: 1.6;
+}
+
+.dataset-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: 0.75rem;
+  padding: 0;
+  list-style: none;
+}
+
+.dataset-list li {
+  padding: 0.8rem;
+  border: 1px solid #d8e0eb;
+  border-radius: 0.5rem;
+  background: #fff;
+}
