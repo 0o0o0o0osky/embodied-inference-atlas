@@ -49,7 +49,8 @@ def validate_document(
             "records": {"type": "array", "items": record_rule},
         },
     }
-    issues = _validate(document, wrapper_rule, "$")
+    schema_issues = _validate(document, wrapper_rule, "$")
+    issues = list(schema_issues)
     if not isinstance(document.get("records"), list):
         return issues
 
@@ -75,6 +76,15 @@ def validate_document(
         seen.add(key)
     for index, record in enumerate(document["records"]):
         if isinstance(record, Mapping):
+            record_path = f"$.records[{index}]"
+            has_schema_issues = any(
+                issue.path == record_path
+                or issue.path.startswith(f"{record_path}.")
+                or issue.path.startswith(f"{record_path}[")
+                for issue in schema_issues
+            )
+            if has_schema_issues:
+                continue
             if dataset == "model_graphs":
                 for problem in graph_semantic_problems(record):
                     issues.append(

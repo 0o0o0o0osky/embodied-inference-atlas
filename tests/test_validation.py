@@ -84,6 +84,96 @@ class ValidationTests(unittest.TestCase):
             [problem.code for problem in graph_semantic_problems(graph)],
         )
 
+    def test_model_graph_final_review_regressions(self):
+        document = valid_model_graph_document()
+        graph = document["records"][0]
+        graph["graph_inputs"] = None
+        try:
+            issues = validate_document("model_graphs", document, ROOT)
+        except TypeError as error:
+            self.fail(f"structural validation propagated TypeError: {error}")
+        self.assertEqual(
+            [(issue.path, issue.code) for issue in issues],
+            [("$.records[0].graph_inputs", "type")],
+        )
+        try:
+            problems = graph_semantic_problems(graph)
+        except TypeError as error:
+            self.fail(f"graph_semantic_problems propagated TypeError: {error}")
+        self.assertIn(
+            ("$.graph_inputs", "invalid_collection"),
+            [(problem.path, problem.code) for problem in problems],
+        )
+
+        graph = valid_model_graph_document()["records"][0]
+        module = graph["stages"][0]["modules"][0]
+        next(
+            binding for binding in module["bindings"]
+            if binding["symbol"] == "N"
+        )["expression"] = 9
+        with self.subTest(boundary="ordinary module output"):
+            self.assertIn(
+                (
+                    "$.stages[stage].modules[module].outputs[output]",
+                    "boundary_mismatch",
+                ),
+                [
+                    (problem.path, problem.code)
+                    for problem in graph_semantic_problems(graph)
+                ],
+            )
+
+        pi0_document = load_json(ROOT / "data" / "model_graphs" / "pi0.json")
+        pi0_graph = pi0_document["records"][0]
+        final_action = next(
+            tensor for tensor in pi0_graph["graph_tensors"]
+            if tensor["tensor_id"] == "final-action-state"
+        )
+        final_action["axes"][-1]["expression"] = 31
+        with self.subTest(boundary="loop-carried tensors"):
+            self.assertIn(
+                (
+                    "$.stages[action-flow-decoder].loop_carried",
+                    "boundary_mismatch",
+                ),
+                [
+                    (problem.path, problem.code)
+                    for problem in graph_semantic_problems(pi0_graph)
+                ],
+            )
+
+        graph = valid_model_graph_document()["records"][0]
+        graph["operator_definitions"][0]["analysis"][0]["expression"] = 2.5
+        with self.subTest(analysis_scope="definition"):
+            self.assertIn(
+                "invalid_count",
+                [problem.code for problem in graph_semantic_problems(graph)],
+            )
+
+        graph = valid_model_graph_document()["records"][0]
+        graph["operator_definitions"][0]["analysis"][0]["expression"] = {
+            "op": "sub",
+            "args": [2, {"symbol": "K"}],
+        }
+        operator = graph["component_templates"][0]["operators"][0]
+        next(
+            binding for binding in operator["bindings"]
+            if binding["symbol"] == "K"
+        )["expression"] = 8
+        with self.subTest(analysis_scope="actual operator bindings"):
+            self.assertIn(
+                "invalid_count",
+                [problem.code for problem in graph_semantic_problems(graph)],
+            )
+
+        pi0_graph = load_json(
+            ROOT / "data" / "model_graphs" / "pi0.json"
+        )["records"][0]
+        for symbol in ("N_DENOISE", "T_ACTION"):
+            with self.subTest(fractional_override=symbol):
+                with self.assertRaisesRegex(ValueError, "non-negative integer"):
+                    materialize_model_graph(pi0_graph, {symbol: 2.7})
+
     def test_model_graph_expression_and_internal_reference(self):
         document = valid_model_graph_document()
         graph = document["records"][0]
@@ -234,6 +324,18 @@ class ValidationTests(unittest.TestCase):
         self.assertEqual(materialized["named_repeats"]["prefix-blocks"], 18)
         self.assertEqual(materialized["named_repeats"]["action-expert-blocks"], 180)
         self.assertEqual(materialized["graph_outputs"][0]["shape"], [1, 50, 32])
+        vision_module = materialized["stages"][0]["modules"][1]
+        self.assertEqual(
+            vision_module["repeat_carried"],
+            {
+                "input_port": "input",
+                "output_port": "output",
+                "input_tensor_id": "vision-patch-tokens",
+                "output_tensor_id": "vision-block-output",
+                "input_shape": [1, 3, 256, 1152],
+                "output_shape": [1, 3, 256, 1152],
+            },
+        )
         projection = materialized["operators_by_id"][
             "vision-encoder/vision-projector/project"
         ]

@@ -7487,7 +7487,11 @@
                   "tensor_id": "vision-block-output"
                 }
               ],
-              "indexed_inputs": []
+              "indexed_inputs": [],
+              "repeat_carried": {
+                "input_port": "input",
+                "output_port": "output"
+              }
             },
             {
               "module_id": "vision-final-normalization",

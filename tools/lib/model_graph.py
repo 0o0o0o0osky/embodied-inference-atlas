@@ -26,6 +26,13 @@ def _finite_number(value: object, label: str) -> Number:
     return value
 
 
+def _non_negative_integer(value: object, label: str) -> int:
+    number = _finite_number(value, label)
+    if number < 0 or (isinstance(number, float) and not number.is_integer()):
+        raise ValueError(f"{label} must be a non-negative integer")
+    return int(number)
+
+
 def _add(values: list[Number]) -> Number:
     return sum(values)
 
@@ -172,8 +179,8 @@ def resolve_symbols(
                     raise ValueError(f"derived symbol declaration is invalid: {symbol}")
                 references = sorted(_symbol_references(expression))
                 value = evaluate_expression(expression, {name: resolve(name) for name in references})
-            resolved[symbol] = value
-            return value
+            resolved[symbol] = _non_negative_integer(value, f"symbol {symbol}")
+            return resolved[symbol]
         finally:
             resolving.pop()
 
@@ -184,6 +191,42 @@ def resolve_symbols(
 
 def _mapping_list(value: object) -> list[Mapping[str, object]]:
     return [item for item in value if isinstance(item, Mapping)] if isinstance(value, list) else []
+
+
+def _record_collection(
+    record: Mapping[str, object], field: str, problems: list[GraphProblem]
+) -> list[object]:
+    value = record.get(field)
+    if not isinstance(value, list):
+        problems.append(
+            GraphProblem(
+                f"$.{field}",
+                "invalid_collection",
+                f"{field} must be an array",
+            )
+        )
+        return []
+    return value
+
+
+def _parameter_names(
+    value: object, path: str, problems: list[GraphProblem]
+) -> list[str]:
+    if not isinstance(value, list):
+        problems.append(
+            GraphProblem(path, "invalid_collection", "parameters must be an array")
+        )
+        return []
+    names = [name for name in value if isinstance(name, str) and name]
+    if len(names) != len(value):
+        problems.append(
+            GraphProblem(path, "invalid_parameter", "parameters must be non-empty strings")
+        )
+    if len(names) != len(set(names)):
+        problems.append(
+            GraphProblem(path, "duplicate", "parameters must be unique")
+        )
+    return names
 
 
 def _ids(
@@ -239,11 +282,13 @@ def _validate_bindings(
         binding = actual.get(name) if isinstance(name, str) else None
         if binding is None:
             continue
-        value = _problem_value(
-            problems, f"{path}[{list(actual).index(name)}].expression",
-            lambda binding=binding: evaluate_expression(binding.get("expression"), environment),
+        value = _require_count(
+            binding.get("expression"),
+            environment,
+            f"{path}[{list(actual).index(name)}].expression",
+            problems,
         )
-        if _is_number(value):
+        if value is not None:
             values[name] = value
     return values
 
@@ -252,12 +297,13 @@ def _require_count(
     expression: object, environment: Mapping[str, Number], path: str, problems: list[GraphProblem]
 ) -> Number | None:
     value = _problem_value(problems, path, lambda: evaluate_expression(expression, environment))
-    if not _is_number(value):
+    if value is None:
         return None
-    if value < 0 or int(value) != value:
-        problems.append(GraphProblem(path, "invalid_count", "shape and repeat counts must be non-negative integers"))
+    try:
+        return _non_negative_integer(value, "count")
+    except ValueError as error:
+        problems.append(GraphProblem(path, "invalid_count", str(error)))
         return None
-    return value
 
 
 def _validate_axes(
@@ -316,14 +362,15 @@ def _concrete_shape(
         return None
     try:
         values = [
-            evaluate_expression(axis.get("expression"), environment)
+            _non_negative_integer(
+                evaluate_expression(axis.get("expression"), environment),
+                "tensor axis",
+            )
             for axis in _mapping_list(tensor.get("axes"))
         ]
     except ValueError:
         return None
-    if any(value < 0 or int(value) != value for value in values):
-        return None
-    return tuple(int(value) for value in values)
+    return tuple(values)
 
 
 def _canonical_number(value: Number) -> tuple[str, Number]:
@@ -412,7 +459,7 @@ def _validate_indexed_boundary(
     graph_tensor: Mapping[str, object] | None,
     template_tensor: Mapping[str, object] | None,
     graph_environment: Mapping[str, Number],
-    template_environment: Mapping[str, Number],
+    template_substitutions: Mapping[str, object],
     repeat: Number | None,
     path: str,
     code: str,
@@ -431,11 +478,12 @@ def _validate_indexed_boundary(
         )
         return
     aggregate_shape = _concrete_shape(graph_tensor, graph_environment)
-    element_shape = _concrete_shape(template_tensor, template_environment)
-    if aggregate_shape is None or element_shape is None:
-        return
     axis_index = axis_names.index(axis_name)
-    if repeat is not None and aggregate_shape[axis_index] != repeat:
+    if (
+        aggregate_shape is not None
+        and repeat is not None
+        and aggregate_shape[axis_index] != repeat
+    ):
         problems.append(
             GraphProblem(
                 path,
@@ -443,8 +491,15 @@ def _validate_indexed_boundary(
                 "indexed axis extent must equal the module repeat",
             )
         )
-    sliced_shape = aggregate_shape[:axis_index] + aggregate_shape[axis_index + 1 :]
-    if sliced_shape != element_shape:
+    sliced_shape = _symbolic_shape({
+        "axes": axes[:axis_index] + axes[axis_index + 1 :]
+    })
+    element_shape = _symbolic_shape(template_tensor, template_substitutions)
+    if (
+        sliced_shape is not None
+        and element_shape is not None
+        and sliced_shape != element_shape
+    ):
         problems.append(
             GraphProblem(
                 path,
@@ -556,9 +611,9 @@ def _validate_atomic_template(
     definitions: Mapping[str, Mapping[str, object]],
     problems: list[GraphProblem],
 ) -> None:
-    parameters = template.get("parameters")
-    if not isinstance(parameters, list) or len(parameters) != len(set(parameters)):
-        problems.append(GraphProblem(f"{template_path}.parameters", "duplicate", "template parameters must be unique"))
+    parameters = _parameter_names(
+        template.get("parameters"), f"{template_path}.parameters", problems
+    )
     template_environment = {name: 1 for name in parameters if isinstance(name, str)}
     tensors = _ids(template.get("tensors"), "tensor_id", f"{template_path}.tensors", problems)
     operators = _ids(template.get("operators"), "operator_id", f"{template_path}.operators", problems)
@@ -585,7 +640,27 @@ def _validate_atomic_template(
             problems.append(GraphProblem(f"{operator_path}.definition_id", "broken_reference", "operator definition does not resolve"))
             continue
         _require_count(operator.get("multiplicity"), template_environment, f"{operator_path}.multiplicity", problems)
-        _validate_bindings(operator.get("bindings"), definition.get("parameters"), template_environment, f"{operator_path}.bindings", problems)
+        definition_bindings = _validate_bindings(
+            operator.get("bindings"),
+            definition.get("parameters"),
+            template_environment,
+            f"{operator_path}.bindings",
+            problems,
+        )
+        definition_parameters = definition.get("parameters")
+        if isinstance(definition_parameters, list) and all(
+            isinstance(name, str) and name in definition_bindings
+            for name in definition_parameters
+        ):
+            for analysis_index, analysis in enumerate(
+                _mapping_list(definition.get("analysis"))
+            ):
+                _require_count(
+                    analysis.get("expression"),
+                    definition_bindings,
+                    f"{operator_path}.analysis[{analysis_index}].expression",
+                    problems,
+                )
         for direction, declared in (("inputs", definition.get("input_ports")), ("outputs", definition.get("output_ports"))):
             actual = _binding_map(operator.get(direction))
             expected = set(declared) if isinstance(declared, list) else set()
@@ -603,42 +678,56 @@ def _validate_atomic_template(
 def graph_semantic_problems(record: Mapping[str, object]) -> list[GraphProblem]:
     """Validate closed graph relationships and expression evaluation scopes."""
     problems: list[GraphProblem] = []
-    symbols = _mapping_list(record.get("shape_symbols"))
+    collections = {
+        field: _record_collection(record, field, problems)
+        for field in (
+            "shape_symbols",
+            "operator_definitions",
+            "component_templates",
+            "block_templates",
+            "graph_tensors",
+            "stages",
+            "graph_inputs",
+            "graph_outputs",
+        )
+    }
+    symbols = _mapping_list(collections["shape_symbols"])
     try:
         globals_ = resolve_symbols(symbols)
     except ValueError as error:
         problems.append(GraphProblem("$.shape_symbols", "invalid_symbols", str(error)))
         globals_ = {}
 
-    definitions = _ids(record.get("operator_definitions"), "definition_id", "$.operator_definitions", problems)
+    definitions = _ids(collections["operator_definitions"], "definition_id", "$.operator_definitions", problems)
     component_templates = _ids(
-        record.get("component_templates"),
+        collections["component_templates"],
         "template_id",
         "$.component_templates",
         problems,
     )
-    templates = _ids(record.get("block_templates"), "template_id", "$.block_templates", problems)
-    stages = _ids(record.get("stages"), "stage_id", "$.stages", problems)
-    graph_tensors = _ids(record.get("graph_tensors"), "tensor_id", "$.graph_tensors", problems)
-    graph_inputs = {value for value in record.get("graph_inputs", []) if isinstance(value, str)}
-    graph_outputs = {value for value in record.get("graph_outputs", []) if isinstance(value, str)}
+    templates = _ids(collections["block_templates"], "template_id", "$.block_templates", problems)
+    stages = _ids(collections["stages"], "stage_id", "$.stages", problems)
+    graph_tensors = _ids(collections["graph_tensors"], "tensor_id", "$.graph_tensors", problems)
+    graph_inputs = {value for value in collections["graph_inputs"] if isinstance(value, str)}
+    graph_outputs = {value for value in collections["graph_outputs"] if isinstance(value, str)}
     for field, values in (("graph_inputs", graph_inputs), ("graph_outputs", graph_outputs)):
         for tensor_id in values:
             if tensor_id not in graph_tensors:
                 problems.append(GraphProblem(f"$.{field}", "broken_reference", "graph tensor reference does not resolve"))
-    _validate_axes(record.get("graph_tensors"), globals_, "$.graph_tensors", problems)
+    _validate_axes(collections["graph_tensors"], globals_, "$.graph_tensors", problems)
 
     for definition_id, definition in definitions.items():
-        parameters = definition.get("parameters")
-        if len(parameters) != len(set(parameters)) if isinstance(parameters, list) else True:
-            problems.append(GraphProblem(f"$.operator_definitions[{definition_id}].parameters", "duplicate", "definition parameters must be unique"))
+        parameters = _parameter_names(
+            definition.get("parameters"),
+            f"$.operator_definitions[{definition_id}].parameters",
+            problems,
+        )
         for analysis_index, analysis in enumerate(_mapping_list(definition.get("analysis"))):
-            _problem_value(
-                problems,
+            _require_count(
+                analysis.get("expression"),
+                {name: 1 for name in parameters},
                 f"$.operator_definitions[{definition_id}].analysis[{analysis_index}].expression",
-                lambda analysis=analysis, parameters=parameters: evaluate_expression(
-                    analysis.get("expression"), {name: 1 for name in parameters if isinstance(name, str)}
-                ),
+                problems,
             )
 
     for template_id, template in component_templates.items():
@@ -651,9 +740,9 @@ def graph_semantic_problems(record: Mapping[str, object]) -> list[GraphProblem]:
 
     for template_id, template in templates.items():
         template_path = f"$.block_templates[{template_id}]"
-        parameters = template.get("parameters")
-        if not isinstance(parameters, list) or len(parameters) != len(set(parameters)):
-            problems.append(GraphProblem(f"{template_path}.parameters", "duplicate", "template parameters must be unique"))
+        parameters = _parameter_names(
+            template.get("parameters"), f"{template_path}.parameters", problems
+        )
         template_environment = {name: 1 for name in parameters if isinstance(name, str)}
         tensors = _ids(template.get("tensors"), "tensor_id", f"{template_path}.tensors", problems)
         operators = _ids(template.get("operators"), "operator_id", f"{template_path}.operators", problems)
@@ -681,7 +770,27 @@ def graph_semantic_problems(record: Mapping[str, object]) -> list[GraphProblem]:
                 problems.append(GraphProblem(f"{operator_path}.definition_id", "broken_reference", "operator definition does not resolve"))
                 continue
             _require_count(operator.get("multiplicity"), template_environment, f"{operator_path}.multiplicity", problems)
-            _validate_bindings(operator.get("bindings"), definition.get("parameters"), template_environment, f"{operator_path}.bindings", problems)
+            definition_bindings = _validate_bindings(
+                operator.get("bindings"),
+                definition.get("parameters"),
+                template_environment,
+                f"{operator_path}.bindings",
+                problems,
+            )
+            definition_parameters = definition.get("parameters")
+            if isinstance(definition_parameters, list) and all(
+                isinstance(name, str) and name in definition_bindings
+                for name in definition_parameters
+            ):
+                for analysis_index, analysis in enumerate(
+                    _mapping_list(definition.get("analysis"))
+                ):
+                    _require_count(
+                        analysis.get("expression"),
+                        definition_bindings,
+                        f"{operator_path}.analysis[{analysis_index}].expression",
+                        problems,
+                    )
             for direction, declared in (("inputs", definition.get("input_ports")), ("outputs", definition.get("output_ports"))):
                 actual = _binding_map(operator.get(direction))
                 expected = set(declared) if isinstance(declared, list) else set()
@@ -774,14 +883,57 @@ def graph_semantic_problems(record: Mapping[str, object]) -> list[GraphProblem]:
             )
             template_inputs = _binding_map(template.get("input_ports"))
             template_outputs = _binding_map(template.get("output_ports"))
+            template_tensors = {
+                item["tensor_id"]: item
+                for item in _mapping_list(template.get("tensors"))
+                if isinstance(item.get("tensor_id"), str)
+            }
+            binding_expressions = {
+                binding["symbol"]: binding.get("expression")
+                for binding in _mapping_list(module.get("bindings"))
+                if isinstance(binding.get("symbol"), str)
+            }
+            indexed_ports = {
+                annotation.get("port")
+                for annotation in _mapping_list(module.get("indexed_inputs"))
+                if isinstance(annotation.get("port"), str)
+            }
+            collected_ports = {
+                annotation.get("port")
+                for annotation in _mapping_list(module.get("collected_outputs"))
+                if isinstance(annotation.get("port"), str)
+            }
             for direction, ports in (("inputs", template.get("input_ports")), ("outputs", template.get("output_ports"))):
                 actual = _binding_map(module.get(direction))
-                expected = set(_binding_map(ports))
-                if set(actual) != expected:
+                expected = _binding_map(ports)
+                if set(actual) != set(expected):
                     problems.append(GraphProblem(f"{module_path}.{direction}", "invalid_port", "module ports must match the template"))
-                for binding in actual.values():
-                    if binding.get("tensor_id") not in graph_tensors:
+                aggregate_ports = indexed_ports if direction == "inputs" else collected_ports
+                for port, binding in actual.items():
+                    tensor_id = binding.get("tensor_id")
+                    if tensor_id not in graph_tensors:
                         problems.append(GraphProblem(f"{module_path}.{direction}", "broken_reference", "module tensor does not resolve"))
+                        continue
+                    template_binding = expected.get(port)
+                    if template_binding is None or port in aggregate_ports:
+                        continue
+                    graph_shape = _symbolic_shape(graph_tensors[tensor_id])
+                    template_shape = _symbolic_shape(
+                        template_tensors.get(template_binding.get("tensor_id")),
+                        binding_expressions,
+                    )
+                    if (
+                        graph_shape is not None
+                        and template_shape is not None
+                        and graph_shape != template_shape
+                    ):
+                        problems.append(
+                            GraphProblem(
+                                f"{module_path}.{direction}[{port}]",
+                                "boundary_mismatch",
+                                "module boundary tensor shapes must match",
+                            )
+                        )
             module_inputs = _binding_map(module.get("inputs"))
             module_outputs = _binding_map(module.get("outputs"))
             repeat_carried = module.get("repeat_carried")
@@ -812,11 +964,6 @@ def graph_semantic_problems(record: Mapping[str, object]) -> list[GraphProblem]:
                             problems.append(GraphProblem(carry_path, "invalid_repeat_carry", "repeat carry input and output tensors must be distinct"))
                         if isinstance(output_tensor_id, str):
                             repeat_carried_outputs.add(output_tensor_id)
-                        template_tensors = {
-                            item["tensor_id"]: item
-                            for item in _mapping_list(template.get("tensors"))
-                            if isinstance(item.get("tensor_id"), str)
-                        }
                         input_shapes = (
                             _concrete_shape(graph_tensors.get(input_tensor_id), globals_),
                             _concrete_shape(template_tensors.get(template_input_binding.get("tensor_id")), parameter_bindings),
@@ -843,17 +990,12 @@ def graph_semantic_problems(record: Mapping[str, object]) -> list[GraphProblem]:
                     problems.append(GraphProblem(indexed_path, "broken_reference", "indexed input does not resolve"))
                     continue
                 template_binding = template_inputs.get(port)
-                template_tensors = {
-                    item["tensor_id"]: item
-                    for item in _mapping_list(template.get("tensors"))
-                    if isinstance(item.get("tensor_id"), str)
-                }
                 _validate_indexed_boundary(
                     indexed,
                     graph_tensors.get(tensor_id),
                     template_tensors.get(template_binding.get("tensor_id")) if template_binding else None,
                     globals_,
-                    parameter_bindings,
+                    binding_expressions,
                     module_repeat,
                     indexed_path,
                     "invalid_indexed_input",
@@ -876,17 +1018,12 @@ def graph_semantic_problems(record: Mapping[str, object]) -> list[GraphProblem]:
                     problems.append(GraphProblem(collected_path, "broken_reference", "collected output does not resolve"))
                     continue
                 template_binding = template_outputs.get(port)
-                template_tensors = {
-                    item["tensor_id"]: item
-                    for item in _mapping_list(template.get("tensors"))
-                    if isinstance(item.get("tensor_id"), str)
-                }
                 _validate_indexed_boundary(
                     collected,
                     graph_tensors.get(tensor_id),
                     template_tensors.get(template_binding.get("tensor_id")) if template_binding else None,
                     globals_,
-                    parameter_bindings,
+                    binding_expressions,
                     module_repeat,
                     collected_path,
                     "invalid_collection",
@@ -917,6 +1054,18 @@ def graph_semantic_problems(record: Mapping[str, object]) -> list[GraphProblem]:
         if all(isinstance(value, str) and value in graph_tensors for value in (initial, iteration_input, iteration_output, final)):
             if len({initial, iteration_input, iteration_output, final}) != 4:
                 problems.append(GraphProblem(f"$.stages[{stage_id}].loop_carried", "invalid_loop", "loop tensors must be distinct"))
+            loop_shapes = tuple(
+                _symbolic_shape(graph_tensors[tensor_id])
+                for tensor_id in (initial, iteration_input, iteration_output, final)
+            )
+            if all(shape is not None for shape in loop_shapes) and len(set(loop_shapes)) != 1:
+                problems.append(
+                    GraphProblem(
+                        f"$.stages[{stage_id}].loop_carried",
+                        "boundary_mismatch",
+                        "loop-carried tensor shapes must match",
+                    )
+                )
             loop_endpoints.setdefault(initial, {"consumers": set()})["consumers"].add((loop_id, "initial"))
             loop_endpoints.setdefault(iteration_input, {})["producer"] = (loop_id, "iteration_input")
             loop_endpoints.setdefault(iteration_output, {"consumers": set()})["consumers"].add((loop_id, "iteration_output"))
@@ -925,7 +1074,7 @@ def graph_semantic_problems(record: Mapping[str, object]) -> list[GraphProblem]:
             loop_inputs.add(iteration_input)
             loop_outputs.add(iteration_output)
     _validate_ports_and_endpoints(
-        record.get("graph_tensors"), modules, "module", loop_inputs,
+        collections["graph_tensors"], modules, "module", loop_inputs,
         loop_outputs | repeat_carried_outputs,
         "$", problems, loop_endpoints,
     )
@@ -936,7 +1085,13 @@ def _concrete_tensors(tensors: object, environment: Mapping[str, Number]) -> lis
     result: list[dict[str, object]] = []
     for tensor in _mapping_list(tensors):
         copied = dict(tensor)
-        copied["shape"] = [int(evaluate_expression(axis.get("expression"), environment)) for axis in _mapping_list(tensor.get("axes"))]
+        copied["shape"] = [
+            _non_negative_integer(
+                evaluate_expression(axis.get("expression"), environment),
+                f"tensor {tensor.get('tensor_id')} axis {axis.get('axis')}",
+            )
+            for axis in _mapping_list(tensor.get("axes"))
+        ]
         result.append(copied)
     return result
 
@@ -959,15 +1114,17 @@ def _materialize_atomic_template(
             operator.get("bindings"), definition.get("parameters"), environment
         )
         operator_copy["bindings"] = definition_bindings
-        operator_copy["multiplicity"] = int(
-            evaluate_expression(operator.get("multiplicity"), environment)
+        operator_copy["multiplicity"] = _non_negative_integer(
+            evaluate_expression(operator.get("multiplicity"), environment),
+            f"operator {operator.get('operator_id')} multiplicity",
         )
         analysis = []
         analysis_by_metric: dict[str, object] = {}
         for metric in _mapping_list(definition.get("analysis")):
             item = dict(metric)
-            item["value"] = evaluate_expression(
-                metric.get("expression"), definition_bindings
+            item["value"] = _non_negative_integer(
+                evaluate_expression(metric.get("expression"), definition_bindings),
+                f"analysis {metric.get('metric')}",
             )
             analysis.append(item)
             analysis_by_metric[item["metric"]] = item["value"]
@@ -1005,14 +1162,20 @@ def materialize_model_graph(
     stages: list[dict[str, object]] = []
     for stage in _mapping_list(record.get("stages")):
         stage_copy = dict(stage)
-        stage_repeat = int(evaluate_expression(stage.get("repeat"), globals_))
+        stage_repeat = _non_negative_integer(
+            evaluate_expression(stage.get("repeat"), globals_),
+            f"stage {stage.get('stage_id')} repeat",
+        )
         stage_copy["stage_repeat"] = stage_repeat
         materialized_modules: list[dict[str, object]] = []
         for module in _mapping_list(stage.get("modules")):
             module_copy = dict(module)
             template = templates[module["template_id"]]
             parameter_bindings = _evaluate_bindings(module.get("bindings"), template.get("parameters"), globals_)
-            module_repeat = int(evaluate_expression(module.get("repeat"), globals_))
+            module_repeat = _non_negative_integer(
+                evaluate_expression(module.get("repeat"), globals_),
+                f"module {module.get('module_id')} repeat",
+            )
             effective_repeat = stage_repeat * module_repeat
             module_copy.update({"bindings": parameter_bindings, "module_repeat": module_repeat, "effective_repeat": effective_repeat})
             module_copy["inputs"] = _materialized_ports(module.get("inputs"), graph_shapes)
@@ -1091,7 +1254,10 @@ def materialize_model_graph(
 def _evaluate_bindings(bindings: object, expected: object, environment: Mapping[str, Number]) -> dict[str, Number]:
     actual = {item["symbol"]: item for item in _mapping_list(bindings)}
     return {
-        symbol: evaluate_expression(actual[symbol].get("expression"), environment)
+        symbol: _non_negative_integer(
+            evaluate_expression(actual[symbol].get("expression"), environment),
+            f"binding {symbol}",
+        )
         for symbol in expected if isinstance(expected, list)
     }
 

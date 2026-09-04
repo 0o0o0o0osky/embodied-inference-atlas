@@ -44,6 +44,14 @@
     return value;
   }
 
+  function nonNegativeInteger(value, label) {
+    const number = finiteNumber(value, label);
+    if (!Number.isInteger(number) || number < 0) {
+      throw new ExpressionError(`${label} must be a non-negative integer`);
+    }
+    return number;
+  }
+
   function evaluateExpression(expression, bindings) {
     if (typeof expression === "number") return finiteNumber(expression, "expression");
     if (!expression || typeof expression !== "object" || Array.isArray(expression)) {
@@ -111,9 +119,9 @@
     else unresolved.add(error.message || "invalid expression");
   }
 
-  function safelyEvaluate(expression, bindings, unresolved) {
+  function safelyEvaluateCount(expression, bindings, unresolved, label) {
     try {
-      return evaluateExpression(expression, bindings);
+      return nonNegativeInteger(evaluateExpression(expression, bindings), label);
     } catch (error) {
       recordExpressionError(error, unresolved);
       return null;
@@ -136,14 +144,19 @@
       let value = null;
       if (item.expression === null) {
         value = Object.prototype.hasOwnProperty.call(overrides, symbol) ? overrides[symbol] : item.default;
-        if (typeof value !== "number" || !Number.isFinite(value) || value < item.minimum || value > item.maximum) {
+        try {
+          value = nonNegativeInteger(value, `symbol ${symbol}`);
+        } catch (error) {
+          value = null;
+        }
+        if (value === null || value < item.minimum || value > item.maximum) {
           unresolved.add(symbol);
           value = null;
         }
       } else {
         const references = expressionSymbols(item.expression);
         const localBindings = Object.fromEntries(references.map((name) => [name, resolve(name)]));
-        value = safelyEvaluate(item.expression, localBindings, unresolved);
+        value = safelyEvaluateCount(item.expression, localBindings, unresolved, `symbol ${symbol}`);
       }
       resolving.pop();
       resolved[symbol] = value;
@@ -161,14 +174,22 @@
         unresolved.add(symbol);
         return [symbol, null];
       }
-      return [symbol, safelyEvaluate(actual[symbol].expression, environment, unresolved)];
+      return [
+        symbol,
+        safelyEvaluateCount(actual[symbol].expression, environment, unresolved, `binding ${symbol}`),
+      ];
     }));
   }
 
   function materializeTensors(tensors, environment, unresolved) {
     return (tensors || []).map((tensor) => {
       const tensorUnresolved = new Set();
-      const shape = tensor.axes.map((axis) => safelyEvaluate(axis.expression, environment, tensorUnresolved));
+      const shape = tensor.axes.map((axis) => safelyEvaluateCount(
+        axis.expression,
+        environment,
+        tensorUnresolved,
+        `tensor ${tensor.tensor_id} axis ${axis.axis}`,
+      ));
       tensorUnresolved.forEach((symbol) => unresolved.add(symbol));
       return { ...tensor, shape, unresolved_symbols: [...tensorUnresolved] };
     });
@@ -188,7 +209,12 @@
     const operators = template.operators.map((operator) => {
       const operatorUnresolved = new Set();
       const definition = definitionsById[operator.definition_id];
-      const multiplicity = safelyEvaluate(operator.multiplicity, environment, operatorUnresolved);
+      const multiplicity = safelyEvaluateCount(
+        operator.multiplicity,
+        environment,
+        operatorUnresolved,
+        `operator ${operator.operator_id} multiplicity`,
+      );
       const bindings = evaluateBindings(
         operator.bindings,
         definition ? definition.parameters : [],
@@ -197,7 +223,12 @@
       );
       const analysis = (definition ? definition.analysis : []).map((metric) => ({
         ...metric,
-        value: safelyEvaluate(metric.expression, bindings, operatorUnresolved),
+        value: safelyEvaluateCount(
+          metric.expression,
+          bindings,
+          operatorUnresolved,
+          `analysis ${metric.metric}`,
+        ),
       }));
       const key = `${keyPrefix}/${operator.operator_id}`;
       const operatorCopy = {
@@ -233,12 +264,20 @@
     const operatorsById = {};
     const namedRepeats = {};
     const stages = graph.stages.map((stage) => {
-      const stageRepeatValue = safelyEvaluate(stage.repeat, globals, unresolved);
-      const stageRepeat = stageRepeatValue === null ? null : Math.trunc(stageRepeatValue);
+      const stageRepeat = safelyEvaluateCount(
+        stage.repeat,
+        globals,
+        unresolved,
+        `stage ${stage.stage_id} repeat`,
+      );
       const modules = stage.modules.map((module) => {
         const template = blocksById[module.template_id];
-        const moduleRepeatValue = safelyEvaluate(module.repeat, globals, unresolved);
-        const moduleRepeat = moduleRepeatValue === null ? null : Math.trunc(moduleRepeatValue);
+        const moduleRepeat = safelyEvaluateCount(
+          module.repeat,
+          globals,
+          unresolved,
+          `module ${module.module_id} repeat`,
+        );
         const effectiveRepeat = stageRepeat === null || moduleRepeat === null ? null : stageRepeat * moduleRepeat;
         const moduleBindings = evaluateBindings(module.bindings, template.parameters, globals, unresolved);
         namedRepeats[module.module_id] = effectiveRepeat;
@@ -426,10 +465,14 @@
     return fact;
   }
 
-  function clampControlValue(item, value) {
-    if (!Number.isFinite(value)) return state.overrides[item.symbol];
-    const bounded = Math.min(item.maximum, Math.max(item.minimum, value));
-    return Number.isInteger(item.minimum) && Number.isInteger(item.maximum) ? Math.round(bounded) : bounded;
+  function validatedControlValue(item, value) {
+    try {
+      const count = nonNegativeInteger(value, `symbol ${item.symbol}`);
+      if (count < item.minimum || count > item.maximum) return state.overrides[item.symbol];
+      return count;
+    } catch (error) {
+      return state.overrides[item.symbol];
+    }
   }
 
   function renderControls() {
@@ -447,7 +490,8 @@
       input.step = "1";
       input.value = String(state.overrides[item.symbol]);
       input.addEventListener("change", () => {
-        const nextValue = clampControlValue(item, Number(input.value));
+        const enteredValue = input.value.trim() ? Number(input.value) : NaN;
+        const nextValue = validatedControlValue(item, enteredValue);
         state.overrides[item.symbol] = nextValue;
         input.value = String(nextValue);
         recompute();
