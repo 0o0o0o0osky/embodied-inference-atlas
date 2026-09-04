@@ -286,6 +286,70 @@ def _binding_map(bindings: object) -> dict[str, Mapping[str, object]]:
     }
 
 
+def _concrete_shape(
+    tensor: Mapping[str, object] | None, environment: Mapping[str, Number]
+) -> tuple[int, ...] | None:
+    if tensor is None:
+        return None
+    try:
+        values = [
+            evaluate_expression(axis.get("expression"), environment)
+            for axis in _mapping_list(tensor.get("axes"))
+        ]
+    except ValueError:
+        return None
+    if any(value < 0 or int(value) != value for value in values):
+        return None
+    return tuple(int(value) for value in values)
+
+
+def _validate_indexed_boundary(
+    annotation: Mapping[str, object],
+    graph_tensor: Mapping[str, object] | None,
+    template_tensor: Mapping[str, object] | None,
+    graph_environment: Mapping[str, Number],
+    template_environment: Mapping[str, Number],
+    repeat: Number | None,
+    path: str,
+    code: str,
+    problems: list[GraphProblem],
+) -> None:
+    axis_name = annotation.get("axis")
+    axes = _mapping_list(graph_tensor.get("axes")) if graph_tensor else []
+    axis_names = [axis.get("axis") for axis in axes]
+    if axis_name not in axis_names:
+        problems.append(
+            GraphProblem(
+                f"{path}.axis",
+                "broken_reference",
+                "indexed tensor axis does not resolve",
+            )
+        )
+        return
+    aggregate_shape = _concrete_shape(graph_tensor, graph_environment)
+    element_shape = _concrete_shape(template_tensor, template_environment)
+    if aggregate_shape is None or element_shape is None:
+        return
+    axis_index = axis_names.index(axis_name)
+    if repeat is not None and aggregate_shape[axis_index] != repeat:
+        problems.append(
+            GraphProblem(
+                path,
+                code,
+                "indexed axis extent must equal the module repeat",
+            )
+        )
+    sliced_shape = aggregate_shape[:axis_index] + aggregate_shape[axis_index + 1 :]
+    if sliced_shape != element_shape:
+        problems.append(
+            GraphProblem(
+                path,
+                code,
+                "indexed aggregate shape must match the template port shape",
+            )
+        )
+
+
 def _validate_ports_and_endpoints(
     tensors: object,
     nodes: Mapping[str, Mapping[str, object]],
@@ -452,6 +516,7 @@ def graph_semantic_problems(record: Mapping[str, object]) -> list[GraphProblem]:
         _validate_ports_and_endpoints(template.get("tensors"), operators, "operator", input_tensor_ids, output_tensor_ids, template_path, problems)
 
     modules: dict[str, Mapping[str, object]] = {}
+    repeat_carried_outputs: set[str] = set()
     for stage_id, stage in stages.items():
         stage_path = f"$.stages[{stage_id}]"
         _require_count(stage.get("repeat"), globals_, f"{stage_path}.repeat", problems)
@@ -465,8 +530,18 @@ def graph_semantic_problems(record: Mapping[str, object]) -> list[GraphProblem]:
             if template is None:
                 problems.append(GraphProblem(f"{module_path}.template_id", "broken_reference", "module template does not resolve"))
                 continue
-            _require_count(module.get("repeat"), globals_, f"{module_path}.repeat", problems)
-            _validate_bindings(module.get("bindings"), template.get("parameters"), globals_, f"{module_path}.bindings", problems)
+            module_repeat = _require_count(
+                module.get("repeat"), globals_, f"{module_path}.repeat", problems
+            )
+            parameter_bindings = _validate_bindings(
+                module.get("bindings"),
+                template.get("parameters"),
+                globals_,
+                f"{module_path}.bindings",
+                problems,
+            )
+            template_inputs = _binding_map(template.get("input_ports"))
+            template_outputs = _binding_map(template.get("output_ports"))
             for direction, ports in (("inputs", template.get("input_ports")), ("outputs", template.get("output_ports"))):
                 actual = _binding_map(module.get(direction))
                 expected = set(_binding_map(ports))
@@ -475,23 +550,116 @@ def graph_semantic_problems(record: Mapping[str, object]) -> list[GraphProblem]:
                 for binding in actual.values():
                     if binding.get("tensor_id") not in graph_tensors:
                         problems.append(GraphProblem(f"{module_path}.{direction}", "broken_reference", "module tensor does not resolve"))
+            module_inputs = _binding_map(module.get("inputs"))
+            module_outputs = _binding_map(module.get("outputs"))
+            repeat_carried = module.get("repeat_carried")
+            if repeat_carried is not None:
+                carry_path = f"{module_path}.repeat_carried"
+                if not isinstance(repeat_carried, Mapping):
+                    problems.append(GraphProblem(carry_path, "invalid_repeat_carry", "repeat carry must be an object or null"))
+                else:
+                    input_port = repeat_carried.get("input_port")
+                    output_port = repeat_carried.get("output_port")
+                    input_binding = module_inputs.get(input_port)
+                    output_binding = module_outputs.get(output_port)
+                    template_input_binding = template_inputs.get(input_port)
+                    template_output_binding = template_outputs.get(output_port)
+                    if (
+                        input_binding is None
+                        or output_binding is None
+                        or template_input_binding is None
+                        or template_output_binding is None
+                    ):
+                        problems.append(GraphProblem(carry_path, "invalid_repeat_carry", "repeat carry ports must resolve to module and template boundaries"))
+                    elif module_repeat is not None:
+                        if module_repeat <= 1:
+                            problems.append(GraphProblem(carry_path, "invalid_repeat_carry", "repeat carry requires a module repeat greater than one"))
+                        input_tensor_id = input_binding.get("tensor_id")
+                        output_tensor_id = output_binding.get("tensor_id")
+                        if input_tensor_id == output_tensor_id:
+                            problems.append(GraphProblem(carry_path, "invalid_repeat_carry", "repeat carry input and output tensors must be distinct"))
+                        if isinstance(output_tensor_id, str):
+                            repeat_carried_outputs.add(output_tensor_id)
+                        template_tensors = {
+                            item["tensor_id"]: item
+                            for item in _mapping_list(template.get("tensors"))
+                            if isinstance(item.get("tensor_id"), str)
+                        }
+                        input_shapes = (
+                            _concrete_shape(graph_tensors.get(input_tensor_id), globals_),
+                            _concrete_shape(template_tensors.get(template_input_binding.get("tensor_id")), parameter_bindings),
+                        )
+                        output_shapes = (
+                            _concrete_shape(graph_tensors.get(output_tensor_id), globals_),
+                            _concrete_shape(template_tensors.get(template_output_binding.get("tensor_id")), parameter_bindings),
+                        )
+                        if None not in input_shapes + output_shapes and (
+                            input_shapes[0] != input_shapes[1]
+                            or output_shapes[0] != output_shapes[1]
+                            or input_shapes[1] != output_shapes[1]
+                        ):
+                            problems.append(GraphProblem(carry_path, "invalid_repeat_carry", "repeat-carried hidden shapes must match"))
             for indexed_index, indexed in enumerate(_mapping_list(module.get("indexed_inputs"))):
                 indexed_path = f"{module_path}.indexed_inputs[{indexed_index}]"
                 port = indexed.get("port")
                 tensor_id = indexed.get("tensor_id")
-                axis = indexed.get("axis")
-                module_inputs = _binding_map(module.get("inputs"))
                 if (
                     port not in module_inputs
                     or module_inputs[port].get("tensor_id") != tensor_id
                     or tensor_id not in graph_tensors
                 ):
                     problems.append(GraphProblem(indexed_path, "broken_reference", "indexed input does not resolve"))
-                tensor = graph_tensors.get(tensor_id) if isinstance(tensor_id, str) else None
-                axes = {item.get("axis") for item in _mapping_list(tensor.get("axes"))} if tensor else set()
-                if axis not in axes:
-                    problems.append(GraphProblem(f"{indexed_path}.axis", "broken_reference", "indexed input axis does not resolve"))
-                _require_count(module.get("repeat"), globals_, f"{module_path}.repeat", problems)
+                    continue
+                template_binding = template_inputs.get(port)
+                template_tensors = {
+                    item["tensor_id"]: item
+                    for item in _mapping_list(template.get("tensors"))
+                    if isinstance(item.get("tensor_id"), str)
+                }
+                _validate_indexed_boundary(
+                    indexed,
+                    graph_tensors.get(tensor_id),
+                    template_tensors.get(template_binding.get("tensor_id")) if template_binding else None,
+                    globals_,
+                    parameter_bindings,
+                    module_repeat,
+                    indexed_path,
+                    "invalid_indexed_input",
+                    problems,
+                )
+            seen_collected_ports: set[str] = set()
+            for collected_index, collected in enumerate(_mapping_list(module.get("collected_outputs"))):
+                collected_path = f"{module_path}.collected_outputs[{collected_index}]"
+                port = collected.get("port")
+                tensor_id = collected.get("tensor_id")
+                if port in seen_collected_ports:
+                    problems.append(GraphProblem(collected_path, "duplicate", "collected output port must be unique"))
+                elif isinstance(port, str):
+                    seen_collected_ports.add(port)
+                if (
+                    port not in module_outputs
+                    or module_outputs[port].get("tensor_id") != tensor_id
+                    or tensor_id not in graph_tensors
+                ):
+                    problems.append(GraphProblem(collected_path, "broken_reference", "collected output does not resolve"))
+                    continue
+                template_binding = template_outputs.get(port)
+                template_tensors = {
+                    item["tensor_id"]: item
+                    for item in _mapping_list(template.get("tensors"))
+                    if isinstance(item.get("tensor_id"), str)
+                }
+                _validate_indexed_boundary(
+                    collected,
+                    graph_tensors.get(tensor_id),
+                    template_tensors.get(template_binding.get("tensor_id")) if template_binding else None,
+                    globals_,
+                    parameter_bindings,
+                    module_repeat,
+                    collected_path,
+                    "invalid_collection",
+                    problems,
+                )
 
     loop_endpoints: dict[str, dict[str, object]] = {}
     loop_inputs = set(graph_inputs)
@@ -525,7 +693,8 @@ def graph_semantic_problems(record: Mapping[str, object]) -> list[GraphProblem]:
             loop_inputs.add(iteration_input)
             loop_outputs.add(iteration_output)
     _validate_ports_and_endpoints(
-        record.get("graph_tensors"), modules, "module", loop_inputs, loop_outputs,
+        record.get("graph_tensors"), modules, "module", loop_inputs,
+        loop_outputs | repeat_carried_outputs,
         "$", problems, loop_endpoints,
     )
     return problems
@@ -551,6 +720,7 @@ def materialize_model_graph(
     globals_ = resolve_symbols(_mapping_list(record.get("shape_symbols")), overrides)
     graph_tensors = _concrete_tensors(record.get("graph_tensors"), globals_)
     graph_shapes = {tensor["tensor_id"]: tensor["shape"] for tensor in graph_tensors}
+    graph_tensors_by_id = {tensor["tensor_id"]: tensor for tensor in graph_tensors}
     templates = {item["template_id"]: item for item in _mapping_list(record.get("block_templates"))}
     definitions = {item["definition_id"]: item for item in _mapping_list(record.get("operator_definitions"))}
     named_repeats: dict[str, Number] = {}
@@ -570,6 +740,15 @@ def materialize_model_graph(
             module_copy.update({"bindings": parameter_bindings, "module_repeat": module_repeat, "effective_repeat": effective_repeat})
             module_copy["inputs"] = _materialized_ports(module.get("inputs"), graph_shapes)
             module_copy["outputs"] = _materialized_ports(module.get("outputs"), graph_shapes)
+            module_copy["indexed_inputs"] = _materialized_indexed_boundaries(
+                module.get("indexed_inputs"), graph_tensors_by_id
+            )
+            module_copy["collected_outputs"] = _materialized_indexed_boundaries(
+                module.get("collected_outputs"), graph_tensors_by_id
+            )
+            module_copy["repeat_carried"] = _materialized_repeat_carry(
+                module.get("repeat_carried"), module, graph_shapes
+            )
             named_repeats[module["module_id"]] = effective_repeat
             template_copy = dict(template)
             template_copy["tensors"] = _concrete_tensors(template.get("tensors"), parameter_bindings)
@@ -627,3 +806,40 @@ def _materialized_ports(bindings: object, shapes: Mapping[str, object]) -> list[
         item["shape"] = shapes[binding["tensor_id"]]
         result.append(item)
     return result
+
+
+def _materialized_indexed_boundaries(
+    annotations: object, tensors: Mapping[str, Mapping[str, object]]
+) -> list[dict[str, object]]:
+    result: list[dict[str, object]] = []
+    for annotation in _mapping_list(annotations):
+        item = dict(annotation)
+        tensor = tensors[annotation["tensor_id"]]
+        shape = tensor["shape"]
+        axes = [axis["axis"] for axis in _mapping_list(tensor.get("axes"))]
+        axis_index = axes.index(annotation["axis"])
+        item["shape"] = shape
+        item["element_shape"] = shape[:axis_index] + shape[axis_index + 1 :]
+        result.append(item)
+    return result
+
+
+def _materialized_repeat_carry(
+    repeat_carried: object,
+    module: Mapping[str, object],
+    shapes: Mapping[str, object],
+) -> dict[str, object] | None:
+    if not isinstance(repeat_carried, Mapping):
+        return None
+    item = dict(repeat_carried)
+    inputs = _binding_map(module.get("inputs"))
+    outputs = _binding_map(module.get("outputs"))
+    input_tensor_id = inputs[repeat_carried["input_port"]]["tensor_id"]
+    output_tensor_id = outputs[repeat_carried["output_port"]]["tensor_id"]
+    item.update({
+        "input_tensor_id": input_tensor_id,
+        "output_tensor_id": output_tensor_id,
+        "input_shape": shapes[input_tensor_id],
+        "output_shape": shapes[output_tensor_id],
+    })
+    return item

@@ -53,6 +53,52 @@ class ValidationTests(unittest.TestCase):
         )
 
         module = graph["stages"][0]["modules"][0]
+        module["repeat"] = 3
+        module["repeat_carried"] = {
+            "input_port": "input",
+            "output_port": "output",
+        }
+        graph["graph_outputs"] = []
+        self.assertEqual(graph_semantic_problems(graph), [])
+        materialized = materialize_model_graph(graph, {"V": 3})
+        carry = materialized["stages"][0]["modules"][0]["repeat_carried"]
+        self.assertEqual(carry["input_shape"], [1, 768, 8])
+        self.assertEqual(carry["output_shape"], [1, 768, 8])
+        module["repeat_carried"]["output_port"] = "missing"
+        self.assertIn(
+            "invalid_repeat_carry",
+            [problem.code for problem in graph_semantic_problems(graph)],
+        )
+        del module["repeat_carried"]
+        graph["graph_outputs"] = ["graph-output"]
+
+        original_output_axes = graph["graph_tensors"][1]["axes"]
+        graph["graph_tensors"][1]["axes"] = [
+            {"axis": "layer", "expression": 3},
+            *original_output_axes,
+        ]
+        module["collected_outputs"] = [{
+            "port": "output",
+            "tensor_id": "graph-output",
+            "axis": "layer",
+            "index_source": "module_repeat_index",
+        }]
+        self.assertEqual(graph_semantic_problems(graph), [])
+        materialized = materialize_model_graph(graph, {"V": 3})
+        collected = materialized["stages"][0]["modules"][0][
+            "collected_outputs"
+        ][0]
+        self.assertEqual(collected["shape"], [3, 1, 768, 8])
+        self.assertEqual(collected["element_shape"], [1, 768, 8])
+        graph["graph_tensors"][1]["axes"][0]["expression"] = 2
+        self.assertIn(
+            "invalid_collection",
+            [problem.code for problem in graph_semantic_problems(graph)],
+        )
+        del module["collected_outputs"]
+        module["repeat"] = 1
+        graph["graph_tensors"][1]["axes"] = original_output_axes
+
         module["indexed_inputs"] = [{
             "port": "input",
             "tensor_id": "graph-output",
@@ -136,6 +182,119 @@ class ValidationTests(unittest.TestCase):
             "vision-encoder/vision-projector/project"
         ]
         self.assertEqual(projection["analysis_by_metric"]["flops"], 3_623_878_656)
+
+        definitions = {
+            definition["definition_id"]: definition
+            for definition in graph["operator_definitions"]
+        }
+        self.assertEqual(len(definitions), 16)
+        self.assertEqual(definitions["slice"]["visualizer"], "basic")
+
+        prefix_template = next(
+            template for template in graph["block_templates"]
+            if template["template_id"] == "gemma-prefix-block"
+        )
+        prefix_operators = {
+            operator["operator_id"]: operator
+            for operator in prefix_template["operators"]
+        }
+        self.assertNotIn("cache-norm", prefix_operators)
+        self.assertEqual(
+            prefix_operators["cache-output"]["inputs"],
+            [
+                {"port": "left", "tensor_id": "key-rope"},
+                {"port": "right", "tensor_id": "value"},
+            ],
+        )
+        self.assertEqual(
+            [axis["axis"] for axis in next(
+                tensor for tensor in prefix_template["tensors"]
+                if tensor["tensor_id"] == "prefix-kv"
+            )["axes"]],
+            ["kv", "batch", "sequence", "kv_head", "head_dim"],
+        )
+        self.assertEqual(
+            [axis["axis"] for axis in next(
+                tensor for tensor in graph["graph_tensors"]
+                if tensor["tensor_id"] == "prefix-kv"
+            )["axes"]],
+            ["layer", "kv", "batch", "sequence", "kv_head", "head_dim"],
+        )
+
+        prefix_module = materialized["stages"][1]["modules"][1]
+        self.assertEqual(
+            prefix_module["repeat_carried"],
+            {
+                "input_port": "input",
+                "output_port": "hidden",
+                "input_tensor_id": "prefix-tokens",
+                "output_tensor_id": "prefix-stack-output",
+                "input_shape": [1, 788, 2048],
+                "output_shape": [1, 788, 2048],
+            },
+        )
+        self.assertEqual(
+            prefix_module["collected_outputs"][0]["shape"],
+            [18, 2, 1, 788, 1, 256],
+        )
+        self.assertEqual(
+            prefix_module["collected_outputs"][0]["element_shape"],
+            [2, 1, 788, 1, 256],
+        )
+
+        action_template = next(
+            template for template in graph["block_templates"]
+            if template["template_id"] == "gemma-action-expert-block"
+        )
+        action_operators = {
+            operator["operator_id"]: operator
+            for operator in action_template["operators"]
+        }
+        self.assertNotIn("select-action-rows", action_operators)
+        self.assertEqual(
+            [axis["axis"] for axis in next(
+                tensor for tensor in action_template["tensors"]
+                if tensor["tensor_id"] == "prefix-kv"
+            )["axes"]],
+            ["kv", "batch", "sequence", "kv_head", "head_dim"],
+        )
+        action_module = materialized["stages"][2]["modules"][1]
+        self.assertEqual(action_module["outputs"][0]["shape"], [1, 51, 1024])
+        self.assertEqual(action_module["repeat_carried"]["input_shape"], [1, 51, 1024])
+        self.assertEqual(action_module["repeat_carried"]["output_shape"], [1, 51, 1024])
+        self.assertEqual(
+            action_module["indexed_inputs"][0]["element_shape"],
+            [2, 1, 788, 1, 256],
+        )
+
+        update_template = next(
+            template for template in graph["block_templates"]
+            if template["template_id"] == "velocity-euler-update"
+        )
+        self.assertEqual(
+            [port["port"] for port in update_template["input_ports"]],
+            ["expert_hidden", "action_state"],
+        )
+        update_operators = {
+            operator["operator_id"]: operator
+            for operator in update_template["operators"]
+        }
+        self.assertEqual(
+            update_operators["select-action-rows"]["definition_id"],
+            "slice",
+        )
+        update_module = materialized["stages"][2]["modules"][2]
+        self.assertEqual(
+            [port["port"] for port in update_module["inputs"]],
+            ["expert_hidden", "action_state"],
+        )
+        update_tensors = {
+            tensor["tensor_id"]: tensor
+            for tensor in update_module["template"]["tensors"]
+        }
+        self.assertEqual(update_tensors["normalized"]["shape"], [1, 51, 1024])
+        self.assertEqual(update_tensors["action-hidden"]["shape"], [1, 50, 1024])
+        self.assertEqual(update_tensors["velocity"]["shape"], [1, 50, 32])
 
     def test_run_context_must_match(self):
         run = valid_run("run-context")

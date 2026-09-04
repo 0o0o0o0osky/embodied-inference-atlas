@@ -604,6 +604,21 @@
           "analysis": []
         },
         {
+          "definition_id": "slice",
+          "label": "Logical slice",
+          "category": "shape",
+          "formula_display": "Y = select a declared range along one axis of X",
+          "visualizer": "basic",
+          "parameters": [],
+          "input_ports": [
+            "input"
+          ],
+          "output_ports": [
+            "output"
+          ],
+          "analysis": []
+        },
+        {
           "definition_id": "sinusoidal-time-embedding",
           "label": "Sinusoidal time embedding",
           "category": "embedding",
@@ -2400,6 +2415,10 @@
           ],
           "output_ports": [
             {
+              "port": "hidden",
+              "tensor_id": "block-output"
+            },
+            {
               "port": "prefix_kv",
               "tensor_id": "prefix-kv"
             }
@@ -2502,19 +2521,19 @@
                   }
                 },
                 {
-                  "axis": "query_tokens",
+                  "axis": "query_sequence",
                   "expression": {
                     "symbol": "S"
                   }
                 },
                 {
-                  "axis": "query_heads",
+                  "axis": "query_head",
                   "expression": {
                     "symbol": "H"
                   }
                 },
                 {
-                  "axis": "head_width",
+                  "axis": "head_dim",
                   "expression": {
                     "symbol": "HD"
                   }
@@ -2545,19 +2564,19 @@
                   }
                 },
                 {
-                  "axis": "key_value_tokens",
+                  "axis": "sequence",
                   "expression": {
                     "symbol": "S"
                   }
                 },
                 {
-                  "axis": "kv_heads",
+                  "axis": "kv_head",
                   "expression": {
                     "symbol": "KVH"
                   }
                 },
                 {
-                  "axis": "head_width",
+                  "axis": "head_dim",
                   "expression": {
                     "symbol": "HD"
                   }
@@ -2588,19 +2607,19 @@
                   }
                 },
                 {
-                  "axis": "key_value_tokens",
+                  "axis": "sequence",
                   "expression": {
                     "symbol": "S"
                   }
                 },
                 {
-                  "axis": "kv_heads",
+                  "axis": "kv_head",
                   "expression": {
                     "symbol": "KVH"
                   }
                 },
                 {
-                  "axis": "head_width",
+                  "axis": "head_dim",
                   "expression": {
                     "symbol": "HD"
                   }
@@ -2616,6 +2635,11 @@
                   "node_kind": "operator",
                   "node_id": "attention",
                   "port": "value"
+                },
+                {
+                  "node_kind": "operator",
+                  "node_id": "cache-output",
+                  "port": "right"
                 }
               ]
             },
@@ -2674,19 +2698,19 @@
                   }
                 },
                 {
-                  "axis": "key_value_tokens",
+                  "axis": "sequence",
                   "expression": {
                     "symbol": "S"
                   }
                 },
                 {
-                  "axis": "kv_heads",
+                  "axis": "kv_head",
                   "expression": {
                     "symbol": "KVH"
                   }
                 },
                 {
-                  "axis": "head_width",
+                  "axis": "head_dim",
                   "expression": {
                     "symbol": "HD"
                   }
@@ -2702,6 +2726,11 @@
                   "node_kind": "operator",
                   "node_id": "attention",
                   "port": "key"
+                },
+                {
+                  "node_kind": "operator",
+                  "node_id": "cache-output",
+                  "port": "left"
                 }
               ]
             },
@@ -2717,19 +2746,19 @@
                   }
                 },
                 {
-                  "axis": "query_tokens",
+                  "axis": "query_sequence",
                   "expression": {
                     "symbol": "S"
                   }
                 },
                 {
-                  "axis": "query_heads",
+                  "axis": "query_head",
                   "expression": {
                     "symbol": "H"
                   }
                 },
                 {
-                  "axis": "head_width",
+                  "axis": "head_dim",
                   "expression": {
                     "symbol": "HD"
                   }
@@ -3083,184 +3112,7 @@
                 "node_id": "mlp-residual",
                 "port": "output"
               },
-              "consumers": [
-                {
-                  "node_kind": "operator",
-                  "node_id": "cache-norm",
-                  "port": "input"
-                }
-              ]
-            },
-            {
-              "tensor_id": "cache-norm-output",
-              "label": "Cache-normalized block output",
-              "semantic_role": "hidden",
-              "axes": [
-                {
-                  "axis": "batch",
-                  "expression": {
-                    "symbol": "B"
-                  }
-                },
-                {
-                  "axis": "tokens",
-                  "expression": {
-                    "symbol": "S"
-                  }
-                },
-                {
-                  "axis": "width",
-                  "expression": {
-                    "symbol": "D"
-                  }
-                }
-              ],
-              "producer": {
-                "node_kind": "operator",
-                "node_id": "cache-norm",
-                "port": "output"
-              },
-              "consumers": [
-                {
-                  "node_kind": "operator",
-                  "node_id": "cache-key-projection",
-                  "port": "input"
-                },
-                {
-                  "node_kind": "operator",
-                  "node_id": "cache-value-projection",
-                  "port": "input"
-                }
-              ]
-            },
-            {
-              "tensor_id": "cache-key",
-              "label": "Logical cache keys",
-              "semantic_role": "key",
-              "axes": [
-                {
-                  "axis": "batch",
-                  "expression": {
-                    "symbol": "B"
-                  }
-                },
-                {
-                  "axis": "key_value_tokens",
-                  "expression": {
-                    "symbol": "S"
-                  }
-                },
-                {
-                  "axis": "kv_heads",
-                  "expression": {
-                    "symbol": "KVH"
-                  }
-                },
-                {
-                  "axis": "head_width",
-                  "expression": {
-                    "symbol": "HD"
-                  }
-                }
-              ],
-              "producer": {
-                "node_kind": "operator",
-                "node_id": "cache-key-projection",
-                "port": "output"
-              },
-              "consumers": [
-                {
-                  "node_kind": "operator",
-                  "node_id": "cache-key-rope",
-                  "port": "input"
-                }
-              ]
-            },
-            {
-              "tensor_id": "cache-value",
-              "label": "Logical cache values",
-              "semantic_role": "value",
-              "axes": [
-                {
-                  "axis": "batch",
-                  "expression": {
-                    "symbol": "B"
-                  }
-                },
-                {
-                  "axis": "key_value_tokens",
-                  "expression": {
-                    "symbol": "S"
-                  }
-                },
-                {
-                  "axis": "kv_heads",
-                  "expression": {
-                    "symbol": "KVH"
-                  }
-                },
-                {
-                  "axis": "head_width",
-                  "expression": {
-                    "symbol": "HD"
-                  }
-                }
-              ],
-              "producer": {
-                "node_kind": "operator",
-                "node_id": "cache-value-projection",
-                "port": "output"
-              },
-              "consumers": [
-                {
-                  "node_kind": "operator",
-                  "node_id": "cache-output",
-                  "port": "right"
-                }
-              ]
-            },
-            {
-              "tensor_id": "cache-key-rope",
-              "label": "Rotated logical cache keys",
-              "semantic_role": "key",
-              "axes": [
-                {
-                  "axis": "batch",
-                  "expression": {
-                    "symbol": "B"
-                  }
-                },
-                {
-                  "axis": "key_value_tokens",
-                  "expression": {
-                    "symbol": "S"
-                  }
-                },
-                {
-                  "axis": "kv_heads",
-                  "expression": {
-                    "symbol": "KVH"
-                  }
-                },
-                {
-                  "axis": "head_width",
-                  "expression": {
-                    "symbol": "HD"
-                  }
-                }
-              ],
-              "producer": {
-                "node_kind": "operator",
-                "node_id": "cache-key-rope",
-                "port": "output"
-              },
-              "consumers": [
-                {
-                  "node_kind": "operator",
-                  "node_id": "cache-output",
-                  "port": "left"
-                }
-              ]
+              "consumers": []
             },
             {
               "tensor_id": "prefix-kv",
@@ -3278,19 +3130,19 @@
                   }
                 },
                 {
-                  "axis": "kv_heads",
-                  "expression": {
-                    "symbol": "KVH"
-                  }
-                },
-                {
-                  "axis": "key_value_tokens",
+                  "axis": "sequence",
                   "expression": {
                     "symbol": "S"
                   }
                 },
                 {
-                  "axis": "head_width",
+                  "axis": "kv_head",
+                  "expression": {
+                    "symbol": "KVH"
+                  }
+                },
+                {
+                  "axis": "head_dim",
                   "expression": {
                     "symbol": "HD"
                   }
@@ -3851,164 +3703,18 @@
               "bindings": []
             },
             {
-              "operator_id": "cache-norm",
-              "label": "Logical cache RMSNorm",
-              "definition_id": "rms-norm",
-              "multiplicity": 1,
-              "inputs": [
-                {
-                  "port": "input",
-                  "tensor_id": "block-output"
-                }
-              ],
-              "outputs": [
-                {
-                  "port": "output",
-                  "tensor_id": "cache-norm-output"
-                }
-              ],
-              "bindings": []
-            },
-            {
-              "operator_id": "cache-key-projection",
-              "label": "Logical cache key projection",
-              "definition_id": "linear",
-              "multiplicity": 1,
-              "inputs": [
-                {
-                  "port": "input",
-                  "tensor_id": "cache-norm-output"
-                }
-              ],
-              "outputs": [
-                {
-                  "port": "output",
-                  "tensor_id": "cache-key"
-                }
-              ],
-              "bindings": [
-                {
-                  "symbol": "M",
-                  "expression": {
-                    "op": "mul",
-                    "args": [
-                      {
-                        "symbol": "B"
-                      },
-                      {
-                        "symbol": "S"
-                      }
-                    ]
-                  }
-                },
-                {
-                  "symbol": "N",
-                  "expression": {
-                    "op": "mul",
-                    "args": [
-                      {
-                        "symbol": "KVH"
-                      },
-                      {
-                        "symbol": "HD"
-                      }
-                    ]
-                  }
-                },
-                {
-                  "symbol": "K",
-                  "expression": {
-                    "symbol": "D"
-                  }
-                }
-              ]
-            },
-            {
-              "operator_id": "cache-value-projection",
-              "label": "Logical cache value projection",
-              "definition_id": "linear",
-              "multiplicity": 1,
-              "inputs": [
-                {
-                  "port": "input",
-                  "tensor_id": "cache-norm-output"
-                }
-              ],
-              "outputs": [
-                {
-                  "port": "output",
-                  "tensor_id": "cache-value"
-                }
-              ],
-              "bindings": [
-                {
-                  "symbol": "M",
-                  "expression": {
-                    "op": "mul",
-                    "args": [
-                      {
-                        "symbol": "B"
-                      },
-                      {
-                        "symbol": "S"
-                      }
-                    ]
-                  }
-                },
-                {
-                  "symbol": "N",
-                  "expression": {
-                    "op": "mul",
-                    "args": [
-                      {
-                        "symbol": "KVH"
-                      },
-                      {
-                        "symbol": "HD"
-                      }
-                    ]
-                  }
-                },
-                {
-                  "symbol": "K",
-                  "expression": {
-                    "symbol": "D"
-                  }
-                }
-              ]
-            },
-            {
-              "operator_id": "cache-key-rope",
-              "label": "Logical cache key RoPE",
-              "definition_id": "rope",
-              "multiplicity": 1,
-              "inputs": [
-                {
-                  "port": "input",
-                  "tensor_id": "cache-key"
-                }
-              ],
-              "outputs": [
-                {
-                  "port": "output",
-                  "tensor_id": "cache-key-rope"
-                }
-              ],
-              "bindings": []
-            },
-            {
               "operator_id": "cache-output",
-              "label": "Collect logical K/V cache",
+              "label": "Stack attention key and value",
               "definition_id": "concat",
               "multiplicity": 1,
               "inputs": [
                 {
                   "port": "left",
-                  "tensor_id": "cache-key-rope"
+                  "tensor_id": "key-rope"
                 },
                 {
                   "port": "right",
-                  "tensor_id": "cache-value"
+                  "tensor_id": "value"
                 }
               ],
               "outputs": [
@@ -4675,7 +4381,6 @@
             "SQ",
             "SP",
             "SKV",
-            "TA",
             "D",
             "H",
             "KVH",
@@ -4694,8 +4399,8 @@
           ],
           "output_ports": [
             {
-              "port": "action_hidden",
-              "tensor_id": "action-output"
+              "port": "hidden",
+              "tensor_id": "block-output"
             }
           ],
           "tensors": [
@@ -4753,19 +4458,19 @@
                   }
                 },
                 {
-                  "axis": "kv_heads",
-                  "expression": {
-                    "symbol": "KVH"
-                  }
-                },
-                {
-                  "axis": "key_value_tokens",
+                  "axis": "sequence",
                   "expression": {
                     "symbol": "SP"
                   }
                 },
                 {
-                  "axis": "head_width",
+                  "axis": "kv_head",
+                  "expression": {
+                    "symbol": "KVH"
+                  }
+                },
+                {
+                  "axis": "head_dim",
                   "expression": {
                     "symbol": "HD"
                   }
@@ -4797,19 +4502,19 @@
                   }
                 },
                 {
-                  "axis": "kv_heads",
-                  "expression": {
-                    "symbol": "KVH"
-                  }
-                },
-                {
-                  "axis": "key_value_tokens",
+                  "axis": "sequence",
                   "expression": {
                     "symbol": "SP"
                   }
                 },
                 {
-                  "axis": "head_width",
+                  "axis": "kv_head",
+                  "expression": {
+                    "symbol": "KVH"
+                  }
+                },
+                {
+                  "axis": "head_dim",
                   "expression": {
                     "symbol": "HD"
                   }
@@ -4840,19 +4545,19 @@
                   }
                 },
                 {
-                  "axis": "kv_heads",
-                  "expression": {
-                    "symbol": "KVH"
-                  }
-                },
-                {
-                  "axis": "key_value_tokens",
+                  "axis": "sequence",
                   "expression": {
                     "symbol": "SP"
                   }
                 },
                 {
-                  "axis": "head_width",
+                  "axis": "kv_head",
+                  "expression": {
+                    "symbol": "KVH"
+                  }
+                },
+                {
+                  "axis": "head_dim",
                   "expression": {
                     "symbol": "HD"
                   }
@@ -4930,19 +4635,19 @@
                   }
                 },
                 {
-                  "axis": "query_tokens",
+                  "axis": "query_sequence",
                   "expression": {
                     "symbol": "SQ"
                   }
                 },
                 {
-                  "axis": "query_heads",
+                  "axis": "query_head",
                   "expression": {
                     "symbol": "H"
                   }
                 },
                 {
-                  "axis": "head_width",
+                  "axis": "head_dim",
                   "expression": {
                     "symbol": "HD"
                   }
@@ -4973,19 +4678,19 @@
                   }
                 },
                 {
-                  "axis": "key_value_tokens",
+                  "axis": "sequence",
                   "expression": {
                     "symbol": "SQ"
                   }
                 },
                 {
-                  "axis": "kv_heads",
+                  "axis": "kv_head",
                   "expression": {
                     "symbol": "KVH"
                   }
                 },
                 {
-                  "axis": "head_width",
+                  "axis": "head_dim",
                   "expression": {
                     "symbol": "HD"
                   }
@@ -5016,19 +4721,19 @@
                   }
                 },
                 {
-                  "axis": "key_value_tokens",
+                  "axis": "sequence",
                   "expression": {
                     "symbol": "SQ"
                   }
                 },
                 {
-                  "axis": "kv_heads",
+                  "axis": "kv_head",
                   "expression": {
                     "symbol": "KVH"
                   }
                 },
                 {
-                  "axis": "head_width",
+                  "axis": "head_dim",
                   "expression": {
                     "symbol": "HD"
                   }
@@ -5059,19 +4764,19 @@
                   }
                 },
                 {
-                  "axis": "query_tokens",
+                  "axis": "query_sequence",
                   "expression": {
                     "symbol": "SQ"
                   }
                 },
                 {
-                  "axis": "query_heads",
+                  "axis": "query_head",
                   "expression": {
                     "symbol": "H"
                   }
                 },
                 {
-                  "axis": "head_width",
+                  "axis": "head_dim",
                   "expression": {
                     "symbol": "HD"
                   }
@@ -5102,19 +4807,19 @@
                   }
                 },
                 {
-                  "axis": "key_value_tokens",
+                  "axis": "sequence",
                   "expression": {
                     "symbol": "SQ"
                   }
                 },
                 {
-                  "axis": "kv_heads",
+                  "axis": "kv_head",
                   "expression": {
                     "symbol": "KVH"
                   }
                 },
                 {
-                  "axis": "head_width",
+                  "axis": "head_dim",
                   "expression": {
                     "symbol": "HD"
                   }
@@ -5145,19 +4850,19 @@
                   }
                 },
                 {
-                  "axis": "kv_heads",
-                  "expression": {
-                    "symbol": "KVH"
-                  }
-                },
-                {
-                  "axis": "key_value_tokens",
+                  "axis": "sequence",
                   "expression": {
                     "symbol": "SKV"
                   }
                 },
                 {
-                  "axis": "head_width",
+                  "axis": "kv_head",
+                  "expression": {
+                    "symbol": "KVH"
+                  }
+                },
+                {
+                  "axis": "head_dim",
                   "expression": {
                     "symbol": "HD"
                   }
@@ -5188,19 +4893,19 @@
                   }
                 },
                 {
-                  "axis": "kv_heads",
-                  "expression": {
-                    "symbol": "KVH"
-                  }
-                },
-                {
-                  "axis": "key_value_tokens",
+                  "axis": "sequence",
                   "expression": {
                     "symbol": "SKV"
                   }
                 },
                 {
-                  "axis": "head_width",
+                  "axis": "kv_head",
+                  "expression": {
+                    "symbol": "KVH"
+                  }
+                },
+                {
+                  "axis": "head_dim",
                   "expression": {
                     "symbol": "HD"
                   }
@@ -5231,19 +4936,19 @@
                   }
                 },
                 {
-                  "axis": "query_tokens",
+                  "axis": "query_sequence",
                   "expression": {
                     "symbol": "SQ"
                   }
                 },
                 {
-                  "axis": "query_heads",
+                  "axis": "query_head",
                   "expression": {
                     "symbol": "H"
                   }
                 },
                 {
-                  "axis": "head_width",
+                  "axis": "head_dim",
                   "expression": {
                     "symbol": "HD"
                   }
@@ -5597,43 +5302,6 @@
                 "node_id": "mlp-residual",
                 "port": "output"
               },
-              "consumers": [
-                {
-                  "node_kind": "operator",
-                  "node_id": "select-action-rows",
-                  "port": "input"
-                }
-              ]
-            },
-            {
-              "tensor_id": "action-output",
-              "label": "Action-token rows",
-              "semantic_role": "hidden",
-              "axes": [
-                {
-                  "axis": "batch",
-                  "expression": {
-                    "symbol": "B"
-                  }
-                },
-                {
-                  "axis": "action_tokens",
-                  "expression": {
-                    "symbol": "TA"
-                  }
-                },
-                {
-                  "axis": "width",
-                  "expression": {
-                    "symbol": "D"
-                  }
-                }
-              ],
-              "producer": {
-                "node_kind": "operator",
-                "node_id": "select-action-rows",
-                "port": "output"
-              },
               "consumers": []
             }
           ],
@@ -5641,7 +5309,7 @@
             {
               "operator_id": "extract-prefix-key",
               "label": "Select cached prefix keys",
-              "definition_id": "reshape",
+              "definition_id": "slice",
               "multiplicity": 1,
               "inputs": [
                 {
@@ -5660,7 +5328,7 @@
             {
               "operator_id": "extract-prefix-value",
               "label": "Select cached prefix values",
-              "definition_id": "reshape",
+              "definition_id": "slice",
               "multiplicity": 1,
               "inputs": [
                 {
@@ -6266,25 +5934,6 @@
                 }
               ],
               "bindings": []
-            },
-            {
-              "operator_id": "select-action-rows",
-              "label": "Select action-token rows",
-              "definition_id": "reshape",
-              "multiplicity": 1,
-              "inputs": [
-                {
-                  "port": "input",
-                  "tensor_id": "block-output"
-                }
-              ],
-              "outputs": [
-                {
-                  "port": "output",
-                  "tensor_id": "action-output"
-                }
-              ],
-              "bindings": []
             }
           ]
         },
@@ -6293,6 +5942,7 @@
           "label": "Velocity projection and Euler update",
           "parameters": [
             "B",
+            "S",
             "T",
             "D",
             "DA"
@@ -6305,17 +5955,9 @@
             {
               "port": "action_state",
               "tensor_id": "action-state"
-            },
-            {
-              "port": "euler_velocity",
-              "tensor_id": "velocity"
             }
           ],
           "output_ports": [
-            {
-              "port": "velocity",
-              "tensor_id": "velocity"
-            },
             {
               "port": "updated_action_state",
               "tensor_id": "updated"
@@ -6334,9 +5976,9 @@
                   }
                 },
                 {
-                  "axis": "action_tokens",
+                  "axis": "suffix_tokens",
                   "expression": {
-                    "symbol": "T"
+                    "symbol": "S"
                   }
                 },
                 {
@@ -6400,6 +6042,43 @@
                   }
                 },
                 {
+                  "axis": "suffix_tokens",
+                  "expression": {
+                    "symbol": "S"
+                  }
+                },
+                {
+                  "axis": "width",
+                  "expression": {
+                    "symbol": "D"
+                  }
+                }
+              ],
+              "producer": {
+                "node_kind": "operator",
+                "node_id": "final-norm",
+                "port": "output"
+              },
+              "consumers": [
+                {
+                  "node_kind": "operator",
+                  "node_id": "select-action-rows",
+                  "port": "input"
+                }
+              ]
+            },
+            {
+              "tensor_id": "action-hidden",
+              "label": "Final normalized action-token rows",
+              "semantic_role": "hidden",
+              "axes": [
+                {
+                  "axis": "batch",
+                  "expression": {
+                    "symbol": "B"
+                  }
+                },
+                {
                   "axis": "action_tokens",
                   "expression": {
                     "symbol": "T"
@@ -6414,7 +6093,7 @@
               ],
               "producer": {
                 "node_kind": "operator",
-                "node_id": "final-norm",
+                "node_id": "select-action-rows",
                 "port": "output"
               },
               "consumers": [
@@ -6515,6 +6194,25 @@
               "bindings": []
             },
             {
+              "operator_id": "select-action-rows",
+              "label": "Select final action-token rows",
+              "definition_id": "slice",
+              "multiplicity": 1,
+              "inputs": [
+                {
+                  "port": "input",
+                  "tensor_id": "normalized"
+                }
+              ],
+              "outputs": [
+                {
+                  "port": "output",
+                  "tensor_id": "action-hidden"
+                }
+              ],
+              "bindings": []
+            },
+            {
               "operator_id": "velocity-projection",
               "label": "Velocity projection",
               "definition_id": "linear",
@@ -6522,7 +6220,7 @@
               "inputs": [
                 {
                   "port": "input",
-                  "tensor_id": "normalized"
+                  "tensor_id": "action-hidden"
                 }
               ],
               "outputs": [
@@ -6971,6 +6669,37 @@
           ]
         },
         {
+          "tensor_id": "prefix-stack-output",
+          "label": "Final prefix stack hidden state",
+          "semantic_role": "hidden",
+          "axes": [
+            {
+              "axis": "batch",
+              "expression": {
+                "symbol": "B"
+              }
+            },
+            {
+              "axis": "prefix_tokens",
+              "expression": {
+                "symbol": "S_PREFIX"
+              }
+            },
+            {
+              "axis": "width",
+              "expression": {
+                "symbol": "D_PREFIX"
+              }
+            }
+          ],
+          "producer": {
+            "node_kind": "module",
+            "node_id": "prefix-blocks",
+            "port": "hidden"
+          },
+          "consumers": []
+        },
+        {
           "tensor_id": "prefix-kv",
           "label": "Per-layer prefix K/V",
           "semantic_role": "kv_cache",
@@ -6992,19 +6721,19 @@
               }
             },
             {
-              "axis": "kv_heads",
-              "expression": {
-                "symbol": "N_KV_HEADS"
-              }
-            },
-            {
-              "axis": "prefix_tokens",
+              "axis": "sequence",
               "expression": {
                 "symbol": "S_PREFIX"
               }
             },
             {
-              "axis": "head_width",
+              "axis": "kv_head",
+              "expression": {
+                "symbol": "N_KV_HEADS"
+              }
+            },
+            {
+              "axis": "head_dim",
               "expression": {
                 "symbol": "D_HEAD"
               }
@@ -7062,7 +6791,7 @@
         },
         {
           "tensor_id": "action-expert-output",
-          "label": "Action expert action rows",
+          "label": "Final action expert suffix hidden state",
           "semantic_role": "hidden",
           "axes": [
             {
@@ -7072,9 +6801,9 @@
               }
             },
             {
-              "axis": "action_tokens",
+              "axis": "suffix_tokens",
               "expression": {
-                "symbol": "T_ACTION"
+                "symbol": "S_SUFFIX"
               }
             },
             {
@@ -7087,50 +6816,13 @@
           "producer": {
             "node_kind": "module",
             "node_id": "action-expert-blocks",
-            "port": "action_hidden"
+            "port": "hidden"
           },
           "consumers": [
             {
               "node_kind": "module",
               "node_id": "velocity-euler-update",
               "port": "expert_hidden"
-            }
-          ]
-        },
-        {
-          "tensor_id": "velocity",
-          "label": "Velocity",
-          "semantic_role": "velocity",
-          "axes": [
-            {
-              "axis": "batch",
-              "expression": {
-                "symbol": "B"
-              }
-            },
-            {
-              "axis": "action_tokens",
-              "expression": {
-                "symbol": "T_ACTION"
-              }
-            },
-            {
-              "axis": "latent_width",
-              "expression": {
-                "symbol": "D_LATENT_ACTION"
-              }
-            }
-          ],
-          "producer": {
-            "node_kind": "module",
-            "node_id": "velocity-euler-update",
-            "port": "velocity"
-          },
-          "consumers": [
-            {
-              "node_kind": "module",
-              "node_id": "velocity-euler-update",
-              "port": "euler_velocity"
             }
           ]
         },
@@ -7570,11 +7262,27 @@
               ],
               "outputs": [
                 {
+                  "port": "hidden",
+                  "tensor_id": "prefix-stack-output"
+                },
+                {
                   "port": "prefix_kv",
                   "tensor_id": "prefix-kv"
                 }
               ],
-              "indexed_inputs": []
+              "indexed_inputs": [],
+              "repeat_carried": {
+                "input_port": "input",
+                "output_port": "hidden"
+              },
+              "collected_outputs": [
+                {
+                  "port": "prefix_kv",
+                  "tensor_id": "prefix-kv",
+                  "axis": "layer",
+                  "index_source": "module_repeat_index"
+                }
+              ]
             }
           ]
         },
@@ -7681,12 +7389,6 @@
                   }
                 },
                 {
-                  "symbol": "TA",
-                  "expression": {
-                    "symbol": "T_ACTION"
-                  }
-                },
-                {
                   "symbol": "D",
                   "expression": {
                     "symbol": "D_ACTION"
@@ -7729,7 +7431,7 @@
               ],
               "outputs": [
                 {
-                  "port": "action_hidden",
+                  "port": "hidden",
                   "tensor_id": "action-expert-output"
                 }
               ],
@@ -7740,7 +7442,12 @@
                   "axis": "layer",
                   "index_source": "module_repeat_index"
                 }
-              ]
+              ],
+              "repeat_carried": {
+                "input_port": "suffix",
+                "output_port": "hidden"
+              },
+              "collected_outputs": []
             },
             {
               "module_id": "velocity-euler-update",
@@ -7752,6 +7459,12 @@
                   "symbol": "B",
                   "expression": {
                     "symbol": "B"
+                  }
+                },
+                {
+                  "symbol": "S",
+                  "expression": {
+                    "symbol": "S_SUFFIX"
                   }
                 },
                 {
@@ -7781,17 +7494,9 @@
                 {
                   "port": "action_state",
                   "tensor_id": "action-state"
-                },
-                {
-                  "port": "euler_velocity",
-                  "tensor_id": "velocity"
                 }
               ],
               "outputs": [
-                {
-                  "port": "velocity",
-                  "tensor_id": "velocity"
-                },
                 {
                   "port": "updated_action_state",
                   "tensor_id": "updated-action-state"
