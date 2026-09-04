@@ -1,5 +1,5 @@
 import type { RoutePatch } from "../../../app/routes";
-import type { RooflineOverviewItem } from "../presentation/viewModel";
+import type { RooflineLegacyInventory, RooflineOverviewItem } from "../presentation/viewModel";
 import { humanize } from "../presentation/viewModel";
 
 const QUESTIONS = {
@@ -11,9 +11,11 @@ const QUESTIONS = {
 
 export function RooflineOverview({
   items,
+  legacy,
   navigate,
 }: {
   items: readonly RooflineOverviewItem[];
+  legacy: RooflineLegacyInventory;
   navigate: (patch: RoutePatch, replace?: boolean) => void;
 }) {
   return (
@@ -45,6 +47,21 @@ export function RooflineOverview({
           </article>
         ))}
       </div>
+      <aside className="roofline-legacy-inventory" aria-labelledby="roofline-legacy-title">
+        <div>
+          <p>Isolated v2 migration inventory</p>
+          <h3 id="roofline-legacy-title">Legacy VLA-Perf component envelopes</h3>
+          <span>These one-to-one migrated envelopes retain legacy assumptions and never join the four current accounting planes.</span>
+        </div>
+        <dl>
+          <div><dt>All bases</dt><dd>{legacy.basisCount}</dd></div>
+          <div><dt>All points</dt><dd>{legacy.pointCount}</dd></div>
+          <div><dt>This model</dt><dd>{legacy.modelBasisCount} bases / {legacy.modelPointCount} points</dd></div>
+        </dl>
+        <button type="button" disabled={!legacy.firstModelBasisId} onClick={() => navigate({ rooflineLevel: "stage", basis: legacy.firstModelBasisId, entity: null, workload: null })}>
+          Open isolated legacy inventory →
+        </button>
+      </aside>
     </section>
   );
 }

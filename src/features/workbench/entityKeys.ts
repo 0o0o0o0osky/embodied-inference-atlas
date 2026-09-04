@@ -72,5 +72,9 @@ export function parseEntityKey(entity: string | null): ParsedEntityKey | null {
 
 export function logicalRefFromEntity(entity: string | null): string | null {
   const parsed = parseEntityKey(entity);
-  return parsed?.kind === "logical" ? parsed.logicalRef : null;
+  if (parsed?.kind !== "logical") return null;
+  // Task 5 briefly emitted attention component suffixes as if they were
+  // logical refs. Accept those old deep links, but resolve them to the real
+  // Task 2 operator ref; new links never emit the suffix.
+  return parsed.logicalRef.replace(/#(?:score|softmax|value|composite)$/, "");
 }

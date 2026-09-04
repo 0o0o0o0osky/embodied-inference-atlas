@@ -6,7 +6,7 @@ import type { CanonicalRecord } from "../../../types/atlas";
 import { attentionMetrics, type AttentionShape } from "../domain/attention";
 import { stageLowerBound } from "../domain/criticalPath";
 import { deriveRoofline } from "../domain/formulas";
-import { blockEncodingBytes, rawEncodingBytes } from "../domain/storage";
+import { rawBytes } from "../domain/storage";
 import type {
   ComputeClass,
   PrecisionSegment,
@@ -28,6 +28,11 @@ export interface InteractiveWorkload {
   denoiseSteps: number;
 }
 
+export interface InteractiveWorkloadBounds {
+  promptMinimum: number;
+  promptMaximum: number | null;
+}
+
 export interface InteractiveMaterialization {
   scenario: RooflineScenarioRecord;
   bases: readonly RooflineBasisRecord[];
@@ -40,18 +45,41 @@ function safePositive(value: number, label: string) {
   return value;
 }
 
-function encodingBytes(values: number, encoding: TensorEncoding) {
-  if (encoding.padding === "none") {
-    return rawEncodingBytes(values, encoding.bits_per_value, encoding.tensor_scale_bytes);
+function safeIntegerInRange(value: number, minimum: number, maximum: number | null, label: string) {
+  if (!Number.isSafeInteger(value) || value < minimum || (maximum !== null && value > maximum)) {
+    throw new Error(`${label} must be a safe integer in its model-graph range`);
   }
-  return blockEncodingBytes(
-    values,
-    encoding.block_values!,
-    encoding.packed_data_bytes_per_block!,
-    encoding.scale_bytes_per_block,
-    encoding.zero_point_bytes_per_block,
-    encoding.tensor_scale_bytes,
-  );
+  return value;
+}
+
+function encodingTraffic(
+  values: number,
+  encoding: TensorEncoding,
+  baseKind: string,
+  tensorRef: string,
+  prefix: string,
+  provenance: Provenance,
+  calls: number,
+): TrafficComponent[] {
+  if (encoding.padding === "none") {
+    const components = [traffic(`${prefix}-data`, baseKind, rawBytes(values, encoding.bits_per_value) * calls, tensorRef, provenance)];
+    if (encoding.tensor_scale_bytes) {
+      components.push(traffic(`${prefix}-tensor-scale`, "scale_read", encoding.tensor_scale_bytes * calls, tensorRef, provenance));
+    }
+    return components;
+  }
+  const blocks = Math.ceil(values / encoding.block_values!);
+  const validData = rawBytes(values, encoding.bits_per_value);
+  const packedData = blocks * encoding.packed_data_bytes_per_block!;
+  const components = [traffic(`${prefix}-packed-data`, baseKind, validData * calls, tensorRef, provenance)];
+  if (packedData > validData) {
+    components.push(traffic(`${prefix}-padding`, "padding_overfetch", (packedData - validData) * calls, tensorRef, provenance));
+  }
+  const scale = (blocks * encoding.scale_bytes_per_block + encoding.tensor_scale_bytes) * calls;
+  if (scale) components.push(traffic(`${prefix}-scales`, "scale_read", scale, tensorRef, provenance));
+  const zeroPoint = blocks * encoding.zero_point_bytes_per_block * calls;
+  if (zeroPoint) components.push(traffic(`${prefix}-zero-points`, "zero_point_read", zeroPoint, tensorRef, provenance));
+  return components;
 }
 
 function tensorValues(shape: readonly (number | null)[]) {
@@ -125,6 +153,7 @@ function basePoint(
   entityId: string,
   label: string,
   shape: string,
+  coverageKey: string,
   workComponents: readonly WorkComponent[],
   trafficComponents: readonly TrafficComponent[],
   status: "complete" | "partial_lower_bound",
@@ -140,7 +169,7 @@ function basePoint(
   }
   return {
     schema_version: "2.0.0", point_id: id, basis_id: basisId,
-    entity: { kind: "atomic_operator", entity_id: entityId, label, shape_or_coverage: shape, logical_refs: [detail.ref], coverage_key: `logical:${detail.ref}|entity:${entityId}|shape:${shape}` },
+    entity: { kind: "atomic_operator", entity_id: entityId, label, shape_or_coverage: shape, logical_refs: [detail.ref], coverage_key: coverageKey },
     calls: detail.effectiveRepeat!, values_scope: "all_calls",
     work: { components: workComponents, total_flop: workComponents.reduce((sum, item) => sum + item.flop, 0) },
     traffic: { memory_domain: "system_memory", value_kind: "modeled", components: trafficComponents, excluded_internal: [], total_byte: trafficComponents.reduce((sum, item) => sum + item.byte, 0) },
@@ -171,15 +200,17 @@ function linearPoint(
   if (dequant.floating_flop_per_weight || dequant.integer_op_per_weight) {
     components.push(work(`${detail.ref}:dequant`, "dequant", "tensor_bf16_dense", weights * calls * dequant.floating_flop_per_weight, provenance, weights * calls * dequant.integer_op_per_weight));
   }
+  const prefix = safeId(detail.ref);
   const trafficComponents = [
-    traffic(`${detail.ref}:input`, "input_read", encodingBytes(m * k, segment.activation) * calls, `${detail.ref}:input`, provenance),
-    traffic(`${detail.ref}:weight`, "weight_read", encodingBytes(weights, segment.weight) * calls, `${detail.ref}:weight`, provenance),
-    traffic(`${detail.ref}:output`, "boundary_output_write", encodingBytes(m * n, segment.output) * calls, `${detail.ref}:output`, provenance),
+    ...encodingTraffic(m * k, segment.activation, "input_read", `${detail.ref}:input`, `${prefix}-input`, provenance, calls),
+    ...encodingTraffic(weights, segment.weight, "weight_read", `${detail.ref}:weight`, `${prefix}-weight`, provenance, calls),
+    ...encodingTraffic(m * n, segment.output, "boundary_output_write", `${detail.ref}:output`, `${prefix}-output`, provenance, calls),
   ];
   const partial = dequant.integer_op_per_weight > 0;
   return basePoint(
     `point-${modelId}-${pathId}-atomic-interactive-${safeId(detail.ref)}`,
     basisId, detail, detail.ref, detail.label, `[${m},${k}] @ [${k},${n}] × ${calls} calls`,
+    `logical:${detail.ref}|shape:${m}x${k}x${n}|calls:${calls}`,
     components, trafficComponents, partial ? "partial_lower_bound" : "complete", provenance, rates, bandwidth,
     partial ? "Packed-weight integer unpack operations are counted but have no separate execution-rate ceiling." : null,
   );
@@ -225,28 +256,30 @@ function attentionPoints(
   const scoreSegment = partSegments?.[0] ?? segment;
   const valueSegment = partSegments?.at(-1) ?? segment;
   const scoreWork = [work(`${detail.ref}:score`, "attention_score", scoreSegment.compute_class, metrics.scoreFlop * calls, provenance)];
+  const prefix = safeId(detail.ref);
   const scoreTraffic = [
-    traffic(`${detail.ref}:score-q`, "input_read", encodingBytes(q, scoreSegment.activation) * calls, `${detail.ref}:Q`, provenance),
-    traffic(`${detail.ref}:score-k`, "input_read", encodingBytes(kv, scoreSegment.activation) * calls, `${detail.ref}:K`, provenance),
-    traffic(`${detail.ref}:score-logits`, "boundary_output_write", encodingBytes(scores, scoreSegment.output) * calls, `${detail.ref}:logits`, provenance),
+    ...encodingTraffic(q, scoreSegment.activation, "input_read", `${detail.ref}:Q`, `${prefix}-score-q`, provenance, calls),
+    ...encodingTraffic(kv, scoreSegment.activation, "input_read", `${detail.ref}:K`, `${prefix}-score-k`, provenance, calls),
+    ...encodingTraffic(scores, scoreSegment.output, "boundary_output_write", `${detail.ref}:logits`, `${prefix}-score-logits`, provenance, calls),
   ];
   const softWork = [
     work(`${detail.ref}:scale`, "attention_scale_mask", null, metrics.scaleScalarFlop * calls, provenance),
     work(`${detail.ref}:softmax`, "attention_softmax", null, metrics.softmaxScalarFlop * calls, provenance, 0, metrics.comparisonOps * calls, metrics.transcendentalOps * calls),
   ];
   const softTraffic = [
-    traffic(`${detail.ref}:softmax-logits`, "input_read", encodingBytes(scores, scoreSegment.activation) * calls, `${detail.ref}:logits`, provenance),
-    traffic(`${detail.ref}:softmax-probabilities`, "boundary_output_write", encodingBytes(scores, scoreSegment.output) * calls, `${detail.ref}:probabilities`, provenance),
+    ...encodingTraffic(scores, scoreSegment.activation, "input_read", `${detail.ref}:logits`, `${prefix}-softmax-logits`, provenance, calls),
+    ...encodingTraffic(scores, scoreSegment.output, "boundary_output_write", `${detail.ref}:probabilities`, `${prefix}-softmax-prob`, provenance, calls),
   ];
   const valueWork = [work(`${detail.ref}:value`, "attention_value", valueSegment.compute_class, metrics.valueFlop * calls, provenance)];
   const valueTraffic = [
-    traffic(`${detail.ref}:value-probabilities`, "input_read", encodingBytes(scores, valueSegment.activation) * calls, `${detail.ref}:probabilities`, provenance),
-    traffic(`${detail.ref}:value-v`, "input_read", encodingBytes(kv, valueSegment.activation) * calls, `${detail.ref}:V`, provenance),
-    traffic(`${detail.ref}:value-o`, "boundary_output_write", encodingBytes(q, valueSegment.output) * calls, `${detail.ref}:O`, provenance),
+    ...encodingTraffic(scores, valueSegment.activation, "input_read", `${detail.ref}:probabilities`, `${prefix}-value-prob`, provenance, calls),
+    ...encodingTraffic(kv, valueSegment.activation, "input_read", `${detail.ref}:V`, `${prefix}-value-v`, provenance, calls),
+    ...encodingTraffic(q, valueSegment.output, "boundary_output_write", `${detail.ref}:O`, `${prefix}-value-o`, provenance, calls),
   ];
   const make = (suffix: string, label: string, components: WorkComponent[], bytes: TrafficComponent[], partial = false) => basePoint(
     `point-${modelId}-${pathId}-atomic-interactive-${safeId(detail.ref)}-${suffix}`,
     basisId, detail, `${detail.ref}#${suffix}`, `${detail.label} · ${label}`, shapeLabel,
+    `logical:${detail.ref}|part:${suffix}|shape:${shapeLabel}`,
     components, bytes, partial ? "partial_lower_bound" : "complete", provenance, rates, bandwidth,
     partial ? "Scalar comparison and SFU ceilings are unavailable." : null,
   );
@@ -264,7 +297,7 @@ function safeId(value: string) {
 
 function projectedEdges(dag: LogicalDag, refs: ReadonlySet<string>) {
   const adjacency = new Map<string, string[]>();
-  dag.edges.filter((edge) => edge.kind !== "feedback").forEach((edge) => {
+  dag.edges.filter((edge) => edge.kind === "tensor").forEach((edge) => {
     adjacency.set(edge.source, [...(adjacency.get(edge.source) ?? []), edge.target]);
   });
   const edges: { source: string; target: string }[] = [];
@@ -337,6 +370,8 @@ export function materializeInteractiveRoofline(
   workloadInput: InteractiveWorkload,
   realizationRecord: CanonicalRecord | null = null,
 ): InteractiveMaterialization {
+  const graphContract = adaptV1ModelGraph(graphRecord);
+  const promptContract = graphContract.editableSymbols.find((symbol) => symbol.symbol === "L_PROMPT");
   const runtimeMixed = sourceScenario.precision_path.precision_path_id === "runtime_mixed";
   const realization = runtimeMixed && realizationRecord ? adaptRuntimeRealization(realizationRecord) : null;
   const expectedRealizationId = sourceScenario.precision_path.realization_ids[0] ?? null;
@@ -347,7 +382,12 @@ export function materializeInteractiveRoofline(
     ...sourceScenario.workload,
     active_camera_views: safePositive(workloadInput.executedCameraViews, "camera views"),
     executed_camera_views: workloadInput.executedCameraViews,
-    executed_prompt_tokens: safePositive(workloadInput.executedPromptTokens, "prompt tokens"),
+    executed_prompt_tokens: safeIntegerInRange(
+      workloadInput.executedPromptTokens,
+      promptContract?.minimum ?? 1,
+      promptContract?.maximum ?? null,
+      "prompt tokens",
+    ),
     action_horizon: safePositive(workloadInput.actionHorizon, "action horizon"),
     denoise_steps: safePositive(workloadInput.denoiseSteps, "denoise steps"),
   };
@@ -397,15 +437,27 @@ export function materializeInteractiveRoofline(
   return { scenario, bases, points: [...atomic, ...stages], materializationId };
 }
 
-export function parseInteractiveWorkload(value: string | null, fallback: RooflineWorkload): InteractiveWorkload {
+export function parseInteractiveWorkload(
+  value: string | null,
+  fallback: RooflineWorkload,
+  bounds: InteractiveWorkloadBounds = { promptMinimum: 1, promptMaximum: null },
+): InteractiveWorkload {
   const defaults = { executedCameraViews: fallback.executed_camera_views, executedPromptTokens: fallback.executed_prompt_tokens, actionHorizon: fallback.action_horizon, denoiseSteps: fallback.denoise_steps };
   if (!value) return defaults;
   const values = Object.fromEntries(value.split(",").map((part) => part.split("=", 2)));
-  const read = (key: string, current: number) => {
-    const parsed = Number(values[key]);
-    return Number.isSafeInteger(parsed) && parsed > 0 ? parsed : current;
+  const read = (keys: readonly string[], current: number, minimum = 1, maximum: number | null = null) => {
+    const raw = keys.map((key) => values[key]).find((candidate) => candidate !== undefined);
+    const parsed = Number(raw);
+    return Number.isSafeInteger(parsed) && parsed >= minimum && (maximum === null || parsed <= maximum)
+      ? parsed
+      : current;
   };
-  return { executedCameraViews: read("v", defaults.executedCameraViews), executedPromptTokens: read("p", defaults.executedPromptTokens), actionHorizon: read("a", defaults.actionHorizon), denoiseSteps: read("n", defaults.denoiseSteps) };
+  return {
+    executedCameraViews: read(["v", "V"], defaults.executedCameraViews),
+    executedPromptTokens: read(["p", "L_PROMPT"], defaults.executedPromptTokens, bounds.promptMinimum, bounds.promptMaximum),
+    actionHorizon: read(["a", "T_ACTION"], defaults.actionHorizon),
+    denoiseSteps: read(["n", "N_DENOISE"], defaults.denoiseSteps),
+  };
 }
 
 export function serializeInteractiveWorkload(value: InteractiveWorkload) {

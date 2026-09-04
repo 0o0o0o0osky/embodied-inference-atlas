@@ -44,14 +44,14 @@ export function ContextBar({ data, model, route, navigate }: ContextBarProps) {
       </label>
 
       <label>
-        <span>Hardware</span>
+        <span>{route.tab === "roofline-kernels" ? "Runtime hardware filter" : "Hardware"}</span>
         <select
           value={route.hardware ?? ""}
           onChange={(event) =>
             navigate({ hardware: event.target.value || null })
           }
         >
-          <option value="">No hardware selected</option>
+          <option value="">{route.tab === "roofline-kernels" ? "No runtime hardware filter" : "No hardware selected"}</option>
           {route.hardware && !hardwareKnown ? (
             <option value={route.hardware}>{route.hardware} (not in snapshot)</option>
           ) : null}

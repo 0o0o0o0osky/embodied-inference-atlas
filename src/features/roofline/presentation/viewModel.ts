@@ -1,13 +1,16 @@
 import {
   legacyComponentEntity,
+  kernelEntity,
   logicalEntity,
   runtimeGroupEntity,
   stageEntity,
   type CrossViewEntityKey,
 } from "../../workbench/entityKeys";
 import type {
+  ComputeCeiling,
   Provenance,
   RooflineBasisRecord,
+  RooflineCeilingRecord,
   RooflineLevel,
   RooflinePointRecord,
   RooflineScenarioRecord,
@@ -20,17 +23,25 @@ export interface RooflineQuery {
   basisId: string | null;
   precisionPathId: string | null;
   runtimeId: string | null;
-  selectedEntityId: string | null;
+  realizationId: string | null;
+  captureId: string | null;
+  selectedEntityIds: readonly CrossViewEntityKey[];
+  compatibilityIssue: string | null;
+  sparseObservedRunIds: readonly string[];
 }
 
 export interface RooflineCurveVM {
   curveId: string;
   kind: "uniform_roof" | "reference_only";
   label: string;
+  computeClass: string;
+  computeCeilingId: string;
   computeFlopPerSecond: number;
+  computeProvenance: Provenance;
+  bandwidthCeilingId: string;
   bandwidthBytePerSecond: number;
+  bandwidthProvenance: Provenance;
   ridgeFlopPerByte: number;
-  provenance: Provenance;
 }
 
 export interface RooflinePointVM {
@@ -75,9 +86,18 @@ export interface RooflineOverviewItem {
   availability: "available" | "empty" | "unavailable";
 }
 
+export interface RooflineLegacyInventory {
+  basisCount: number;
+  pointCount: number;
+  modelBasisCount: number;
+  modelPointCount: number;
+  firstModelBasisId: string | null;
+}
+
 export interface RooflineViewModel {
   activeBasis: RooflineBasisRecord | null;
   activeScenario: RooflineScenarioRecord | null;
+  activeCeiling: RooflineCeilingRecord | null;
   availableBases: readonly { basisId: string; label: string; precisionPathId: string }[];
   curves: readonly RooflineCurveVM[];
   points: readonly RooflinePointVM[];
@@ -85,23 +105,39 @@ export interface RooflineViewModel {
   records: readonly RooflinePointRecord[];
   inspectorPoint: RooflinePointRecord | null;
   overview: readonly RooflineOverviewItem[] | null;
+  legacyInventory: RooflineLegacyInventory;
   warnings: readonly { id: string; message: string }[];
 }
 
-function modelBases(index: RooflineIndex, modelId: string, level: RooflineLevel) {
+function scenarioForBasis(index: RooflineIndex, basis: RooflineBasisRecord) {
+  return index.scenarioById.get(basis.scenario_id) ?? null;
+}
+
+function modelBases(index: RooflineIndex, modelId: string, level: RooflineLevel, legacy: boolean) {
   return index.bases.filter((basis) => {
-    const scenario = index.scenarioById.get(basis.scenario_id);
-    return scenario?.model_id === modelId && basis.level === level && scenario.origin !== "legacy_import";
+    const scenario = scenarioForBasis(index, basis);
+    return scenario?.model_id === modelId
+      && basis.level === level
+      && (scenario.origin === "legacy_import") === legacy;
   });
+}
+
+function isLegacyRequest(query: RooflineQuery, index: RooflineIndex) {
+  const requested = query.basisId ? index.basisById.get(query.basisId) : null;
+  return requested ? scenarioForBasis(index, requested)?.origin === "legacy_import" : false;
 }
 
 function compatibleBases(query: RooflineQuery, index: RooflineIndex) {
   if (query.mode === "overview") return [];
-  return modelBases(index, query.modelId, query.mode).filter((basis) => {
-    if ((query.mode === "fused" || query.mode === "kernel") && query.runtimeId) {
-      return basis.runtime_id === query.runtimeId;
-    }
-    return true;
+  const legacy = isLegacyRequest(query, index);
+  const bases = modelBases(index, query.modelId, query.mode, legacy);
+  if (legacy) return bases;
+  if (query.mode !== "fused" && query.mode !== "kernel") return bases;
+  if (!query.runtimeId || !query.realizationId) return [];
+  return bases.filter((basis) => {
+    if (basis.runtime_id !== query.runtimeId || basis.realization_id !== query.realizationId) return false;
+    if (basis.capture_id !== query.captureId) return false;
+    return query.mode !== "kernel" || query.captureId !== null;
   });
 }
 
@@ -119,13 +155,18 @@ function entityKey(point: RooflinePointRecord, basis: RooflineBasisRecord, scena
   if (point.entity.kind === "execution_group" && basis.realization_id) {
     return runtimeGroupEntity(basis.realization_id, point.entity.entity_id);
   }
+  if (point.entity.kind === "kernel" && basis.capture_id) {
+    return kernelEntity(basis.capture_id, point.entity.entity_id);
+  }
   if (point.entity.kind === "stage" || point.entity.kind === "model_total") {
     const stageId = point.entity.kind === "model_total"
       ? "model_total"
       : point.entity.entity_id.slice(point.entity.entity_id.lastIndexOf("/") + 1);
     return stageEntity(scenario.model_graph_id ?? "unmapped", stageId);
   }
-  return logicalEntity(point.entity.entity_id);
+  // Attention sub-points retain #score/#value locally, but their shared route
+  // key is the canonical Task 2 logical reference.
+  return logicalEntity(point.entity.logical_refs[0] ?? point.entity.entity_id);
 }
 
 function marker(point: RooflinePointRecord): "hollow" | "half" | "filled" {
@@ -137,10 +178,20 @@ function positive(value: number | null): value is number {
   return value !== null && Number.isFinite(value) && value > 0;
 }
 
+function sparseObservationMatches(
+  basis: RooflineBasisRecord,
+  compute: ComputeCeiling,
+  sparseObservedRunIds: ReadonlySet<string>,
+) {
+  return !compute.requires_sparsity_on
+    || (basis.run_id !== null && sparseObservedRunIds.has(basis.run_id));
+}
+
 function buildCurves(
   basis: RooflineBasisRecord,
   scenario: RooflineScenarioRecord,
   index: RooflineIndex,
+  sparseObservedRunIds: ReadonlySet<string>,
 ): RooflineCurveVM[] {
   const ceiling = index.ceilingById.get(basis.ceiling_id);
   const bandwidth = ceiling?.bandwidth.find((item) => item.bandwidth_ceiling_id === basis.bandwidth_ceiling_id);
@@ -149,24 +200,35 @@ function buildCurves(
   const classes = [...new Set(scenario.precision_path.segments.map((segment) => segment.compute_class))];
   return classes.flatMap((computeClass) => {
     const compute = ceiling.compute.find((item) => item.compute_class === computeClass);
-    if (!compute || !positive(compute.flop_per_second)) return [];
+    if (!compute || !positive(compute.flop_per_second)
+      || !sparseObservationMatches(basis, compute, sparseObservedRunIds)) return [];
     return [{
       curveId: `${basis.basis_id}:${computeClass}`,
       kind: scenario.precision_path.precision_path_id === "runtime_mixed" ? "reference_only" as const : "uniform_roof" as const,
       label: `${humanize(computeClass)} · ${formatRate(compute.flop_per_second)}`,
+      computeClass,
+      computeCeilingId: compute.compute_ceiling_id,
       computeFlopPerSecond: compute.flop_per_second,
+      computeProvenance: compute.provenance,
+      bandwidthCeilingId: bandwidth.bandwidth_ceiling_id,
       bandwidthBytePerSecond: bandwidthRate,
+      bandwidthProvenance: bandwidth.provenance,
       ridgeFlopPerByte: compute.flop_per_second / bandwidthRate,
-      provenance: compute.provenance,
     }];
   });
+}
+
+function missingSummary(point: RooflinePointRecord) {
+  return point.missing.length
+    ? point.missing.map((item) => `${item.field}: ${humanize(item.reason)} — ${item.detail}`).join(" ")
+    : "No declared missing values.";
 }
 
 function buildRows(
   records: readonly RooflinePointRecord[],
   basis: RooflineBasisRecord,
   scenario: RooflineScenarioRecord,
-  selected: string | null,
+  selected: ReadonlySet<CrossViewEntityKey>,
 ): RooflineRowVM[] {
   return records.map((point) => {
     const key = entityKey(point, basis, scenario);
@@ -185,16 +247,16 @@ function buildRows(
       limiter: humanize(point.derived.limiter),
       pointId: point.point_id,
       entityKey: key,
-      selected: selected === key,
+      selected: selected.has(key),
       partial: point.derived.status !== "complete" || point.coverage.status !== "complete",
-      missingSummary: point.missing.map((item) => item.detail).join(" ") || "No declared missing values.",
+      missingSummary: missingSummary(point),
     };
   });
 }
 
 function overview(query: RooflineQuery, index: RooflineIndex): RooflineOverviewItem[] {
   return (["stage", "atomic", "fused", "kernel"] as const).map((level) => {
-    const bases = modelBases(index, query.modelId, level);
+    const bases = modelBases(index, query.modelId, level, false);
     const basis = preferredBasis({ ...query, mode: level }, bases);
     const records = basis ? index.pointsByBasisId.get(basis.basis_id) ?? [] : [];
     const plottable = records.filter((point) => positive(point.derived.arithmetic_intensity_flop_per_byte)
@@ -213,24 +275,68 @@ function overview(query: RooflineQuery, index: RooflineIndex): RooflineOverviewI
   });
 }
 
+function legacyInventory(query: RooflineQuery, index: RooflineIndex): RooflineLegacyInventory {
+  const legacyScenarioIds = new Set(index.scenarios
+    .filter((scenario) => scenario.origin === "legacy_import")
+    .map((scenario) => scenario.scenario_id));
+  const bases = index.bases.filter((basis) => legacyScenarioIds.has(basis.scenario_id));
+  const selectedModelBases = bases.filter((basis) => scenarioForBasis(index, basis)?.model_id === query.modelId);
+  const basisIds = new Set(bases.map((basis) => basis.basis_id));
+  const modelBasisIds = new Set(selectedModelBases.map((basis) => basis.basis_id));
+  return {
+    basisCount: bases.length,
+    pointCount: index.points.filter((point) => basisIds.has(point.basis_id)).length,
+    modelBasisCount: selectedModelBases.length,
+    modelPointCount: index.points.filter((point) => modelBasisIds.has(point.basis_id)).length,
+    firstModelBasisId: selectedModelBases[0]?.basis_id ?? null,
+  };
+}
+
+function emptyView(
+  query: RooflineQuery,
+  index: RooflineIndex,
+  warning: { id: string; message: string } | null,
+): RooflineViewModel {
+  return {
+    activeBasis: null,
+    activeScenario: null,
+    activeCeiling: null,
+    availableBases: [],
+    curves: [],
+    points: [],
+    rows: [],
+    records: [],
+    inspectorPoint: null,
+    overview: query.mode === "overview" ? overview(query, index) : null,
+    legacyInventory: legacyInventory(query, index),
+    warnings: warning ? [warning] : [],
+  };
+}
+
 export function buildRooflineView(query: RooflineQuery, index: RooflineIndex): RooflineViewModel {
-  if (query.mode === "overview") {
-    return { activeBasis: null, activeScenario: null, availableBases: [], curves: [], points: [], rows: [], records: [], inspectorPoint: null, overview: overview(query, index), warnings: [] };
-  }
+  if (query.mode === "overview") return emptyView(query, index, null);
   const bases = compatibleBases(query, index);
   const basis = preferredBasis(query, bases);
   if (!basis) {
-    const message = query.mode === "kernel"
-      ? "No kernel basis is canonical yet: a duration or L2 counter alone is not a valid system-memory roofline point."
+    const message = query.compatibilityIssue ?? (query.mode === "kernel"
+      ? "No kernel basis is canonical yet: an exact realization and capture with work, time, and system-memory traffic are required. Duration or L2 counters alone do not form a kernel roofline point."
       : query.mode === "fused"
-        ? "No exact realization-matched fused basis is available for this runtime selection."
-        : "No compatible canonical basis is available.";
-    return { activeBasis: null, activeScenario: null, availableBases: [], curves: [], points: [], rows: [], records: [], inspectorPoint: null, overview: null, warnings: [{ id: "basis-unavailable", message }] };
+        ? "No exact Task 4 realization-matched fused basis is available for this runtime and actual-precision selection."
+        : "No compatible canonical basis is available.");
+    return emptyView(query, index, { id: "basis-unavailable", message });
   }
   const scenario = index.scenarioById.get(basis.scenario_id) ?? null;
+  const ceiling = index.ceilingById.get(basis.ceiling_id) ?? null;
   if (!scenario) throw new Error(`Roofline basis has no scenario: ${basis.basis_id}`);
-  const records = [...(index.pointsByBasisId.get(basis.basis_id) ?? [])].sort((a, b) => a.entity.label.localeCompare(b.entity.label));
-  const rows = buildRows(records, basis, scenario, query.selectedEntityId);
+  if (!ceiling) throw new Error(`Roofline basis has no ceiling: ${basis.basis_id}`);
+  const selected = new Set(query.selectedEntityIds);
+  const sparseObservedRunIds = new Set(query.sparseObservedRunIds);
+  const sparseClasses = new Set(ceiling.compute
+    .filter((compute) => compute.requires_sparsity_on && !sparseObservationMatches(basis, compute, sparseObservedRunIds))
+    .map((compute) => compute.compute_class));
+  const records = [...(index.pointsByBasisId.get(basis.basis_id) ?? [])]
+    .sort((a, b) => a.entity.label.localeCompare(b.entity.label));
+  const rows = buildRows(records, basis, scenario, selected);
   const timeByPoint = new Map(records.map((point) => [
     point.point_id,
     point.timing.observed_second ?? point.derived.roof_second,
@@ -240,11 +346,13 @@ export function buildRooflineView(query: RooflineQuery, index: RooflineIndex): R
     return total + (positive(value ?? null) ? value! : 0);
   }, 0);
   const points = records.flatMap((point): RooflinePointVM[] => {
+    const rejectedSparse = point.work.components.some((item) => item.flop > 0
+      && item.compute_class !== null && sparseClasses.has(item.compute_class));
     const x = point.derived.arithmetic_intensity_flop_per_byte;
     const y = point.timing.observed_second === null
       ? point.derived.roof_flop_per_second
       : point.derived.achieved_flop_per_second;
-    if (!positive(x) || !positive(y)) return [];
+    if (rejectedSparse || !positive(x) || !positive(y)) return [];
     const key = entityKey(point, basis, scenario);
     const pointTime = timeByPoint.get(point.point_id);
     const share = compatibleTotal > 0 && positive(pointTime ?? null) ? pointTime! / compatibleTotal : 0;
@@ -257,7 +365,7 @@ export function buildRooflineView(query: RooflineQuery, index: RooflineIndex): R
       marker: marker(point),
       markerAreaPx2: 36 + 160 * share,
       coverageKey: point.entity.coverage_key,
-      selected: query.selectedEntityId === key,
+      selected: selected.has(key),
       warningIds: point.derived.status === "complete" ? [] : ["partial-envelope"],
     }];
   });
@@ -272,17 +380,22 @@ export function buildRooflineView(query: RooflineQuery, index: RooflineIndex): R
   if (basis.bandwidth_ceiling_id.includes("conditional-273gbps")) {
     warnings.push({ id: "conditional-bandwidth", message: "273 GB/s is a conditional analytical ceiling at the stated EMC assumption, not observed DRAM telemetry; measured efficiency and gap remain unavailable without matched EMC evidence." });
   }
+  if (sparseClasses.size) {
+    warnings.push({ id: "sparse-observation-required", message: "Sparse compute roofs are inactive because this exact basis has no matched execution observation with sparsity_on=true." });
+  }
   if (!records.length) warnings.push({ id: "empty-basis", message: query.mode === "fused" ? "The exact realization basis exists, but no fusion boundary has sufficient work and traffic evidence to emit a point." : "This basis has no valid points." });
   return {
     activeBasis: basis,
     activeScenario: scenario,
+    activeCeiling: ceiling,
     availableBases: bases.map((item) => ({ basisId: item.basis_id, label: item.label, precisionPathId: item.precision_path_id })),
-    curves: buildCurves(basis, scenario, index),
+    curves: buildCurves(basis, scenario, index, sparseObservedRunIds),
     points,
     rows,
     records,
     inspectorPoint: inspectorIndex >= 0 ? records[inspectorIndex] ?? null : records[0] ?? null,
     overview: null,
+    legacyInventory: legacyInventory(query, index),
     warnings,
   };
 }
@@ -312,6 +425,10 @@ function formatRate(value: number) {
 
 function formatNullable(value: number | null, formatter: (value: number) => string) {
   return value === null ? "—" : formatter(value);
+}
+
+export function provenanceLabel(provenance: Provenance) {
+  return humanize(provenance.class);
 }
 
 export function humanize(value: string) {

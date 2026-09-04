@@ -1,21 +1,36 @@
 import { useMemo } from "react";
 
 import type { RoutePatch, RouteState } from "../../../app/routes";
-import type { AtlasData, ModelRecord } from "../../../types/atlas";
-import { parseEntityKey, type CrossViewEntityKey } from "../../workbench/entityKeys";
+import type { AtlasData, CanonicalRecord, ModelRecord } from "../../../types/atlas";
+import { adaptV1ModelGraph } from "../../model-graph/domain/adaptV1ModelGraph";
+import { adaptRuntimeRealization, isRuntimeRealizationRecord } from "../../runtime/domain/adaptRuntimeRealization";
+import { indexRuntimeRealization } from "../../runtime/domain/indexRuntimeRealization";
+import { resolveRuntimeCandidates, type RuntimeCandidate } from "../../runtime/domain/resolveRuntimeRealization";
+import type { RuntimeRealizationRecord } from "../../runtime/domain/types";
+import {
+  kernelEntity,
+  legacyComponentEntity,
+  logicalEntity,
+  logicalRefFromEntity,
+  parseEntityKey,
+  runtimeGroupEntity,
+  stageEntity,
+  type CrossViewEntityKey,
+} from "../../workbench/entityKeys";
 import { createRooflineIndex, indexRoofline } from "../data/indexRoofline";
 import {
   materializeInteractiveRoofline,
   parseInteractiveWorkload,
   serializeInteractiveWorkload,
+  type InteractiveWorkloadBounds,
 } from "../data/materialize";
-import { buildRooflineView } from "../presentation/viewModel";
+import { buildRooflineView, type RooflineQuery } from "../presentation/viewModel";
 import { RooflineAnalysis } from "./RooflineAnalysis";
 import { RooflineBasisBar } from "./RooflineBasisBar";
 import { RooflineModeTabs } from "./RooflineModeTabs";
 import { RooflineOverview } from "./RooflineOverview";
 
-interface RooflineViewProps {
+export interface RooflineViewProps {
   data: AtlasData;
   model: ModelRecord;
   route: RouteState;
@@ -23,6 +38,93 @@ interface RooflineViewProps {
 }
 
 const CORE_MODELS = new Set(["pi0", "pi05", "smolvla"]);
+
+function runtimeWorkload(encoded: string | null, workload: ReturnType<typeof parseInteractiveWorkload>) {
+  if (!encoded) return null;
+  if (!encoded.startsWith("v=")) return encoded;
+  return `V=${workload.executedCameraViews},L_PROMPT=${workload.executedPromptTokens},T_ACTION=${workload.actionHorizon},N_DENOISE=${workload.denoiseSteps}`;
+}
+
+function isAnalyticalWorkload(encoded: string | null) {
+  return encoded?.split(",").some((part) => /^(?:v|p|a|n|V|L_PROMPT|T_ACTION|N_DENOISE)=/.test(part.trim())) ?? false;
+}
+
+function exactRuntimeCandidate(candidates: readonly RuntimeCandidate[]) {
+  return candidates.length === 1 && candidates[0]!.realization.availability !== "not_supported"
+    ? candidates[0]!
+    : null;
+}
+
+function canonicalEntityKey(entity: string | null): CrossViewEntityKey | null {
+  const parsed = parseEntityKey(entity);
+  if (!parsed) return null;
+  if (parsed.kind === "logical") return logicalEntity(logicalRefFromEntity(entity)!);
+  if (parsed.kind === "stage") return stageEntity(parsed.modelGraphId, parsed.stageId);
+  if (parsed.kind === "runtime-group") return runtimeGroupEntity(parsed.realizationId, parsed.executionGroupId);
+  if (parsed.kind === "kernel") return kernelEntity(parsed.captureId, parsed.kernelObservationId);
+  return legacyComponentEntity(parsed.pointId);
+}
+
+function selectionKeys(
+  entity: string | null,
+  realizations: readonly RuntimeRealizationRecord[],
+  activeRealization: RuntimeRealizationRecord | null,
+) {
+  const parsed = parseEntityKey(entity);
+  const canonical = canonicalEntityKey(entity);
+  if (!parsed || !canonical) return [];
+  const keys = new Set<CrossViewEntityKey>([canonical]);
+  const logicalRef = logicalRefFromEntity(entity);
+  if (logicalRef && activeRealization) {
+    indexRuntimeRealization(activeRealization).mappingsByLogicalRef.get(logicalRef)
+      ?.filter((mapping) => mapping.path === "primary" && mapping.certainty === "exact")
+      .forEach((mapping) => mapping.executionGroupIds.forEach((groupId) => {
+        keys.add(runtimeGroupEntity(activeRealization.realizationId, groupId));
+      }));
+  }
+  if (parsed.kind === "runtime-group") {
+    const realization = realizations.find((item) => item.realizationId === parsed.realizationId);
+    if (realization) {
+      indexRuntimeRealization(realization).mappingsByGroupId.get(parsed.executionGroupId)
+        ?.filter((mapping) => mapping.path === "primary" && mapping.certainty === "exact")
+        .forEach((mapping) => mapping.logicalTargets.forEach((target) => keys.add(logicalEntity(target.ref))));
+    }
+  }
+  return [...keys];
+}
+
+function compatibilityIssue(
+  mode: RouteState["rooflineLevel"],
+  route: RouteState,
+  candidates: readonly RuntimeCandidate[],
+  active: RuntimeCandidate | null,
+  captureId: string | null,
+) {
+  if (mode !== "fused" && mode !== "kernel") return null;
+  if (!route.runtime) return `${mode === "fused" ? "Fused" : "Kernel"} analysis requires one Task 4 runtime realization selection.`;
+  if (!active) {
+    return candidates.length
+      ? `Runtime ${route.runtime} resolves to ${candidates.length} realizations; select one actual runtime precision before opening ${mode}.`
+      : `No Task 4 realization exactly matches runtime ${route.runtime}, hardware, workload, and actual precision ${route.runtimePrecision ?? "(unresolved)"}.`;
+  }
+  if (mode === "kernel" && !captureId) {
+    return `Realization ${active.realization.realizationId} is exact, but no non-null canonical capture is selected; kernel work, observed time, and system-memory traffic cannot be joined.`;
+  }
+  return `Exact realization ${active.realization.realizationId} (${active.actualPrecisionId}) has no ${mode} basis with the same capture semantics.`;
+}
+
+function promptBounds(graphRecord: CanonicalRecord | null): InteractiveWorkloadBounds {
+  if (!graphRecord) return { promptMinimum: 1, promptMaximum: null };
+  const prompt = adaptV1ModelGraph(graphRecord).editableSymbols.find((symbol) => symbol.symbol === "L_PROMPT");
+  return { promptMinimum: prompt?.minimum ?? 1, promptMaximum: prompt?.maximum ?? null };
+}
+
+function sparseObservedRunIds(data: AtlasData) {
+  return data.datasets.runs.flatMap((run) => {
+    const operating = (run as unknown as { operating_point?: { sparsity_on?: boolean } }).operating_point;
+    return operating?.sparsity_on === true ? [run.run_id] : [];
+  });
+}
 
 export function RooflineView({ data, model, route, navigate }: RooflineViewProps) {
   const canonical = useMemo(() => indexRoofline(data), [data]);
@@ -39,10 +141,11 @@ export function RooflineView({ data, model, route, navigate }: RooflineViewProps
     ?? canonical.scenarios.find((scenario) => scenario.model_id === modelId
       && scenario.origin === "default_precomputed"
       && scenario.precision_path.precision_path_id === "bf16_dense")!;
-  const workload = parseInteractiveWorkload(route.workload, sourceScenario.workload);
+  const graphRecord = data.datasets.model_graphs.find((record) => record.model_graph_id === sourceScenario.model_graph_id) ?? null;
+  const workloadBounds = useMemo(() => promptBounds(graphRecord), [graphRecord]);
+  const workload = parseInteractiveWorkload(route.workload, sourceScenario.workload, workloadBounds);
   const interactive = useMemo(() => {
-    if (!route.workload?.startsWith("v=")) return null;
-    const graphRecord = data.datasets.model_graphs.find((record) => record.model_graph_id === sourceScenario.model_graph_id);
+    if (!isAnalyticalWorkload(route.workload)) return null;
     const ceiling = canonical.ceilingById.get("thor-t5000-120w-1386mhz");
     const realizationId = sourceScenario.precision_path.realization_ids[0];
     const realizationRecord = realizationId
@@ -54,7 +157,7 @@ export function RooflineView({ data, model, route, navigate }: RooflineViewProps
     } catch {
       return null;
     }
-  }, [canonical.ceilingById, data.datasets.model_graphs, data.datasets.runtime_realizations, route.workload, sourceScenario, workload]);
+  }, [canonical.ceilingById, data.datasets.runtime_realizations, graphRecord, route.workload, sourceScenario, workload]);
   const index = useMemo(() => interactive
     ? createRooflineIndex(
       canonical.ceilings,
@@ -63,19 +166,43 @@ export function RooflineView({ data, model, route, navigate }: RooflineViewProps
       [...canonical.points, ...interactive.points],
     )
     : canonical, [canonical, interactive]);
+  const realizations = useMemo(() => data.datasets.runtime_realizations
+    .filter((record) => isRuntimeRealizationRecord(record, modelId))
+    .map(adaptRuntimeRealization), [data.datasets.runtime_realizations, modelId]);
+  const runtimeCandidates = useMemo(() => route.runtime ? resolveRuntimeCandidates(realizations, data.datasets.runs, {
+    modelId,
+    modelGraphId: sourceScenario.model_graph_id!,
+    runtimeId: route.runtime,
+    hardwareId: route.hardware,
+    workload: runtimeWorkload(route.workload, workload),
+    precisionId: route.runtimePrecision,
+  }) : [], [data.datasets.runs, modelId, realizations, route.hardware, route.runtime, route.runtimePrecision, route.workload, sourceScenario.model_graph_id, workload]);
+  const activeCandidate = exactRuntimeCandidate(runtimeCandidates);
+  const activeRealization = activeCandidate?.realization ?? null;
+  // Task 4 resolves realizations but does not yet expose a canonical capture
+  // selection. Null is therefore meaningful: analytical fused bases with a
+  // null capture may match; observed fused/kernel captures may not.
+  const captureId = null;
   const interactiveBasis = interactive && route.rooflineLevel !== "overview" && route.rooflineLevel !== "fused" && route.rooflineLevel !== "kernel"
     ? interactive.bases.find((basis) => basis.level === route.rooflineLevel)?.basis_id ?? null
     : null;
-  const selectedKey = parseEntityKey(route.entity) ? route.entity as CrossViewEntityKey : null;
-  const view = buildRooflineView({
+  const selectedKey = canonicalEntityKey(route.entity);
+  const queryBase: Omit<RooflineQuery, "mode" | "basisId"> = {
     modelId,
-    mode: route.rooflineLevel,
-    basisId: interactiveBasis ?? route.basis,
     precisionPathId: sourceScenario.precision_path.precision_path_id,
     runtimeId: route.runtime,
-    selectedEntityId: selectedKey,
+    realizationId: activeRealization?.realizationId ?? null,
+    captureId,
+    selectedEntityIds: selectionKeys(route.entity, realizations, activeRealization),
+    compatibilityIssue: compatibilityIssue(route.rooflineLevel, route, runtimeCandidates, activeCandidate, captureId),
+    sparseObservedRunIds: sparseObservedRunIds(data),
+  };
+  const view = buildRooflineView({
+    ...queryBase,
+    mode: route.rooflineLevel,
+    basisId: interactiveBasis ?? route.basis,
   }, index);
-  const overview = buildRooflineView({ modelId, mode: "overview", basisId: null, precisionPathId: sourceScenario.precision_path.precision_path_id, runtimeId: route.runtime, selectedEntityId: null }, index).overview!;
+  const overview = buildRooflineView({ ...queryBase, mode: "overview", basisId: null }, index).overview!;
   return (
     <section className="roofline-workspace" aria-labelledby="roofline-title">
       <header className="roofline-intro">
@@ -84,13 +211,14 @@ export function RooflineView({ data, model, route, navigate }: RooflineViewProps
       </header>
       <RooflineModeTabs route={route} overview={overview} navigate={navigate} />
       {route.rooflineLevel === "overview" ? (
-        <RooflineOverview items={overview} navigate={navigate} />
+        <RooflineOverview items={overview} legacy={view.legacyInventory} navigate={navigate} />
       ) : (
         <>
           <RooflineBasisBar
             route={route}
             model={view}
-            workload={workload}
+            workload={view.activeScenario?.origin === "legacy_import" ? null : workload}
+            workloadBounds={workloadBounds}
             navigate={navigate}
             onWorkload={(next) => navigate({ workload: serializeInteractiveWorkload(next), basis: null, entity: null }, true)}
           />

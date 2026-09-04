@@ -80,11 +80,13 @@
 }
 
 .roofline-mode-tabs small {
-  min-width: 1.8rem;
+  min-width: 3.7rem;
   padding: 0.15rem 0.3rem;
   border: 1px solid currentColor;
   font-family: var(--mono-face);
+  font-size: 0.62rem;
   text-align: center;
+  white-space: nowrap;
 }
 
 .roofline-overview {
@@ -198,6 +200,31 @@
   font-weight: 700;
 }
 
+.roofline-legacy-inventory {
+  display: grid;
+  grid-template-columns: minmax(20rem, 1fr) auto auto;
+  align-items: stretch;
+  border-top: 3px double var(--line-dark);
+  background: #f7f3eb;
+}
+
+.roofline-legacy-inventory > * {
+  min-width: 0;
+  margin: 0;
+  padding: 1rem 1.2rem;
+}
+
+.roofline-legacy-inventory > * + * { border-left: 1px solid var(--line-dark); }
+.roofline-legacy-inventory p,
+.roofline-legacy-inventory h3 { margin: 0; }
+.roofline-legacy-inventory p { color: var(--roofline-partial); font-family: var(--mono-face); font-size: 0.72rem; text-transform: uppercase; }
+.roofline-legacy-inventory h3 { margin-top: 0.25rem; font-family: var(--display-face); font-size: 1.35rem; }
+.roofline-legacy-inventory span { display: block; margin-top: 0.35rem; color: var(--slate); line-height: 1.45; }
+.roofline-legacy-inventory dl { display: flex; align-items: center; gap: 1.2rem; }
+.roofline-legacy-inventory dt { color: var(--slate); font-size: 0.7rem; font-weight: 700; }
+.roofline-legacy-inventory dd { margin: 0.2rem 0 0; font-family: var(--mono-face); font-weight: 800; white-space: nowrap; }
+.roofline-legacy-inventory button { border: 0; color: var(--white); background: var(--graphite); font-weight: 800; }
+
 .roofline-basis-bar {
   margin-top: 0.8rem;
   border: 1px solid var(--graphite);
@@ -234,7 +261,7 @@
 }
 
 .roofline-basis-bar label > span,
-.roofline-basis-bar legend {
+.roofline-control-group > h3 {
   font-size: 0.72rem;
   font-weight: 700;
 }
@@ -259,23 +286,23 @@
   border-bottom: 1px solid var(--line-dark);
 }
 
-.roofline-basis-controls fieldset {
+.roofline-control-group {
   display: grid;
   gap: 0.7rem;
   min-width: 0;
   margin: 0;
   padding: 0.9rem 1rem 1rem;
-  border: 0;
 }
 
-.roofline-basis-controls fieldset + *,
-.roofline-basis-controls > * + fieldset {
+.roofline-basis-controls > * + * {
   border-left: 1px solid var(--line-dark);
 }
 
-.roofline-basis-controls legend {
-  padding: 0 0.25rem;
+.roofline-control-group > h3 {
+  margin: 0;
   color: var(--signal-blue-dark);
+  font-family: var(--display-face);
+  font-size: 1rem;
 }
 
 .roofline-workload-controls {
@@ -333,7 +360,7 @@
 
 .roofline-basis-fingerprint {
   display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
+  grid-template-columns: repeat(8, minmax(0, 1fr));
   margin: 0;
 }
 
@@ -353,6 +380,26 @@
   font-size: 0.72rem;
   line-height: 1.35;
 }
+
+.roofline-basis-ceilings {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-top: 1px solid var(--line-dark);
+  background: #f9faf8;
+}
+
+.roofline-basis-ceilings article {
+  min-width: 0;
+  padding: 0.7rem 0.85rem;
+}
+
+.roofline-basis-ceilings article + article { border-left: 1px solid var(--line-dark); }
+.roofline-basis-ceilings h3 { margin: 0 0 0.4rem; color: var(--signal-blue-dark); font-size: 0.78rem; text-transform: uppercase; }
+.roofline-basis-ceilings p { display: grid; gap: 0.15rem; margin: 0; line-height: 1.35; }
+.roofline-basis-ceilings p + p { margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--line); }
+.roofline-basis-ceilings code,
+.roofline-basis-ceilings span { overflow-wrap: anywhere; color: var(--slate); font-size: 0.76rem; }
+.roofline-basis-ceilings strong { font-size: 0.82rem; }
 
 .roofline-warnings {
   margin-top: 0.8rem;
@@ -432,6 +479,7 @@
 }
 
 .roofline-svg-wrap {
+  position: relative;
   min-width: 0;
   padding: 0.4rem 0.5rem 0;
 }
@@ -500,6 +548,25 @@
   font-weight: 700;
 }
 
+.roofline-not-plotted {
+  position: absolute;
+  z-index: 2;
+  top: 1.3rem;
+  left: 6.5rem;
+  display: grid;
+  gap: 0.15rem;
+  max-width: min(34rem, calc(100% - 8rem));
+  padding: 0.55rem 0.7rem;
+  border: 1px solid #b78332;
+  background: rgb(255 248 233 / 96%);
+  box-shadow: 3px 3px 0 rgb(183 131 50 / 18%);
+  font-size: 0.8rem;
+  line-height: 1.35;
+}
+
+.roofline-not-plotted strong { color: var(--roofline-partial); }
+.roofline-not-plotted ul { margin: 0.15rem 0 0; padding-left: 1.1rem; }
+
 .roofline-marker {
   animation: roofline-marker-in var(--roofline-reveal-ms, 400ms) ease-out both;
 }
@@ -538,6 +605,27 @@
   stroke-width: 3;
 }
 
+.roofline-cluster-tether {
+  stroke: #70807a;
+  stroke-dasharray: 2 2;
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.roofline-cluster-count circle {
+  fill: var(--graphite);
+  stroke: var(--white);
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+}
+
+.roofline-cluster-count text {
+  fill: var(--white);
+  font-family: var(--mono-face);
+  font-size: 9px;
+  font-weight: 800;
+}
+
 .roofline-selected-label {
   fill: var(--graphite);
   font-family: var(--display-face);
@@ -557,6 +645,42 @@
   color: #46534f;
   font-size: 0.72rem;
 }
+
+.roofline-curve-ledger {
+  display: grid;
+  border-top: 1px solid var(--line);
+  background: #f9faf8;
+}
+
+.roofline-curve-ledger article {
+  display: grid;
+  grid-template-columns: minmax(12rem, 0.55fr) minmax(12rem, 0.6fr) minmax(18rem, 1fr);
+  gap: 0.25rem 0.7rem;
+  min-width: 0;
+  padding: 0.55rem 0.8rem;
+  font-size: 0.72rem;
+  line-height: 1.35;
+}
+
+.roofline-curve-ledger article + article { border-top: 1px solid var(--line); }
+.roofline-curve-ledger strong { display: flex; align-items: center; gap: 0.4rem; }
+.roofline-curve-ledger code,
+.roofline-curve-ledger span { overflow-wrap: anywhere; color: var(--slate); }
+.roofline-curve-ledger span:last-child { grid-column: 3; }
+
+.roofline-cluster-roster {
+  padding: 0.65rem 0.85rem;
+  border-top: 1px solid var(--line);
+  font-size: 0.82rem;
+}
+
+.roofline-cluster-roster summary { cursor: pointer; color: var(--signal-blue-dark); font-weight: 800; }
+.roofline-cluster-roster > div { display: grid; gap: 0.6rem; margin-top: 0.65rem; }
+.roofline-cluster-roster article { padding: 0.6rem; border: 1px solid var(--line); }
+.roofline-cluster-roster ul { display: grid; gap: 0.3rem; margin: 0.45rem 0 0; padding: 0; list-style: none; }
+.roofline-cluster-roster li { display: flex; justify-content: space-between; gap: 0.8rem; }
+.roofline-cluster-roster button { padding: 0; border: 0; color: var(--signal-blue-dark); background: transparent; font-weight: 800; text-align: left; text-decoration: underline; }
+.roofline-cluster-roster span { color: var(--slate); white-space: nowrap; }
 
 .roofline-chart-legend span,
 .roofline-chart-legend strong {
@@ -579,8 +703,10 @@
 
 .roof-swatch {
   width: 1.3rem;
-  border-top: 2px dashed var(--roofline-reference);
+  border-top: 2px solid var(--roofline-roof);
 }
+
+.roof-swatch.is-reference { border-top: 2px dashed var(--roofline-reference); }
 
 .roofline-inspector {
   font-size: 1rem;
@@ -588,7 +714,7 @@
 }
 
 .roofline-inspector > header {
-  padding: 0.9rem 1rem;
+  padding: 0.75rem 1rem;
   color: var(--white);
   background: var(--signal-blue-dark);
 }
@@ -604,7 +730,8 @@
   margin-top: 0.4rem;
   color: #d6e3e2;
   overflow-wrap: anywhere;
-  font-size: 0.72rem;
+  font-size: 1rem;
+  line-height: 1.4;
 }
 
 .roofline-inspector-shape,
@@ -613,7 +740,7 @@
 .roofline-inspector > details,
 .roofline-inspector > p:not(.roofline-inspector-shape) {
   margin: 0;
-  padding: 0.85rem 1rem;
+  padding: 0.65rem 1rem;
   border-bottom: 1px solid var(--line);
 }
 
@@ -632,10 +759,12 @@
   margin: 0;
 }
 
+.roofline-inspector-ledger .roofline-inspector-wide { grid-column: 1 / -1; }
+
 .roofline-inspector-ledger div,
 .roofline-inspector details dl div {
   min-width: 0;
-  padding: 0.7rem 0.8rem;
+  padding: 0.55rem 0.7rem;
   border-right: 1px solid var(--line);
   border-bottom: 1px solid var(--line);
 }
@@ -643,6 +772,17 @@
 .roofline-inspector dd,
 .roofline-inspector details dl {
   margin: 0.25rem 0 0;
+  overflow-wrap: anywhere;
+}
+
+.roofline-inspector dd,
+.roofline-inspector details p,
+.roofline-inspector details li,
+.roofline-inspector details code,
+.roofline-inspector details span,
+.roofline-partial-note,
+.roofline-inspector-shape {
+  font-size: 1rem;
   overflow-wrap: anywhere;
 }
 
@@ -676,7 +816,7 @@
 .roofline-inspector details li span {
   display: block;
   overflow-wrap: anywhere;
-  font-size: 0.72rem;
+  font-size: 1rem;
 }
 
 .roofline-inspector h4 {
@@ -813,11 +953,13 @@
   }
 
   .roofline-basis-controls { grid-template-columns: 1fr; }
-  .roofline-basis-controls fieldset + *,
-  .roofline-basis-controls > * + fieldset { border-top: 1px solid var(--line-dark); border-left: 0; }
+  .roofline-basis-controls > * + * { border-top: 1px solid var(--line-dark); border-left: 0; }
   .roofline-basis-fingerprint { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .roofline-basis-fingerprint div:nth-child(5) { border-top: 1px solid var(--line); border-left: 0; }
-  .roofline-basis-fingerprint div:nth-child(n + 6) { border-top: 1px solid var(--line); }
+  .roofline-basis-fingerprint div:nth-child(n + 5) { border-top: 1px solid var(--line); }
+  .roofline-curve-ledger article { grid-template-columns: 1fr 1fr; }
+  .roofline-curve-ledger span { grid-column: 1 / -1; }
+  .roofline-curve-ledger span:last-child { grid-column: 1 / -1; }
 }
 
 @media (max-width: 54rem) {
@@ -830,8 +972,13 @@
   .roofline-overview-ledger article { grid-template-columns: 1fr; }
   .roofline-overview-ledger article > * + * { border-top: 1px solid var(--line); border-left: 0; }
   .roofline-overview-ledger dl { justify-content: space-around; }
+  .roofline-legacy-inventory { grid-template-columns: 1fr; }
+  .roofline-legacy-inventory > * + * { border-top: 1px solid var(--line-dark); border-left: 0; }
+  .roofline-legacy-inventory button { min-height: 3rem; }
   .roofline-basis-fingerprint,
   .roofline-inspector-ledger { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .roofline-basis-ceilings { grid-template-columns: 1fr; }
+  .roofline-basis-ceilings article + article { border-top: 1px solid var(--line-dark); border-left: 0; }
 }
 
 @media (max-width: 38rem) {
@@ -839,6 +986,11 @@
   .roofline-runtime-controls dl { grid-template-columns: 1fr; gap: 0.5rem; }
   .roofline-basis-fingerprint { grid-template-columns: 1fr; }
   .roofline-basis-fingerprint div + div { border-top: 1px solid var(--line); border-left: 0; }
+  .roofline-curve-ledger article { grid-template-columns: 1fr; }
+  .roofline-curve-ledger span,
+  .roofline-curve-ledger span:last-child { grid-column: auto; }
+  .roofline-cluster-roster li { display: grid; }
+  .roofline-cluster-roster span { white-space: normal; }
 }
 
 @media (prefers-reduced-motion: reduce) {

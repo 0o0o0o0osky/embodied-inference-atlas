@@ -17,6 +17,7 @@ from tools.lib.privacy import (
     scan_site_tree,
 )
 from tools.lib.roofline import roofline_problems
+from tools.lib.roofline_materialize import logical_snapshot_problems
 from tools.lib.runtime_realization import runtime_realization_problems
 
 
@@ -67,6 +68,10 @@ def validate_repository(repo_root: Path) -> list[Issue]:
     issues.extend(
         Issue(problem.path, problem.code, problem.message)
         for problem in roofline_problems(records)
+    )
+    issues.extend(
+        Issue(problem.path, problem.code, problem.message)
+        for problem in logical_snapshot_problems(records)
     )
     return issues
 

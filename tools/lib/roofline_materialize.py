@@ -11,7 +11,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
 from tools.lib.model_graph import materialize_model_graph
-from tools.lib.roofline import attention_metrics, stage_lower_bound
+from tools.lib.roofline import RooflineProblem, attention_metrics, stage_lower_bound
 
 
 VERSION = "2.0.0"
@@ -579,26 +579,13 @@ def iter_operators(materialized):
 
 
 def runtime_ref_map(realization):
-    groups = {item["execution_group_id"]: item for item in realization["execution_groups"]}
-    precision = {item["precision_path_id"]: item for item in realization["precision_paths"]}
     result = defaultdict(list)
     for mapping in realization["mappings"]:
         if mapping["certainty"] != "exact" or mapping["path"] != "primary":
             continue
         for target in mapping["logical_targets"]:
             for group_id in mapping["execution_group_ids"]:
-                group = groups[group_id]
-                p = precision[group["precision_path_id"]]
-                dtype = " ".join(str(p.get(key) or "") for key in ("weight_dtype", "activation_dtype", "output_dtype"))
-                if "fp8" in dtype:
-                    klass, fmt, bits, scale = "tensor_fp8_e4m3_dense", "fp8_e4m3", 8, 4
-                elif group["precision_path_id"].endswith("attention-control") or "FP32 Q/K" in p["label"]:
-                    klass, fmt, bits, scale = "scalar_fp32", "fp32", 32, 0
-                elif "fp16" in dtype:
-                    klass, fmt, bits, scale = "tensor_fp16_dense", "fp16", 16, 0
-                else:
-                    klass, fmt, bits, scale = "tensor_bf16_dense", "bf16", 16, 0
-                result[target["ref"]].append({"group_id": group_id, "class": klass, "encoding": raw_encoding(fmt, bits, ANALYTICAL([], "Task 4 mapped runtime precision"), scale)})
+                result[target["ref"]].append(group_id)
     return result
 
 
@@ -811,20 +798,23 @@ def logical_points(graph_records, scenarios, bases, realizations):
         all_refs = [ref for _, ref, _, _ in operators]
         runtime_map = runtime_ref_map(realizations[scenario["precision_path"]["realization_ids"][0]]) if path_id == "runtime_mixed" else None
         uniform_segment = scenario["precision_path"]["segments"][0] if path_id != "runtime_mixed" else None
+        segment_by_group = {
+            group_id: segment
+            for segment in scenario["precision_path"]["segments"]
+            for group_id in segment["selector"]["refs"]
+        } if runtime_map is not None else {}
         atomic = []
         for stage_id, ref, operator, env in operators:
             if operator["definition_id"] not in {"linear", "attention-core"}:
                 continue
             part_segments = None
             if runtime_map is not None:
-                mapped = runtime_map.get(ref, [])
+                mapped = [segment_by_group[group_id] for group_id in runtime_map.get(ref, []) if group_id in segment_by_group]
                 if not mapped:
                     continue
-                def segment_from(item):
-                    return {"weight": item["encoding"], "activation": item["encoding"], "output": item["encoding"], "compute_class": item["class"], "dequantization": {"mode": "none", "floating_flop_per_weight": 0, "integer_op_per_weight": 0, "materialized_bytes_per_weight": 0}}
-                segment = segment_from(mapped[0])
+                segment = mapped[0]
                 if operator["definition_id"] == "attention-core" and len(mapped) > 1:
-                    part_segments = [segment_from(item) for item in mapped]
+                    part_segments = mapped
             else:
                 segment = uniform_segment
             if operator["definition_id"] == "linear":
@@ -926,6 +916,52 @@ def load(path):
 def write_json(path, value):
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(value, indent=2, ensure_ascii=False) + "\n")
+
+
+def logical_snapshot_problems(datasets):
+    """Re-materialize logical traffic from scenarios, graphs, and realizations."""
+    graph_records = {
+        item["model_graph_id"]: item
+        for item in datasets.get("model_graphs", [])
+        if isinstance(item.get("model_graph_id"), str)
+    }
+    realizations = {
+        item["realization_id"]: item
+        for item in datasets.get("runtime_realizations", [])
+        if isinstance(item.get("realization_id"), str)
+    }
+    scenarios = list(datasets.get("roofline_scenarios", []))
+    bases = list(datasets.get("roofline_bases", []))
+    expected = logical_points(graph_records, scenarios, bases, realizations)
+    canonical = {
+        item["point_id"]: (index, item)
+        for index, item in enumerate(datasets.get("roofline_points", []))
+        if isinstance(item.get("point_id"), str)
+    }
+    problems = []
+    for expected_point in expected:
+        point_id = expected_point["point_id"]
+        indexed = canonical.get(point_id)
+        if indexed is None:
+            problems.append(RooflineProblem("$.roofline_points", "logical_snapshot_missing", f"scenario materialization did not find {point_id}"))
+            continue
+        index, actual = indexed
+        base = f"$.roofline_points[{index}]"
+        expected_components = [
+            (item["component_id"], item["kind"], item["byte"], item["tensor_ref"])
+            for item in expected_point["traffic"]["components"]
+        ]
+        actual_components = [
+            (item.get("component_id"), item.get("kind"), item.get("byte"), item.get("tensor_ref"))
+            for item in actual.get("traffic", {}).get("components", [])
+        ]
+        if actual_components != expected_components:
+            problems.append(RooflineProblem(f"{base}.traffic.components", "scenario_traffic_mismatch", "logical traffic must re-materialize from scenario role encodings"))
+        if actual.get("traffic", {}).get("total_byte") != expected_point["traffic"]["total_byte"]:
+            problems.append(RooflineProblem(f"{base}.traffic.total_byte", "scenario_traffic_mismatch", "logical total traffic must re-materialize from its scenario"))
+        if actual.get("entity", {}).get("coverage_key") != expected_point["entity"]["coverage_key"]:
+            problems.append(RooflineProblem(f"{base}.entity.coverage_key", "scenario_coverage_mismatch", "coverage key must re-materialize from the logical shape and call count"))
+    return problems
 
 
 def main():

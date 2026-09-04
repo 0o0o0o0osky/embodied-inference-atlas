@@ -119055,31 +119055,7 @@
           {
             "component_id": "prefix-encoder--prefix-blocks--self-attention--key-projection-output-data",
             "kind": "boundary_output_write",
-            "byte": 3760128,
-            "tensor_ref": "prefix-encoder/prefix-blocks/self-attention/key-projection:output",
-            "provenance": {
-              "evidence": "analytical",
-              "class": "analytical_model",
-              "source_ids": [
-                "source-openpi",
-                "source-realtime-vla"
-              ],
-              "derivation": {
-                "kind": "formula",
-                "expression": "map formula-backed logical work to exact Task 4 execution groups and preserve omissions",
-                "input_refs": [
-                  "pi0-logical-v1",
-                  "rr-flashrt-pi0-thor-fp8-v1",
-                  "thor-t5000-120w-1386mhz"
-                ]
-              },
-              "condition": "Partial Task 4 mapping prevents a uniform runtime curve and complete model coverage."
-            }
-          },
-          {
-            "component_id": "prefix-encoder--prefix-blocks--self-attention--key-projection-output-tensor-scale",
-            "kind": "scale_read",
-            "byte": 72,
+            "byte": 7520256,
             "tensor_ref": "prefix-encoder/prefix-blocks/self-attention/key-projection:output",
             "provenance": {
               "evidence": "analytical",
@@ -119102,7 +119078,7 @@
           }
         ],
         "excluded_internal": [],
-        "total_byte": 43278552
+        "total_byte": 47038608
       },
       "timing": {
         "observed_second": null,
@@ -119126,11 +119102,11 @@
       },
       "derived": {
         "status": "complete",
-        "arithmetic_intensity_flop_per_byte": 355.86875198597215,
+        "arithmetic_intensity_flop_per_byte": 327.4221951465911,
         "compute_second": 3.3852392052048534e-05,
-        "memory_second": 0.0001585294945054945,
-        "roof_second": 0.0001585294945054945,
-        "roof_flop_per_second": 97152169292170.4,
+        "memory_second": 0.0001723025934065934,
+        "roof_second": 0.0001723025934065934,
+        "roof_flop_per_second": 89386259275019.36,
         "achieved_flop_per_second": null,
         "efficiency": null,
         "gap": null,
@@ -119314,31 +119290,7 @@
           {
             "component_id": "prefix-encoder--prefix-blocks--self-attention--query-projection-output-data",
             "kind": "boundary_output_write",
-            "byte": 30081024,
-            "tensor_ref": "prefix-encoder/prefix-blocks/self-attention/query-projection:output",
-            "provenance": {
-              "evidence": "analytical",
-              "class": "analytical_model",
-              "source_ids": [
-                "source-openpi",
-                "source-realtime-vla"
-              ],
-              "derivation": {
-                "kind": "formula",
-                "expression": "map formula-backed logical work to exact Task 4 execution groups and preserve omissions",
-                "input_refs": [
-                  "pi0-logical-v1",
-                  "rr-flashrt-pi0-thor-fp8-v1",
-                  "thor-t5000-120w-1386mhz"
-                ]
-              },
-              "condition": "Partial Task 4 mapping prevents a uniform runtime curve and complete model coverage."
-            }
-          },
-          {
-            "component_id": "prefix-encoder--prefix-blocks--self-attention--query-projection-output-tensor-scale",
-            "kind": "scale_read",
-            "byte": 72,
+            "byte": 60162048,
             "tensor_ref": "prefix-encoder/prefix-blocks/self-attention/query-projection:output",
             "provenance": {
               "evidence": "analytical",
@@ -119361,7 +119313,7 @@
           }
         ],
         "excluded_internal": [],
-        "total_byte": 135659736
+        "total_byte": 165740688
       },
       "timing": {
         "observed_second": null,
@@ -119385,11 +119337,11 @@
       },
       "derived": {
         "status": "complete",
-        "arithmetic_intensity_flop_per_byte": 908.2420321384084,
+        "arithmetic_intensity_flop_per_byte": 743.4014893434013,
         "compute_second": 0.0002708191364163883,
-        "memory_second": 0.0004969221098901099,
-        "roof_second": 0.0004969221098901099,
-        "roof_flop_per_second": 247950074773785.47,
+        "memory_second": 0.0006071087472527473,
+        "roof_second": 0.0006071087472527473,
+        "roof_flop_per_second": 202948606590748.53,
         "achieved_flop_per_second": null,
         "efficiency": null,
         "gap": null,
@@ -119573,31 +119525,7 @@
           {
             "component_id": "prefix-encoder--prefix-blocks--self-attention--value-projection-output-data",
             "kind": "boundary_output_write",
-            "byte": 3760128,
-            "tensor_ref": "prefix-encoder/prefix-blocks/self-attention/value-projection:output",
-            "provenance": {
-              "evidence": "analytical",
-              "class": "analytical_model",
-              "source_ids": [
-                "source-openpi",
-                "source-realtime-vla"
-              ],
-              "derivation": {
-                "kind": "formula",
-                "expression": "map formula-backed logical work to exact Task 4 execution groups and preserve omissions",
-                "input_refs": [
-                  "pi0-logical-v1",
-                  "rr-flashrt-pi0-thor-fp8-v1",
-                  "thor-t5000-120w-1386mhz"
-                ]
-              },
-              "condition": "Partial Task 4 mapping prevents a uniform runtime curve and complete model coverage."
-            }
-          },
-          {
-            "component_id": "prefix-encoder--prefix-blocks--self-attention--value-projection-output-tensor-scale",
-            "kind": "scale_read",
-            "byte": 72,
+            "byte": 7520256,
             "tensor_ref": "prefix-encoder/prefix-blocks/self-attention/value-projection:output",
             "provenance": {
               "evidence": "analytical",
@@ -119620,7 +119548,7 @@
           }
         ],
         "excluded_internal": [],
-        "total_byte": 43278552
+        "total_byte": 47038608
       },
       "timing": {
         "observed_second": null,
@@ -119644,11 +119572,11 @@
       },
       "derived": {
         "status": "complete",
-        "arithmetic_intensity_flop_per_byte": 355.86875198597215,
+        "arithmetic_intensity_flop_per_byte": 327.4221951465911,
         "compute_second": 3.3852392052048534e-05,
-        "memory_second": 0.0001585294945054945,
-        "roof_second": 0.0001585294945054945,
-        "roof_flop_per_second": 97152169292170.4,
+        "memory_second": 0.0001723025934065934,
+        "roof_second": 0.0001723025934065934,
+        "roof_flop_per_second": 89386259275019.36,
         "achieved_flop_per_second": null,
         "efficiency": null,
         "gap": null,
@@ -120286,31 +120214,7 @@
           {
             "component_id": "point-pi0-runtime_mixed-atomic-prefix-encoder--prefix-blocks--self-attention--query-projection--member--prefix-encoder--prefix-blocks--self-attention--query-projection-output-data",
             "kind": "boundary_output_write",
-            "byte": 30081024,
-            "tensor_ref": "prefix-encoder/prefix-blocks/self-attention/query-projection:output",
-            "provenance": {
-              "evidence": "analytical",
-              "class": "analytical_model",
-              "source_ids": [
-                "source-openpi",
-                "source-realtime-vla"
-              ],
-              "derivation": {
-                "kind": "formula",
-                "expression": "map formula-backed logical work to exact Task 4 execution groups and preserve omissions",
-                "input_refs": [
-                  "pi0-logical-v1",
-                  "rr-flashrt-pi0-thor-fp8-v1",
-                  "thor-t5000-120w-1386mhz"
-                ]
-              },
-              "condition": "Partial Task 4 mapping prevents a uniform runtime curve and complete model coverage."
-            }
-          },
-          {
-            "component_id": "point-pi0-runtime_mixed-atomic-prefix-encoder--prefix-blocks--self-attention--query-projection--member--prefix-encoder--prefix-blocks--self-attention--query-projection-output-tensor-scale",
-            "kind": "scale_read",
-            "byte": 72,
+            "byte": 60162048,
             "tensor_ref": "prefix-encoder/prefix-blocks/self-attention/query-projection:output",
             "provenance": {
               "evidence": "analytical",
@@ -120430,31 +120334,7 @@
           {
             "component_id": "point-pi0-runtime_mixed-atomic-prefix-encoder--prefix-blocks--self-attention--key-projection--member--prefix-encoder--prefix-blocks--self-attention--key-projection-output-data",
             "kind": "boundary_output_write",
-            "byte": 3760128,
-            "tensor_ref": "prefix-encoder/prefix-blocks/self-attention/key-projection:output",
-            "provenance": {
-              "evidence": "analytical",
-              "class": "analytical_model",
-              "source_ids": [
-                "source-openpi",
-                "source-realtime-vla"
-              ],
-              "derivation": {
-                "kind": "formula",
-                "expression": "map formula-backed logical work to exact Task 4 execution groups and preserve omissions",
-                "input_refs": [
-                  "pi0-logical-v1",
-                  "rr-flashrt-pi0-thor-fp8-v1",
-                  "thor-t5000-120w-1386mhz"
-                ]
-              },
-              "condition": "Partial Task 4 mapping prevents a uniform runtime curve and complete model coverage."
-            }
-          },
-          {
-            "component_id": "point-pi0-runtime_mixed-atomic-prefix-encoder--prefix-blocks--self-attention--key-projection--member--prefix-encoder--prefix-blocks--self-attention--key-projection-output-tensor-scale",
-            "kind": "scale_read",
-            "byte": 72,
+            "byte": 7520256,
             "tensor_ref": "prefix-encoder/prefix-blocks/self-attention/key-projection:output",
             "provenance": {
               "evidence": "analytical",
@@ -120574,31 +120454,7 @@
           {
             "component_id": "point-pi0-runtime_mixed-atomic-prefix-encoder--prefix-blocks--self-attention--value-projection--member--prefix-encoder--prefix-blocks--self-attention--value-projection-output-data",
             "kind": "boundary_output_write",
-            "byte": 3760128,
-            "tensor_ref": "prefix-encoder/prefix-blocks/self-attention/value-projection:output",
-            "provenance": {
-              "evidence": "analytical",
-              "class": "analytical_model",
-              "source_ids": [
-                "source-openpi",
-                "source-realtime-vla"
-              ],
-              "derivation": {
-                "kind": "formula",
-                "expression": "map formula-backed logical work to exact Task 4 execution groups and preserve omissions",
-                "input_refs": [
-                  "pi0-logical-v1",
-                  "rr-flashrt-pi0-thor-fp8-v1",
-                  "thor-t5000-120w-1386mhz"
-                ]
-              },
-              "condition": "Partial Task 4 mapping prevents a uniform runtime curve and complete model coverage."
-            }
-          },
-          {
-            "component_id": "point-pi0-runtime_mixed-atomic-prefix-encoder--prefix-blocks--self-attention--value-projection--member--prefix-encoder--prefix-blocks--self-attention--value-projection-output-tensor-scale",
-            "kind": "scale_read",
-            "byte": 72,
+            "byte": 7520256,
             "tensor_ref": "prefix-encoder/prefix-blocks/self-attention/value-projection:output",
             "provenance": {
               "evidence": "analytical",
@@ -120837,7 +120693,7 @@
           }
         ],
         "excluded_internal": [],
-        "total_byte": 713998216
+        "total_byte": 751599280
       },
       "timing": {
         "observed_second": null,
@@ -120880,9 +120736,9 @@
             "target": "point-pi0-runtime_mixed-atomic-prefix-encoder--prefix-blocks--self-attention--attention-score"
           }
         ],
-        "dependency_lower_bound_second": 0.0022920503736263737,
+        "dependency_lower_bound_second": 0.002402237010989011,
         "resource_compute_lower_bound_second": 0.0007463071893089502,
-        "resource_memory_lower_bound_second": 0.0026153780805860806
+        "resource_memory_lower_bound_second": 0.0027531109157509157
       },
       "coverage": {
         "status": "partial",
@@ -121147,11 +121003,11 @@
       },
       "derived": {
         "status": "partial_lower_bound",
-        "arithmetic_intensity_flop_per_byte": 345.62744742768376,
+        "arithmetic_intensity_flop_per_byte": 328.3363720944491,
         "compute_second": 0.0007463071893089502,
-        "memory_second": 0.0026153780805860806,
-        "roof_second": 0.0026153780805860806,
-        "roof_flop_per_second": 94356293147757.67,
+        "memory_second": 0.0027531109157509157,
+        "roof_second": 0.0027531109157509157,
+        "roof_flop_per_second": 89635829581784.6,
         "achieved_flop_per_second": null,
         "efficiency": null,
         "gap": null,
@@ -121448,31 +121304,7 @@
           {
             "component_id": "point-pi0-runtime_mixed-atomic-prefix-encoder--prefix-blocks--self-attention--query-projection--member--prefix-encoder--prefix-blocks--self-attention--query-projection-output-data",
             "kind": "boundary_output_write",
-            "byte": 30081024,
-            "tensor_ref": "prefix-encoder/prefix-blocks/self-attention/query-projection:output",
-            "provenance": {
-              "evidence": "analytical",
-              "class": "analytical_model",
-              "source_ids": [
-                "source-openpi",
-                "source-realtime-vla"
-              ],
-              "derivation": {
-                "kind": "formula",
-                "expression": "map formula-backed logical work to exact Task 4 execution groups and preserve omissions",
-                "input_refs": [
-                  "pi0-logical-v1",
-                  "rr-flashrt-pi0-thor-fp8-v1",
-                  "thor-t5000-120w-1386mhz"
-                ]
-              },
-              "condition": "Partial Task 4 mapping prevents a uniform runtime curve and complete model coverage."
-            }
-          },
-          {
-            "component_id": "point-pi0-runtime_mixed-atomic-prefix-encoder--prefix-blocks--self-attention--query-projection--member--prefix-encoder--prefix-blocks--self-attention--query-projection-output-tensor-scale",
-            "kind": "scale_read",
-            "byte": 72,
+            "byte": 60162048,
             "tensor_ref": "prefix-encoder/prefix-blocks/self-attention/query-projection:output",
             "provenance": {
               "evidence": "analytical",
@@ -121592,31 +121424,7 @@
           {
             "component_id": "point-pi0-runtime_mixed-atomic-prefix-encoder--prefix-blocks--self-attention--key-projection--member--prefix-encoder--prefix-blocks--self-attention--key-projection-output-data",
             "kind": "boundary_output_write",
-            "byte": 3760128,
-            "tensor_ref": "prefix-encoder/prefix-blocks/self-attention/key-projection:output",
-            "provenance": {
-              "evidence": "analytical",
-              "class": "analytical_model",
-              "source_ids": [
-                "source-openpi",
-                "source-realtime-vla"
-              ],
-              "derivation": {
-                "kind": "formula",
-                "expression": "map formula-backed logical work to exact Task 4 execution groups and preserve omissions",
-                "input_refs": [
-                  "pi0-logical-v1",
-                  "rr-flashrt-pi0-thor-fp8-v1",
-                  "thor-t5000-120w-1386mhz"
-                ]
-              },
-              "condition": "Partial Task 4 mapping prevents a uniform runtime curve and complete model coverage."
-            }
-          },
-          {
-            "component_id": "point-pi0-runtime_mixed-atomic-prefix-encoder--prefix-blocks--self-attention--key-projection--member--prefix-encoder--prefix-blocks--self-attention--key-projection-output-tensor-scale",
-            "kind": "scale_read",
-            "byte": 72,
+            "byte": 7520256,
             "tensor_ref": "prefix-encoder/prefix-blocks/self-attention/key-projection:output",
             "provenance": {
               "evidence": "analytical",
@@ -121736,31 +121544,7 @@
           {
             "component_id": "point-pi0-runtime_mixed-atomic-prefix-encoder--prefix-blocks--self-attention--value-projection--member--prefix-encoder--prefix-blocks--self-attention--value-projection-output-data",
             "kind": "boundary_output_write",
-            "byte": 3760128,
-            "tensor_ref": "prefix-encoder/prefix-blocks/self-attention/value-projection:output",
-            "provenance": {
-              "evidence": "analytical",
-              "class": "analytical_model",
-              "source_ids": [
-                "source-openpi",
-                "source-realtime-vla"
-              ],
-              "derivation": {
-                "kind": "formula",
-                "expression": "map formula-backed logical work to exact Task 4 execution groups and preserve omissions",
-                "input_refs": [
-                  "pi0-logical-v1",
-                  "rr-flashrt-pi0-thor-fp8-v1",
-                  "thor-t5000-120w-1386mhz"
-                ]
-              },
-              "condition": "Partial Task 4 mapping prevents a uniform runtime curve and complete model coverage."
-            }
-          },
-          {
-            "component_id": "point-pi0-runtime_mixed-atomic-prefix-encoder--prefix-blocks--self-attention--value-projection--member--prefix-encoder--prefix-blocks--self-attention--value-projection-output-tensor-scale",
-            "kind": "scale_read",
-            "byte": 72,
+            "byte": 7520256,
             "tensor_ref": "prefix-encoder/prefix-blocks/self-attention/value-projection:output",
             "provenance": {
               "evidence": "analytical",
@@ -121927,7 +121711,7 @@
           }
         ],
         "excluded_internal": [],
-        "total_byte": 712286856
+        "total_byte": 749887920
       },
       "timing": {
         "observed_second": null,
@@ -121961,9 +121745,9 @@
             "target": "point-pi0-runtime_mixed-atomic-prefix-encoder--prefix-blocks--self-attention--attention-score"
           }
         ],
-        "dependency_lower_bound_second": 0.0022920503736263737,
+        "dependency_lower_bound_second": 0.002402237010989011,
         "resource_compute_lower_bound_second": 0.0007461631414805698,
-        "resource_memory_lower_bound_second": 0.0026091093626373625
+        "resource_memory_lower_bound_second": 0.002746842197802198
       },
       "coverage": {
         "status": "partial",
@@ -122042,11 +121826,11 @@
       },
       "derived": {
         "status": "partial_lower_bound",
-        "arithmetic_intensity_flop_per_byte": 346.41185750590347,
+        "arithmetic_intensity_flop_per_byte": 329.0419891868641,
         "compute_second": 0.0007461631414805698,
-        "memory_second": 0.0026091093626373625,
-        "roof_second": 0.0026091093626373625,
-        "roof_flop_per_second": 94570437099111.66,
+        "memory_second": 0.002746842197802198,
+        "roof_second": 0.002746842197802198,
+        "roof_flop_per_second": 89828463048013.89,
         "achieved_flop_per_second": null,
         "efficiency": null,
         "gap": null,
@@ -259476,31 +259260,7 @@
           {
             "component_id": "action-flow-decoder--action-expert-blocks--attention-adarms--condition-projection-output-data",
             "kind": "boundary_output_write",
-            "byte": 552960,
-            "tensor_ref": "action-flow-decoder/action-expert-blocks/attention-adarms/condition-projection:output",
-            "provenance": {
-              "evidence": "analytical",
-              "class": "analytical_model",
-              "source_ids": [
-                "source-pi05-droid",
-                "source-lerobot-fbb811f"
-              ],
-              "derivation": {
-                "kind": "formula",
-                "expression": "map formula-backed logical work to exact Task 4 execution groups and preserve omissions",
-                "input_refs": [
-                  "pi05-droid-logical-v1",
-                  "rr-flashrt-pi05-thor-fp8-v1",
-                  "thor-t5000-120w-1386mhz"
-                ]
-              },
-              "condition": "Partial Task 4 mapping prevents a uniform runtime curve and complete model coverage."
-            }
-          },
-          {
-            "component_id": "action-flow-decoder--action-expert-blocks--attention-adarms--condition-projection-output-tensor-scale",
-            "kind": "scale_read",
-            "byte": 720,
+            "byte": 1105920,
             "tensor_ref": "action-flow-decoder/action-expert-blocks/attention-adarms/condition-projection:output",
             "provenance": {
               "evidence": "analytical",
@@ -259523,7 +259283,7 @@
           }
         ],
         "excluded_internal": [],
-        "total_byte": 566970480
+        "total_byte": 567522720
       },
       "timing": {
         "observed_second": null,
@@ -259547,11 +259307,11 @@
       },
       "derived": {
         "status": "complete",
-        "arithmetic_intensity_flop_per_byte": 1.9973916102298659,
+        "arithmetic_intensity_flop_per_byte": 1.9954480060287278,
         "compute_second": 2.489146474415333e-06,
-        "memory_second": 0.002076814945054945,
-        "roof_second": 0.002076814945054945,
-        "roof_flop_per_second": 545287909592.7534,
+        "memory_second": 0.002078837802197802,
+        "roof_second": 0.002078837802197802,
+        "roof_flop_per_second": 544757305645.8427,
         "achieved_flop_per_second": null,
         "efficiency": null,
         "gap": null,
@@ -260729,31 +260489,7 @@
           {
             "component_id": "action-flow-decoder--action-expert-blocks--self-attention--key-projection-output-data",
             "kind": "boundary_output_write",
-            "byte": 691200,
-            "tensor_ref": "action-flow-decoder/action-expert-blocks/self-attention/key-projection:output",
-            "provenance": {
-              "evidence": "analytical",
-              "class": "analytical_model",
-              "source_ids": [
-                "source-pi05-droid",
-                "source-lerobot-fbb811f"
-              ],
-              "derivation": {
-                "kind": "formula",
-                "expression": "map formula-backed logical work to exact Task 4 execution groups and preserve omissions",
-                "input_refs": [
-                  "pi05-droid-logical-v1",
-                  "rr-flashrt-pi05-thor-fp8-v1",
-                  "thor-t5000-120w-1386mhz"
-                ]
-              },
-              "condition": "Partial Task 4 mapping prevents a uniform runtime curve and complete model coverage."
-            }
-          },
-          {
-            "component_id": "action-flow-decoder--action-expert-blocks--self-attention--key-projection-output-tensor-scale",
-            "kind": "scale_read",
-            "byte": 720,
+            "byte": 1382400,
             "tensor_ref": "action-flow-decoder/action-expert-blocks/self-attention/key-projection:output",
             "provenance": {
               "evidence": "analytical",
@@ -260776,7 +260512,7 @@
           }
         ],
         "excluded_internal": [],
-        "total_byte": 50644080
+        "total_byte": 51334560
       },
       "timing": {
         "observed_second": null,
@@ -260800,11 +260536,11 @@
       },
       "derived": {
         "status": "complete",
-        "arithmetic_intensity_flop_per_byte": 27.95149205988143,
+        "arithmetic_intensity_flop_per_byte": 27.575528065303374,
         "compute_second": 3.1114330930191667e-06,
-        "memory_second": 0.00018550945054945055,
-        "roof_second": 0.00018550945054945055,
-        "roof_flop_per_second": 7630757332347.631,
+        "memory_second": 0.00018803868131868131,
+        "roof_second": 0.00018803868131868131,
+        "roof_flop_per_second": 7528119161827.821,
         "achieved_flop_per_second": null,
         "efficiency": null,
         "gap": null,
@@ -260988,31 +260724,7 @@
           {
             "component_id": "action-flow-decoder--action-expert-blocks--self-attention--query-projection-output-data",
             "kind": "boundary_output_write",
-            "byte": 5529600,
-            "tensor_ref": "action-flow-decoder/action-expert-blocks/self-attention/query-projection:output",
-            "provenance": {
-              "evidence": "analytical",
-              "class": "analytical_model",
-              "source_ids": [
-                "source-pi05-droid",
-                "source-lerobot-fbb811f"
-              ],
-              "derivation": {
-                "kind": "formula",
-                "expression": "map formula-backed logical work to exact Task 4 execution groups and preserve omissions",
-                "input_refs": [
-                  "pi05-droid-logical-v1",
-                  "rr-flashrt-pi05-thor-fp8-v1",
-                  "thor-t5000-120w-1386mhz"
-                ]
-              },
-              "condition": "Partial Task 4 mapping prevents a uniform runtime curve and complete model coverage."
-            }
-          },
-          {
-            "component_id": "action-flow-decoder--action-expert-blocks--self-attention--query-projection-output-tensor-scale",
-            "kind": "scale_read",
-            "byte": 720,
+            "byte": 11059200,
             "tensor_ref": "action-flow-decoder/action-expert-blocks/self-attention/query-projection:output",
             "provenance": {
               "evidence": "analytical",
@@ -261035,7 +260747,7 @@
           }
         ],
         "excluded_internal": [],
-        "total_byte": 385783920
+        "total_byte": 391312800
       },
       "timing": {
         "observed_second": null,
@@ -261059,11 +260771,11 @@
       },
       "derived": {
         "status": "complete",
-        "arithmetic_intensity_flop_per_byte": 29.354828474965988,
+        "arithmetic_intensity_flop_per_byte": 28.94007249443412,
         "compute_second": 2.4891464744153334e-05,
-        "memory_second": 0.001413127912087912,
-        "roof_second": 0.001413127912087912,
-        "roof_flop_per_second": 8013868173665.715,
+        "memory_second": 0.0014333802197802198,
+        "roof_second": 0.0014333802197802198,
+        "roof_flop_per_second": 7900639790980.515,
         "achieved_flop_per_second": null,
         "efficiency": null,
         "gap": null,
@@ -261247,31 +260959,7 @@
           {
             "component_id": "action-flow-decoder--action-expert-blocks--self-attention--value-projection-output-data",
             "kind": "boundary_output_write",
-            "byte": 691200,
-            "tensor_ref": "action-flow-decoder/action-expert-blocks/self-attention/value-projection:output",
-            "provenance": {
-              "evidence": "analytical",
-              "class": "analytical_model",
-              "source_ids": [
-                "source-pi05-droid",
-                "source-lerobot-fbb811f"
-              ],
-              "derivation": {
-                "kind": "formula",
-                "expression": "map formula-backed logical work to exact Task 4 execution groups and preserve omissions",
-                "input_refs": [
-                  "pi05-droid-logical-v1",
-                  "rr-flashrt-pi05-thor-fp8-v1",
-                  "thor-t5000-120w-1386mhz"
-                ]
-              },
-              "condition": "Partial Task 4 mapping prevents a uniform runtime curve and complete model coverage."
-            }
-          },
-          {
-            "component_id": "action-flow-decoder--action-expert-blocks--self-attention--value-projection-output-tensor-scale",
-            "kind": "scale_read",
-            "byte": 720,
+            "byte": 1382400,
             "tensor_ref": "action-flow-decoder/action-expert-blocks/self-attention/value-projection:output",
             "provenance": {
               "evidence": "analytical",
@@ -261294,7 +260982,7 @@
           }
         ],
         "excluded_internal": [],
-        "total_byte": 50644080
+        "total_byte": 51334560
       },
       "timing": {
         "observed_second": null,
@@ -261318,11 +261006,11 @@
       },
       "derived": {
         "status": "complete",
-        "arithmetic_intensity_flop_per_byte": 27.95149205988143,
+        "arithmetic_intensity_flop_per_byte": 27.575528065303374,
         "compute_second": 3.1114330930191667e-06,
-        "memory_second": 0.00018550945054945055,
-        "roof_second": 0.00018550945054945055,
-        "roof_flop_per_second": 7630757332347.631,
+        "memory_second": 0.00018803868131868131,
+        "roof_second": 0.00018803868131868131,
+        "roof_flop_per_second": 7528119161827.821,
         "achieved_flop_per_second": null,
         "efficiency": null,
         "gap": null,
@@ -261855,31 +261543,7 @@
           {
             "component_id": "point-pi05-runtime_mixed-atomic-action-flow-decoder--action-expert-blocks--attention-adarms--condition-projection--member--action-flow-decoder--action-expert-blocks--attention-adarms--condition-projection-output-data",
             "kind": "boundary_output_write",
-            "byte": 552960,
-            "tensor_ref": "action-flow-decoder/action-expert-blocks/attention-adarms/condition-projection:output",
-            "provenance": {
-              "evidence": "analytical",
-              "class": "analytical_model",
-              "source_ids": [
-                "source-pi05-droid",
-                "source-lerobot-fbb811f"
-              ],
-              "derivation": {
-                "kind": "formula",
-                "expression": "map formula-backed logical work to exact Task 4 execution groups and preserve omissions",
-                "input_refs": [
-                  "pi05-droid-logical-v1",
-                  "rr-flashrt-pi05-thor-fp8-v1",
-                  "thor-t5000-120w-1386mhz"
-                ]
-              },
-              "condition": "Partial Task 4 mapping prevents a uniform runtime curve and complete model coverage."
-            }
-          },
-          {
-            "component_id": "point-pi05-runtime_mixed-atomic-action-flow-decoder--action-expert-blocks--attention-adarms--condition-projection--member--action-flow-decoder--action-expert-blocks--attention-adarms--condition-projection-output-tensor-scale",
-            "kind": "scale_read",
-            "byte": 720,
+            "byte": 1105920,
             "tensor_ref": "action-flow-decoder/action-expert-blocks/attention-adarms/condition-projection:output",
             "provenance": {
               "evidence": "analytical",
@@ -261999,31 +261663,7 @@
           {
             "component_id": "point-pi05-runtime_mixed-atomic-action-flow-decoder--action-expert-blocks--self-attention--query-projection--member--action-flow-decoder--action-expert-blocks--self-attention--query-projection-output-data",
             "kind": "boundary_output_write",
-            "byte": 5529600,
-            "tensor_ref": "action-flow-decoder/action-expert-blocks/self-attention/query-projection:output",
-            "provenance": {
-              "evidence": "analytical",
-              "class": "analytical_model",
-              "source_ids": [
-                "source-pi05-droid",
-                "source-lerobot-fbb811f"
-              ],
-              "derivation": {
-                "kind": "formula",
-                "expression": "map formula-backed logical work to exact Task 4 execution groups and preserve omissions",
-                "input_refs": [
-                  "pi05-droid-logical-v1",
-                  "rr-flashrt-pi05-thor-fp8-v1",
-                  "thor-t5000-120w-1386mhz"
-                ]
-              },
-              "condition": "Partial Task 4 mapping prevents a uniform runtime curve and complete model coverage."
-            }
-          },
-          {
-            "component_id": "point-pi05-runtime_mixed-atomic-action-flow-decoder--action-expert-blocks--self-attention--query-projection--member--action-flow-decoder--action-expert-blocks--self-attention--query-projection-output-tensor-scale",
-            "kind": "scale_read",
-            "byte": 720,
+            "byte": 11059200,
             "tensor_ref": "action-flow-decoder/action-expert-blocks/self-attention/query-projection:output",
             "provenance": {
               "evidence": "analytical",
@@ -262143,31 +261783,7 @@
           {
             "component_id": "point-pi05-runtime_mixed-atomic-action-flow-decoder--action-expert-blocks--self-attention--key-projection--member--action-flow-decoder--action-expert-blocks--self-attention--key-projection-output-data",
             "kind": "boundary_output_write",
-            "byte": 691200,
-            "tensor_ref": "action-flow-decoder/action-expert-blocks/self-attention/key-projection:output",
-            "provenance": {
-              "evidence": "analytical",
-              "class": "analytical_model",
-              "source_ids": [
-                "source-pi05-droid",
-                "source-lerobot-fbb811f"
-              ],
-              "derivation": {
-                "kind": "formula",
-                "expression": "map formula-backed logical work to exact Task 4 execution groups and preserve omissions",
-                "input_refs": [
-                  "pi05-droid-logical-v1",
-                  "rr-flashrt-pi05-thor-fp8-v1",
-                  "thor-t5000-120w-1386mhz"
-                ]
-              },
-              "condition": "Partial Task 4 mapping prevents a uniform runtime curve and complete model coverage."
-            }
-          },
-          {
-            "component_id": "point-pi05-runtime_mixed-atomic-action-flow-decoder--action-expert-blocks--self-attention--key-projection--member--action-flow-decoder--action-expert-blocks--self-attention--key-projection-output-tensor-scale",
-            "kind": "scale_read",
-            "byte": 720,
+            "byte": 1382400,
             "tensor_ref": "action-flow-decoder/action-expert-blocks/self-attention/key-projection:output",
             "provenance": {
               "evidence": "analytical",
@@ -262287,31 +261903,7 @@
           {
             "component_id": "point-pi05-runtime_mixed-atomic-action-flow-decoder--action-expert-blocks--self-attention--value-projection--member--action-flow-decoder--action-expert-blocks--self-attention--value-projection-output-data",
             "kind": "boundary_output_write",
-            "byte": 691200,
-            "tensor_ref": "action-flow-decoder/action-expert-blocks/self-attention/value-projection:output",
-            "provenance": {
-              "evidence": "analytical",
-              "class": "analytical_model",
-              "source_ids": [
-                "source-pi05-droid",
-                "source-lerobot-fbb811f"
-              ],
-              "derivation": {
-                "kind": "formula",
-                "expression": "map formula-backed logical work to exact Task 4 execution groups and preserve omissions",
-                "input_refs": [
-                  "pi05-droid-logical-v1",
-                  "rr-flashrt-pi05-thor-fp8-v1",
-                  "thor-t5000-120w-1386mhz"
-                ]
-              },
-              "condition": "Partial Task 4 mapping prevents a uniform runtime curve and complete model coverage."
-            }
-          },
-          {
-            "component_id": "point-pi05-runtime_mixed-atomic-action-flow-decoder--action-expert-blocks--self-attention--value-projection--member--action-flow-decoder--action-expert-blocks--self-attention--value-projection-output-tensor-scale",
-            "kind": "scale_read",
-            "byte": 720,
+            "byte": 1382400,
             "tensor_ref": "action-flow-decoder/action-expert-blocks/self-attention/value-projection:output",
             "provenance": {
               "evidence": "analytical",
@@ -262550,7 +262142,7 @@
           }
         ],
         "excluded_internal": [],
-        "total_byte": 1343250880
+        "total_byte": 1350712960
       },
       "timing": {
         "observed_second": null,
@@ -262606,9 +262198,9 @@
             "target": "point-pi05-runtime_mixed-atomic-action-flow-decoder--action-expert-blocks--self-attention--attention-score"
           }
         ],
-        "dependency_lower_bound_second": 0.004549313992673993,
+        "dependency_lower_bound_second": 0.004571589157509158,
         "resource_compute_lower_bound_second": 0.00012922602707930367,
-        "resource_memory_lower_bound_second": 0.004920332893772894
+        "resource_memory_lower_bound_second": 0.00494766652014652
       },
       "coverage": {
         "status": "partial",
@@ -262805,11 +262397,11 @@
       },
       "derived": {
         "status": "partial_lower_bound",
-        "arithmetic_intensity_flop_per_byte": 27.575232766644454,
+        "arithmetic_intensity_flop_per_byte": 27.42289204065977,
         "compute_second": 0.00012922602707930367,
-        "memory_second": 0.004920332893772894,
-        "roof_second": 0.004920332893772894,
-        "roof_flop_per_second": 7528038545293.937,
+        "memory_second": 0.00494766652014652,
+        "roof_second": 0.00494766652014652,
+        "roof_flop_per_second": 7486449527100.117,
         "achieved_flop_per_second": null,
         "efficiency": null,
         "gap": null,
@@ -263160,31 +262752,7 @@
           {
             "component_id": "point-pi05-runtime_mixed-atomic-action-flow-decoder--action-expert-blocks--attention-adarms--condition-projection--member--action-flow-decoder--action-expert-blocks--attention-adarms--condition-projection-output-data",
             "kind": "boundary_output_write",
-            "byte": 552960,
-            "tensor_ref": "action-flow-decoder/action-expert-blocks/attention-adarms/condition-projection:output",
-            "provenance": {
-              "evidence": "analytical",
-              "class": "analytical_model",
-              "source_ids": [
-                "source-pi05-droid",
-                "source-lerobot-fbb811f"
-              ],
-              "derivation": {
-                "kind": "formula",
-                "expression": "map formula-backed logical work to exact Task 4 execution groups and preserve omissions",
-                "input_refs": [
-                  "pi05-droid-logical-v1",
-                  "rr-flashrt-pi05-thor-fp8-v1",
-                  "thor-t5000-120w-1386mhz"
-                ]
-              },
-              "condition": "Partial Task 4 mapping prevents a uniform runtime curve and complete model coverage."
-            }
-          },
-          {
-            "component_id": "point-pi05-runtime_mixed-atomic-action-flow-decoder--action-expert-blocks--attention-adarms--condition-projection--member--action-flow-decoder--action-expert-blocks--attention-adarms--condition-projection-output-tensor-scale",
-            "kind": "scale_read",
-            "byte": 720,
+            "byte": 1105920,
             "tensor_ref": "action-flow-decoder/action-expert-blocks/attention-adarms/condition-projection:output",
             "provenance": {
               "evidence": "analytical",
@@ -263304,31 +262872,7 @@
           {
             "component_id": "point-pi05-runtime_mixed-atomic-action-flow-decoder--action-expert-blocks--self-attention--query-projection--member--action-flow-decoder--action-expert-blocks--self-attention--query-projection-output-data",
             "kind": "boundary_output_write",
-            "byte": 5529600,
-            "tensor_ref": "action-flow-decoder/action-expert-blocks/self-attention/query-projection:output",
-            "provenance": {
-              "evidence": "analytical",
-              "class": "analytical_model",
-              "source_ids": [
-                "source-pi05-droid",
-                "source-lerobot-fbb811f"
-              ],
-              "derivation": {
-                "kind": "formula",
-                "expression": "map formula-backed logical work to exact Task 4 execution groups and preserve omissions",
-                "input_refs": [
-                  "pi05-droid-logical-v1",
-                  "rr-flashrt-pi05-thor-fp8-v1",
-                  "thor-t5000-120w-1386mhz"
-                ]
-              },
-              "condition": "Partial Task 4 mapping prevents a uniform runtime curve and complete model coverage."
-            }
-          },
-          {
-            "component_id": "point-pi05-runtime_mixed-atomic-action-flow-decoder--action-expert-blocks--self-attention--query-projection--member--action-flow-decoder--action-expert-blocks--self-attention--query-projection-output-tensor-scale",
-            "kind": "scale_read",
-            "byte": 720,
+            "byte": 11059200,
             "tensor_ref": "action-flow-decoder/action-expert-blocks/self-attention/query-projection:output",
             "provenance": {
               "evidence": "analytical",
@@ -263448,31 +262992,7 @@
           {
             "component_id": "point-pi05-runtime_mixed-atomic-action-flow-decoder--action-expert-blocks--self-attention--key-projection--member--action-flow-decoder--action-expert-blocks--self-attention--key-projection-output-data",
             "kind": "boundary_output_write",
-            "byte": 691200,
-            "tensor_ref": "action-flow-decoder/action-expert-blocks/self-attention/key-projection:output",
-            "provenance": {
-              "evidence": "analytical",
-              "class": "analytical_model",
-              "source_ids": [
-                "source-pi05-droid",
-                "source-lerobot-fbb811f"
-              ],
-              "derivation": {
-                "kind": "formula",
-                "expression": "map formula-backed logical work to exact Task 4 execution groups and preserve omissions",
-                "input_refs": [
-                  "pi05-droid-logical-v1",
-                  "rr-flashrt-pi05-thor-fp8-v1",
-                  "thor-t5000-120w-1386mhz"
-                ]
-              },
-              "condition": "Partial Task 4 mapping prevents a uniform runtime curve and complete model coverage."
-            }
-          },
-          {
-            "component_id": "point-pi05-runtime_mixed-atomic-action-flow-decoder--action-expert-blocks--self-attention--key-projection--member--action-flow-decoder--action-expert-blocks--self-attention--key-projection-output-tensor-scale",
-            "kind": "scale_read",
-            "byte": 720,
+            "byte": 1382400,
             "tensor_ref": "action-flow-decoder/action-expert-blocks/self-attention/key-projection:output",
             "provenance": {
               "evidence": "analytical",
@@ -263592,31 +263112,7 @@
           {
             "component_id": "point-pi05-runtime_mixed-atomic-action-flow-decoder--action-expert-blocks--self-attention--value-projection--member--action-flow-decoder--action-expert-blocks--self-attention--value-projection-output-data",
             "kind": "boundary_output_write",
-            "byte": 691200,
-            "tensor_ref": "action-flow-decoder/action-expert-blocks/self-attention/value-projection:output",
-            "provenance": {
-              "evidence": "analytical",
-              "class": "analytical_model",
-              "source_ids": [
-                "source-pi05-droid",
-                "source-lerobot-fbb811f"
-              ],
-              "derivation": {
-                "kind": "formula",
-                "expression": "map formula-backed logical work to exact Task 4 execution groups and preserve omissions",
-                "input_refs": [
-                  "pi05-droid-logical-v1",
-                  "rr-flashrt-pi05-thor-fp8-v1",
-                  "thor-t5000-120w-1386mhz"
-                ]
-              },
-              "condition": "Partial Task 4 mapping prevents a uniform runtime curve and complete model coverage."
-            }
-          },
-          {
-            "component_id": "point-pi05-runtime_mixed-atomic-action-flow-decoder--action-expert-blocks--self-attention--value-projection--member--action-flow-decoder--action-expert-blocks--self-attention--value-projection-output-tensor-scale",
-            "kind": "scale_read",
-            "byte": 720,
+            "byte": 1382400,
             "tensor_ref": "action-flow-decoder/action-expert-blocks/self-attention/value-projection:output",
             "provenance": {
               "evidence": "analytical",
@@ -263855,7 +263351,7 @@
           }
         ],
         "excluded_internal": [],
-        "total_byte": 1343250880
+        "total_byte": 1350712960
       },
       "timing": {
         "observed_second": null,
@@ -263911,9 +263407,9 @@
             "target": "point-pi05-runtime_mixed-atomic-action-flow-decoder--action-expert-blocks--self-attention--attention-score"
           }
         ],
-        "dependency_lower_bound_second": 0.004549313992673993,
+        "dependency_lower_bound_second": 0.004571589157509158,
         "resource_compute_lower_bound_second": 0.00012922602707930367,
-        "resource_memory_lower_bound_second": 0.004920332893772894
+        "resource_memory_lower_bound_second": 0.00494766652014652
       },
       "coverage": {
         "status": "partial",
@@ -264259,11 +263755,11 @@
       },
       "derived": {
         "status": "partial_lower_bound",
-        "arithmetic_intensity_flop_per_byte": 27.575232766644454,
+        "arithmetic_intensity_flop_per_byte": 27.42289204065977,
         "compute_second": 0.00012922602707930367,
-        "memory_second": 0.004920332893772894,
-        "roof_second": 0.004920332893772894,
-        "roof_flop_per_second": 7528038545293.937,
+        "memory_second": 0.00494766652014652,
+        "roof_second": 0.00494766652014652,
+        "roof_flop_per_second": 7486449527100.117,
         "achieved_flop_per_second": null,
         "efficiency": null,
         "gap": null,

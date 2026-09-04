@@ -30,7 +30,7 @@ export function RooflineModeTabs({
           onClick={() => navigate({ rooflineLevel: mode.id, basis: null, entity: null })}
         >
           <span>{mode.label}</span>
-          {mode.id !== "overview" ? <small>{counts.get(mode.id) ?? 0}</small> : <small>4</small>}
+          {mode.id !== "overview" ? <small>{counts.get(mode.id) ?? 0} points</small> : <small>4 levels</small>}
         </button>
       ))}
     </nav>

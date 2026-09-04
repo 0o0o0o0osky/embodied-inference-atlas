@@ -233,11 +233,13 @@ def roofline_problems(datasets: Mapping[str, list[Mapping]]) -> list[RooflinePro
             )
 
     compute_by_ceiling: dict[str, dict[str, float]] = {}
+    sparse_classes_by_ceiling: dict[str, set[str]] = {}
     bandwidth_by_ceiling: dict[str, dict[str, float]] = {}
     for index, ceiling in enumerate(ceilings):
         base = f"$.roofline_ceilings[{index}]"
         ceiling_id = ceiling.get("ceiling_id")
         compute: dict[str, float] = {}
+        sparse_classes: set[str] = set()
         for item_index, item in enumerate(_mapping_list(ceiling.get("compute"))):
             rate = item.get("flop_per_second")
             if _is_number(rate):
@@ -247,6 +249,8 @@ def roofline_problems(datasets: Mapping[str, list[Mapping]]) -> list[RooflinePro
                     if compute_class in compute:
                         issues.append(_problem(f"{base}.compute[{item_index}].compute_class", "duplicate", "compute class must be unique in a ceiling"))
                     compute[compute_class] = float(rate)
+                    if item.get("requires_sparsity_on") is True:
+                        sparse_classes.add(compute_class)
             elif rate is None and not _has_missing(ceiling, f"compute.{item.get('compute_ceiling_id')}.flop_per_second"):
                 issues.append(_missing(f"{base}.compute[{item_index}].flop_per_second"))
         bandwidth: dict[str, float] = {}
@@ -260,6 +264,7 @@ def roofline_problems(datasets: Mapping[str, list[Mapping]]) -> list[RooflinePro
                 issues.append(_missing(f"{base}.bandwidth[{item_index}].byte_per_second"))
         if isinstance(ceiling_id, str):
             compute_by_ceiling[ceiling_id] = compute
+            sparse_classes_by_ceiling[ceiling_id] = sparse_classes
             bandwidth_by_ceiling[ceiling_id] = bandwidth
 
     for index, scenario in enumerate(scenarios):
@@ -356,6 +361,13 @@ def roofline_problems(datasets: Mapping[str, list[Mapping]]) -> list[RooflinePro
         run_id = basis.get("run_id")
         if run_id is not None and run_id not in run_ids:
             issues.append(_broken(f"{base}.run_id"))
+        scenario_classes = {
+            segment.get("compute_class")
+            for segment in _mapping_list(path.get("segments") if isinstance(path, Mapping) else None)
+        }
+        sparse_classes = sparse_classes_by_ceiling.get(str(basis.get("ceiling_id")), set())
+        if scenario_classes & sparse_classes and not _basis_has_sparsity_observation(basis, run_by_id):
+            issues.append(_problem(base, "sparse_observation", "sparse compute roofs require the exact matched run observation to record sparsity_on=true"))
 
     legacy_pairs: set[tuple[str, str]] = set()
     legacy_operator_ids: set[str] = set()
@@ -367,7 +379,17 @@ def roofline_problems(datasets: Mapping[str, list[Mapping]]) -> list[RooflinePro
         if basis is None:
             issues.append(_broken(f"{base}.basis_id"))
             continue
-        _validate_point(issues, point, basis, ceiling_by_id, compute_by_ceiling, bandwidth_by_ceiling, base)
+        _validate_point(
+            issues,
+            point,
+            basis,
+            ceiling_by_id,
+            compute_by_ceiling,
+            sparse_classes_by_ceiling,
+            bandwidth_by_ceiling,
+            run_by_id,
+            base,
+        )
         entity = point.get("entity")
         kind = entity.get("kind") if isinstance(entity, Mapping) else None
         level = basis.get("level")
@@ -450,7 +472,9 @@ def _validate_point(
     basis: Mapping,
     ceilings: Mapping[object, Mapping],
     compute_by_ceiling: Mapping[str, Mapping[str, float]],
+    sparse_classes_by_ceiling: Mapping[str, set[str]],
     bandwidth_by_ceiling: Mapping[str, Mapping[str, float]],
+    runs: Mapping[object, Mapping],
     base: str,
 ) -> None:
     work = point.get("work")
@@ -479,12 +503,18 @@ def _validate_point(
         issues.append(_problem(f"{base}.derived.arithmetic_intensity_flop_per_byte", "derived_mismatch", "AI must equal total FLOPs / total bytes"))
     ceiling_id = str(basis.get("ceiling_id"))
     rates = compute_by_ceiling.get(ceiling_id, {})
+    sparse_classes = sparse_classes_by_ceiling.get(ceiling_id, set())
+    sparse_observed = _basis_has_sparsity_observation(basis, runs)
     allocations: list[tuple[float, float]] = []
     missing_compute = False
     for item in work_components:
         flop = float(item.get("flop", 0))
         compute_class = item.get("compute_class")
-        if flop and (not isinstance(compute_class, str) or compute_class not in rates):
+        if flop and (
+            not isinstance(compute_class, str)
+            or compute_class not in rates
+            or (compute_class in sparse_classes and not sparse_observed)
+        ):
             missing_compute = True
         elif flop:
             allocations.append((flop, rates[compute_class]))
@@ -821,6 +851,20 @@ def _basis_has_observed_clocks(basis: Mapping, ceiling: Mapping | None) -> bool:
     )
     required_emc = bandwidth.get("required_emc_clock_hz") if isinstance(bandwidth, Mapping) else None
     return required_emc is None or _close(required_emc, operating.get("emc_clock_hz"))
+
+
+def _basis_has_sparsity_observation(
+    basis: Mapping, runs: Mapping[object, Mapping]
+) -> bool:
+    """Require an execution observation, not a ceiling-mode assertion.
+
+    The current run contract has no ``sparsity_on`` field, so sparse published
+    facts remain inventory-only. This becomes eligible only if the exact run
+    referenced by the basis carries an explicit true observation.
+    """
+    run = runs.get(basis.get("run_id"))
+    operating = run.get("operating_point") if isinstance(run, Mapping) else None
+    return isinstance(operating, Mapping) and operating.get("sparsity_on") is True
 
 
 def _validate_source_refs(

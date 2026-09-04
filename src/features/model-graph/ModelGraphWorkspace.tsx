@@ -1,7 +1,9 @@
 import { useMemo } from "react";
 
 import { type RoutePatch, type RouteState } from "../../app/routes";
-import { logicalEntity, logicalRefFromEntity } from "../workbench/entityKeys";
+import { adaptRuntimeRealization, isRuntimeRealizationRecord } from "../runtime/domain/adaptRuntimeRealization";
+import { indexRuntimeRealization } from "../runtime/domain/indexRuntimeRealization";
+import { logicalEntity, logicalRefFromEntity, parseEntityKey } from "../workbench/entityKeys";
 import type { AtlasData, CanonicalRecord, ModelRecord } from "../../types/atlas";
 import { DerivedSymbols } from "./components/DerivedSymbols";
 import { GraphBreadcrumb } from "./components/GraphBreadcrumb";
@@ -45,6 +47,7 @@ export function ModelGraphWorkspace({
 
   return (
     <ResolvedModelGraph
+      data={data}
       record={record}
       model={model}
       route={route}
@@ -54,11 +57,13 @@ export function ModelGraphWorkspace({
 }
 
 function ResolvedModelGraph({
+  data,
   record,
   model,
   route,
   navigate,
 }: {
+  data: AtlasData;
   record: CanonicalRecord;
   model: ModelRecord;
   route: RouteState;
@@ -88,7 +93,18 @@ function ResolvedModelGraph({
     [layout, profile.presentation, structuralDag],
   );
   const firstOperator = [...dag.nodes.values()].find((node) => node.kind === "operator");
-  const routedRef = logicalRefFromEntity(route.entity);
+  const parsedEntity = parseEntityKey(route.entity);
+  const routedRef = logicalRefFromEntity(route.entity) ?? (parsedEntity?.kind === "runtime-group"
+    ? (() => {
+        const raw = data.datasets.runtime_realizations.find((item) => item.realization_id === parsedEntity.realizationId);
+        if (!raw || !isRuntimeRealizationRecord(raw, model.model_id)) return null;
+        const mappings = indexRuntimeRealization(adaptRuntimeRealization(raw)).mappingsByGroupId.get(parsedEntity.executionGroupId) ?? [];
+        return mappings
+          .filter((mapping) => mapping.path === "primary" && mapping.certainty === "exact")
+          .flatMap((mapping) => mapping.logicalTargets.map((target) => target.ref))
+          .find((ref) => dag.nodes.has(ref)) ?? null;
+      })()
+    : null);
   const routedNode = routedRef ? dag.nodes.get(routedRef) : undefined;
   const selectedNode = routedNode?.detail ? routedNode : firstOperator;
   const operator = selectedNode?.detail ?? null;

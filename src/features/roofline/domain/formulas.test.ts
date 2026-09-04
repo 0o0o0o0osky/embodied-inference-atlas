@@ -1,10 +1,17 @@
 import { describe, expect, it } from "vitest";
 
+import ceilingDocument from "../../../../data/analysis/roofline_ceilings.json";
+import scenarioDocument from "../../../../data/analysis/roofline_scenarios.json";
+import graphDocument from "../../../../data/model_graphs/pi0.json";
+import realizationDocument from "../../../../data/runtime_realizations/pi0.json";
+import type { CanonicalRecord } from "../../../types/atlas";
+import { materializeInteractiveRoofline } from "../data/materialize";
 import { attentionMetrics } from "./attention";
 import { stageLowerBound } from "./criticalPath";
 import { linearBoundaryTraffic } from "./fusedTraffic";
 import { linearAtomicPoint, mixedComputeSecond } from "./formulas";
 import { nvfp4Bytes, q8_0Bytes, w4Group32Bytes } from "./storage";
+import type { RooflineCeilingRecord, RooflineScenarioRecord } from "./types";
 
 describe("roofline analytical contracts", () => {
   it("preserves packed tails, resource-aware bounds, and literal model anchors", () => {
@@ -78,5 +85,24 @@ describe("roofline analytical contracts", () => {
       expect(metrics.atomicByte).toBe(anchor.atomicByte);
       expect(metrics.fusedBoundaryByte).toBe(anchor.fusedByte);
     }
+
+    const scenario = scenarioDocument.records.find((item) => item.scenario_id === "scenario-pi0-runtime_mixed-default") as unknown as RooflineScenarioRecord;
+    const ceiling = ceilingDocument.records.find((item) => item.ceiling_id === "thor-t5000-120w-1386mhz") as unknown as RooflineCeilingRecord;
+    const interactive = materializeInteractiveRoofline(
+      graphDocument.records[0] as unknown as CanonicalRecord,
+      scenario,
+      ceiling,
+      { executedCameraViews: 3, executedPromptTokens: 48, actionHorizon: 50, denoiseSteps: 10 },
+      realizationDocument.records[0] as unknown as CanonicalRecord,
+    );
+    const keyProjection = interactive.points.find((point) => point.entity.entity_id === "prefix-encoder/prefix-blocks/self-attention/key-projection")!;
+    expect(keyProjection.traffic.components.map(({ kind, byte }) => [kind, byte])).toEqual([
+      ["input_read", 30_081_024], ["scale_read", 72],
+      ["weight_read", 9_437_184], ["scale_read", 72],
+      ["boundary_output_write", 7_520_256],
+    ]);
+    expect(keyProjection.traffic.total_byte).toBe(47_038_608);
+    expect(keyProjection.derived.roof_second).toBeCloseTo(172.3025934065934e-6, 16);
+    expect(keyProjection.entity.coverage_key).toBe("logical:prefix-encoder/prefix-blocks/self-attention/key-projection|shape:816x2048x256|calls:18");
   });
 });
