@@ -17,7 +17,7 @@
             "node_id": {"type": "string", "min_length": 1, "max_length": 80},
             "label": {"type": "string", "min_length": 1, "max_length": 120},
             "kind": {"type": "string", "min_length": 1, "max_length": 80},
-            "multiplicity": {"type": "integer", "minimum": 1}
+            "multiplicity": {"type": "string", "enum": ["once", "per_view", "per_denoise_step"]}
           }
         }
       },

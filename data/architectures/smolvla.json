@@ -6,12 +6,12 @@
       "architecture_id": "smolvla",
       "model_id": "smolvla",
       "nodes": [
-        {"node_id": "observations", "label": "Observations", "kind": "once_per_inference", "multiplicity": 1},
-        {"node_id": "vision-encoder", "label": "Per-view vision encoder", "kind": "per_view", "multiplicity": 1},
-        {"node_id": "connector-prefix", "label": "Connector + language/state prefix", "kind": "once_per_inference", "multiplicity": 1},
-        {"node_id": "vlm-prefill", "label": "VLM prefill/KV", "kind": "once_per_inference", "multiplicity": 1},
-        {"node_id": "flow-expert", "label": "Flow-matching expert", "kind": "per_denoise_step", "multiplicity": 1},
-        {"node_id": "action-chunk", "label": "Action chunk", "kind": "once_per_inference", "multiplicity": 1}
+        {"node_id": "observations", "label": "Observations", "kind": "input", "multiplicity": "once"},
+        {"node_id": "vision-encoder", "label": "Per-view vision encoder", "kind": "vision_encoder", "multiplicity": "per_view"},
+        {"node_id": "connector-prefix", "label": "Connector + language/state prefix", "kind": "connector", "multiplicity": "once"},
+        {"node_id": "vlm-prefill", "label": "VLM prefill/KV", "kind": "vlm_prefill", "multiplicity": "once"},
+        {"node_id": "flow-expert", "label": "Flow-matching expert", "kind": "action_expert", "multiplicity": "per_denoise_step"},
+        {"node_id": "action-chunk", "label": "Action chunk", "kind": "output", "multiplicity": "once"}
       ],
       "edges": [
         {"source": "observations", "target": "vision-encoder", "tensor_label": "images[B,V,H,W]"},
