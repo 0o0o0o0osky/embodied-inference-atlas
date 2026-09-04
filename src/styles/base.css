@@ -18,6 +18,11 @@
   --recess: #e9eeeb;
   --white: #ffffff;
   --danger: #9a3327;
+  --roofline-grid: #c5ceca;
+  --roofline-roof: #0e5c73;
+  --roofline-reference: #71807b;
+  --roofline-partial: #9b6818;
+  --roofline-selection: var(--safety-orange);
   --display-face: "Arial Narrow", "Liberation Sans Narrow", "Nimbus Sans Narrow",
     Aptos, "Segoe UI", sans-serif;
   --mono-face: "Cascadia Mono", "SFMono-Regular", Consolas, "Liberation Mono",

@@ -2,6 +2,7 @@ import { WORKBENCH_TABS, type RoutePatch, type RouteState } from "../../app/rout
 import { RouteLink } from "../../components/RouteLink";
 import { ModelGraphWorkspace } from "../model-graph/ModelGraphWorkspace";
 import { RuntimeView } from "../runtime/RuntimeView";
+import { RooflineView } from "../roofline/components/RooflineView";
 import type { AtlasData, ModelRecord } from "../../types/atlas";
 import { ContextBar } from "./ContextBar";
 import { WorkbenchSurface } from "./WorkbenchSurface";
@@ -73,6 +74,8 @@ export function Workbench({ data, model, route, navigate }: WorkbenchProps) {
         />
       ) : route.tab === "runtime" ? (
         <RuntimeView data={data} model={model} route={route} navigate={navigate} />
+      ) : route.tab === "roofline-kernels" ? (
+        <RooflineView data={data} model={model} route={route} navigate={navigate} />
       ) : (
         <div className="workbench-grid">
           <WorkbenchSurface data={data} model={model} tab={route.tab} />

@@ -1,0 +1,1027 @@
+{
+  "dataset": "roofline_scenarios",
+  "record": {
+    "type": "object",
+    "required": [
+      "schema_version",
+      "scenario_id",
+      "label",
+      "origin",
+      "model_id",
+      "model_graph_id",
+      "model_artifact_id",
+      "workload",
+      "precision_path",
+      "modeling_scope",
+      "provenance",
+      "missing"
+    ],
+    "additional_properties": false,
+    "properties": {
+      "schema_version": {
+        "type": "string",
+        "min_length": 1,
+        "max_length": 240,
+        "enum": [
+          "2.0.0"
+        ]
+      },
+      "scenario_id": {
+        "type": "string",
+        "min_length": 1,
+        "max_length": 160
+      },
+      "label": {
+        "type": "string",
+        "min_length": 1,
+        "max_length": 240
+      },
+      "origin": {
+        "type": "string",
+        "min_length": 1,
+        "max_length": 240,
+        "enum": [
+          "default_precomputed",
+          "interactive_analytical",
+          "legacy_import"
+        ]
+      },
+      "model_id": {
+        "type": "string",
+        "min_length": 1,
+        "max_length": 240,
+        "enum": [
+          "pi0",
+          "pi05",
+          "smolvla"
+        ]
+      },
+      "model_graph_id": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "min_length": 1,
+        "max_length": 120
+      },
+      "model_artifact_id": {
+        "type": "string",
+        "min_length": 1,
+        "max_length": 160
+      },
+      "workload": {
+        "type": "object",
+        "required": [
+          "batch_size",
+          "active_camera_views",
+          "executed_camera_views",
+          "raw_image_height",
+          "raw_image_width",
+          "executed_image_height",
+          "executed_image_width",
+          "semantic_prompt_tokens",
+          "executed_prompt_tokens",
+          "action_horizon",
+          "public_action_dimension",
+          "internal_action_dimension",
+          "denoise_steps",
+          "work_unit"
+        ],
+        "additional_properties": false,
+        "properties": {
+          "batch_size": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "active_camera_views": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "executed_camera_views": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "raw_image_height": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 1
+          },
+          "raw_image_width": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 1
+          },
+          "executed_image_height": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 1
+          },
+          "executed_image_width": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 1
+          },
+          "semantic_prompt_tokens": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "executed_prompt_tokens": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "action_horizon": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "public_action_dimension": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "internal_action_dimension": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "denoise_steps": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "work_unit": {
+            "type": "string",
+            "min_length": 1,
+            "max_length": 240,
+            "enum": [
+              "action_chunk"
+            ]
+          }
+        }
+      },
+      "precision_path": {
+        "type": "object",
+        "required": [
+          "precision_path_id",
+          "kind",
+          "segments",
+          "runtime_support",
+          "realization_ids"
+        ],
+        "additional_properties": false,
+        "properties": {
+          "precision_path_id": {
+            "type": "string",
+            "min_length": 1,
+            "max_length": 240,
+            "enum": [
+              "bf16_dense",
+              "fp16_dense",
+              "fp8_w8a8",
+              "nvfp4_w4a4",
+              "w8a16_bf16_compute",
+              "w4a16_bf16_compute",
+              "q8_0_weight_only_bf16_compute",
+              "runtime_mixed"
+            ]
+          },
+          "kind": {
+            "type": "string",
+            "min_length": 1,
+            "max_length": 240,
+            "enum": [
+              "uniform",
+              "weight_only",
+              "mapped_mixed"
+            ]
+          },
+          "segments": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "segment_id",
+                "selector",
+                "weight",
+                "activation",
+                "output",
+                "accumulator_dtype",
+                "compute_class",
+                "dequantization"
+              ],
+              "additional_properties": false,
+              "properties": {
+                "segment_id": {
+                  "type": "string",
+                  "min_length": 1,
+                  "max_length": 160
+                },
+                "selector": {
+                  "type": "object",
+                  "required": [
+                    "kind",
+                    "refs"
+                  ],
+                  "additional_properties": false,
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "min_length": 1,
+                      "max_length": 240,
+                      "enum": [
+                        "all",
+                        "logical_refs",
+                        "execution_groups"
+                      ]
+                    },
+                    "refs": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "min_length": 1,
+                        "max_length": 300
+                      }
+                    }
+                  }
+                },
+                "weight": {
+                  "type": "object",
+                  "required": [
+                    "format",
+                    "bits_per_value",
+                    "block_values",
+                    "packed_data_bytes_per_block",
+                    "scale_format",
+                    "scale_bytes_per_block",
+                    "zero_point_bytes_per_block",
+                    "tensor_scale_bytes",
+                    "padding",
+                    "provenance"
+                  ],
+                  "additional_properties": false,
+                  "properties": {
+                    "format": {
+                      "type": "string",
+                      "min_length": 1,
+                      "max_length": 240,
+                      "enum": [
+                        "fp32",
+                        "bf16",
+                        "fp16",
+                        "fp8_e4m3",
+                        "nvfp4_e2m1",
+                        "int8_symmetric",
+                        "int4_symmetric",
+                        "q8_0"
+                      ]
+                    },
+                    "bits_per_value": {
+                      "type": "integer",
+                      "enum": [
+                        4,
+                        8,
+                        16,
+                        32
+                      ]
+                    },
+                    "block_values": {
+                      "type": [
+                        "integer",
+                        "null"
+                      ],
+                      "minimum": 1
+                    },
+                    "packed_data_bytes_per_block": {
+                      "type": [
+                        "integer",
+                        "null"
+                      ],
+                      "minimum": 1
+                    },
+                    "scale_format": {
+                      "type": "string",
+                      "min_length": 1,
+                      "max_length": 240,
+                      "enum": [
+                        "none",
+                        "fp16",
+                        "fp32",
+                        "fp8_e4m3",
+                        "bf16"
+                      ]
+                    },
+                    "scale_bytes_per_block": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "zero_point_bytes_per_block": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "tensor_scale_bytes": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "padding": {
+                      "type": "string",
+                      "min_length": 1,
+                      "max_length": 240,
+                      "enum": [
+                        "none",
+                        "pad_to_block"
+                      ]
+                    },
+                    "provenance": {
+                      "type": "object",
+                      "required": [
+                        "evidence",
+                        "class",
+                        "source_ids",
+                        "derivation",
+                        "condition"
+                      ],
+                      "additional_properties": false,
+                      "properties": {
+                        "evidence": {
+                          "type": "string",
+                          "min_length": 1,
+                          "max_length": 240,
+                          "enum": [
+                            "measured_local",
+                            "analytical",
+                            "reported_external"
+                          ]
+                        },
+                        "class": {
+                          "type": "string",
+                          "min_length": 1,
+                          "max_length": 240,
+                          "enum": [
+                            "published_fact",
+                            "mode_scaled_analytical",
+                            "analytical_model",
+                            "legacy_tool_assumption",
+                            "measured_empirical",
+                            "missing"
+                          ]
+                        },
+                        "source_ids": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "min_length": 1,
+                            "max_length": 80
+                          }
+                        },
+                        "derivation": {
+                          "type": [
+                            "object",
+                            "null"
+                          ],
+                          "required": [
+                            "kind",
+                            "expression",
+                            "input_refs"
+                          ],
+                          "additional_properties": false,
+                          "properties": {
+                            "kind": {
+                              "type": "string",
+                              "min_length": 1,
+                              "max_length": 240,
+                              "enum": [
+                                "divide_sparse_peak",
+                                "scale_by_clock",
+                                "scale_by_emc",
+                                "legacy_copy",
+                                "formula"
+                              ]
+                            },
+                            "expression": {
+                              "type": "string",
+                              "min_length": 1,
+                              "max_length": 500
+                            },
+                            "input_refs": {
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "min_length": 1,
+                                "max_length": 300
+                              }
+                            }
+                          }
+                        },
+                        "condition": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "min_length": 1,
+                          "max_length": 500
+                        }
+                      }
+                    }
+                  }
+                },
+                "activation": {
+                  "type": "object",
+                  "required": [
+                    "format",
+                    "bits_per_value",
+                    "block_values",
+                    "packed_data_bytes_per_block",
+                    "scale_format",
+                    "scale_bytes_per_block",
+                    "zero_point_bytes_per_block",
+                    "tensor_scale_bytes",
+                    "padding",
+                    "provenance"
+                  ],
+                  "additional_properties": false,
+                  "properties": {
+                    "format": {
+                      "type": "string",
+                      "min_length": 1,
+                      "max_length": 240,
+                      "enum": [
+                        "fp32",
+                        "bf16",
+                        "fp16",
+                        "fp8_e4m3",
+                        "nvfp4_e2m1",
+                        "int8_symmetric",
+                        "int4_symmetric",
+                        "q8_0"
+                      ]
+                    },
+                    "bits_per_value": {
+                      "type": "integer",
+                      "enum": [
+                        4,
+                        8,
+                        16,
+                        32
+                      ]
+                    },
+                    "block_values": {
+                      "type": [
+                        "integer",
+                        "null"
+                      ],
+                      "minimum": 1
+                    },
+                    "packed_data_bytes_per_block": {
+                      "type": [
+                        "integer",
+                        "null"
+                      ],
+                      "minimum": 1
+                    },
+                    "scale_format": {
+                      "type": "string",
+                      "min_length": 1,
+                      "max_length": 240,
+                      "enum": [
+                        "none",
+                        "fp16",
+                        "fp32",
+                        "fp8_e4m3",
+                        "bf16"
+                      ]
+                    },
+                    "scale_bytes_per_block": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "zero_point_bytes_per_block": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "tensor_scale_bytes": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "padding": {
+                      "type": "string",
+                      "min_length": 1,
+                      "max_length": 240,
+                      "enum": [
+                        "none",
+                        "pad_to_block"
+                      ]
+                    },
+                    "provenance": {
+                      "type": "object",
+                      "required": [
+                        "evidence",
+                        "class",
+                        "source_ids",
+                        "derivation",
+                        "condition"
+                      ],
+                      "additional_properties": false,
+                      "properties": {
+                        "evidence": {
+                          "type": "string",
+                          "min_length": 1,
+                          "max_length": 240,
+                          "enum": [
+                            "measured_local",
+                            "analytical",
+                            "reported_external"
+                          ]
+                        },
+                        "class": {
+                          "type": "string",
+                          "min_length": 1,
+                          "max_length": 240,
+                          "enum": [
+                            "published_fact",
+                            "mode_scaled_analytical",
+                            "analytical_model",
+                            "legacy_tool_assumption",
+                            "measured_empirical",
+                            "missing"
+                          ]
+                        },
+                        "source_ids": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "min_length": 1,
+                            "max_length": 80
+                          }
+                        },
+                        "derivation": {
+                          "type": [
+                            "object",
+                            "null"
+                          ],
+                          "required": [
+                            "kind",
+                            "expression",
+                            "input_refs"
+                          ],
+                          "additional_properties": false,
+                          "properties": {
+                            "kind": {
+                              "type": "string",
+                              "min_length": 1,
+                              "max_length": 240,
+                              "enum": [
+                                "divide_sparse_peak",
+                                "scale_by_clock",
+                                "scale_by_emc",
+                                "legacy_copy",
+                                "formula"
+                              ]
+                            },
+                            "expression": {
+                              "type": "string",
+                              "min_length": 1,
+                              "max_length": 500
+                            },
+                            "input_refs": {
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "min_length": 1,
+                                "max_length": 300
+                              }
+                            }
+                          }
+                        },
+                        "condition": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "min_length": 1,
+                          "max_length": 500
+                        }
+                      }
+                    }
+                  }
+                },
+                "output": {
+                  "type": "object",
+                  "required": [
+                    "format",
+                    "bits_per_value",
+                    "block_values",
+                    "packed_data_bytes_per_block",
+                    "scale_format",
+                    "scale_bytes_per_block",
+                    "zero_point_bytes_per_block",
+                    "tensor_scale_bytes",
+                    "padding",
+                    "provenance"
+                  ],
+                  "additional_properties": false,
+                  "properties": {
+                    "format": {
+                      "type": "string",
+                      "min_length": 1,
+                      "max_length": 240,
+                      "enum": [
+                        "fp32",
+                        "bf16",
+                        "fp16",
+                        "fp8_e4m3",
+                        "nvfp4_e2m1",
+                        "int8_symmetric",
+                        "int4_symmetric",
+                        "q8_0"
+                      ]
+                    },
+                    "bits_per_value": {
+                      "type": "integer",
+                      "enum": [
+                        4,
+                        8,
+                        16,
+                        32
+                      ]
+                    },
+                    "block_values": {
+                      "type": [
+                        "integer",
+                        "null"
+                      ],
+                      "minimum": 1
+                    },
+                    "packed_data_bytes_per_block": {
+                      "type": [
+                        "integer",
+                        "null"
+                      ],
+                      "minimum": 1
+                    },
+                    "scale_format": {
+                      "type": "string",
+                      "min_length": 1,
+                      "max_length": 240,
+                      "enum": [
+                        "none",
+                        "fp16",
+                        "fp32",
+                        "fp8_e4m3",
+                        "bf16"
+                      ]
+                    },
+                    "scale_bytes_per_block": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "zero_point_bytes_per_block": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "tensor_scale_bytes": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "padding": {
+                      "type": "string",
+                      "min_length": 1,
+                      "max_length": 240,
+                      "enum": [
+                        "none",
+                        "pad_to_block"
+                      ]
+                    },
+                    "provenance": {
+                      "type": "object",
+                      "required": [
+                        "evidence",
+                        "class",
+                        "source_ids",
+                        "derivation",
+                        "condition"
+                      ],
+                      "additional_properties": false,
+                      "properties": {
+                        "evidence": {
+                          "type": "string",
+                          "min_length": 1,
+                          "max_length": 240,
+                          "enum": [
+                            "measured_local",
+                            "analytical",
+                            "reported_external"
+                          ]
+                        },
+                        "class": {
+                          "type": "string",
+                          "min_length": 1,
+                          "max_length": 240,
+                          "enum": [
+                            "published_fact",
+                            "mode_scaled_analytical",
+                            "analytical_model",
+                            "legacy_tool_assumption",
+                            "measured_empirical",
+                            "missing"
+                          ]
+                        },
+                        "source_ids": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "min_length": 1,
+                            "max_length": 80
+                          }
+                        },
+                        "derivation": {
+                          "type": [
+                            "object",
+                            "null"
+                          ],
+                          "required": [
+                            "kind",
+                            "expression",
+                            "input_refs"
+                          ],
+                          "additional_properties": false,
+                          "properties": {
+                            "kind": {
+                              "type": "string",
+                              "min_length": 1,
+                              "max_length": 240,
+                              "enum": [
+                                "divide_sparse_peak",
+                                "scale_by_clock",
+                                "scale_by_emc",
+                                "legacy_copy",
+                                "formula"
+                              ]
+                            },
+                            "expression": {
+                              "type": "string",
+                              "min_length": 1,
+                              "max_length": 500
+                            },
+                            "input_refs": {
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "min_length": 1,
+                                "max_length": 300
+                              }
+                            }
+                          }
+                        },
+                        "condition": {
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "min_length": 1,
+                          "max_length": 500
+                        }
+                      }
+                    }
+                  }
+                },
+                "accumulator_dtype": {
+                  "type": "string",
+                  "min_length": 1,
+                  "max_length": 240,
+                  "enum": [
+                    "bf16",
+                    "fp16",
+                    "fp32"
+                  ]
+                },
+                "compute_class": {
+                  "type": "string",
+                  "min_length": 1,
+                  "max_length": 240,
+                  "enum": [
+                    "tensor_bf16_dense",
+                    "tensor_fp16_dense",
+                    "tensor_fp8_e4m3_dense",
+                    "tensor_fp4_e2m1_dense",
+                    "tensor_nvfp4_e2m1_dense",
+                    "tensor_fp16_sparse",
+                    "tensor_fp4_e2m1_sparse",
+                    "tensor_nvfp4_e2m1_sparse",
+                    "scalar_fp32",
+                    "sfu_exp_reciprocal"
+                  ]
+                },
+                "dequantization": {
+                  "type": "object",
+                  "required": [
+                    "mode",
+                    "floating_flop_per_weight",
+                    "integer_op_per_weight",
+                    "materialized_bytes_per_weight"
+                  ],
+                  "additional_properties": false,
+                  "properties": {
+                    "mode": {
+                      "type": "string",
+                      "min_length": 1,
+                      "max_length": 240,
+                      "enum": [
+                        "none",
+                        "fused_to_bf16",
+                        "materialized_bf16"
+                      ]
+                    },
+                    "floating_flop_per_weight": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "integer_op_per_weight": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "materialized_bytes_per_weight": {
+                      "type": "number",
+                      "minimum": 0
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "runtime_support": {
+            "type": "string",
+            "min_length": 1,
+            "max_length": 240,
+            "enum": [
+              "proven",
+              "unproven",
+              "unsupported",
+              "unknown"
+            ]
+          },
+          "realization_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "min_length": 1,
+              "max_length": 160
+            }
+          }
+        }
+      },
+      "modeling_scope": {
+        "type": "string",
+        "min_length": 1,
+        "max_length": 240,
+        "enum": [
+          "ideal_analytical",
+          "implementation_modeled",
+          "legacy_component_envelope"
+        ]
+      },
+      "provenance": {
+        "type": "object",
+        "required": [
+          "evidence",
+          "class",
+          "source_ids",
+          "derivation",
+          "condition"
+        ],
+        "additional_properties": false,
+        "properties": {
+          "evidence": {
+            "type": "string",
+            "min_length": 1,
+            "max_length": 240,
+            "enum": [
+              "measured_local",
+              "analytical",
+              "reported_external"
+            ]
+          },
+          "class": {
+            "type": "string",
+            "min_length": 1,
+            "max_length": 240,
+            "enum": [
+              "published_fact",
+              "mode_scaled_analytical",
+              "analytical_model",
+              "legacy_tool_assumption",
+              "measured_empirical",
+              "missing"
+            ]
+          },
+          "source_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "min_length": 1,
+              "max_length": 80
+            }
+          },
+          "derivation": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "required": [
+              "kind",
+              "expression",
+              "input_refs"
+            ],
+            "additional_properties": false,
+            "properties": {
+              "kind": {
+                "type": "string",
+                "min_length": 1,
+                "max_length": 240,
+                "enum": [
+                  "divide_sparse_peak",
+                  "scale_by_clock",
+                  "scale_by_emc",
+                  "legacy_copy",
+                  "formula"
+                ]
+              },
+              "expression": {
+                "type": "string",
+                "min_length": 1,
+                "max_length": 500
+              },
+              "input_refs": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "min_length": 1,
+                  "max_length": 300
+                }
+              }
+            }
+          },
+          "condition": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "min_length": 1,
+            "max_length": 500
+          }
+        }
+      },
+      "missing": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": [
+            "field",
+            "reason",
+            "detail"
+          ],
+          "additional_properties": false,
+          "properties": {
+            "field": {
+              "type": "string",
+              "min_length": 1,
+              "max_length": 300
+            },
+            "reason": {
+              "type": "string",
+              "min_length": 1,
+              "max_length": 240,
+              "enum": [
+                "not_applicable",
+                "not_collected",
+                "not_reported",
+                "unsupported",
+                "unavailable_from_source",
+                "incompatible_basis",
+                "ambiguous_mapping",
+                "missing_compute_ceiling",
+                "missing_traffic",
+                "missing_work",
+                "unfrozen_dependency"
+              ]
+            },
+            "detail": {
+              "type": "string",
+              "min_length": 1,
+              "max_length": 500
+            }
+          }
+        }
+      }
+    }
+  }
+}

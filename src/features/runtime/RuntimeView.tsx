@@ -1,11 +1,6 @@
 import { useMemo } from "react";
 
-import {
-  logicalEntity,
-  logicalRefFromEntity,
-  type RoutePatch,
-  type RouteState,
-} from "../../app/routes";
+import { type RoutePatch, type RouteState } from "../../app/routes";
 import { RouteLink } from "../../components/RouteLink";
 import type { AtlasData, CanonicalRecord, ModelRecord, RuntimeRecord } from "../../types/atlas";
 import { LogicalDagSvg } from "../model-graph/components/LogicalDagSvg";
@@ -21,6 +16,7 @@ import { humanizeRuntime } from "./components/runtimePresentation";
 import { adaptRuntimeRealization, isRuntimeRealizationRecord } from "./domain/adaptRuntimeRealization";
 import { resolveRuntimeCandidates, type RuntimeCandidate } from "./domain/resolveRuntimeRealization";
 import { buildRuntimeOverlay } from "./overlay/buildRuntimeOverlay";
+import { logicalEntity, logicalRefFromEntity, runtimeGroupEntity } from "../workbench/entityKeys";
 
 interface RuntimeViewProps {
   data: AtlasData;
@@ -55,10 +51,6 @@ function supportSummary(runtime: RuntimeRecord, modelId: string) {
     tone: "unmeasured",
     reasons: supports.map((support) => support.reason_code),
   };
-}
-
-function runtimeGroupEntity(candidate: RuntimeCandidate, groupId: string) {
-  return `runtime-group:${candidate.realization.realizationId}/${groupId}`;
 }
 
 function value(value: number | null | undefined) {
@@ -124,7 +116,7 @@ function ResolvedRuntimeView({ data, model, record, route, navigate }: RuntimeVi
     runtime.model_support.some((support) => support.model_id === model.model_id),
   );
   const selectGroup = (groupId: string) => {
-    if (activeCandidate) navigate({ entity: runtimeGroupEntity(activeCandidate, groupId) }, true);
+    if (activeCandidate) navigate({ entity: runtimeGroupEntity(activeCandidate.realization.realizationId, groupId) }, true);
   };
 
   return (

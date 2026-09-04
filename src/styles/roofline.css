@@ -1,0 +1,847 @@
+.roofline-workspace {
+  min-width: 0;
+  padding-top: 1rem;
+}
+
+.roofline-intro {
+  display: grid;
+  grid-template-columns: minmax(18rem, 1fr) minmax(22rem, 0.72fr);
+  align-items: end;
+  gap: 2rem;
+  padding: 1.25rem 1.4rem;
+  border: 1px solid var(--graphite);
+  background: var(--white);
+}
+
+.roofline-intro > div {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.roofline-intro p {
+  margin: 0;
+  color: var(--slate);
+  line-height: 1.5;
+}
+
+.roofline-intro > div > p,
+.roofline-overview > header p,
+.roofline-basis-bar header p,
+.roofline-chart-panel header p,
+.roofline-table-panel header p,
+.roofline-inspector header p,
+.roofline-empty > p {
+  color: var(--signal-blue-dark);
+  font-family: var(--mono-face);
+  font-size: 0.72rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.roofline-intro h2,
+.roofline-overview h2,
+.roofline-basis-bar h2,
+.roofline-empty h2 {
+  margin: 0;
+  font-family: var(--display-face);
+  font-size: clamp(1.7rem, 3vw, 2.65rem);
+  letter-spacing: -0.035em;
+  line-height: 1;
+}
+
+.roofline-mode-tabs {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  margin-top: 0.8rem;
+  border: 1px solid var(--graphite);
+}
+
+.roofline-mode-tabs button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  min-height: 3rem;
+  padding: 0.65rem 0.85rem;
+  border: 0;
+  color: var(--graphite);
+  background: var(--recess);
+  font-weight: 700;
+  text-align: left;
+}
+
+.roofline-mode-tabs button + button {
+  border-left: 1px solid var(--line-dark);
+}
+
+.roofline-mode-tabs button[aria-current="page"] {
+  color: var(--white);
+  background: var(--signal-blue-dark);
+}
+
+.roofline-mode-tabs small {
+  min-width: 1.8rem;
+  padding: 0.15rem 0.3rem;
+  border: 1px solid currentColor;
+  font-family: var(--mono-face);
+  text-align: center;
+}
+
+.roofline-overview {
+  margin-top: 0.8rem;
+  border: 1px solid var(--line-dark);
+  background: var(--white);
+}
+
+.roofline-overview > header {
+  padding: 1.25rem 1.4rem;
+  border-bottom: 1px solid var(--line-dark);
+  background: var(--recess);
+}
+
+.roofline-overview > header p,
+.roofline-overview > header h2 {
+  margin: 0;
+}
+
+.roofline-overview > header p {
+  margin-bottom: 0.35rem;
+}
+
+.roofline-overview-ledger article {
+  display: grid;
+  grid-template-columns: 9rem minmax(16rem, 1.2fr) minmax(18rem, 1.1fr) auto auto;
+  align-items: stretch;
+  min-height: 7.25rem;
+}
+
+.roofline-overview-ledger article + article {
+  border-top: 1px solid var(--line-dark);
+}
+
+.roofline-overview-ledger article > * {
+  min-width: 0;
+  margin: 0;
+  padding: 1rem;
+}
+
+.roofline-overview-ledger article > * + * {
+  border-left: 1px solid var(--line);
+}
+
+.roofline-overview-level,
+.roofline-overview-basis {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.35rem;
+}
+
+.roofline-overview-level span {
+  color: var(--signal-blue-dark);
+  font-family: var(--mono-face);
+  font-size: 0.68rem;
+}
+
+.roofline-overview-level h3 {
+  margin: 0;
+  font-family: var(--display-face);
+  font-size: 1.8rem;
+  text-transform: capitalize;
+}
+
+.roofline-overview-ledger article > p {
+  align-content: center;
+  line-height: 1.5;
+}
+
+.roofline-overview-basis code {
+  color: var(--slate);
+  overflow-wrap: anywhere;
+}
+
+.roofline-overview-ledger dl {
+  display: flex;
+  align-items: center;
+  padding: 0;
+}
+
+.roofline-overview-ledger dl div {
+  display: grid;
+  gap: 0.25rem;
+  min-width: 4.5rem;
+  padding: 0.8rem;
+  text-align: center;
+}
+
+.roofline-overview-ledger dt,
+.roofline-basis-fingerprint dt,
+.roofline-runtime-controls dt,
+.roofline-inspector dt {
+  color: var(--slate);
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.roofline-overview-ledger dd {
+  margin: 0;
+  font-family: var(--mono-face);
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.roofline-overview-ledger article > button {
+  border: 0;
+  color: var(--white);
+  background: var(--signal-blue-dark);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.roofline-basis-bar {
+  margin-top: 0.8rem;
+  border: 1px solid var(--graphite);
+  background: var(--white);
+}
+
+.roofline-basis-bar > header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(19rem, 0.52fr);
+  align-items: end;
+  gap: 1rem;
+  padding: 1rem 1.2rem;
+  color: var(--white);
+  background: var(--graphite);
+}
+
+.roofline-basis-bar > header p,
+.roofline-basis-bar > header h2 {
+  margin: 0;
+  color: inherit;
+}
+
+.roofline-basis-bar > header code {
+  display: block;
+  margin-top: 0.35rem;
+  color: #cbd5d1;
+  overflow-wrap: anywhere;
+}
+
+.roofline-basis-bar label {
+  display: grid;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+.roofline-basis-bar label > span,
+.roofline-basis-bar legend {
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.roofline-basis-bar select,
+.roofline-basis-bar input {
+  width: 100%;
+  min-width: 0;
+  min-height: 2.35rem;
+  padding: 0.4rem 0.5rem;
+  border: 1px solid var(--line-dark);
+  border-radius: 0;
+  color: var(--graphite);
+  background: var(--white);
+  font-family: var(--mono-face);
+}
+
+.roofline-basis-controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(11rem, 0.34fr) minmax(0, 0.85fr);
+  align-items: stretch;
+  border-bottom: 1px solid var(--line-dark);
+}
+
+.roofline-basis-controls fieldset {
+  display: grid;
+  gap: 0.7rem;
+  min-width: 0;
+  margin: 0;
+  padding: 0.9rem 1rem 1rem;
+  border: 0;
+}
+
+.roofline-basis-controls fieldset + *,
+.roofline-basis-controls > * + fieldset {
+  border-left: 1px solid var(--line-dark);
+}
+
+.roofline-basis-controls legend {
+  padding: 0 0.25rem;
+  color: var(--signal-blue-dark);
+}
+
+.roofline-workload-controls {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(4rem, 1fr));
+  gap: 0.45rem;
+}
+
+.roofline-match-state {
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  color: #5d4220;
+  background: #f5eedf;
+  font-size: 0.8rem;
+  font-weight: 700;
+  line-height: 1.45;
+  text-align: center;
+}
+
+.roofline-origin {
+  color: var(--slate);
+  font-family: var(--mono-face);
+  font-size: 0.72rem;
+}
+
+.roofline-runtime-controls dl {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 0;
+}
+
+.roofline-runtime-controls dl div {
+  min-width: 0;
+  padding-right: 0.5rem;
+}
+
+.roofline-runtime-controls dd {
+  margin: 0.25rem 0 0;
+  overflow-wrap: anywhere;
+  font-family: var(--mono-face);
+  font-size: 0.75rem;
+}
+
+.roofline-runtime-controls button {
+  min-height: 2.35rem;
+  border: 1px solid var(--line-dark);
+}
+
+.roofline-control-note {
+  margin: 0;
+  color: var(--slate);
+  line-height: 1.45;
+}
+
+.roofline-basis-fingerprint {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  margin: 0;
+}
+
+.roofline-basis-fingerprint div {
+  min-width: 0;
+  padding: 0.7rem 0.8rem;
+}
+
+.roofline-basis-fingerprint div + div {
+  border-left: 1px solid var(--line);
+}
+
+.roofline-basis-fingerprint dd {
+  margin: 0.3rem 0 0;
+  overflow-wrap: anywhere;
+  font-family: var(--mono-face);
+  font-size: 0.72rem;
+  line-height: 1.35;
+}
+
+.roofline-warnings {
+  margin-top: 0.8rem;
+  border: 1px solid #b78332;
+  background: #fff8e9;
+}
+
+.roofline-warnings p {
+  margin: 0;
+  padding: 0.65rem 0.85rem;
+  line-height: 1.45;
+}
+
+.roofline-warnings p + p {
+  border-top: 1px solid #d9bd8c;
+}
+
+.roofline-warnings strong {
+  color: var(--roofline-partial);
+  text-transform: capitalize;
+}
+
+.roofline-analysis-grid {
+  display: grid;
+  grid-template-areas: "chart inspector" "table table";
+  grid-template-columns: minmax(0, 1fr) 22rem;
+  align-items: start;
+  gap: 0.8rem;
+  margin-top: 0.8rem;
+}
+
+.roofline-chart-panel,
+.roofline-inspector,
+.roofline-table-panel,
+.roofline-empty {
+  min-width: 0;
+  border: 1px solid var(--line-dark);
+  background: var(--white);
+}
+
+.roofline-chart-panel { grid-area: chart; }
+.roofline-inspector { grid-area: inspector; }
+.roofline-table-panel { grid-area: table; }
+
+.roofline-chart-panel > header,
+.roofline-table-panel > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 4rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--line-dark);
+  background: var(--recess);
+}
+
+.roofline-chart-panel header p,
+.roofline-chart-panel header h3,
+.roofline-table-panel header p,
+.roofline-table-panel header h3 {
+  margin: 0;
+}
+
+.roofline-chart-panel h3,
+.roofline-table-panel h3,
+.roofline-inspector h3 {
+  font-family: var(--display-face);
+  font-size: 1.3rem;
+  letter-spacing: -0.015em;
+}
+
+.roofline-chart-panel header span,
+.roofline-table-panel header span {
+  color: var(--slate);
+  font-family: var(--mono-face);
+  font-size: 0.7rem;
+}
+
+.roofline-svg-wrap {
+  min-width: 0;
+  padding: 0.4rem 0.5rem 0;
+}
+
+.roofline-svg-wrap svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 28rem;
+}
+
+.roofline-plot-field {
+  fill: #fbfcfa;
+  stroke: var(--line-dark);
+}
+
+.roofline-gridline {
+  stroke: var(--roofline-grid);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.roofline-tick,
+.roofline-ridge-label,
+.roofline-axis-title,
+.roofline-selected-label {
+  fill: #52605b;
+  font-family: var(--mono-face);
+  font-size: 11px;
+}
+
+.roofline-axis-title {
+  fill: var(--graphite);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.roofline-roof {
+  fill: none;
+  stroke: var(--roofline-roof);
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+  stroke-linejoin: miter;
+  stroke-width: 2.5;
+  vector-effect: non-scaling-stroke;
+  animation: roofline-draw var(--roofline-reveal-ms, 400ms) ease-out both;
+}
+
+.roofline-roof.is-reference {
+  stroke: var(--roofline-reference);
+  stroke-dasharray: 6 5;
+  stroke-dashoffset: 0;
+  stroke-width: 1.4;
+}
+
+.roofline-ridge {
+  stroke: var(--roofline-roof);
+  stroke-dasharray: 4 4;
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.roofline-ridge-label {
+  fill: var(--roofline-roof);
+  font-weight: 700;
+}
+
+.roofline-marker {
+  animation: roofline-marker-in var(--roofline-reveal-ms, 400ms) ease-out both;
+}
+
+.roofline-marker-core {
+  fill: var(--white);
+  stroke: var(--signal-blue-dark);
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+}
+
+.roofline-marker.is-filled .roofline-marker-core {
+  fill: var(--signal-blue-dark);
+}
+
+.roofline-marker-half {
+  fill: var(--signal-blue-dark);
+  stroke: none;
+}
+
+.roofline-marker-halo {
+  fill: none;
+  stroke: var(--roofline-selection);
+  stroke-width: 3;
+  vector-effect: non-scaling-stroke;
+}
+
+.roofline-marker-hit {
+  fill: transparent;
+  stroke: transparent;
+  cursor: pointer;
+}
+
+.roofline-marker-hit:focus {
+  stroke: var(--roofline-selection);
+  stroke-width: 3;
+}
+
+.roofline-selected-label {
+  fill: var(--graphite);
+  font-family: var(--display-face);
+  font-size: 12px;
+  font-weight: 800;
+  paint-order: stroke;
+  stroke: var(--white);
+  stroke-width: 4;
+}
+
+.roofline-chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem 1.15rem;
+  padding: 0.7rem 1rem 0.9rem;
+  border-top: 1px solid var(--line);
+  color: #46534f;
+  font-size: 0.72rem;
+}
+
+.roofline-chart-legend span,
+.roofline-chart-legend strong {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.marker-swatch {
+  display: inline-block;
+  width: 0.75rem;
+  height: 0.75rem;
+  border: 2px solid var(--signal-blue-dark);
+  border-radius: 50%;
+  background: var(--white);
+}
+
+.marker-swatch.is-filled { background: var(--signal-blue-dark); }
+.marker-swatch.is-half { background: linear-gradient(90deg, var(--signal-blue-dark) 50%, var(--white) 50%); }
+
+.roof-swatch {
+  width: 1.3rem;
+  border-top: 2px dashed var(--roofline-reference);
+}
+
+.roofline-inspector {
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.roofline-inspector > header {
+  padding: 0.9rem 1rem;
+  color: var(--white);
+  background: var(--signal-blue-dark);
+}
+
+.roofline-inspector header p,
+.roofline-inspector header h3 {
+  margin: 0;
+  color: inherit;
+}
+
+.roofline-inspector header code {
+  display: block;
+  margin-top: 0.4rem;
+  color: #d6e3e2;
+  overflow-wrap: anywhere;
+  font-size: 0.72rem;
+}
+
+.roofline-inspector-shape,
+.roofline-partial-note,
+.roofline-coverage-key,
+.roofline-inspector > details,
+.roofline-inspector > p:not(.roofline-inspector-shape) {
+  margin: 0;
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.roofline-inspector-shape {
+  color: #43504c;
+}
+
+.roofline-partial-note {
+  color: #664410;
+  background: #fff8e9;
+}
+
+.roofline-inspector-ledger {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin: 0;
+}
+
+.roofline-inspector-ledger div,
+.roofline-inspector details dl div {
+  min-width: 0;
+  padding: 0.7rem 0.8rem;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.roofline-inspector dd,
+.roofline-inspector details dl {
+  margin: 0.25rem 0 0;
+  overflow-wrap: anywhere;
+}
+
+.roofline-coverage-key code {
+  display: block;
+  margin-top: 0.35rem;
+  overflow-wrap: anywhere;
+  color: var(--slate);
+  font-size: 0.7rem;
+}
+
+.roofline-inspector summary {
+  cursor: pointer;
+  color: var(--signal-blue-dark);
+  font-weight: 700;
+}
+
+.roofline-inspector details > *:not(summary) {
+  margin-top: 0.75rem;
+}
+
+.roofline-inspector details ul {
+  padding-left: 1.2rem;
+}
+
+.roofline-inspector details li + li {
+  margin-top: 0.55rem;
+}
+
+.roofline-inspector details li code,
+.roofline-inspector details li span {
+  display: block;
+  overflow-wrap: anywhere;
+  font-size: 0.72rem;
+}
+
+.roofline-inspector h4 {
+  margin-bottom: 0.4rem;
+}
+
+.roofline-table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: visible;
+}
+
+.roofline-table-panel table {
+  width: 100%;
+  min-width: 82rem;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+  line-height: 1.4;
+}
+
+.roofline-table-panel th,
+.roofline-table-panel td {
+  padding: 0.7rem 0.75rem;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
+}
+
+.roofline-table-panel thead th {
+  color: var(--white);
+  background: var(--graphite);
+  font-size: 0.72rem;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.roofline-table-panel tbody tr[aria-selected="true"] {
+  background: #fff2e9;
+  box-shadow: inset 4px 0 var(--roofline-selection);
+}
+
+.roofline-table-panel tbody tr.is-partial th:first-child {
+  color: var(--roofline-partial);
+}
+
+.roofline-table-panel tbody th:first-child {
+  width: 16rem;
+}
+
+.roofline-table-panel tbody th button {
+  padding: 0;
+  border: 0;
+  color: var(--signal-blue-dark);
+  background: transparent;
+  font-weight: 800;
+  text-align: left;
+  text-decoration: underline;
+  text-underline-offset: 0.2rem;
+}
+
+.roofline-table-panel tbody th small {
+  display: block;
+  margin-top: 0.25rem;
+  font-weight: 700;
+}
+
+.roofline-table-panel td:nth-child(n + 3) {
+  font-family: var(--mono-face);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.roofline-table-panel td:nth-child(2) {
+  width: 18rem;
+}
+
+.roofline-empty {
+  display: grid;
+  gap: 0.6rem;
+  min-height: 18rem;
+  margin-top: 0.8rem;
+  padding: 2rem;
+  align-content: center;
+}
+
+.roofline-empty > * { margin: 0; }
+.roofline-empty span { max-width: 62ch; line-height: 1.55; }
+.roofline-empty code { color: var(--slate); overflow-wrap: anywhere; }
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@keyframes roofline-draw {
+  from { stroke-dashoffset: 1; }
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes roofline-marker-in {
+  from { opacity: 0; transform-box: fill-box; transform-origin: center; scale: 0.72; }
+  to { opacity: 1; transform-box: fill-box; transform-origin: center; scale: 1; }
+}
+
+@media (max-width: 86rem) {
+  .roofline-analysis-grid {
+    grid-template-areas: "chart" "inspector" "table";
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .roofline-inspector-ledger {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 74rem) {
+  .roofline-overview-ledger article {
+    grid-template-columns: 8rem minmax(14rem, 1fr) minmax(15rem, 1fr) auto;
+  }
+
+  .roofline-overview-ledger article > button {
+    grid-column: 1 / -1;
+    min-height: 2.8rem;
+    border-top: 1px solid var(--line-dark);
+    border-left: 0;
+  }
+
+  .roofline-basis-controls { grid-template-columns: 1fr; }
+  .roofline-basis-controls fieldset + *,
+  .roofline-basis-controls > * + fieldset { border-top: 1px solid var(--line-dark); border-left: 0; }
+  .roofline-basis-fingerprint { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .roofline-basis-fingerprint div:nth-child(5) { border-top: 1px solid var(--line); border-left: 0; }
+  .roofline-basis-fingerprint div:nth-child(n + 6) { border-top: 1px solid var(--line); }
+}
+
+@media (max-width: 54rem) {
+  .roofline-intro,
+  .roofline-basis-bar > header { grid-template-columns: 1fr; align-items: start; }
+  .roofline-mode-tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .roofline-mode-tabs button + button { border-left: 0; }
+  .roofline-mode-tabs button:nth-child(even) { border-left: 1px solid var(--line-dark); }
+  .roofline-mode-tabs button:nth-child(n + 3) { border-top: 1px solid var(--line-dark); }
+  .roofline-overview-ledger article { grid-template-columns: 1fr; }
+  .roofline-overview-ledger article > * + * { border-top: 1px solid var(--line); border-left: 0; }
+  .roofline-overview-ledger dl { justify-content: space-around; }
+  .roofline-basis-fingerprint,
+  .roofline-inspector-ledger { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 38rem) {
+  .roofline-workload-controls { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .roofline-runtime-controls dl { grid-template-columns: 1fr; gap: 0.5rem; }
+  .roofline-basis-fingerprint { grid-template-columns: 1fr; }
+  .roofline-basis-fingerprint div + div { border-top: 1px solid var(--line); border-left: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .roofline-roof,
+  .roofline-marker { animation: none !important; }
+}

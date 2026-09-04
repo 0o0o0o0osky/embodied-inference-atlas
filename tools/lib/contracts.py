@@ -36,6 +36,7 @@ def validate_document(
     if not isinstance(record_rule, Mapping):
         return [Issue("$", "invalid_schema", "record contract is not configured")]
 
+    dataset_schema_version = entry.get("schema_version", manifest.get("schema_version"))
     wrapper_rule: dict[str, object] = {
         "type": "object",
         "required": ["schema_version", "dataset", "records"],
@@ -43,7 +44,7 @@ def validate_document(
         "properties": {
             "schema_version": {
                 "type": "string",
-                "enum": [manifest.get("schema_version")],
+                "enum": [dataset_schema_version],
             },
             "dataset": {"type": "string", "enum": [dataset]},
             "records": {"type": "array", "items": record_rule},

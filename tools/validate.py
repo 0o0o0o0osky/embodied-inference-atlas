@@ -16,6 +16,7 @@ from tools.lib.privacy import (
     scan_release_tree,
     scan_site_tree,
 )
+from tools.lib.roofline import roofline_problems
 from tools.lib.runtime_realization import runtime_realization_problems
 
 
@@ -63,6 +64,10 @@ def validate_repository(repo_root: Path) -> list[Issue]:
                     record for record in document_records if isinstance(record, Mapping)
                 )
     issues.extend(validate_references(records))
+    issues.extend(
+        Issue(problem.path, problem.code, problem.message)
+        for problem in roofline_problems(records)
+    )
     return issues
 
 
@@ -253,6 +258,34 @@ def validate_references(datasets: Mapping[str, list[Mapping]]) -> list[Issue]:
                             "configuration does not match realization applicability",
                         )
                     )
+    ceiling_ids = _ids(datasets, "roofline_ceilings", "ceiling_id")
+    scenario_ids = _ids(datasets, "roofline_scenarios", "scenario_id")
+    basis_ids = _ids(datasets, "roofline_bases", "basis_id")
+    realization_ids = _ids(datasets, "runtime_realizations", "realization_id")
+    for index, record in enumerate(datasets.get("roofline_ceilings", [])):
+        base = f"$.roofline_ceilings[{index}]"
+        _check(issues, f"{base}.device_id", record.get("device_id"), devices)
+        _check_provenance_sources(issues, base, record, sources)
+    for index, record in enumerate(datasets.get("roofline_scenarios", [])):
+        base = f"$.roofline_scenarios[{index}]"
+        _check(issues, f"{base}.model_id", record.get("model_id"), models)
+        _check_provenance_sources(issues, base, record, sources)
+    for index, record in enumerate(datasets.get("roofline_bases", [])):
+        base = f"$.roofline_bases[{index}]"
+        _check(issues, f"{base}.scenario_id", record.get("scenario_id"), scenario_ids)
+        _check(issues, f"{base}.ceiling_id", record.get("ceiling_id"), ceiling_ids)
+        _check(issues, f"{base}.device_id", record.get("device_id"), devices)
+        if record.get("runtime_id") is not None:
+            _check(issues, f"{base}.runtime_id", record.get("runtime_id"), runtimes)
+        if record.get("realization_id") is not None:
+            _check(issues, f"{base}.realization_id", record.get("realization_id"), realization_ids)
+        if record.get("run_id") is not None:
+            _check(issues, f"{base}.run_id", record.get("run_id"), runs)
+        _check_provenance_sources(issues, base, record, sources)
+    for index, record in enumerate(datasets.get("roofline_points", [])):
+        base = f"$.roofline_points[{index}]"
+        _check(issues, f"{base}.basis_id", record.get("basis_id"), basis_ids)
+        _check_provenance_sources(issues, base, record, sources)
     return issues
 
 
@@ -357,6 +390,20 @@ def _check_many(
     if isinstance(values, list):
         for index, value in enumerate(values):
             _check(issues, f"{path}[{index}]", value, targets)
+
+
+def _check_provenance_sources(
+    issues: list[Issue], path: str, value: object, sources: set[object]
+) -> None:
+    if isinstance(value, Mapping):
+        provenance = value.get("provenance")
+        if isinstance(provenance, Mapping):
+            _check_many(issues, f"{path}.provenance.source_ids", provenance.get("source_ids"), sources)
+        for key, child in value.items():
+            _check_provenance_sources(issues, f"{path}.{key}", child, sources)
+    elif isinstance(value, list):
+        for index, child in enumerate(value):
+            _check_provenance_sources(issues, f"{path}[{index}]", child, sources)
 
 
 def _broken(path: str) -> Issue:

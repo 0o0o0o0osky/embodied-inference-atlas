@@ -1,0 +1,466 @@
+{
+  "schema_version": "2.0.0",
+  "dataset": "roofline_ceilings",
+  "records": [
+    {
+      "schema_version": "2.0.0",
+      "ceiling_id": "thor-t5000-published-max",
+      "label": "Thor T5000 published MAXN ceilings",
+      "device_id": "nvidia-jetson-agx-thor",
+      "operating_point": {
+        "operating_point_id": "thor-maxn-published",
+        "power_mode": "maximum_specification",
+        "gpu_clock_hz": 1575000000.0,
+        "emc_clock_hz": 4266000000.0,
+        "clock_basis": "published_max",
+        "sparsity_on": null
+      },
+      "compute": [
+        {
+          "compute_ceiling_id": "compute-thor-maxn-fp8-dense",
+          "compute_class": "tensor_fp8_e4m3_dense",
+          "flop_per_second": 517000000000000.0,
+          "requires_sparsity_on": false,
+          "provenance": {
+            "evidence": "reported_external",
+            "class": "published_fact",
+            "source_ids": [
+              "source-nvidia-thor-datasheet-v1-5"
+            ],
+            "derivation": null,
+            "condition": "MAXN; Data Sheet v1.5 Table 1-1, printed p. 1 / PDF p. 8, dense FP8 up-to rate."
+          }
+        },
+        {
+          "compute_ceiling_id": "compute-thor-maxn-fp4-dense",
+          "compute_class": "tensor_fp4_e2m1_dense",
+          "flop_per_second": 1035000000000000.0,
+          "requires_sparsity_on": false,
+          "provenance": {
+            "evidence": "reported_external",
+            "class": "published_fact",
+            "source_ids": [
+              "source-nvidia-thor-datasheet-v1-5"
+            ],
+            "derivation": null,
+            "condition": "MAXN; Data Sheet v1.5 Table 1-1, printed p. 1 / PDF p. 8, generic dense FP4 up-to rate; not explicitly named NVFP4."
+          }
+        },
+        {
+          "compute_ceiling_id": "compute-thor-maxn-fp4-sparse",
+          "compute_class": "tensor_fp4_e2m1_sparse",
+          "flop_per_second": 2070000000000000.0,
+          "requires_sparsity_on": true,
+          "provenance": {
+            "evidence": "reported_external",
+            "class": "published_fact",
+            "source_ids": [
+              "source-nvidia-thor-datasheet-v1-5"
+            ],
+            "derivation": null,
+            "condition": "MAXN; Data Sheet v1.5 Table 1-1, printed p. 1 / PDF p. 8, structured-sparse FP4 up-to rate."
+          }
+        },
+        {
+          "compute_ceiling_id": "compute-thor-maxn-fp16-sparse",
+          "compute_class": "tensor_fp16_sparse",
+          "flop_per_second": 517000000000000.0,
+          "requires_sparsity_on": true,
+          "provenance": {
+            "evidence": "reported_external",
+            "class": "published_fact",
+            "source_ids": [
+              "source-nvidia-thor-migration-note-v1-2"
+            ],
+            "derivation": null,
+            "condition": "Migration Application Note v1.2 Table 1, printed p. 4 / PDF p. 8, sparse FP16 up-to rate."
+          }
+        },
+        {
+          "compute_ceiling_id": "compute-thor-maxn-scalar-fp32",
+          "compute_class": "scalar_fp32",
+          "flop_per_second": null,
+          "requires_sparsity_on": false,
+          "provenance": {
+            "evidence": "analytical",
+            "class": "missing",
+            "source_ids": [],
+            "derivation": null,
+            "condition": "No source-backed scalar FP32 ceiling is available."
+          }
+        },
+        {
+          "compute_ceiling_id": "compute-thor-maxn-sfu",
+          "compute_class": "sfu_exp_reciprocal",
+          "flop_per_second": null,
+          "requires_sparsity_on": false,
+          "provenance": {
+            "evidence": "analytical",
+            "class": "missing",
+            "source_ids": [],
+            "derivation": null,
+            "condition": "No source-backed SFU exp/reciprocal ceiling is available."
+          }
+        }
+      ],
+      "bandwidth": [
+        {
+          "bandwidth_ceiling_id": "bw-thor-maxn-published-273gbps",
+          "memory_domain": "system_memory",
+          "byte_per_second": 273000000000.0,
+          "required_emc_clock_hz": 4266000000.0,
+          "provenance": {
+            "evidence": "reported_external",
+            "class": "published_fact",
+            "source_ids": [
+              "source-nvidia-thor-datasheet-v1-5"
+            ],
+            "derivation": null,
+            "condition": "Data Sheet v1.5 Table 1-1, printed p. 3 / PDF p. 10; decimal peak LPDDR5X bandwidth paired with 4266 MHz maximum."
+          }
+        }
+      ],
+      "missing": [
+        {
+          "field": "compute.compute-thor-maxn-scalar-fp32.flop_per_second",
+          "reason": "missing_compute_ceiling",
+          "detail": "Scalar FP32 throughput is not sourced."
+        },
+        {
+          "field": "compute.compute-thor-maxn-sfu.flop_per_second",
+          "reason": "missing_compute_ceiling",
+          "detail": "SFU exp/reciprocal throughput is not sourced."
+        }
+      ]
+    },
+    {
+      "schema_version": "2.0.0",
+      "ceiling_id": "thor-t5000-published-120w-rounded",
+      "label": "Thor T5000 published 120W rounded compute ceilings",
+      "device_id": "nvidia-jetson-agx-thor",
+      "operating_point": {
+        "operating_point_id": "thor-120w-published-caps",
+        "power_mode": "120W",
+        "gpu_clock_hz": 1386000000.0,
+        "emc_clock_hz": 4266000000.0,
+        "clock_basis": "published_max",
+        "sparsity_on": false
+      },
+      "compute": [
+        {
+          "compute_ceiling_id": "compute-thor-120w-fp8-dense-published-rounded",
+          "compute_class": "tensor_fp8_e4m3_dense",
+          "flop_per_second": 455000000000000.0,
+          "requires_sparsity_on": false,
+          "provenance": {
+            "evidence": "reported_external",
+            "class": "published_fact",
+            "source_ids": [
+              "source-nvidia-thor-datasheet-v1-5"
+            ],
+            "derivation": null,
+            "condition": "120W; Data Sheet v1.5 Table 1-1 prints rounded dense FP8 455 TFLOP/s."
+          }
+        },
+        {
+          "compute_ceiling_id": "compute-thor-120w-fp4-dense-published-rounded",
+          "compute_class": "tensor_fp4_e2m1_dense",
+          "flop_per_second": 910000000000000.0,
+          "requires_sparsity_on": false,
+          "provenance": {
+            "evidence": "reported_external",
+            "class": "published_fact",
+            "source_ids": [
+              "source-nvidia-thor-datasheet-v1-5"
+            ],
+            "derivation": null,
+            "condition": "120W; Data Sheet v1.5 Table 1-1 prints rounded generic dense FP4 910 TFLOP/s; not explicitly NVFP4."
+          }
+        }
+      ],
+      "bandwidth": [
+        {
+          "bandwidth_ceiling_id": "bw-thor-120w-published-273gbps-conditional",
+          "memory_domain": "system_memory",
+          "byte_per_second": 273000000000.0,
+          "required_emc_clock_hz": 4266000000.0,
+          "provenance": {
+            "evidence": "reported_external",
+            "class": "published_fact",
+            "source_ids": [
+              "source-nvidia-thor-datasheet-v1-5"
+            ],
+            "derivation": null,
+            "condition": "The published 273 GB/s peak is conditional on the 4266 MHz maximum; it is not observed traffic."
+          }
+        }
+      ],
+      "missing": []
+    },
+    {
+      "schema_version": "2.0.0",
+      "ceiling_id": "thor-t5000-120w-1386mhz",
+      "label": "Thor T5000 120W / 1.386 GHz analytical roof",
+      "device_id": "nvidia-jetson-agx-thor",
+      "operating_point": {
+        "operating_point_id": "thor-120w-1386mhz-analytical",
+        "power_mode": "120W",
+        "gpu_clock_hz": 1386000000.0,
+        "emc_clock_hz": 4266000000.0,
+        "clock_basis": "mode_assumption",
+        "sparsity_on": false
+      },
+      "compute": [
+        {
+          "compute_ceiling_id": "compute-thor-120w-bf16-dense-scaled",
+          "compute_class": "tensor_bf16_dense",
+          "flop_per_second": 227480000000000.0,
+          "requires_sparsity_on": false,
+          "provenance": {
+            "evidence": "analytical",
+            "class": "mode_scaled_analytical",
+            "source_ids": [
+              "source-nvidia-thor-datasheet-v1-5",
+              "source-nvidia-thor-migration-note-v1-2"
+            ],
+            "derivation": {
+              "kind": "scale_by_clock",
+              "expression": "(517e12 / 2) * (1.386e9 / 1.575e9)",
+              "input_refs": [
+                "compute-thor-maxn-fp16-sparse",
+                "clock-thor-maxn-1575mhz",
+                "clock-thor-120w-1386mhz"
+              ]
+            },
+            "condition": "Dense BF16 maps from half the published sparse FP16 peak, then linearly scales by clock; analytical, not a quoted NVIDIA peak."
+          }
+        },
+        {
+          "compute_ceiling_id": "compute-thor-120w-fp16-dense-scaled",
+          "compute_class": "tensor_fp16_dense",
+          "flop_per_second": 227480000000000.0,
+          "requires_sparsity_on": false,
+          "provenance": {
+            "evidence": "analytical",
+            "class": "mode_scaled_analytical",
+            "source_ids": [
+              "source-nvidia-thor-datasheet-v1-5",
+              "source-nvidia-thor-migration-note-v1-2"
+            ],
+            "derivation": {
+              "kind": "scale_by_clock",
+              "expression": "(517e12 / 2) * (1.386e9 / 1.575e9)",
+              "input_refs": [
+                "compute-thor-maxn-fp16-sparse",
+                "clock-thor-maxn-1575mhz",
+                "clock-thor-120w-1386mhz"
+              ]
+            },
+            "condition": "Dense FP16 maps from half the published sparse FP16 peak, then linearly scales by clock; analytical, not the sparse rate."
+          }
+        },
+        {
+          "compute_ceiling_id": "compute-thor-120w-fp8-dense-scaled",
+          "compute_class": "tensor_fp8_e4m3_dense",
+          "flop_per_second": 454960000000000.0,
+          "requires_sparsity_on": false,
+          "provenance": {
+            "evidence": "analytical",
+            "class": "mode_scaled_analytical",
+            "source_ids": [
+              "source-nvidia-thor-datasheet-v1-5"
+            ],
+            "derivation": {
+              "kind": "scale_by_clock",
+              "expression": "517e12 * (1.386e9 / 1.575e9)",
+              "input_refs": [
+                "compute-thor-maxn-fp8-dense",
+                "clock-thor-maxn-1575mhz",
+                "clock-thor-120w-1386mhz"
+              ]
+            },
+            "condition": "Exact clock-scaled analytical value; Data Sheet v1.5 separately publishes rounded 455 TFLOP/s."
+          }
+        },
+        {
+          "compute_ceiling_id": "compute-thor-120w-nvfp4-dense-mapped-scaled",
+          "compute_class": "tensor_nvfp4_e2m1_dense",
+          "flop_per_second": 910800000000000.0,
+          "requires_sparsity_on": false,
+          "provenance": {
+            "evidence": "analytical",
+            "class": "mode_scaled_analytical",
+            "source_ids": [
+              "source-nvidia-thor-datasheet-v1-5",
+              "source-nvidia-nvfp4-format"
+            ],
+            "derivation": {
+              "kind": "scale_by_clock",
+              "expression": "1035e12 * (1.386e9 / 1.575e9)",
+              "input_refs": [
+                "compute-thor-maxn-fp4-dense",
+                "clock-thor-maxn-1575mhz",
+                "clock-thor-120w-1386mhz"
+              ]
+            },
+            "condition": "Mapping inference: NVIDIA publishes generic FP4 peak and separately documents NVFP4 E2M1+FP8-scale support; it does not publish this peak specifically as NVFP4."
+          }
+        },
+        {
+          "compute_ceiling_id": "compute-thor-120w-scalar-fp32",
+          "compute_class": "scalar_fp32",
+          "flop_per_second": null,
+          "requires_sparsity_on": false,
+          "provenance": {
+            "evidence": "analytical",
+            "class": "missing",
+            "source_ids": [],
+            "derivation": null,
+            "condition": "No source-backed scalar FP32 ceiling is available."
+          }
+        },
+        {
+          "compute_ceiling_id": "compute-thor-120w-sfu",
+          "compute_class": "sfu_exp_reciprocal",
+          "flop_per_second": null,
+          "requires_sparsity_on": false,
+          "provenance": {
+            "evidence": "analytical",
+            "class": "missing",
+            "source_ids": [],
+            "derivation": null,
+            "condition": "No source-backed SFU exp/reciprocal ceiling is available."
+          }
+        }
+      ],
+      "bandwidth": [
+        {
+          "bandwidth_ceiling_id": "bw-thor-120w-conditional-273gbps",
+          "memory_domain": "system_memory",
+          "byte_per_second": 273000000000.0,
+          "required_emc_clock_hz": 4266000000.0,
+          "provenance": {
+            "evidence": "analytical",
+            "class": "mode_scaled_analytical",
+            "source_ids": [
+              "source-nvidia-thor-datasheet-v1-5"
+            ],
+            "derivation": {
+              "kind": "scale_by_emc",
+              "expression": "273e9 * 4.266e9 / 4.266e9",
+              "input_refs": [
+                "bw-thor-maxn-published-273gbps"
+              ]
+            },
+            "condition": "Conditional analysis curve. Without a matched observed EMC clock, measured efficiency and gap are prohibited."
+          }
+        }
+      ],
+      "missing": [
+        {
+          "field": "compute.compute-thor-120w-scalar-fp32.flop_per_second",
+          "reason": "missing_compute_ceiling",
+          "detail": "Scalar FP32 throughput is not sourced."
+        },
+        {
+          "field": "compute.compute-thor-120w-sfu.flop_per_second",
+          "reason": "missing_compute_ceiling",
+          "detail": "SFU throughput is not sourced."
+        }
+      ]
+    },
+    {
+      "schema_version": "2.0.0",
+      "ceiling_id": "thor-t5000-vla-perf-legacy",
+      "label": "Legacy VLA-Perf Thor assumptions",
+      "device_id": "nvidia-jetson-agx-thor",
+      "operating_point": {
+        "operating_point_id": "vla-perf-legacy-assumption",
+        "power_mode": null,
+        "gpu_clock_hz": null,
+        "emc_clock_hz": null,
+        "clock_basis": "unknown",
+        "sparsity_on": false
+      },
+      "compute": [
+        {
+          "compute_ceiling_id": "compute-vla-perf-fp16-400t",
+          "compute_class": "tensor_fp16_dense",
+          "flop_per_second": 400000000000000.0,
+          "requires_sparsity_on": false,
+          "provenance": {
+            "evidence": "analytical",
+            "class": "legacy_tool_assumption",
+            "source_ids": [
+              "source-vla-perf"
+            ],
+            "derivation": {
+              "kind": "legacy_copy",
+              "expression": "copy pinned VLA-Perf GenZ assumptions and component envelope",
+              "input_refs": [
+                "vla-perf@1e2b9a7"
+              ]
+            },
+            "condition": "Pinned VLA-Perf system config; not an official Thor operating point."
+          }
+        },
+        {
+          "compute_ceiling_id": "compute-vla-perf-fp8-800t",
+          "compute_class": "tensor_fp8_e4m3_dense",
+          "flop_per_second": 800000000000000.0,
+          "requires_sparsity_on": false,
+          "provenance": {
+            "evidence": "analytical",
+            "class": "legacy_tool_assumption",
+            "source_ids": [
+              "source-vla-perf"
+            ],
+            "derivation": {
+              "kind": "legacy_copy",
+              "expression": "copy pinned VLA-Perf GenZ assumptions and component envelope",
+              "input_refs": [
+                "vla-perf@1e2b9a7"
+              ]
+            },
+            "condition": "Pinned VLA-Perf system config; uniform FP8 model, not a FlashRT mixed path."
+          }
+        }
+      ],
+      "bandwidth": [
+        {
+          "bandwidth_ceiling_id": "bw-vla-perf-270gib",
+          "memory_domain": "system_memory",
+          "byte_per_second": 289910292480,
+          "required_emc_clock_hz": null,
+          "provenance": {
+            "evidence": "analytical",
+            "class": "legacy_tool_assumption",
+            "source_ids": [
+              "source-vla-perf"
+            ],
+            "derivation": {
+              "kind": "legacy_copy",
+              "expression": "copy pinned VLA-Perf GenZ assumptions and component envelope",
+              "input_refs": [
+                "vla-perf@1e2b9a7"
+              ]
+            },
+            "condition": "Pinned VLA-Perf binary conversion of the configured value 270."
+          }
+        }
+      ],
+      "missing": [
+        {
+          "field": "operating_point.gpu_clock_hz",
+          "reason": "not_reported",
+          "detail": "VLA-Perf does not bind this assumption to an observed GPU clock."
+        },
+        {
+          "field": "operating_point.emc_clock_hz",
+          "reason": "not_reported",
+          "detail": "VLA-Perf does not bind this assumption to an observed EMC clock."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,919 @@
+{
+  "dataset": "roofline_points",
+  "record": {
+    "type": "object",
+    "required": [
+      "schema_version",
+      "point_id",
+      "basis_id",
+      "entity",
+      "calls",
+      "values_scope",
+      "work",
+      "traffic",
+      "timing",
+      "aggregation",
+      "coverage",
+      "derived",
+      "legacy_record_refs",
+      "provenance",
+      "missing"
+    ],
+    "additional_properties": false,
+    "properties": {
+      "schema_version": {
+        "type": "string",
+        "min_length": 1,
+        "max_length": 240,
+        "enum": [
+          "2.0.0"
+        ]
+      },
+      "point_id": {
+        "type": "string",
+        "min_length": 1,
+        "max_length": 300
+      },
+      "basis_id": {
+        "type": "string",
+        "min_length": 1,
+        "max_length": 200
+      },
+      "entity": {
+        "type": "object",
+        "required": [
+          "kind",
+          "entity_id",
+          "label",
+          "shape_or_coverage",
+          "logical_refs",
+          "coverage_key"
+        ],
+        "additional_properties": false,
+        "properties": {
+          "kind": {
+            "type": "string",
+            "min_length": 1,
+            "max_length": 240,
+            "enum": [
+              "model_total",
+              "stage",
+              "atomic_operator",
+              "execution_group",
+              "kernel",
+              "legacy_component"
+            ]
+          },
+          "entity_id": {
+            "type": "string",
+            "min_length": 1,
+            "max_length": 300
+          },
+          "label": {
+            "type": "string",
+            "min_length": 1,
+            "max_length": 300
+          },
+          "shape_or_coverage": {
+            "type": "string",
+            "min_length": 1,
+            "max_length": 500
+          },
+          "logical_refs": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "min_length": 1,
+              "max_length": 300
+            }
+          },
+          "coverage_key": {
+            "type": "string",
+            "min_length": 1,
+            "max_length": 20000
+          }
+        }
+      },
+      "calls": {
+        "type": "integer",
+        "minimum": 1
+      },
+      "values_scope": {
+        "type": "string",
+        "min_length": 1,
+        "max_length": 240,
+        "enum": [
+          "all_calls"
+        ]
+      },
+      "work": {
+        "type": "object",
+        "required": [
+          "components",
+          "total_flop"
+        ],
+        "additional_properties": false,
+        "properties": {
+          "components": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "component_id",
+                "kind",
+                "compute_class",
+                "flop",
+                "comparison_ops",
+                "transcendental_ops",
+                "integer_ops",
+                "provenance"
+              ],
+              "additional_properties": false,
+              "properties": {
+                "component_id": {
+                  "type": "string",
+                  "min_length": 1,
+                  "max_length": 300
+                },
+                "kind": {
+                  "type": "string",
+                  "min_length": 1,
+                  "max_length": 240,
+                  "enum": [
+                    "gemm",
+                    "attention_score",
+                    "attention_scale_mask",
+                    "attention_softmax",
+                    "attention_value",
+                    "dequant",
+                    "runtime_extra",
+                    "curated_other"
+                  ]
+                },
+                "compute_class": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "enum": [
+                    "tensor_bf16_dense",
+                    "tensor_fp16_dense",
+                    "tensor_fp8_e4m3_dense",
+                    "tensor_fp4_e2m1_dense",
+                    "tensor_nvfp4_e2m1_dense",
+                    "tensor_fp16_sparse",
+                    "tensor_fp4_e2m1_sparse",
+                    "tensor_nvfp4_e2m1_sparse",
+                    "scalar_fp32",
+                    "sfu_exp_reciprocal",
+                    null
+                  ]
+                },
+                "flop": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "comparison_ops": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "transcendental_ops": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "integer_ops": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "provenance": {
+                  "type": "object",
+                  "required": [
+                    "evidence",
+                    "class",
+                    "source_ids",
+                    "derivation",
+                    "condition"
+                  ],
+                  "additional_properties": false,
+                  "properties": {
+                    "evidence": {
+                      "type": "string",
+                      "min_length": 1,
+                      "max_length": 240,
+                      "enum": [
+                        "measured_local",
+                        "analytical",
+                        "reported_external"
+                      ]
+                    },
+                    "class": {
+                      "type": "string",
+                      "min_length": 1,
+                      "max_length": 240,
+                      "enum": [
+                        "published_fact",
+                        "mode_scaled_analytical",
+                        "analytical_model",
+                        "legacy_tool_assumption",
+                        "measured_empirical",
+                        "missing"
+                      ]
+                    },
+                    "source_ids": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "min_length": 1,
+                        "max_length": 80
+                      }
+                    },
+                    "derivation": {
+                      "type": [
+                        "object",
+                        "null"
+                      ],
+                      "required": [
+                        "kind",
+                        "expression",
+                        "input_refs"
+                      ],
+                      "additional_properties": false,
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "min_length": 1,
+                          "max_length": 240,
+                          "enum": [
+                            "divide_sparse_peak",
+                            "scale_by_clock",
+                            "scale_by_emc",
+                            "legacy_copy",
+                            "formula"
+                          ]
+                        },
+                        "expression": {
+                          "type": "string",
+                          "min_length": 1,
+                          "max_length": 500
+                        },
+                        "input_refs": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "min_length": 1,
+                            "max_length": 300
+                          }
+                        }
+                      }
+                    },
+                    "condition": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "min_length": 1,
+                      "max_length": 500
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "total_flop": {
+            "type": "number",
+            "minimum": 0
+          }
+        }
+      },
+      "traffic": {
+        "type": "object",
+        "required": [
+          "memory_domain",
+          "value_kind",
+          "components",
+          "excluded_internal",
+          "total_byte"
+        ],
+        "additional_properties": false,
+        "properties": {
+          "memory_domain": {
+            "type": "string",
+            "min_length": 1,
+            "max_length": 240,
+            "enum": [
+              "system_memory",
+              "l2",
+              "l1tex"
+            ]
+          },
+          "value_kind": {
+            "type": "string",
+            "min_length": 1,
+            "max_length": 240,
+            "enum": [
+              "modeled",
+              "measured",
+              "legacy_derived"
+            ]
+          },
+          "components": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "component_id",
+                "kind",
+                "byte",
+                "tensor_ref",
+                "provenance"
+              ],
+              "additional_properties": false,
+              "properties": {
+                "component_id": {
+                  "type": "string",
+                  "min_length": 1,
+                  "max_length": 300
+                },
+                "kind": {
+                  "type": "string",
+                  "min_length": 1,
+                  "max_length": 240,
+                  "enum": [
+                    "input_read",
+                    "weight_read",
+                    "boundary_output_write",
+                    "scale_read",
+                    "zero_point_read",
+                    "padding_overfetch",
+                    "reformat_read",
+                    "reformat_write",
+                    "qdq_read",
+                    "qdq_write",
+                    "spill_read",
+                    "spill_write",
+                    "materialized_internal_read",
+                    "materialized_internal_write",
+                    "runtime_extra"
+                  ]
+                },
+                "byte": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "tensor_ref": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "min_length": 1,
+                  "max_length": 300
+                },
+                "provenance": {
+                  "type": "object",
+                  "required": [
+                    "evidence",
+                    "class",
+                    "source_ids",
+                    "derivation",
+                    "condition"
+                  ],
+                  "additional_properties": false,
+                  "properties": {
+                    "evidence": {
+                      "type": "string",
+                      "min_length": 1,
+                      "max_length": 240,
+                      "enum": [
+                        "measured_local",
+                        "analytical",
+                        "reported_external"
+                      ]
+                    },
+                    "class": {
+                      "type": "string",
+                      "min_length": 1,
+                      "max_length": 240,
+                      "enum": [
+                        "published_fact",
+                        "mode_scaled_analytical",
+                        "analytical_model",
+                        "legacy_tool_assumption",
+                        "measured_empirical",
+                        "missing"
+                      ]
+                    },
+                    "source_ids": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "min_length": 1,
+                        "max_length": 80
+                      }
+                    },
+                    "derivation": {
+                      "type": [
+                        "object",
+                        "null"
+                      ],
+                      "required": [
+                        "kind",
+                        "expression",
+                        "input_refs"
+                      ],
+                      "additional_properties": false,
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "min_length": 1,
+                          "max_length": 240,
+                          "enum": [
+                            "divide_sparse_peak",
+                            "scale_by_clock",
+                            "scale_by_emc",
+                            "legacy_copy",
+                            "formula"
+                          ]
+                        },
+                        "expression": {
+                          "type": "string",
+                          "min_length": 1,
+                          "max_length": 500
+                        },
+                        "input_refs": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "min_length": 1,
+                            "max_length": 300
+                          }
+                        }
+                      }
+                    },
+                    "condition": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "min_length": 1,
+                      "max_length": 500
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "excluded_internal": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "tensor_ref",
+                "byte_avoided",
+                "evidence_ref"
+              ],
+              "additional_properties": false,
+              "properties": {
+                "tensor_ref": {
+                  "type": "string",
+                  "min_length": 1,
+                  "max_length": 300
+                },
+                "byte_avoided": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "evidence_ref": {
+                  "type": "string",
+                  "min_length": 1,
+                  "max_length": 300
+                }
+              }
+            }
+          },
+          "total_byte": {
+            "type": "number",
+            "minimum": 0
+          }
+        }
+      },
+      "timing": {
+        "type": "object",
+        "required": [
+          "observed_second",
+          "statistic",
+          "sample_count",
+          "timing_boundary_id"
+        ],
+        "additional_properties": false,
+        "properties": {
+          "observed_second": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "statistic": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "analytical",
+              "median",
+              "mean",
+              "single_observation",
+              null
+            ]
+          },
+          "sample_count": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "timing_boundary_id": {
+            "type": "string",
+            "min_length": 1,
+            "max_length": 200
+          }
+        }
+      },
+      "aggregation": {
+        "type": "object",
+        "required": [
+          "member_point_ids",
+          "dependency_edges",
+          "dependency_lower_bound_second",
+          "resource_compute_lower_bound_second",
+          "resource_memory_lower_bound_second"
+        ],
+        "additional_properties": false,
+        "properties": {
+          "member_point_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "min_length": 1,
+              "max_length": 300
+            }
+          },
+          "dependency_edges": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "source",
+                "target"
+              ],
+              "additional_properties": false,
+              "properties": {
+                "source": {
+                  "type": "string",
+                  "min_length": 1,
+                  "max_length": 300
+                },
+                "target": {
+                  "type": "string",
+                  "min_length": 1,
+                  "max_length": 300
+                }
+              }
+            }
+          },
+          "dependency_lower_bound_second": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "resource_compute_lower_bound_second": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "resource_memory_lower_bound_second": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0
+          }
+        }
+      },
+      "coverage": {
+        "type": "object",
+        "required": [
+          "status",
+          "included_refs",
+          "omitted"
+        ],
+        "additional_properties": false,
+        "properties": {
+          "status": {
+            "type": "string",
+            "min_length": 1,
+            "max_length": 240,
+            "enum": [
+              "complete",
+              "partial",
+              "proxy",
+              "unmapped_legacy"
+            ]
+          },
+          "included_refs": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "min_length": 1,
+              "max_length": 300
+            }
+          },
+          "omitted": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "ref",
+                "reason"
+              ],
+              "additional_properties": false,
+              "properties": {
+                "ref": {
+                  "type": "string",
+                  "min_length": 1,
+                  "max_length": 300
+                },
+                "reason": {
+                  "type": "string",
+                  "min_length": 1,
+                  "max_length": 500
+                }
+              }
+            }
+          }
+        }
+      },
+      "derived": {
+        "type": "object",
+        "required": [
+          "status",
+          "arithmetic_intensity_flop_per_byte",
+          "compute_second",
+          "memory_second",
+          "roof_second",
+          "roof_flop_per_second",
+          "achieved_flop_per_second",
+          "efficiency",
+          "gap",
+          "limiter"
+        ],
+        "additional_properties": false,
+        "properties": {
+          "status": {
+            "type": "string",
+            "min_length": 1,
+            "max_length": 240,
+            "enum": [
+              "complete",
+              "partial_lower_bound",
+              "unavailable"
+            ]
+          },
+          "arithmetic_intensity_flop_per_byte": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "compute_second": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "memory_second": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "roof_second": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "roof_flop_per_second": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "achieved_flop_per_second": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "efficiency": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "gap": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "limiter": {
+            "type": "string",
+            "min_length": 1,
+            "max_length": 240,
+            "enum": [
+              "compute",
+              "memory",
+              "dependency",
+              "tie",
+              "unknown"
+            ]
+          }
+        }
+      },
+      "legacy_record_refs": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": [
+            "dataset",
+            "record_id"
+          ],
+          "additional_properties": false,
+          "properties": {
+            "dataset": {
+              "type": "string",
+              "min_length": 1,
+              "max_length": 240,
+              "enum": [
+                "operators",
+                "rooflines"
+              ]
+            },
+            "record_id": {
+              "type": "string",
+              "min_length": 1,
+              "max_length": 160
+            }
+          }
+        }
+      },
+      "provenance": {
+        "type": "object",
+        "required": [
+          "evidence",
+          "class",
+          "source_ids",
+          "derivation",
+          "condition"
+        ],
+        "additional_properties": false,
+        "properties": {
+          "evidence": {
+            "type": "string",
+            "min_length": 1,
+            "max_length": 240,
+            "enum": [
+              "measured_local",
+              "analytical",
+              "reported_external"
+            ]
+          },
+          "class": {
+            "type": "string",
+            "min_length": 1,
+            "max_length": 240,
+            "enum": [
+              "published_fact",
+              "mode_scaled_analytical",
+              "analytical_model",
+              "legacy_tool_assumption",
+              "measured_empirical",
+              "missing"
+            ]
+          },
+          "source_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "min_length": 1,
+              "max_length": 80
+            }
+          },
+          "derivation": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "required": [
+              "kind",
+              "expression",
+              "input_refs"
+            ],
+            "additional_properties": false,
+            "properties": {
+              "kind": {
+                "type": "string",
+                "min_length": 1,
+                "max_length": 240,
+                "enum": [
+                  "divide_sparse_peak",
+                  "scale_by_clock",
+                  "scale_by_emc",
+                  "legacy_copy",
+                  "formula"
+                ]
+              },
+              "expression": {
+                "type": "string",
+                "min_length": 1,
+                "max_length": 500
+              },
+              "input_refs": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "min_length": 1,
+                  "max_length": 300
+                }
+              }
+            }
+          },
+          "condition": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "min_length": 1,
+            "max_length": 500
+          }
+        }
+      },
+      "missing": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": [
+            "field",
+            "reason",
+            "detail"
+          ],
+          "additional_properties": false,
+          "properties": {
+            "field": {
+              "type": "string",
+              "min_length": 1,
+              "max_length": 300
+            },
+            "reason": {
+              "type": "string",
+              "min_length": 1,
+              "max_length": 240,
+              "enum": [
+                "not_applicable",
+                "not_collected",
+                "not_reported",
+                "unsupported",
+                "unavailable_from_source",
+                "incompatible_basis",
+                "ambiguous_mapping",
+                "missing_compute_ceiling",
+                "missing_traffic",
+                "missing_work",
+                "unfrozen_dependency"
+              ]
+            },
+            "detail": {
+              "type": "string",
+              "min_length": 1,
+              "max_length": 500
+            }
+          }
+        }
+      }
+    }
+  }
+}

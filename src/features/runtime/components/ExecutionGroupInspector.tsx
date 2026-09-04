@@ -1,4 +1,4 @@
-import { logicalRefFromEntity } from "../../../app/routes";
+import { logicalRefFromEntity, parseEntityKey } from "../../workbench/entityKeys";
 import type { LogicalDag } from "../../model-graph/domain/types";
 import { indexRuntimeRealization } from "../domain/indexRuntimeRealization";
 import type { RuntimeRealizationRecord } from "../domain/types";
@@ -11,8 +11,10 @@ interface ExecutionGroupInspectorProps {
 }
 
 function selectedGroupId(realization: RuntimeRealizationRecord, entity: string | null) {
-  const prefix = `runtime-group:${realization.realizationId}/`;
-  return entity?.startsWith(prefix) ? entity.slice(prefix.length) : null;
+  const parsed = parseEntityKey(entity);
+  return parsed?.kind === "runtime-group" && parsed.realizationId === realization.realizationId
+    ? parsed.executionGroupId
+    : null;
 }
 
 export function ExecutionGroupInspector({ dag, realization, selectedEntity }: ExecutionGroupInspectorProps) {

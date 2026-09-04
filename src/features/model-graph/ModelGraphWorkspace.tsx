@@ -1,11 +1,7 @@
 import { useMemo } from "react";
 
-import {
-  logicalEntity,
-  logicalRefFromEntity,
-  type RoutePatch,
-  type RouteState,
-} from "../../app/routes";
+import { type RoutePatch, type RouteState } from "../../app/routes";
+import { logicalEntity, logicalRefFromEntity } from "../workbench/entityKeys";
 import type { AtlasData, CanonicalRecord, ModelRecord } from "../../types/atlas";
 import { DerivedSymbols } from "./components/DerivedSymbols";
 import { GraphBreadcrumb } from "./components/GraphBreadcrumb";

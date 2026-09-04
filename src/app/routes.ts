@@ -19,23 +19,11 @@ export interface RouteState {
   precision: string | null;
   runtimePrecision: string | null;
   entity: string | null;
+  rooflineLevel: "overview" | "stage" | "atomic" | "fused" | "kernel";
+  basis: string | null;
 }
 
 export type RoutePatch = Partial<RouteState>;
-
-export function logicalEntity(ref: string): string {
-  return `logical:${encodeURIComponent(ref)}`;
-}
-
-export function logicalRefFromEntity(entity: string | null): string | null {
-  if (!entity) return null;
-  if (!entity.startsWith("logical:")) return entity.startsWith("runtime-group:") ? null : entity;
-  try {
-    return decodeURIComponent(entity.slice("logical:".length));
-  } catch {
-    return null;
-  }
-}
 
 const ROUTE_FIELDS = [
   "model",
@@ -45,6 +33,7 @@ const ROUTE_FIELDS = [
   "precision",
   "runtimePrecision",
   "entity",
+  "basis",
 ] as const;
 
 export function readRoute(search = window.location.search): RouteState {
@@ -59,6 +48,8 @@ export function readRoute(search = window.location.search): RouteState {
     precision: readValue(params, "precision"),
     runtimePrecision: readValue(params, "runtimePrecision"),
     entity: readValue(params, "entity"),
+    rooflineLevel: readRooflineLevel(params.get("roofline-level")),
+    basis: readValue(params, "basis"),
   };
 }
 
@@ -80,8 +71,17 @@ export function routeHref(route: RouteState, patch: RoutePatch = {}): string {
       params.set(field, value);
     }
   }
+  if (next.rooflineLevel !== "overview") {
+    params.set("roofline-level", next.rooflineLevel);
+  }
   const search = params.toString();
   return search ? `?${search}` : "./";
+}
+
+function readRooflineLevel(value: string | null): RouteState["rooflineLevel"] {
+  return value === "stage" || value === "atomic" || value === "fused" || value === "kernel"
+    ? value
+    : "overview";
 }
 
 export function useRouteState(): [

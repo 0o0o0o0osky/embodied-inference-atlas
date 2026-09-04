@@ -1,4 +1,4 @@
-import { logicalRefFromEntity } from "../../../app/routes";
+import { logicalRefFromEntity, parseEntityKey } from "../../workbench/entityKeys";
 import type { LogicalDag, LogicalLayout, LogicalRef, NodeBox } from "../../model-graph/domain/types";
 import { indexRuntimeRealization } from "../domain/indexRuntimeRealization";
 import type {
@@ -103,9 +103,9 @@ function selectedParts(realizationId: string, selectedEntity: string | null) {
   if (!selectedEntity) return { logicalRef: null, groupId: null };
   const logicalRef = logicalRefFromEntity(selectedEntity);
   if (logicalRef) return { logicalRef, groupId: null };
-  const prefix = `runtime-group:${realizationId}/`;
-  return selectedEntity.startsWith(prefix)
-    ? { logicalRef: null, groupId: selectedEntity.slice(prefix.length) }
+  const parsed = parseEntityKey(selectedEntity);
+  return parsed?.kind === "runtime-group" && parsed.realizationId === realizationId
+    ? { logicalRef: null, groupId: parsed.executionGroupId }
     : { logicalRef: null, groupId: null };
 }
 

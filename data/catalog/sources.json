@@ -136,6 +136,33 @@
       "published_date": null,
       "accessed_date": "2026-09-05",
       "summary": "Implementation defaults used only where the pinned SmolVLM vision configuration omitted values corroborated by artifact tensors."
+    },
+    {
+      "source_id": "source-nvidia-thor-datasheet-v1-5",
+      "evidence": "reported_external",
+      "title": "NVIDIA Jetson Thor Series Modules Data Sheet DS-11945-001 v1.5",
+      "url": "https://developer.nvidia.com/downloads/assets/embedded/secure/jetson/thor/docs/jetson-thor-series-modules-datasheet_ds-11945-001.pdf",
+      "published_date": "2026-06",
+      "accessed_date": "2026-09-05",
+      "summary": "Table 1-1: dense/sparse FP4/FP8 on printed p.1/PDF p.8; GPU caps printed pp.2,8; 273 GB/s and 4266 MHz printed p.3/PDF p.10. Values are up-to specification facts."
+    },
+    {
+      "source_id": "source-nvidia-thor-migration-note-v1-2",
+      "evidence": "reported_external",
+      "title": "NVIDIA Jetson T5000 and Jetson AGX Orin Migration Application Note DA-11926-001 v1.2",
+      "url": "https://developer.nvidia.com/downloads/assets/embedded/secure/jetson/thor/docs/jetson-orin-thor-migration-application-note_da.pdf",
+      "published_date": "2025-09",
+      "accessed_date": "2026-09-05",
+      "summary": "Table 1, printed p.4/PDF p.8 explicitly labels the T5000 517 FP16 TFLOP/s value as sparse and up to."
+    },
+    {
+      "source_id": "source-nvidia-nvfp4-format",
+      "evidence": "reported_external",
+      "title": "NVIDIA NVFP4 format and Jetson Thor support documentation",
+      "url": "https://docs.nvidia.com/deeplearning/transformer-engine-releases/release-2.15/user-guide/features/low_precision_training/nvfp4/nvfp4.html",
+      "published_date": null,
+      "accessed_date": "2026-09-05",
+      "summary": "Defines NVFP4 as E2M1 with FP8 E4M3 scale per 16 values and global FP32 scale. Used only for a labeled mapping inference; it does not publish a T5000 NVFP4 peak."
     }
   ]
 }

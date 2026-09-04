@@ -74,6 +74,10 @@ export interface AtlasDatasets {
   model_graphs: CanonicalRecord[];
   operators: CanonicalRecord[];
   rooflines: CanonicalRecord[];
+  roofline_bases: CanonicalRecord[];
+  roofline_ceilings: CanonicalRecord[];
+  roofline_points: CanonicalRecord[];
+  roofline_scenarios: CanonicalRecord[];
   runtime_realizations: CanonicalRecord[];
   runs: RunRecord[];
   runtimes: RuntimeRecord[];

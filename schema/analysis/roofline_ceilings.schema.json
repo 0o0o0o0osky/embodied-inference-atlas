@@ -1,0 +1,420 @@
+{
+  "dataset": "roofline_ceilings",
+  "record": {
+    "type": "object",
+    "required": [
+      "schema_version",
+      "ceiling_id",
+      "label",
+      "device_id",
+      "operating_point",
+      "compute",
+      "bandwidth",
+      "missing"
+    ],
+    "additional_properties": false,
+    "properties": {
+      "schema_version": {
+        "type": "string",
+        "min_length": 1,
+        "max_length": 240,
+        "enum": [
+          "2.0.0"
+        ]
+      },
+      "ceiling_id": {
+        "type": "string",
+        "min_length": 1,
+        "max_length": 120
+      },
+      "label": {
+        "type": "string",
+        "min_length": 1,
+        "max_length": 240
+      },
+      "device_id": {
+        "type": "string",
+        "min_length": 1,
+        "max_length": 80
+      },
+      "operating_point": {
+        "type": "object",
+        "required": [
+          "operating_point_id",
+          "power_mode",
+          "gpu_clock_hz",
+          "emc_clock_hz",
+          "clock_basis",
+          "sparsity_on"
+        ],
+        "additional_properties": false,
+        "properties": {
+          "operating_point_id": {
+            "type": "string",
+            "min_length": 1,
+            "max_length": 120
+          },
+          "power_mode": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "120W",
+              "maximum_specification",
+              null
+            ]
+          },
+          "gpu_clock_hz": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "emc_clock_hz": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "clock_basis": {
+            "type": "string",
+            "min_length": 1,
+            "max_length": 240,
+            "enum": [
+              "published_max",
+              "mode_assumption",
+              "observed_locked",
+              "unknown"
+            ]
+          },
+          "sparsity_on": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          }
+        }
+      },
+      "compute": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": [
+            "compute_ceiling_id",
+            "compute_class",
+            "flop_per_second",
+            "requires_sparsity_on",
+            "provenance"
+          ],
+          "additional_properties": false,
+          "properties": {
+            "compute_ceiling_id": {
+              "type": "string",
+              "min_length": 1,
+              "max_length": 160
+            },
+            "compute_class": {
+              "type": "string",
+              "min_length": 1,
+              "max_length": 240,
+              "enum": [
+                "tensor_bf16_dense",
+                "tensor_fp16_dense",
+                "tensor_fp8_e4m3_dense",
+                "tensor_fp4_e2m1_dense",
+                "tensor_nvfp4_e2m1_dense",
+                "tensor_fp16_sparse",
+                "tensor_fp4_e2m1_sparse",
+                "tensor_nvfp4_e2m1_sparse",
+                "scalar_fp32",
+                "sfu_exp_reciprocal"
+              ]
+            },
+            "flop_per_second": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "minimum": 0
+            },
+            "requires_sparsity_on": {
+              "type": "boolean"
+            },
+            "provenance": {
+              "type": "object",
+              "required": [
+                "evidence",
+                "class",
+                "source_ids",
+                "derivation",
+                "condition"
+              ],
+              "additional_properties": false,
+              "properties": {
+                "evidence": {
+                  "type": "string",
+                  "min_length": 1,
+                  "max_length": 240,
+                  "enum": [
+                    "measured_local",
+                    "analytical",
+                    "reported_external"
+                  ]
+                },
+                "class": {
+                  "type": "string",
+                  "min_length": 1,
+                  "max_length": 240,
+                  "enum": [
+                    "published_fact",
+                    "mode_scaled_analytical",
+                    "analytical_model",
+                    "legacy_tool_assumption",
+                    "measured_empirical",
+                    "missing"
+                  ]
+                },
+                "source_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "min_length": 1,
+                    "max_length": 80
+                  }
+                },
+                "derivation": {
+                  "type": [
+                    "object",
+                    "null"
+                  ],
+                  "required": [
+                    "kind",
+                    "expression",
+                    "input_refs"
+                  ],
+                  "additional_properties": false,
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "min_length": 1,
+                      "max_length": 240,
+                      "enum": [
+                        "divide_sparse_peak",
+                        "scale_by_clock",
+                        "scale_by_emc",
+                        "legacy_copy",
+                        "formula"
+                      ]
+                    },
+                    "expression": {
+                      "type": "string",
+                      "min_length": 1,
+                      "max_length": 500
+                    },
+                    "input_refs": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "min_length": 1,
+                        "max_length": 300
+                      }
+                    }
+                  }
+                },
+                "condition": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "min_length": 1,
+                  "max_length": 500
+                }
+              }
+            }
+          }
+        }
+      },
+      "bandwidth": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": [
+            "bandwidth_ceiling_id",
+            "memory_domain",
+            "byte_per_second",
+            "required_emc_clock_hz",
+            "provenance"
+          ],
+          "additional_properties": false,
+          "properties": {
+            "bandwidth_ceiling_id": {
+              "type": "string",
+              "min_length": 1,
+              "max_length": 160
+            },
+            "memory_domain": {
+              "type": "string",
+              "min_length": 1,
+              "max_length": 240,
+              "enum": [
+                "system_memory",
+                "l2",
+                "l1tex"
+              ]
+            },
+            "byte_per_second": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "minimum": 0
+            },
+            "required_emc_clock_hz": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "minimum": 0
+            },
+            "provenance": {
+              "type": "object",
+              "required": [
+                "evidence",
+                "class",
+                "source_ids",
+                "derivation",
+                "condition"
+              ],
+              "additional_properties": false,
+              "properties": {
+                "evidence": {
+                  "type": "string",
+                  "min_length": 1,
+                  "max_length": 240,
+                  "enum": [
+                    "measured_local",
+                    "analytical",
+                    "reported_external"
+                  ]
+                },
+                "class": {
+                  "type": "string",
+                  "min_length": 1,
+                  "max_length": 240,
+                  "enum": [
+                    "published_fact",
+                    "mode_scaled_analytical",
+                    "analytical_model",
+                    "legacy_tool_assumption",
+                    "measured_empirical",
+                    "missing"
+                  ]
+                },
+                "source_ids": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "min_length": 1,
+                    "max_length": 80
+                  }
+                },
+                "derivation": {
+                  "type": [
+                    "object",
+                    "null"
+                  ],
+                  "required": [
+                    "kind",
+                    "expression",
+                    "input_refs"
+                  ],
+                  "additional_properties": false,
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "min_length": 1,
+                      "max_length": 240,
+                      "enum": [
+                        "divide_sparse_peak",
+                        "scale_by_clock",
+                        "scale_by_emc",
+                        "legacy_copy",
+                        "formula"
+                      ]
+                    },
+                    "expression": {
+                      "type": "string",
+                      "min_length": 1,
+                      "max_length": 500
+                    },
+                    "input_refs": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "min_length": 1,
+                        "max_length": 300
+                      }
+                    }
+                  }
+                },
+                "condition": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "min_length": 1,
+                  "max_length": 500
+                }
+              }
+            }
+          }
+        }
+      },
+      "missing": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": [
+            "field",
+            "reason",
+            "detail"
+          ],
+          "additional_properties": false,
+          "properties": {
+            "field": {
+              "type": "string",
+              "min_length": 1,
+              "max_length": 300
+            },
+            "reason": {
+              "type": "string",
+              "min_length": 1,
+              "max_length": 240,
+              "enum": [
+                "not_applicable",
+                "not_collected",
+                "not_reported",
+                "unsupported",
+                "unavailable_from_source",
+                "incompatible_basis",
+                "ambiguous_mapping",
+                "missing_compute_ceiling",
+                "missing_traffic",
+                "missing_work",
+                "unfrozen_dependency"
+              ]
+            },
+            "detail": {
+              "type": "string",
+              "min_length": 1,
+              "max_length": 500
+            }
+          }
+        }
+      }
+    }
+  }
+}
