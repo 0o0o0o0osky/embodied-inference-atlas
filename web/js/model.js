@@ -2,6 +2,7 @@
   "use strict";
 
   const pageData = Atlas.readPageData();
+  const statisticLabel = (value) => value === "analytical_estimate" ? "analytical estimate" : value;
   const nodes = pageData.architecture.nodes.map((node) => ({
     id: node.node_id,
     name: node.label,
@@ -42,12 +43,18 @@
   }));
 
   const workloadColumns = [
-    ["Runtime", "runtime_name"], ["Evidence", "evidence"], ["Precision", "precision_id"],
+    ["Runtime", "runtime_name"], ["Evidence", "evidence"], ["Precision", "precision_label"],
     ["Views", "camera_views"], ["Executed prompt tokens", "executed_prompt_tokens"],
     ["Denoise steps", "denoise_steps"], ["Action chunk", "action_chunk"],
+    ["Selected latency (ms)", "selected_latency_ms"], ["Selected statistic", "selected_statistic"],
+    ["Samples", "sample_count"], ["Warmups", "warmup_iterations"],
+    ["Percentile provenance", "percentile_method"],
     ["Mean ms", "mean_ms"], ["p50 ms", "p50_ms"], ["p95 ms", "p95_ms"],
   ].filter(([, key]) => pageData.measurements.some((row) => row[key] !== null && row[key] !== undefined))
-    .map(([label, value]) => ({ label, value }));
+    .map(([label, value]) => ({
+      label,
+      value: value === "selected_statistic" ? (row) => statisticLabel(row[value]) : value,
+    }));
   Atlas.renderTable(document.getElementById("workload-table"), workloadColumns, pageData.measurements);
 
   const curveTarget = document.getElementById("latency-curves");
@@ -61,11 +68,19 @@
       panel.append(heading, chartNode);
       curveTarget.appendChild(panel);
       const records = [...group.records].sort((left, right) => String(left[curve.axis]).localeCompare(String(right[curve.axis]), undefined, { numeric: true }));
+      const statistics = [...new Set(records.map((row) => row.selected_statistic).filter(Boolean))];
       Atlas.chart(chartNode, {
         tooltip: { trigger: "axis" },
+        legend: { data: statistics.map(statisticLabel) },
         xAxis: { type: "category", name: curve.axis_label, data: records.map((row) => row[curve.axis]) },
-        yAxis: { type: "value", name: "Mean latency (ms)" },
-        series: [{ type: "line", symbol: "circle", data: records.map((row) => row.mean_ms), name: group.group_id }],
+        yAxis: { type: "value", name: "Latency (ms)" },
+        series: statistics.map((statistic) => ({
+          type: "line",
+          symbol: statistic === "analytical_estimate" ? "emptyCircle" : "circle",
+          lineStyle: { type: statistic === "analytical_estimate" ? "dashed" : "solid" },
+          data: records.map((row) => row.selected_statistic === statistic ? row.selected_latency_ms : null),
+          name: statisticLabel(statistic),
+        })),
       });
     });
   });

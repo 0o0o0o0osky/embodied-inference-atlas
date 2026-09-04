@@ -259,6 +259,16 @@ def _validate_run_semantics(run: Mapping, path: str) -> list[Issue]:
                 path,
             )
         )
+    timing = run.get("timing")
+    if isinstance(timing, Mapping) and "warmup_iterations" in timing:
+        issues.extend(
+            _validate_missing_value(
+                timing["warmup_iterations"],
+                missing,
+                "timing.warmup_iterations",
+                path,
+            )
+        )
     return issues
 
 

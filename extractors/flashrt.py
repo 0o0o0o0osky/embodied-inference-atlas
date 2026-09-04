@@ -112,6 +112,9 @@ def normalize_flashrt_timing(
         "timing_boundary_id": "predict_cached_graph_sync",
         "state_reuse": "cached_prompt_and_graph",
         "warm_policy": "steady_state",
+        "warmup_iterations": nonnegative_integer(
+            source.get("warmups"), context, "timing"
+        ),
     }
     operating_point = _unknown_operating_point()
     run_id = record_id("run", context, index)
@@ -120,6 +123,10 @@ def normalize_flashrt_timing(
         run_id, active, context, workload, precision, timing, operating_point,
         missing={
             "workload.vla.denoise_steps": "not_applicable",
+            **(
+                {"precision.scale_zero_point_bytes": "not_reported"}
+                if precision["scale_zero_point_bytes"] is None else {}
+            ),
             "operating_point.power_mode": "not_collected",
             "operating_point.clock_policy": "not_collected",
             "operating_point.throttle_status": "not_collected",
@@ -135,7 +142,7 @@ def normalize_flashrt_timing(
         "metric": "latency",
         "statistics": statistics(source.get("latency_ms"), context),
         "sample_count": nonnegative_integer(source.get("repetitions"), context, "timing"),
-        "percentile_method": None,
+        "percentile_method": "source_reported",
         "work_unit": "action_chunk",
         "timing_boundary_id": timing["timing_boundary_id"],
         "missing_reason": None,
@@ -147,13 +154,13 @@ def _precision_fp8() -> dict[str, object]:
     return {
         "precision_id": "mixed-fp8-e4m3-fp16",
         "requested": "fp8",
-        "weight_dtype": "fp8-e4m3",
-        "activation_dtype": "fp8-e4m3",
+        "weight_dtype": "mixed-fp8-e4m3-fp16",
+        "activation_dtype": "mixed-fp8-e4m3-fp16",
         "accumulation_dtype": "fp16",
-        "execution_dtype": "fp8-e4m3",
-        "quant_scheme": "none",
-        "granularity": "none",
-        "scale_zero_point_bytes": 0,
+        "execution_dtype": "mixed-fp8-e4m3-fp16",
+        "quant_scheme": "selective_fp8_e4m3_gemm",
+        "granularity": "operator_path",
+        "scale_zero_point_bytes": None,
         "dequant_strategy": "none",
         "fused": False,
     }

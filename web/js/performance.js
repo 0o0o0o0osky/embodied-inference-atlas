@@ -2,11 +2,13 @@
   "use strict";
 
   const pageData = Atlas.readPageData();
+  const statisticOrder = ["min", "mean", "p50", "p95", "max", "analytical_estimate"];
+  const statisticLabel = (value) => value === "analytical_estimate" ? "analytical estimate" : value;
 
   function ratioLabel(row) {
-    if (row.ratio_kind === "validated_speedup") return `${row.ratio.toFixed(2)}× validated speedup`;
-    if (row.ratio_kind === "latency_ratio_unvalidated") return `${row.ratio.toFixed(2)}× latency ratio (quality unvalidated)`;
-    return "not comparable";
+    if (row.ratio_kind === "validated_speedup" && row.ratio !== undefined) return `${row.ratio.toFixed(2)}× validated speedup`;
+    if (row.ratio_kind === "latency_ratio_unvalidated" && row.ratio !== undefined) return `${row.ratio.toFixed(2)}× latency ratio (quality unvalidated)`;
+    return `not comparable${row.not_comparable_reason ? ` — ${row.not_comparable_reason}` : ""}`;
   }
 
   Atlas.renderTable(document.getElementById("evidence-classes"), [
@@ -25,15 +27,19 @@
       chartNode.dataset.groupId = group.group_id;
       card.appendChild(chartNode);
       target.appendChild(card);
+      const statistics = statisticOrder.filter((statistic) =>
+        group.records.some((row) => typeof row.statistics[statistic] === "number")
+      );
       Atlas.chart(chartNode, {
         tooltip: { trigger: "axis" },
-        legend: { data: ["p50", "mean", "p95"] },
-        xAxis: { type: "category", data: group.records.map((row) => `${row.runtime_id}\n${row.precision_id}`) },
+        legend: { data: statistics.map(statisticLabel) },
+        xAxis: { type: "category", data: group.records.map((row) => `${row.runtime_id}\n${row.precision_label}`) },
         yAxis: { type: "value", name: "Latency (ms)" },
-        series: ["p50", "mean", "p95"].map((statistic) => ({
-          name: statistic,
+        series: statistics.map((statistic) => ({
+          name: statisticLabel(statistic),
           type: "bar",
-          data: group.records.map((row) => row[`${statistic}_ms`]),
+          itemStyle: statistic === "analytical_estimate" ? { color: "transparent", borderColor: "#d8862f", borderWidth: 2 } : undefined,
+          data: group.records.map((row) => row.statistics[statistic]),
         })),
       });
     });
@@ -50,8 +56,21 @@
     { label: "Baseline", value: "baseline_run_id" },
     { label: "Candidate", value: "candidate_run_id" },
     { label: "Correctness", value: "correctness" },
+    { label: "Baseline statistic", value: (row) => statisticLabel(row.baseline_statistic) },
+    { label: "Candidate statistic", value: (row) => statisticLabel(row.candidate_statistic) },
     { label: "Interpretation", value: ratioLabel },
   ], pageData.comparisons);
+
+  Atlas.renderTable(document.getElementById("e2e-provenance-table"), [
+    { label: "Model", value: "model_name" }, { label: "Runtime", value: "runtime_name" },
+    { label: "Evidence", value: "evidence" }, { label: "Precision", value: "precision_label" },
+    { label: "Selected ms", value: "selected_latency_ms" },
+    { label: "Statistic", value: (row) => statisticLabel(row.selected_statistic) },
+    { label: "Samples", value: "sample_count" }, { label: "Warmups", value: "warmup_iterations" },
+    { label: "Percentile provenance", value: "percentile_method" },
+    { label: "Timing boundary", value: "timing_boundary_id" },
+    { label: "Operating point", value: "operating_point_id" },
+  ], pageData.e2e_records);
 
   const stageTarget = document.getElementById("stage-charts");
   pageData.stage_charts.forEach((group) => {
@@ -64,18 +83,32 @@
     chartNode.dataset.stacked = "false";
     card.appendChild(chartNode);
     stageTarget.appendChild(card);
+    const statistics = statisticOrder.filter((statistic) =>
+      group.records.some((row) => typeof row.statistics[statistic] === "number")
+    );
     Atlas.chart(chartNode, {
       tooltip: { trigger: "axis" },
       xAxis: { type: "category", data: group.records.map((row) => `${row.run_id}\n${row.stage_id}`) },
-      yAxis: { type: "value", name: "Mean latency (ms)" },
-      series: [{ type: "bar", name: "independent mean", data: group.records.map((row) => row.mean_ms) }],
+      yAxis: { type: "value", name: "Latency (ms)" },
+      legend: { data: statistics.map(statisticLabel) },
+      series: statistics.map((statistic) => ({
+        type: "bar",
+        name: statisticLabel(statistic),
+        itemStyle: statistic === "analytical_estimate" ? { color: "transparent", borderColor: "#d8862f", borderWidth: 2 } : undefined,
+        data: group.records.map((row) => row.statistics[statistic]),
+      })),
     });
   });
   Atlas.renderTable(document.getElementById("stage-table"), [
     { label: "Model", value: "model_name" }, { label: "Runtime", value: "runtime_name" },
     { label: "Stage", value: "stage_id" }, { label: "Additive", value: (row) => row.additive ? "yes" : "no" },
+    { label: "Selected ms", value: "selected_latency_ms" },
+    { label: "Statistic", value: (row) => statisticLabel(row.selected_statistic) },
     { label: "Mean ms", value: "mean_ms" }, { label: "p50 ms", value: "p50_ms" },
-    { label: "p95 ms", value: "p95_ms" }, { label: "Evidence", value: "evidence" },
+    { label: "p95 ms", value: "p95_ms" }, { label: "Samples", value: "sample_count" },
+    { label: "Warmups", value: "warmup_iterations" },
+    { label: "Percentile provenance", value: "percentile_method" },
+    { label: "Evidence", value: "evidence" },
   ], pageData.stages);
 
   Atlas.renderProfilerCoverage(document.getElementById("profiler-coverage"), pageData.profiler_coverage);

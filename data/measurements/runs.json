@@ -14,16 +14,16 @@
         },
         "precision": {
           "accumulation_dtype": "fp16",
-          "activation_dtype": "fp8-e4m3",
+          "activation_dtype": "mixed-fp8-e4m3-fp16",
           "dequant_strategy": "none",
-          "execution_dtype": "fp8-e4m3",
+          "execution_dtype": "mixed-fp8-e4m3-fp16",
           "fused": false,
-          "granularity": "none",
+          "granularity": "operator_path",
           "precision_id": "mixed-fp8-e4m3-fp16",
-          "quant_scheme": "none",
+          "quant_scheme": "selective_fp8_e4m3_gemm",
           "requested": "fp8",
-          "scale_zero_point_bytes": 0,
-          "weight_dtype": "fp8-e4m3"
+          "scale_zero_point_bytes": null,
+          "weight_dtype": "mixed-fp8-e4m3-fp16"
         },
         "runtime_id": "flashrt",
         "runtime_overhead": "included",
@@ -36,7 +36,8 @@
         "timing": {
           "state_reuse": "cached_prompt_and_graph",
           "timing_boundary_id": "predict_cached_graph_sync",
-          "warm_policy": "steady_state"
+          "warm_policy": "steady_state",
+          "warmup_iterations": 30
         },
         "workload": {
           "common": {
@@ -67,6 +68,7 @@
         "operating_point.clock_policy": "not_collected",
         "operating_point.power_mode": "not_collected",
         "operating_point.throttle_status": "not_collected",
+        "precision.scale_zero_point_bytes": "not_reported",
         "workload.vla.denoise_steps": "not_applicable"
       },
       "model_artifact_id": "pi0-flashrt-local-01",
@@ -79,16 +81,16 @@
       },
       "precision": {
         "accumulation_dtype": "fp16",
-        "activation_dtype": "fp8-e4m3",
+        "activation_dtype": "mixed-fp8-e4m3-fp16",
         "dequant_strategy": "none",
-        "execution_dtype": "fp8-e4m3",
+        "execution_dtype": "mixed-fp8-e4m3-fp16",
         "fused": false,
-        "granularity": "none",
+        "granularity": "operator_path",
         "precision_id": "mixed-fp8-e4m3-fp16",
-        "quant_scheme": "none",
+        "quant_scheme": "selective_fp8_e4m3_gemm",
         "requested": "fp8",
-        "scale_zero_point_bytes": 0,
-        "weight_dtype": "fp8-e4m3"
+        "scale_zero_point_bytes": null,
+        "weight_dtype": "mixed-fp8-e4m3-fp16"
       },
       "run_id": "run-flashrt-pi0-matrix-001",
       "runtime_id": "flashrt",
@@ -98,7 +100,8 @@
       "timing": {
         "state_reuse": "cached_prompt_and_graph",
         "timing_boundary_id": "predict_cached_graph_sync",
-        "warm_policy": "steady_state"
+        "warm_policy": "steady_state",
+        "warmup_iterations": 30
       },
       "workload": {
         "common": {
@@ -131,16 +134,16 @@
         },
         "precision": {
           "accumulation_dtype": "fp16",
-          "activation_dtype": "fp8-e4m3",
+          "activation_dtype": "mixed-fp8-e4m3-fp16",
           "dequant_strategy": "none",
-          "execution_dtype": "fp8-e4m3",
+          "execution_dtype": "mixed-fp8-e4m3-fp16",
           "fused": false,
-          "granularity": "none",
+          "granularity": "operator_path",
           "precision_id": "mixed-fp8-e4m3-fp16",
-          "quant_scheme": "none",
+          "quant_scheme": "selective_fp8_e4m3_gemm",
           "requested": "fp8",
-          "scale_zero_point_bytes": 0,
-          "weight_dtype": "fp8-e4m3"
+          "scale_zero_point_bytes": null,
+          "weight_dtype": "mixed-fp8-e4m3-fp16"
         },
         "runtime_id": "flashrt",
         "runtime_overhead": "included",
@@ -153,7 +156,8 @@
         "timing": {
           "state_reuse": "cached_prompt_and_graph",
           "timing_boundary_id": "predict_cached_graph_sync",
-          "warm_policy": "steady_state"
+          "warm_policy": "steady_state",
+          "warmup_iterations": 30
         },
         "workload": {
           "common": {
@@ -184,6 +188,7 @@
         "operating_point.clock_policy": "not_collected",
         "operating_point.power_mode": "not_collected",
         "operating_point.throttle_status": "not_collected",
+        "precision.scale_zero_point_bytes": "not_reported",
         "workload.vla.denoise_steps": "not_applicable"
       },
       "model_artifact_id": "pi0-flashrt-local-01",
@@ -196,16 +201,16 @@
       },
       "precision": {
         "accumulation_dtype": "fp16",
-        "activation_dtype": "fp8-e4m3",
+        "activation_dtype": "mixed-fp8-e4m3-fp16",
         "dequant_strategy": "none",
-        "execution_dtype": "fp8-e4m3",
+        "execution_dtype": "mixed-fp8-e4m3-fp16",
         "fused": false,
-        "granularity": "none",
+        "granularity": "operator_path",
         "precision_id": "mixed-fp8-e4m3-fp16",
-        "quant_scheme": "none",
+        "quant_scheme": "selective_fp8_e4m3_gemm",
         "requested": "fp8",
-        "scale_zero_point_bytes": 0,
-        "weight_dtype": "fp8-e4m3"
+        "scale_zero_point_bytes": null,
+        "weight_dtype": "mixed-fp8-e4m3-fp16"
       },
       "run_id": "run-flashrt-pi0-matrix-002",
       "runtime_id": "flashrt",
@@ -215,7 +220,8 @@
       "timing": {
         "state_reuse": "cached_prompt_and_graph",
         "timing_boundary_id": "predict_cached_graph_sync",
-        "warm_policy": "steady_state"
+        "warm_policy": "steady_state",
+        "warmup_iterations": 30
       },
       "workload": {
         "common": {
@@ -248,16 +254,16 @@
         },
         "precision": {
           "accumulation_dtype": "fp16",
-          "activation_dtype": "fp8-e4m3",
+          "activation_dtype": "mixed-fp8-e4m3-fp16",
           "dequant_strategy": "none",
-          "execution_dtype": "fp8-e4m3",
+          "execution_dtype": "mixed-fp8-e4m3-fp16",
           "fused": false,
-          "granularity": "none",
+          "granularity": "operator_path",
           "precision_id": "mixed-fp8-e4m3-fp16",
-          "quant_scheme": "none",
+          "quant_scheme": "selective_fp8_e4m3_gemm",
           "requested": "fp8",
-          "scale_zero_point_bytes": 0,
-          "weight_dtype": "fp8-e4m3"
+          "scale_zero_point_bytes": null,
+          "weight_dtype": "mixed-fp8-e4m3-fp16"
         },
         "runtime_id": "flashrt",
         "runtime_overhead": "included",
@@ -270,7 +276,8 @@
         "timing": {
           "state_reuse": "cached_prompt_and_graph",
           "timing_boundary_id": "predict_cached_graph_sync",
-          "warm_policy": "steady_state"
+          "warm_policy": "steady_state",
+          "warmup_iterations": 30
         },
         "workload": {
           "common": {
@@ -301,6 +308,7 @@
         "operating_point.clock_policy": "not_collected",
         "operating_point.power_mode": "not_collected",
         "operating_point.throttle_status": "not_collected",
+        "precision.scale_zero_point_bytes": "not_reported",
         "workload.vla.denoise_steps": "not_applicable"
       },
       "model_artifact_id": "pi0-flashrt-local-01",
@@ -313,16 +321,16 @@
       },
       "precision": {
         "accumulation_dtype": "fp16",
-        "activation_dtype": "fp8-e4m3",
+        "activation_dtype": "mixed-fp8-e4m3-fp16",
         "dequant_strategy": "none",
-        "execution_dtype": "fp8-e4m3",
+        "execution_dtype": "mixed-fp8-e4m3-fp16",
         "fused": false,
-        "granularity": "none",
+        "granularity": "operator_path",
         "precision_id": "mixed-fp8-e4m3-fp16",
-        "quant_scheme": "none",
+        "quant_scheme": "selective_fp8_e4m3_gemm",
         "requested": "fp8",
-        "scale_zero_point_bytes": 0,
-        "weight_dtype": "fp8-e4m3"
+        "scale_zero_point_bytes": null,
+        "weight_dtype": "mixed-fp8-e4m3-fp16"
       },
       "run_id": "run-flashrt-pi0-matrix-003",
       "runtime_id": "flashrt",
@@ -332,7 +340,8 @@
       "timing": {
         "state_reuse": "cached_prompt_and_graph",
         "timing_boundary_id": "predict_cached_graph_sync",
-        "warm_policy": "steady_state"
+        "warm_policy": "steady_state",
+        "warmup_iterations": 30
       },
       "workload": {
         "common": {
@@ -365,16 +374,16 @@
         },
         "precision": {
           "accumulation_dtype": "fp16",
-          "activation_dtype": "fp8-e4m3",
+          "activation_dtype": "mixed-fp8-e4m3-fp16",
           "dequant_strategy": "none",
-          "execution_dtype": "fp8-e4m3",
+          "execution_dtype": "mixed-fp8-e4m3-fp16",
           "fused": false,
-          "granularity": "none",
+          "granularity": "operator_path",
           "precision_id": "mixed-fp8-e4m3-fp16",
-          "quant_scheme": "none",
+          "quant_scheme": "selective_fp8_e4m3_gemm",
           "requested": "fp8",
-          "scale_zero_point_bytes": 0,
-          "weight_dtype": "fp8-e4m3"
+          "scale_zero_point_bytes": null,
+          "weight_dtype": "mixed-fp8-e4m3-fp16"
         },
         "runtime_id": "flashrt",
         "runtime_overhead": "included",
@@ -387,7 +396,8 @@
         "timing": {
           "state_reuse": "cached_prompt_and_graph",
           "timing_boundary_id": "predict_cached_graph_sync",
-          "warm_policy": "steady_state"
+          "warm_policy": "steady_state",
+          "warmup_iterations": 30
         },
         "workload": {
           "common": {
@@ -418,6 +428,7 @@
         "operating_point.clock_policy": "not_collected",
         "operating_point.power_mode": "not_collected",
         "operating_point.throttle_status": "not_collected",
+        "precision.scale_zero_point_bytes": "not_reported",
         "workload.vla.denoise_steps": "not_applicable"
       },
       "model_artifact_id": "pi0-flashrt-local-01",
@@ -430,16 +441,16 @@
       },
       "precision": {
         "accumulation_dtype": "fp16",
-        "activation_dtype": "fp8-e4m3",
+        "activation_dtype": "mixed-fp8-e4m3-fp16",
         "dequant_strategy": "none",
-        "execution_dtype": "fp8-e4m3",
+        "execution_dtype": "mixed-fp8-e4m3-fp16",
         "fused": false,
-        "granularity": "none",
+        "granularity": "operator_path",
         "precision_id": "mixed-fp8-e4m3-fp16",
-        "quant_scheme": "none",
+        "quant_scheme": "selective_fp8_e4m3_gemm",
         "requested": "fp8",
-        "scale_zero_point_bytes": 0,
-        "weight_dtype": "fp8-e4m3"
+        "scale_zero_point_bytes": null,
+        "weight_dtype": "mixed-fp8-e4m3-fp16"
       },
       "run_id": "run-flashrt-pi0-matrix-004",
       "runtime_id": "flashrt",
@@ -449,7 +460,8 @@
       "timing": {
         "state_reuse": "cached_prompt_and_graph",
         "timing_boundary_id": "predict_cached_graph_sync",
-        "warm_policy": "steady_state"
+        "warm_policy": "steady_state",
+        "warmup_iterations": 30
       },
       "workload": {
         "common": {
@@ -482,16 +494,16 @@
         },
         "precision": {
           "accumulation_dtype": "fp16",
-          "activation_dtype": "fp8-e4m3",
+          "activation_dtype": "mixed-fp8-e4m3-fp16",
           "dequant_strategy": "none",
-          "execution_dtype": "fp8-e4m3",
+          "execution_dtype": "mixed-fp8-e4m3-fp16",
           "fused": false,
-          "granularity": "none",
+          "granularity": "operator_path",
           "precision_id": "mixed-fp8-e4m3-fp16",
-          "quant_scheme": "none",
+          "quant_scheme": "selective_fp8_e4m3_gemm",
           "requested": "fp8",
-          "scale_zero_point_bytes": 0,
-          "weight_dtype": "fp8-e4m3"
+          "scale_zero_point_bytes": null,
+          "weight_dtype": "mixed-fp8-e4m3-fp16"
         },
         "runtime_id": "flashrt",
         "runtime_overhead": "included",
@@ -504,7 +516,8 @@
         "timing": {
           "state_reuse": "cached_prompt_and_graph",
           "timing_boundary_id": "predict_cached_graph_sync",
-          "warm_policy": "steady_state"
+          "warm_policy": "steady_state",
+          "warmup_iterations": 30
         },
         "workload": {
           "common": {
@@ -535,6 +548,7 @@
         "operating_point.clock_policy": "not_collected",
         "operating_point.power_mode": "not_collected",
         "operating_point.throttle_status": "not_collected",
+        "precision.scale_zero_point_bytes": "not_reported",
         "workload.vla.denoise_steps": "not_applicable"
       },
       "model_artifact_id": "pi0-flashrt-local-01",
@@ -547,16 +561,16 @@
       },
       "precision": {
         "accumulation_dtype": "fp16",
-        "activation_dtype": "fp8-e4m3",
+        "activation_dtype": "mixed-fp8-e4m3-fp16",
         "dequant_strategy": "none",
-        "execution_dtype": "fp8-e4m3",
+        "execution_dtype": "mixed-fp8-e4m3-fp16",
         "fused": false,
-        "granularity": "none",
+        "granularity": "operator_path",
         "precision_id": "mixed-fp8-e4m3-fp16",
-        "quant_scheme": "none",
+        "quant_scheme": "selective_fp8_e4m3_gemm",
         "requested": "fp8",
-        "scale_zero_point_bytes": 0,
-        "weight_dtype": "fp8-e4m3"
+        "scale_zero_point_bytes": null,
+        "weight_dtype": "mixed-fp8-e4m3-fp16"
       },
       "run_id": "run-flashrt-pi0-matrix-005",
       "runtime_id": "flashrt",
@@ -566,7 +580,8 @@
       "timing": {
         "state_reuse": "cached_prompt_and_graph",
         "timing_boundary_id": "predict_cached_graph_sync",
-        "warm_policy": "steady_state"
+        "warm_policy": "steady_state",
+        "warmup_iterations": 30
       },
       "workload": {
         "common": {
@@ -599,16 +614,16 @@
         },
         "precision": {
           "accumulation_dtype": "fp16",
-          "activation_dtype": "fp8-e4m3",
+          "activation_dtype": "mixed-fp8-e4m3-fp16",
           "dequant_strategy": "none",
-          "execution_dtype": "fp8-e4m3",
+          "execution_dtype": "mixed-fp8-e4m3-fp16",
           "fused": false,
-          "granularity": "none",
+          "granularity": "operator_path",
           "precision_id": "mixed-fp8-e4m3-fp16",
-          "quant_scheme": "none",
+          "quant_scheme": "selective_fp8_e4m3_gemm",
           "requested": "fp8",
-          "scale_zero_point_bytes": 0,
-          "weight_dtype": "fp8-e4m3"
+          "scale_zero_point_bytes": null,
+          "weight_dtype": "mixed-fp8-e4m3-fp16"
         },
         "runtime_id": "flashrt",
         "runtime_overhead": "included",
@@ -621,7 +636,8 @@
         "timing": {
           "state_reuse": "cached_prompt_and_graph",
           "timing_boundary_id": "predict_cached_graph_sync",
-          "warm_policy": "steady_state"
+          "warm_policy": "steady_state",
+          "warmup_iterations": 30
         },
         "workload": {
           "common": {
@@ -652,6 +668,7 @@
         "operating_point.clock_policy": "not_collected",
         "operating_point.power_mode": "not_collected",
         "operating_point.throttle_status": "not_collected",
+        "precision.scale_zero_point_bytes": "not_reported",
         "workload.vla.denoise_steps": "not_applicable"
       },
       "model_artifact_id": "pi0-flashrt-local-01",
@@ -664,16 +681,16 @@
       },
       "precision": {
         "accumulation_dtype": "fp16",
-        "activation_dtype": "fp8-e4m3",
+        "activation_dtype": "mixed-fp8-e4m3-fp16",
         "dequant_strategy": "none",
-        "execution_dtype": "fp8-e4m3",
+        "execution_dtype": "mixed-fp8-e4m3-fp16",
         "fused": false,
-        "granularity": "none",
+        "granularity": "operator_path",
         "precision_id": "mixed-fp8-e4m3-fp16",
-        "quant_scheme": "none",
+        "quant_scheme": "selective_fp8_e4m3_gemm",
         "requested": "fp8",
-        "scale_zero_point_bytes": 0,
-        "weight_dtype": "fp8-e4m3"
+        "scale_zero_point_bytes": null,
+        "weight_dtype": "mixed-fp8-e4m3-fp16"
       },
       "run_id": "run-flashrt-pi0-matrix-006",
       "runtime_id": "flashrt",
@@ -683,7 +700,8 @@
       "timing": {
         "state_reuse": "cached_prompt_and_graph",
         "timing_boundary_id": "predict_cached_graph_sync",
-        "warm_policy": "steady_state"
+        "warm_policy": "steady_state",
+        "warmup_iterations": 30
       },
       "workload": {
         "common": {
@@ -716,16 +734,16 @@
         },
         "precision": {
           "accumulation_dtype": "fp16",
-          "activation_dtype": "fp8-e4m3",
+          "activation_dtype": "mixed-fp8-e4m3-fp16",
           "dequant_strategy": "none",
-          "execution_dtype": "fp8-e4m3",
+          "execution_dtype": "mixed-fp8-e4m3-fp16",
           "fused": false,
-          "granularity": "none",
+          "granularity": "operator_path",
           "precision_id": "mixed-fp8-e4m3-fp16",
-          "quant_scheme": "none",
+          "quant_scheme": "selective_fp8_e4m3_gemm",
           "requested": "fp8",
-          "scale_zero_point_bytes": 0,
-          "weight_dtype": "fp8-e4m3"
+          "scale_zero_point_bytes": null,
+          "weight_dtype": "mixed-fp8-e4m3-fp16"
         },
         "runtime_id": "flashrt",
         "runtime_overhead": "included",
@@ -738,7 +756,8 @@
         "timing": {
           "state_reuse": "cached_prompt_and_graph",
           "timing_boundary_id": "predict_cached_graph_sync",
-          "warm_policy": "steady_state"
+          "warm_policy": "steady_state",
+          "warmup_iterations": 30
         },
         "workload": {
           "common": {
@@ -769,6 +788,7 @@
         "operating_point.clock_policy": "not_collected",
         "operating_point.power_mode": "not_collected",
         "operating_point.throttle_status": "not_collected",
+        "precision.scale_zero_point_bytes": "not_reported",
         "workload.vla.denoise_steps": "not_applicable"
       },
       "model_artifact_id": "pi0-flashrt-local-01",
@@ -781,16 +801,16 @@
       },
       "precision": {
         "accumulation_dtype": "fp16",
-        "activation_dtype": "fp8-e4m3",
+        "activation_dtype": "mixed-fp8-e4m3-fp16",
         "dequant_strategy": "none",
-        "execution_dtype": "fp8-e4m3",
+        "execution_dtype": "mixed-fp8-e4m3-fp16",
         "fused": false,
-        "granularity": "none",
+        "granularity": "operator_path",
         "precision_id": "mixed-fp8-e4m3-fp16",
-        "quant_scheme": "none",
+        "quant_scheme": "selective_fp8_e4m3_gemm",
         "requested": "fp8",
-        "scale_zero_point_bytes": 0,
-        "weight_dtype": "fp8-e4m3"
+        "scale_zero_point_bytes": null,
+        "weight_dtype": "mixed-fp8-e4m3-fp16"
       },
       "run_id": "run-flashrt-pi0-matrix-007",
       "runtime_id": "flashrt",
@@ -800,7 +820,8 @@
       "timing": {
         "state_reuse": "cached_prompt_and_graph",
         "timing_boundary_id": "predict_cached_graph_sync",
-        "warm_policy": "steady_state"
+        "warm_policy": "steady_state",
+        "warmup_iterations": 30
       },
       "workload": {
         "common": {
@@ -833,16 +854,16 @@
         },
         "precision": {
           "accumulation_dtype": "fp16",
-          "activation_dtype": "fp8-e4m3",
+          "activation_dtype": "mixed-fp8-e4m3-fp16",
           "dequant_strategy": "none",
-          "execution_dtype": "fp8-e4m3",
+          "execution_dtype": "mixed-fp8-e4m3-fp16",
           "fused": false,
-          "granularity": "none",
+          "granularity": "operator_path",
           "precision_id": "mixed-fp8-e4m3-fp16",
-          "quant_scheme": "none",
+          "quant_scheme": "selective_fp8_e4m3_gemm",
           "requested": "fp8",
-          "scale_zero_point_bytes": 0,
-          "weight_dtype": "fp8-e4m3"
+          "scale_zero_point_bytes": null,
+          "weight_dtype": "mixed-fp8-e4m3-fp16"
         },
         "runtime_id": "flashrt",
         "runtime_overhead": "included",
@@ -855,7 +876,8 @@
         "timing": {
           "state_reuse": "cached_prompt_and_graph",
           "timing_boundary_id": "predict_cached_graph_sync",
-          "warm_policy": "steady_state"
+          "warm_policy": "steady_state",
+          "warmup_iterations": 30
         },
         "workload": {
           "common": {
@@ -886,6 +908,7 @@
         "operating_point.clock_policy": "not_collected",
         "operating_point.power_mode": "not_collected",
         "operating_point.throttle_status": "not_collected",
+        "precision.scale_zero_point_bytes": "not_reported",
         "workload.vla.denoise_steps": "not_applicable"
       },
       "model_artifact_id": "pi0-flashrt-local-01",
@@ -898,16 +921,16 @@
       },
       "precision": {
         "accumulation_dtype": "fp16",
-        "activation_dtype": "fp8-e4m3",
+        "activation_dtype": "mixed-fp8-e4m3-fp16",
         "dequant_strategy": "none",
-        "execution_dtype": "fp8-e4m3",
+        "execution_dtype": "mixed-fp8-e4m3-fp16",
         "fused": false,
-        "granularity": "none",
+        "granularity": "operator_path",
         "precision_id": "mixed-fp8-e4m3-fp16",
-        "quant_scheme": "none",
+        "quant_scheme": "selective_fp8_e4m3_gemm",
         "requested": "fp8",
-        "scale_zero_point_bytes": 0,
-        "weight_dtype": "fp8-e4m3"
+        "scale_zero_point_bytes": null,
+        "weight_dtype": "mixed-fp8-e4m3-fp16"
       },
       "run_id": "run-flashrt-pi0-matrix-008",
       "runtime_id": "flashrt",
@@ -917,7 +940,8 @@
       "timing": {
         "state_reuse": "cached_prompt_and_graph",
         "timing_boundary_id": "predict_cached_graph_sync",
-        "warm_policy": "steady_state"
+        "warm_policy": "steady_state",
+        "warmup_iterations": 30
       },
       "workload": {
         "common": {
@@ -950,16 +974,16 @@
         },
         "precision": {
           "accumulation_dtype": "fp16",
-          "activation_dtype": "fp8-e4m3",
+          "activation_dtype": "mixed-fp8-e4m3-fp16",
           "dequant_strategy": "none",
-          "execution_dtype": "fp8-e4m3",
+          "execution_dtype": "mixed-fp8-e4m3-fp16",
           "fused": false,
-          "granularity": "none",
+          "granularity": "operator_path",
           "precision_id": "mixed-fp8-e4m3-fp16",
-          "quant_scheme": "none",
+          "quant_scheme": "selective_fp8_e4m3_gemm",
           "requested": "fp8",
-          "scale_zero_point_bytes": 0,
-          "weight_dtype": "fp8-e4m3"
+          "scale_zero_point_bytes": null,
+          "weight_dtype": "mixed-fp8-e4m3-fp16"
         },
         "runtime_id": "flashrt",
         "runtime_overhead": "included",
@@ -972,7 +996,8 @@
         "timing": {
           "state_reuse": "cached_prompt_and_graph",
           "timing_boundary_id": "predict_cached_graph_sync",
-          "warm_policy": "steady_state"
+          "warm_policy": "steady_state",
+          "warmup_iterations": 30
         },
         "workload": {
           "common": {
@@ -1003,6 +1028,7 @@
         "operating_point.clock_policy": "not_collected",
         "operating_point.power_mode": "not_collected",
         "operating_point.throttle_status": "not_collected",
+        "precision.scale_zero_point_bytes": "not_reported",
         "workload.vla.denoise_steps": "not_applicable"
       },
       "model_artifact_id": "pi0-flashrt-local-01",
@@ -1015,16 +1041,16 @@
       },
       "precision": {
         "accumulation_dtype": "fp16",
-        "activation_dtype": "fp8-e4m3",
+        "activation_dtype": "mixed-fp8-e4m3-fp16",
         "dequant_strategy": "none",
-        "execution_dtype": "fp8-e4m3",
+        "execution_dtype": "mixed-fp8-e4m3-fp16",
         "fused": false,
-        "granularity": "none",
+        "granularity": "operator_path",
         "precision_id": "mixed-fp8-e4m3-fp16",
-        "quant_scheme": "none",
+        "quant_scheme": "selective_fp8_e4m3_gemm",
         "requested": "fp8",
-        "scale_zero_point_bytes": 0,
-        "weight_dtype": "fp8-e4m3"
+        "scale_zero_point_bytes": null,
+        "weight_dtype": "mixed-fp8-e4m3-fp16"
       },
       "run_id": "run-flashrt-pi0-matrix-009",
       "runtime_id": "flashrt",
@@ -1034,7 +1060,8 @@
       "timing": {
         "state_reuse": "cached_prompt_and_graph",
         "timing_boundary_id": "predict_cached_graph_sync",
-        "warm_policy": "steady_state"
+        "warm_policy": "steady_state",
+        "warmup_iterations": 30
       },
       "workload": {
         "common": {
@@ -1067,16 +1094,16 @@
         },
         "precision": {
           "accumulation_dtype": "fp16",
-          "activation_dtype": "fp8-e4m3",
+          "activation_dtype": "mixed-fp8-e4m3-fp16",
           "dequant_strategy": "none",
-          "execution_dtype": "fp8-e4m3",
+          "execution_dtype": "mixed-fp8-e4m3-fp16",
           "fused": false,
-          "granularity": "none",
+          "granularity": "operator_path",
           "precision_id": "mixed-fp8-e4m3-fp16",
-          "quant_scheme": "none",
+          "quant_scheme": "selective_fp8_e4m3_gemm",
           "requested": "fp8",
-          "scale_zero_point_bytes": 0,
-          "weight_dtype": "fp8-e4m3"
+          "scale_zero_point_bytes": null,
+          "weight_dtype": "mixed-fp8-e4m3-fp16"
         },
         "runtime_id": "flashrt",
         "runtime_overhead": "included",
@@ -1089,7 +1116,8 @@
         "timing": {
           "state_reuse": "cached_prompt_and_graph",
           "timing_boundary_id": "predict_cached_graph_sync",
-          "warm_policy": "steady_state"
+          "warm_policy": "steady_state",
+          "warmup_iterations": 300
         },
         "workload": {
           "common": {
@@ -1120,6 +1148,7 @@
         "operating_point.clock_policy": "not_collected",
         "operating_point.power_mode": "not_collected",
         "operating_point.throttle_status": "not_collected",
+        "precision.scale_zero_point_bytes": "not_reported",
         "workload.vla.denoise_steps": "not_applicable"
       },
       "model_artifact_id": "pi05-flashrt-local-01",
@@ -1132,16 +1161,16 @@
       },
       "precision": {
         "accumulation_dtype": "fp16",
-        "activation_dtype": "fp8-e4m3",
+        "activation_dtype": "mixed-fp8-e4m3-fp16",
         "dequant_strategy": "none",
-        "execution_dtype": "fp8-e4m3",
+        "execution_dtype": "mixed-fp8-e4m3-fp16",
         "fused": false,
-        "granularity": "none",
+        "granularity": "operator_path",
         "precision_id": "mixed-fp8-e4m3-fp16",
-        "quant_scheme": "none",
+        "quant_scheme": "selective_fp8_e4m3_gemm",
         "requested": "fp8",
-        "scale_zero_point_bytes": 0,
-        "weight_dtype": "fp8-e4m3"
+        "scale_zero_point_bytes": null,
+        "weight_dtype": "mixed-fp8-e4m3-fp16"
       },
       "run_id": "run-flashrt-pi05-matrix-001",
       "runtime_id": "flashrt",
@@ -1151,7 +1180,8 @@
       "timing": {
         "state_reuse": "cached_prompt_and_graph",
         "timing_boundary_id": "predict_cached_graph_sync",
-        "warm_policy": "steady_state"
+        "warm_policy": "steady_state",
+        "warmup_iterations": 300
       },
       "workload": {
         "common": {
@@ -1184,16 +1214,16 @@
         },
         "precision": {
           "accumulation_dtype": "fp16",
-          "activation_dtype": "fp8-e4m3",
+          "activation_dtype": "mixed-fp8-e4m3-fp16",
           "dequant_strategy": "none",
-          "execution_dtype": "fp8-e4m3",
+          "execution_dtype": "mixed-fp8-e4m3-fp16",
           "fused": false,
-          "granularity": "none",
+          "granularity": "operator_path",
           "precision_id": "mixed-fp8-e4m3-fp16",
-          "quant_scheme": "none",
+          "quant_scheme": "selective_fp8_e4m3_gemm",
           "requested": "fp8",
-          "scale_zero_point_bytes": 0,
-          "weight_dtype": "fp8-e4m3"
+          "scale_zero_point_bytes": null,
+          "weight_dtype": "mixed-fp8-e4m3-fp16"
         },
         "runtime_id": "flashrt",
         "runtime_overhead": "included",
@@ -1206,7 +1236,8 @@
         "timing": {
           "state_reuse": "cached_prompt_and_graph",
           "timing_boundary_id": "predict_cached_graph_sync",
-          "warm_policy": "steady_state"
+          "warm_policy": "steady_state",
+          "warmup_iterations": 300
         },
         "workload": {
           "common": {
@@ -1237,6 +1268,7 @@
         "operating_point.clock_policy": "not_collected",
         "operating_point.power_mode": "not_collected",
         "operating_point.throttle_status": "not_collected",
+        "precision.scale_zero_point_bytes": "not_reported",
         "workload.vla.denoise_steps": "not_applicable"
       },
       "model_artifact_id": "pi05-flashrt-local-01",
@@ -1249,16 +1281,16 @@
       },
       "precision": {
         "accumulation_dtype": "fp16",
-        "activation_dtype": "fp8-e4m3",
+        "activation_dtype": "mixed-fp8-e4m3-fp16",
         "dequant_strategy": "none",
-        "execution_dtype": "fp8-e4m3",
+        "execution_dtype": "mixed-fp8-e4m3-fp16",
         "fused": false,
-        "granularity": "none",
+        "granularity": "operator_path",
         "precision_id": "mixed-fp8-e4m3-fp16",
-        "quant_scheme": "none",
+        "quant_scheme": "selective_fp8_e4m3_gemm",
         "requested": "fp8",
-        "scale_zero_point_bytes": 0,
-        "weight_dtype": "fp8-e4m3"
+        "scale_zero_point_bytes": null,
+        "weight_dtype": "mixed-fp8-e4m3-fp16"
       },
       "run_id": "run-flashrt-pi05-matrix-002",
       "runtime_id": "flashrt",
@@ -1268,7 +1300,8 @@
       "timing": {
         "state_reuse": "cached_prompt_and_graph",
         "timing_boundary_id": "predict_cached_graph_sync",
-        "warm_policy": "steady_state"
+        "warm_policy": "steady_state",
+        "warmup_iterations": 300
       },
       "workload": {
         "common": {
@@ -1301,16 +1334,16 @@
         },
         "precision": {
           "accumulation_dtype": "fp16",
-          "activation_dtype": "fp8-e4m3",
+          "activation_dtype": "mixed-fp8-e4m3-fp16",
           "dequant_strategy": "none",
-          "execution_dtype": "fp8-e4m3",
+          "execution_dtype": "mixed-fp8-e4m3-fp16",
           "fused": false,
-          "granularity": "none",
+          "granularity": "operator_path",
           "precision_id": "mixed-fp8-e4m3-fp16",
-          "quant_scheme": "none",
+          "quant_scheme": "selective_fp8_e4m3_gemm",
           "requested": "fp8",
-          "scale_zero_point_bytes": 0,
-          "weight_dtype": "fp8-e4m3"
+          "scale_zero_point_bytes": null,
+          "weight_dtype": "mixed-fp8-e4m3-fp16"
         },
         "runtime_id": "flashrt",
         "runtime_overhead": "included",
@@ -1323,7 +1356,8 @@
         "timing": {
           "state_reuse": "cached_prompt_and_graph",
           "timing_boundary_id": "predict_cached_graph_sync",
-          "warm_policy": "steady_state"
+          "warm_policy": "steady_state",
+          "warmup_iterations": 300
         },
         "workload": {
           "common": {
@@ -1354,6 +1388,7 @@
         "operating_point.clock_policy": "not_collected",
         "operating_point.power_mode": "not_collected",
         "operating_point.throttle_status": "not_collected",
+        "precision.scale_zero_point_bytes": "not_reported",
         "workload.vla.denoise_steps": "not_applicable"
       },
       "model_artifact_id": "pi05-flashrt-local-01",
@@ -1366,16 +1401,16 @@
       },
       "precision": {
         "accumulation_dtype": "fp16",
-        "activation_dtype": "fp8-e4m3",
+        "activation_dtype": "mixed-fp8-e4m3-fp16",
         "dequant_strategy": "none",
-        "execution_dtype": "fp8-e4m3",
+        "execution_dtype": "mixed-fp8-e4m3-fp16",
         "fused": false,
-        "granularity": "none",
+        "granularity": "operator_path",
         "precision_id": "mixed-fp8-e4m3-fp16",
-        "quant_scheme": "none",
+        "quant_scheme": "selective_fp8_e4m3_gemm",
         "requested": "fp8",
-        "scale_zero_point_bytes": 0,
-        "weight_dtype": "fp8-e4m3"
+        "scale_zero_point_bytes": null,
+        "weight_dtype": "mixed-fp8-e4m3-fp16"
       },
       "run_id": "run-flashrt-pi05-matrix-003",
       "runtime_id": "flashrt",
@@ -1385,7 +1420,8 @@
       "timing": {
         "state_reuse": "cached_prompt_and_graph",
         "timing_boundary_id": "predict_cached_graph_sync",
-        "warm_policy": "steady_state"
+        "warm_policy": "steady_state",
+        "warmup_iterations": 300
       },
       "workload": {
         "common": {
@@ -1418,16 +1454,16 @@
         },
         "precision": {
           "accumulation_dtype": "fp16",
-          "activation_dtype": "fp8-e4m3",
+          "activation_dtype": "mixed-fp8-e4m3-fp16",
           "dequant_strategy": "none",
-          "execution_dtype": "fp8-e4m3",
+          "execution_dtype": "mixed-fp8-e4m3-fp16",
           "fused": false,
-          "granularity": "none",
+          "granularity": "operator_path",
           "precision_id": "mixed-fp8-e4m3-fp16",
-          "quant_scheme": "none",
+          "quant_scheme": "selective_fp8_e4m3_gemm",
           "requested": "fp8",
-          "scale_zero_point_bytes": 0,
-          "weight_dtype": "fp8-e4m3"
+          "scale_zero_point_bytes": null,
+          "weight_dtype": "mixed-fp8-e4m3-fp16"
         },
         "runtime_id": "flashrt",
         "runtime_overhead": "included",
@@ -1440,7 +1476,8 @@
         "timing": {
           "state_reuse": "cached_prompt_and_graph",
           "timing_boundary_id": "predict_cached_graph_sync",
-          "warm_policy": "steady_state"
+          "warm_policy": "steady_state",
+          "warmup_iterations": 300
         },
         "workload": {
           "common": {
@@ -1471,6 +1508,7 @@
         "operating_point.clock_policy": "not_collected",
         "operating_point.power_mode": "not_collected",
         "operating_point.throttle_status": "not_collected",
+        "precision.scale_zero_point_bytes": "not_reported",
         "workload.vla.denoise_steps": "not_applicable"
       },
       "model_artifact_id": "pi05-flashrt-local-01",
@@ -1483,16 +1521,16 @@
       },
       "precision": {
         "accumulation_dtype": "fp16",
-        "activation_dtype": "fp8-e4m3",
+        "activation_dtype": "mixed-fp8-e4m3-fp16",
         "dequant_strategy": "none",
-        "execution_dtype": "fp8-e4m3",
+        "execution_dtype": "mixed-fp8-e4m3-fp16",
         "fused": false,
-        "granularity": "none",
+        "granularity": "operator_path",
         "precision_id": "mixed-fp8-e4m3-fp16",
-        "quant_scheme": "none",
+        "quant_scheme": "selective_fp8_e4m3_gemm",
         "requested": "fp8",
-        "scale_zero_point_bytes": 0,
-        "weight_dtype": "fp8-e4m3"
+        "scale_zero_point_bytes": null,
+        "weight_dtype": "mixed-fp8-e4m3-fp16"
       },
       "run_id": "run-flashrt-pi05-matrix-004",
       "runtime_id": "flashrt",
@@ -1502,7 +1540,8 @@
       "timing": {
         "state_reuse": "cached_prompt_and_graph",
         "timing_boundary_id": "predict_cached_graph_sync",
-        "warm_policy": "steady_state"
+        "warm_policy": "steady_state",
+        "warmup_iterations": 300
       },
       "workload": {
         "common": {
@@ -1535,16 +1574,16 @@
         },
         "precision": {
           "accumulation_dtype": "fp16",
-          "activation_dtype": "fp8-e4m3",
+          "activation_dtype": "mixed-fp8-e4m3-fp16",
           "dequant_strategy": "none",
-          "execution_dtype": "fp8-e4m3",
+          "execution_dtype": "mixed-fp8-e4m3-fp16",
           "fused": false,
-          "granularity": "none",
+          "granularity": "operator_path",
           "precision_id": "mixed-fp8-e4m3-fp16",
-          "quant_scheme": "none",
+          "quant_scheme": "selective_fp8_e4m3_gemm",
           "requested": "fp8",
-          "scale_zero_point_bytes": 0,
-          "weight_dtype": "fp8-e4m3"
+          "scale_zero_point_bytes": null,
+          "weight_dtype": "mixed-fp8-e4m3-fp16"
         },
         "runtime_id": "flashrt",
         "runtime_overhead": "included",
@@ -1557,7 +1596,8 @@
         "timing": {
           "state_reuse": "cached_prompt_and_graph",
           "timing_boundary_id": "predict_cached_graph_sync",
-          "warm_policy": "steady_state"
+          "warm_policy": "steady_state",
+          "warmup_iterations": 300
         },
         "workload": {
           "common": {
@@ -1588,6 +1628,7 @@
         "operating_point.clock_policy": "not_collected",
         "operating_point.power_mode": "not_collected",
         "operating_point.throttle_status": "not_collected",
+        "precision.scale_zero_point_bytes": "not_reported",
         "workload.vla.denoise_steps": "not_applicable"
       },
       "model_artifact_id": "pi05-flashrt-local-01",
@@ -1600,16 +1641,16 @@
       },
       "precision": {
         "accumulation_dtype": "fp16",
-        "activation_dtype": "fp8-e4m3",
+        "activation_dtype": "mixed-fp8-e4m3-fp16",
         "dequant_strategy": "none",
-        "execution_dtype": "fp8-e4m3",
+        "execution_dtype": "mixed-fp8-e4m3-fp16",
         "fused": false,
-        "granularity": "none",
+        "granularity": "operator_path",
         "precision_id": "mixed-fp8-e4m3-fp16",
-        "quant_scheme": "none",
+        "quant_scheme": "selective_fp8_e4m3_gemm",
         "requested": "fp8",
-        "scale_zero_point_bytes": 0,
-        "weight_dtype": "fp8-e4m3"
+        "scale_zero_point_bytes": null,
+        "weight_dtype": "mixed-fp8-e4m3-fp16"
       },
       "run_id": "run-flashrt-pi05-matrix-005",
       "runtime_id": "flashrt",
@@ -1619,7 +1660,8 @@
       "timing": {
         "state_reuse": "cached_prompt_and_graph",
         "timing_boundary_id": "predict_cached_graph_sync",
-        "warm_policy": "steady_state"
+        "warm_policy": "steady_state",
+        "warmup_iterations": 300
       },
       "workload": {
         "common": {
@@ -1652,16 +1694,16 @@
         },
         "precision": {
           "accumulation_dtype": "fp16",
-          "activation_dtype": "fp8-e4m3",
+          "activation_dtype": "mixed-fp8-e4m3-fp16",
           "dequant_strategy": "none",
-          "execution_dtype": "fp8-e4m3",
+          "execution_dtype": "mixed-fp8-e4m3-fp16",
           "fused": false,
-          "granularity": "none",
+          "granularity": "operator_path",
           "precision_id": "mixed-fp8-e4m3-fp16",
-          "quant_scheme": "none",
+          "quant_scheme": "selective_fp8_e4m3_gemm",
           "requested": "fp8",
-          "scale_zero_point_bytes": 0,
-          "weight_dtype": "fp8-e4m3"
+          "scale_zero_point_bytes": null,
+          "weight_dtype": "mixed-fp8-e4m3-fp16"
         },
         "runtime_id": "flashrt",
         "runtime_overhead": "included",
@@ -1674,7 +1716,8 @@
         "timing": {
           "state_reuse": "cached_prompt_and_graph",
           "timing_boundary_id": "predict_cached_graph_sync",
-          "warm_policy": "steady_state"
+          "warm_policy": "steady_state",
+          "warmup_iterations": 300
         },
         "workload": {
           "common": {
@@ -1705,6 +1748,7 @@
         "operating_point.clock_policy": "not_collected",
         "operating_point.power_mode": "not_collected",
         "operating_point.throttle_status": "not_collected",
+        "precision.scale_zero_point_bytes": "not_reported",
         "workload.vla.denoise_steps": "not_applicable"
       },
       "model_artifact_id": "pi05-flashrt-local-01",
@@ -1717,16 +1761,16 @@
       },
       "precision": {
         "accumulation_dtype": "fp16",
-        "activation_dtype": "fp8-e4m3",
+        "activation_dtype": "mixed-fp8-e4m3-fp16",
         "dequant_strategy": "none",
-        "execution_dtype": "fp8-e4m3",
+        "execution_dtype": "mixed-fp8-e4m3-fp16",
         "fused": false,
-        "granularity": "none",
+        "granularity": "operator_path",
         "precision_id": "mixed-fp8-e4m3-fp16",
-        "quant_scheme": "none",
+        "quant_scheme": "selective_fp8_e4m3_gemm",
         "requested": "fp8",
-        "scale_zero_point_bytes": 0,
-        "weight_dtype": "fp8-e4m3"
+        "scale_zero_point_bytes": null,
+        "weight_dtype": "mixed-fp8-e4m3-fp16"
       },
       "run_id": "run-flashrt-pi05-matrix-006",
       "runtime_id": "flashrt",
@@ -1736,7 +1780,8 @@
       "timing": {
         "state_reuse": "cached_prompt_and_graph",
         "timing_boundary_id": "predict_cached_graph_sync",
-        "warm_policy": "steady_state"
+        "warm_policy": "steady_state",
+        "warmup_iterations": 300
       },
       "workload": {
         "common": {
@@ -1769,16 +1814,16 @@
         },
         "precision": {
           "accumulation_dtype": "fp16",
-          "activation_dtype": "fp8-e4m3",
+          "activation_dtype": "mixed-fp8-e4m3-fp16",
           "dequant_strategy": "none",
-          "execution_dtype": "fp8-e4m3",
+          "execution_dtype": "mixed-fp8-e4m3-fp16",
           "fused": false,
-          "granularity": "none",
+          "granularity": "operator_path",
           "precision_id": "mixed-fp8-e4m3-fp16",
-          "quant_scheme": "none",
+          "quant_scheme": "selective_fp8_e4m3_gemm",
           "requested": "fp8",
-          "scale_zero_point_bytes": 0,
-          "weight_dtype": "fp8-e4m3"
+          "scale_zero_point_bytes": null,
+          "weight_dtype": "mixed-fp8-e4m3-fp16"
         },
         "runtime_id": "flashrt",
         "runtime_overhead": "included",
@@ -1791,7 +1836,8 @@
         "timing": {
           "state_reuse": "cached_prompt_and_graph",
           "timing_boundary_id": "predict_cached_graph_sync",
-          "warm_policy": "steady_state"
+          "warm_policy": "steady_state",
+          "warmup_iterations": 300
         },
         "workload": {
           "common": {
@@ -1822,6 +1868,7 @@
         "operating_point.clock_policy": "not_collected",
         "operating_point.power_mode": "not_collected",
         "operating_point.throttle_status": "not_collected",
+        "precision.scale_zero_point_bytes": "not_reported",
         "workload.vla.denoise_steps": "not_applicable"
       },
       "model_artifact_id": "pi05-flashrt-local-01",
@@ -1834,16 +1881,16 @@
       },
       "precision": {
         "accumulation_dtype": "fp16",
-        "activation_dtype": "fp8-e4m3",
+        "activation_dtype": "mixed-fp8-e4m3-fp16",
         "dequant_strategy": "none",
-        "execution_dtype": "fp8-e4m3",
+        "execution_dtype": "mixed-fp8-e4m3-fp16",
         "fused": false,
-        "granularity": "none",
+        "granularity": "operator_path",
         "precision_id": "mixed-fp8-e4m3-fp16",
-        "quant_scheme": "none",
+        "quant_scheme": "selective_fp8_e4m3_gemm",
         "requested": "fp8",
-        "scale_zero_point_bytes": 0,
-        "weight_dtype": "fp8-e4m3"
+        "scale_zero_point_bytes": null,
+        "weight_dtype": "mixed-fp8-e4m3-fp16"
       },
       "run_id": "run-flashrt-pi05-matrix-007",
       "runtime_id": "flashrt",
@@ -1853,7 +1900,8 @@
       "timing": {
         "state_reuse": "cached_prompt_and_graph",
         "timing_boundary_id": "predict_cached_graph_sync",
-        "warm_policy": "steady_state"
+        "warm_policy": "steady_state",
+        "warmup_iterations": 300
       },
       "workload": {
         "common": {
@@ -1886,16 +1934,16 @@
         },
         "precision": {
           "accumulation_dtype": "fp16",
-          "activation_dtype": "fp8-e4m3",
+          "activation_dtype": "mixed-fp8-e4m3-fp16",
           "dequant_strategy": "none",
-          "execution_dtype": "fp8-e4m3",
+          "execution_dtype": "mixed-fp8-e4m3-fp16",
           "fused": false,
-          "granularity": "none",
+          "granularity": "operator_path",
           "precision_id": "mixed-fp8-e4m3-fp16",
-          "quant_scheme": "none",
+          "quant_scheme": "selective_fp8_e4m3_gemm",
           "requested": "fp8",
-          "scale_zero_point_bytes": 0,
-          "weight_dtype": "fp8-e4m3"
+          "scale_zero_point_bytes": null,
+          "weight_dtype": "mixed-fp8-e4m3-fp16"
         },
         "runtime_id": "flashrt",
         "runtime_overhead": "included",
@@ -1908,7 +1956,8 @@
         "timing": {
           "state_reuse": "cached_prompt_and_graph",
           "timing_boundary_id": "predict_cached_graph_sync",
-          "warm_policy": "steady_state"
+          "warm_policy": "steady_state",
+          "warmup_iterations": 300
         },
         "workload": {
           "common": {
@@ -1939,6 +1988,7 @@
         "operating_point.clock_policy": "not_collected",
         "operating_point.power_mode": "not_collected",
         "operating_point.throttle_status": "not_collected",
+        "precision.scale_zero_point_bytes": "not_reported",
         "workload.vla.denoise_steps": "not_applicable"
       },
       "model_artifact_id": "pi05-flashrt-local-01",
@@ -1951,16 +2001,16 @@
       },
       "precision": {
         "accumulation_dtype": "fp16",
-        "activation_dtype": "fp8-e4m3",
+        "activation_dtype": "mixed-fp8-e4m3-fp16",
         "dequant_strategy": "none",
-        "execution_dtype": "fp8-e4m3",
+        "execution_dtype": "mixed-fp8-e4m3-fp16",
         "fused": false,
-        "granularity": "none",
+        "granularity": "operator_path",
         "precision_id": "mixed-fp8-e4m3-fp16",
-        "quant_scheme": "none",
+        "quant_scheme": "selective_fp8_e4m3_gemm",
         "requested": "fp8",
-        "scale_zero_point_bytes": 0,
-        "weight_dtype": "fp8-e4m3"
+        "scale_zero_point_bytes": null,
+        "weight_dtype": "mixed-fp8-e4m3-fp16"
       },
       "run_id": "run-flashrt-pi05-matrix-008",
       "runtime_id": "flashrt",
@@ -1970,7 +2020,8 @@
       "timing": {
         "state_reuse": "cached_prompt_and_graph",
         "timing_boundary_id": "predict_cached_graph_sync",
-        "warm_policy": "steady_state"
+        "warm_policy": "steady_state",
+        "warmup_iterations": 300
       },
       "workload": {
         "common": {
@@ -2003,16 +2054,16 @@
         },
         "precision": {
           "accumulation_dtype": "fp16",
-          "activation_dtype": "fp8-e4m3",
+          "activation_dtype": "mixed-fp8-e4m3-fp16",
           "dequant_strategy": "none",
-          "execution_dtype": "fp8-e4m3",
+          "execution_dtype": "mixed-fp8-e4m3-fp16",
           "fused": false,
-          "granularity": "none",
+          "granularity": "operator_path",
           "precision_id": "mixed-fp8-e4m3-fp16",
-          "quant_scheme": "none",
+          "quant_scheme": "selective_fp8_e4m3_gemm",
           "requested": "fp8",
-          "scale_zero_point_bytes": 0,
-          "weight_dtype": "fp8-e4m3"
+          "scale_zero_point_bytes": null,
+          "weight_dtype": "mixed-fp8-e4m3-fp16"
         },
         "runtime_id": "flashrt",
         "runtime_overhead": "included",
@@ -2025,7 +2076,8 @@
         "timing": {
           "state_reuse": "cached_prompt_and_graph",
           "timing_boundary_id": "predict_cached_graph_sync",
-          "warm_policy": "steady_state"
+          "warm_policy": "steady_state",
+          "warmup_iterations": 300
         },
         "workload": {
           "common": {
@@ -2056,6 +2108,7 @@
         "operating_point.clock_policy": "not_collected",
         "operating_point.power_mode": "not_collected",
         "operating_point.throttle_status": "not_collected",
+        "precision.scale_zero_point_bytes": "not_reported",
         "workload.vla.denoise_steps": "not_applicable"
       },
       "model_artifact_id": "pi05-flashrt-local-01",
@@ -2068,16 +2121,16 @@
       },
       "precision": {
         "accumulation_dtype": "fp16",
-        "activation_dtype": "fp8-e4m3",
+        "activation_dtype": "mixed-fp8-e4m3-fp16",
         "dequant_strategy": "none",
-        "execution_dtype": "fp8-e4m3",
+        "execution_dtype": "mixed-fp8-e4m3-fp16",
         "fused": false,
-        "granularity": "none",
+        "granularity": "operator_path",
         "precision_id": "mixed-fp8-e4m3-fp16",
-        "quant_scheme": "none",
+        "quant_scheme": "selective_fp8_e4m3_gemm",
         "requested": "fp8",
-        "scale_zero_point_bytes": 0,
-        "weight_dtype": "fp8-e4m3"
+        "scale_zero_point_bytes": null,
+        "weight_dtype": "mixed-fp8-e4m3-fp16"
       },
       "run_id": "run-flashrt-pi05-matrix-009",
       "runtime_id": "flashrt",
@@ -2087,7 +2140,8 @@
       "timing": {
         "state_reuse": "cached_prompt_and_graph",
         "timing_boundary_id": "predict_cached_graph_sync",
-        "warm_policy": "steady_state"
+        "warm_policy": "steady_state",
+        "warmup_iterations": 300
       },
       "workload": {
         "common": {
@@ -2142,7 +2196,8 @@
         "timing": {
           "state_reuse": "cached_prompt_and_graph",
           "timing_boundary_id": "predict_cached_graph_sync",
-          "warm_policy": "steady_state"
+          "warm_policy": "steady_state",
+          "warmup_iterations": 300
         },
         "workload": {
           "common": {
@@ -2204,7 +2259,8 @@
       "timing": {
         "state_reuse": "cached_prompt_and_graph",
         "timing_boundary_id": "predict_cached_graph_sync",
-        "warm_policy": "steady_state"
+        "warm_policy": "steady_state",
+        "warmup_iterations": 300
       },
       "workload": {
         "common": {
@@ -2259,7 +2315,8 @@
         "timing": {
           "state_reuse": "cached_prompt_and_graph",
           "timing_boundary_id": "predict_cached_graph_sync",
-          "warm_policy": "steady_state"
+          "warm_policy": "steady_state",
+          "warmup_iterations": 300
         },
         "workload": {
           "common": {
@@ -2321,7 +2378,8 @@
       "timing": {
         "state_reuse": "cached_prompt_and_graph",
         "timing_boundary_id": "predict_cached_graph_sync",
-        "warm_policy": "steady_state"
+        "warm_policy": "steady_state",
+        "warmup_iterations": 300
       },
       "workload": {
         "common": {
@@ -2376,7 +2434,8 @@
         "timing": {
           "state_reuse": "cached_prompt_and_graph",
           "timing_boundary_id": "predict_cached_graph_sync",
-          "warm_policy": "steady_state"
+          "warm_policy": "steady_state",
+          "warmup_iterations": 300
         },
         "workload": {
           "common": {
@@ -2438,7 +2497,8 @@
       "timing": {
         "state_reuse": "cached_prompt_and_graph",
         "timing_boundary_id": "predict_cached_graph_sync",
-        "warm_policy": "steady_state"
+        "warm_policy": "steady_state",
+        "warmup_iterations": 300
       },
       "workload": {
         "common": {
@@ -2493,7 +2553,8 @@
         "timing": {
           "state_reuse": "cached_prompt_and_graph",
           "timing_boundary_id": "predict_cached_graph_sync",
-          "warm_policy": "steady_state"
+          "warm_policy": "steady_state",
+          "warmup_iterations": 300
         },
         "workload": {
           "common": {
@@ -2555,7 +2616,8 @@
       "timing": {
         "state_reuse": "cached_prompt_and_graph",
         "timing_boundary_id": "predict_cached_graph_sync",
-        "warm_policy": "steady_state"
+        "warm_policy": "steady_state",
+        "warmup_iterations": 300
       },
       "workload": {
         "common": {
@@ -2610,7 +2672,8 @@
         "timing": {
           "state_reuse": "cached_prompt_and_graph",
           "timing_boundary_id": "predict_cached_graph_sync",
-          "warm_policy": "steady_state"
+          "warm_policy": "steady_state",
+          "warmup_iterations": 300
         },
         "workload": {
           "common": {
@@ -2672,7 +2735,8 @@
       "timing": {
         "state_reuse": "cached_prompt_and_graph",
         "timing_boundary_id": "predict_cached_graph_sync",
-        "warm_policy": "steady_state"
+        "warm_policy": "steady_state",
+        "warmup_iterations": 300
       },
       "workload": {
         "common": {
@@ -2727,7 +2791,8 @@
         "timing": {
           "state_reuse": "cached_prompt_and_graph",
           "timing_boundary_id": "predict_cached_graph_sync",
-          "warm_policy": "steady_state"
+          "warm_policy": "steady_state",
+          "warmup_iterations": 300
         },
         "workload": {
           "common": {
@@ -2789,7 +2854,8 @@
       "timing": {
         "state_reuse": "cached_prompt_and_graph",
         "timing_boundary_id": "predict_cached_graph_sync",
-        "warm_policy": "steady_state"
+        "warm_policy": "steady_state",
+        "warmup_iterations": 300
       },
       "workload": {
         "common": {
@@ -2844,7 +2910,8 @@
         "timing": {
           "state_reuse": "cached_prompt_and_graph",
           "timing_boundary_id": "predict_cached_graph_sync",
-          "warm_policy": "steady_state"
+          "warm_policy": "steady_state",
+          "warmup_iterations": 300
         },
         "workload": {
           "common": {
@@ -2906,7 +2973,8 @@
       "timing": {
         "state_reuse": "cached_prompt_and_graph",
         "timing_boundary_id": "predict_cached_graph_sync",
-        "warm_policy": "steady_state"
+        "warm_policy": "steady_state",
+        "warmup_iterations": 300
       },
       "workload": {
         "common": {
@@ -2961,7 +3029,8 @@
         "timing": {
           "state_reuse": "cached_prompt_and_graph",
           "timing_boundary_id": "predict_cached_graph_sync",
-          "warm_policy": "steady_state"
+          "warm_policy": "steady_state",
+          "warmup_iterations": 300
         },
         "workload": {
           "common": {
@@ -3023,7 +3092,8 @@
       "timing": {
         "state_reuse": "cached_prompt_and_graph",
         "timing_boundary_id": "predict_cached_graph_sync",
-        "warm_policy": "steady_state"
+        "warm_policy": "steady_state",
+        "warmup_iterations": 300
       },
       "workload": {
         "common": {
@@ -3078,7 +3148,8 @@
         "timing": {
           "state_reuse": "cached_prompt_and_graph",
           "timing_boundary_id": "predict_cached_graph_sync",
-          "warm_policy": "steady_state"
+          "warm_policy": "steady_state",
+          "warmup_iterations": 300
         },
         "workload": {
           "common": {
@@ -3140,7 +3211,8 @@
       "timing": {
         "state_reuse": "cached_prompt_and_graph",
         "timing_boundary_id": "predict_cached_graph_sync",
-        "warm_policy": "steady_state"
+        "warm_policy": "steady_state",
+        "warmup_iterations": 300
       },
       "workload": {
         "common": {
@@ -3195,7 +3267,8 @@
         "timing": {
           "state_reuse": "fixed_prompt_and_noise",
           "timing_boundary_id": "predict_action_chunk_preprocessed",
-          "warm_policy": "steady_state"
+          "warm_policy": "steady_state",
+          "warmup_iterations": 5
         },
         "workload": {
           "common": {
@@ -3256,7 +3329,8 @@
       "timing": {
         "state_reuse": "fixed_prompt_and_noise",
         "timing_boundary_id": "predict_action_chunk_preprocessed",
-        "warm_policy": "steady_state"
+        "warm_policy": "steady_state",
+        "warmup_iterations": 5
       },
       "workload": {
         "common": {
@@ -3311,7 +3385,8 @@
         "timing": {
           "state_reuse": "fixed_prompt_and_noise",
           "timing_boundary_id": "predict_action_chunk_preprocessed",
-          "warm_policy": "steady_state"
+          "warm_policy": "steady_state",
+          "warmup_iterations": 5
         },
         "workload": {
           "common": {
@@ -3372,7 +3447,8 @@
       "timing": {
         "state_reuse": "fixed_prompt_and_noise",
         "timing_boundary_id": "predict_action_chunk_preprocessed",
-        "warm_policy": "steady_state"
+        "warm_policy": "steady_state",
+        "warmup_iterations": 5
       },
       "workload": {
         "common": {
@@ -3427,7 +3503,8 @@
         "timing": {
           "state_reuse": "fixed_prompt_and_noise",
           "timing_boundary_id": "predict_action_chunk_preprocessed",
-          "warm_policy": "steady_state"
+          "warm_policy": "steady_state",
+          "warmup_iterations": 5
         },
         "workload": {
           "common": {
@@ -3488,7 +3565,8 @@
       "timing": {
         "state_reuse": "fixed_prompt_and_noise",
         "timing_boundary_id": "predict_action_chunk_preprocessed",
-        "warm_policy": "steady_state"
+        "warm_policy": "steady_state",
+        "warmup_iterations": 5
       },
       "workload": {
         "common": {
@@ -3543,7 +3621,8 @@
         "timing": {
           "state_reuse": "fixed_prompt_and_noise",
           "timing_boundary_id": "predict_action_chunk_preprocessed",
-          "warm_policy": "steady_state"
+          "warm_policy": "steady_state",
+          "warmup_iterations": 5
         },
         "workload": {
           "common": {
@@ -3604,7 +3683,8 @@
       "timing": {
         "state_reuse": "fixed_prompt_and_noise",
         "timing_boundary_id": "predict_action_chunk_preprocessed",
-        "warm_policy": "steady_state"
+        "warm_policy": "steady_state",
+        "warmup_iterations": 5
       },
       "workload": {
         "common": {
@@ -3659,7 +3739,8 @@
         "timing": {
           "state_reuse": "fixed_prompt_and_noise",
           "timing_boundary_id": "predict_action_chunk_preprocessed",
-          "warm_policy": "steady_state"
+          "warm_policy": "steady_state",
+          "warmup_iterations": 5
         },
         "workload": {
           "common": {
@@ -3720,7 +3801,8 @@
       "timing": {
         "state_reuse": "fixed_prompt_and_noise",
         "timing_boundary_id": "predict_action_chunk_preprocessed",
-        "warm_policy": "steady_state"
+        "warm_policy": "steady_state",
+        "warmup_iterations": 5
       },
       "workload": {
         "common": {
@@ -3775,7 +3857,8 @@
         "timing": {
           "state_reuse": "fixed_prompt_and_noise",
           "timing_boundary_id": "predict_action_chunk_preprocessed",
-          "warm_policy": "steady_state"
+          "warm_policy": "steady_state",
+          "warmup_iterations": 5
         },
         "workload": {
           "common": {
@@ -3836,7 +3919,8 @@
       "timing": {
         "state_reuse": "fixed_prompt_and_noise",
         "timing_boundary_id": "predict_action_chunk_preprocessed",
-        "warm_policy": "steady_state"
+        "warm_policy": "steady_state",
+        "warmup_iterations": 5
       },
       "workload": {
         "common": {
@@ -3891,7 +3975,8 @@
         "timing": {
           "state_reuse": "fixed_prompt_and_noise",
           "timing_boundary_id": "predict_action_chunk_preprocessed",
-          "warm_policy": "steady_state"
+          "warm_policy": "steady_state",
+          "warmup_iterations": 5
         },
         "workload": {
           "common": {
@@ -3952,7 +4037,8 @@
       "timing": {
         "state_reuse": "fixed_prompt_and_noise",
         "timing_boundary_id": "predict_action_chunk_preprocessed",
-        "warm_policy": "steady_state"
+        "warm_policy": "steady_state",
+        "warmup_iterations": 5
       },
       "workload": {
         "common": {
@@ -4007,7 +4093,8 @@
         "timing": {
           "state_reuse": "fixed_prompt_and_noise",
           "timing_boundary_id": "predict_action_chunk_preprocessed",
-          "warm_policy": "steady_state"
+          "warm_policy": "steady_state",
+          "warmup_iterations": 5
         },
         "workload": {
           "common": {
@@ -4068,7 +4155,8 @@
       "timing": {
         "state_reuse": "fixed_prompt_and_noise",
         "timing_boundary_id": "predict_action_chunk_preprocessed",
-        "warm_policy": "steady_state"
+        "warm_policy": "steady_state",
+        "warmup_iterations": 5
       },
       "workload": {
         "common": {
@@ -4123,7 +4211,8 @@
         "timing": {
           "state_reuse": "fixed_prompt_and_noise",
           "timing_boundary_id": "predict_action_chunk_preprocessed",
-          "warm_policy": "steady_state"
+          "warm_policy": "steady_state",
+          "warmup_iterations": 5
         },
         "workload": {
           "common": {
@@ -4184,7 +4273,8 @@
       "timing": {
         "state_reuse": "fixed_prompt_and_noise",
         "timing_boundary_id": "predict_action_chunk_preprocessed",
-        "warm_policy": "steady_state"
+        "warm_policy": "steady_state",
+        "warmup_iterations": 5
       },
       "workload": {
         "common": {
@@ -4239,7 +4329,8 @@
         "timing": {
           "state_reuse": "synthetic_inputs",
           "timing_boundary_id": "vlacpp_engine_predict_synthetic",
-          "warm_policy": "steady_state"
+          "warm_policy": "steady_state",
+          "warmup_iterations": 5
         },
         "workload": {
           "common": {
@@ -4299,7 +4390,8 @@
       "timing": {
         "state_reuse": "synthetic_inputs",
         "timing_boundary_id": "vlacpp_engine_predict_synthetic",
-        "warm_policy": "steady_state"
+        "warm_policy": "steady_state",
+        "warmup_iterations": 5
       },
       "workload": {
         "common": {
@@ -4354,7 +4446,8 @@
         "timing": {
           "state_reuse": "synthetic_inputs",
           "timing_boundary_id": "vlacpp_engine_predict_synthetic",
-          "warm_policy": "steady_state"
+          "warm_policy": "steady_state",
+          "warmup_iterations": 5
         },
         "workload": {
           "common": {
@@ -4414,7 +4507,8 @@
       "timing": {
         "state_reuse": "synthetic_inputs",
         "timing_boundary_id": "vlacpp_engine_predict_synthetic",
-        "warm_policy": "steady_state"
+        "warm_policy": "steady_state",
+        "warmup_iterations": 5
       },
       "workload": {
         "common": {
@@ -4469,7 +4563,8 @@
         "timing": {
           "state_reuse": "synthetic_inputs",
           "timing_boundary_id": "vlacpp_engine_predict_synthetic",
-          "warm_policy": "steady_state"
+          "warm_policy": "steady_state",
+          "warmup_iterations": 5
         },
         "workload": {
           "common": {
@@ -4529,7 +4624,8 @@
       "timing": {
         "state_reuse": "synthetic_inputs",
         "timing_boundary_id": "vlacpp_engine_predict_synthetic",
-        "warm_policy": "steady_state"
+        "warm_policy": "steady_state",
+        "warmup_iterations": 5
       },
       "workload": {
         "common": {
@@ -4584,7 +4680,8 @@
         "timing": {
           "state_reuse": "synthetic_inputs",
           "timing_boundary_id": "vlacpp_engine_predict_synthetic",
-          "warm_policy": "steady_state"
+          "warm_policy": "steady_state",
+          "warmup_iterations": 5
         },
         "workload": {
           "common": {
@@ -4644,7 +4741,8 @@
       "timing": {
         "state_reuse": "synthetic_inputs",
         "timing_boundary_id": "vlacpp_engine_predict_synthetic",
-        "warm_policy": "steady_state"
+        "warm_policy": "steady_state",
+        "warmup_iterations": 5
       },
       "workload": {
         "common": {
@@ -4699,7 +4797,8 @@
         "timing": {
           "state_reuse": "synthetic_inputs",
           "timing_boundary_id": "vlacpp_engine_predict_synthetic",
-          "warm_policy": "steady_state"
+          "warm_policy": "steady_state",
+          "warmup_iterations": 5
         },
         "workload": {
           "common": {
@@ -4759,7 +4858,8 @@
       "timing": {
         "state_reuse": "synthetic_inputs",
         "timing_boundary_id": "vlacpp_engine_predict_synthetic",
-        "warm_policy": "steady_state"
+        "warm_policy": "steady_state",
+        "warmup_iterations": 5
       },
       "workload": {
         "common": {
@@ -4814,7 +4914,8 @@
         "timing": {
           "state_reuse": "synthetic_inputs",
           "timing_boundary_id": "vlacpp_engine_predict_synthetic",
-          "warm_policy": "steady_state"
+          "warm_policy": "steady_state",
+          "warmup_iterations": 5
         },
         "workload": {
           "common": {
@@ -4874,7 +4975,8 @@
       "timing": {
         "state_reuse": "synthetic_inputs",
         "timing_boundary_id": "vlacpp_engine_predict_synthetic",
-        "warm_policy": "steady_state"
+        "warm_policy": "steady_state",
+        "warmup_iterations": 5
       },
       "workload": {
         "common": {
@@ -4929,7 +5031,8 @@
         "timing": {
           "state_reuse": "synthetic_inputs",
           "timing_boundary_id": "vlacpp_engine_predict_synthetic",
-          "warm_policy": "steady_state"
+          "warm_policy": "steady_state",
+          "warmup_iterations": 5
         },
         "workload": {
           "common": {
@@ -4989,7 +5092,8 @@
       "timing": {
         "state_reuse": "synthetic_inputs",
         "timing_boundary_id": "vlacpp_engine_predict_synthetic",
-        "warm_policy": "steady_state"
+        "warm_policy": "steady_state",
+        "warmup_iterations": 5
       },
       "workload": {
         "common": {
@@ -5044,7 +5148,8 @@
         "timing": {
           "state_reuse": "synthetic_inputs",
           "timing_boundary_id": "vlacpp_engine_predict_synthetic",
-          "warm_policy": "steady_state"
+          "warm_policy": "steady_state",
+          "warmup_iterations": 5
         },
         "workload": {
           "common": {
@@ -5104,7 +5209,8 @@
       "timing": {
         "state_reuse": "synthetic_inputs",
         "timing_boundary_id": "vlacpp_engine_predict_synthetic",
-        "warm_policy": "steady_state"
+        "warm_policy": "steady_state",
+        "warmup_iterations": 5
       },
       "workload": {
         "common": {
@@ -5159,7 +5265,8 @@
         "timing": {
           "state_reuse": "synthetic_inputs",
           "timing_boundary_id": "vlacpp_engine_predict_synthetic",
-          "warm_policy": "steady_state"
+          "warm_policy": "steady_state",
+          "warmup_iterations": 5
         },
         "workload": {
           "common": {
@@ -5219,7 +5326,8 @@
       "timing": {
         "state_reuse": "synthetic_inputs",
         "timing_boundary_id": "vlacpp_engine_predict_synthetic",
-        "warm_policy": "steady_state"
+        "warm_policy": "steady_state",
+        "warmup_iterations": 5
       },
       "workload": {
         "common": {
@@ -5274,7 +5382,8 @@
         "timing": {
           "state_reuse": "synthetic_inputs",
           "timing_boundary_id": "vlacpp_engine_predict_synthetic",
-          "warm_policy": "steady_state"
+          "warm_policy": "steady_state",
+          "warmup_iterations": 5
         },
         "workload": {
           "common": {
@@ -5334,7 +5443,8 @@
       "timing": {
         "state_reuse": "synthetic_inputs",
         "timing_boundary_id": "vlacpp_engine_predict_synthetic",
-        "warm_policy": "steady_state"
+        "warm_policy": "steady_state",
+        "warmup_iterations": 5
       },
       "workload": {
         "common": {
@@ -5389,7 +5499,8 @@
         "timing": {
           "state_reuse": "synthetic_inputs",
           "timing_boundary_id": "vlacpp_engine_predict_synthetic",
-          "warm_policy": "steady_state"
+          "warm_policy": "steady_state",
+          "warmup_iterations": 5
         },
         "workload": {
           "common": {
@@ -5449,7 +5560,8 @@
       "timing": {
         "state_reuse": "synthetic_inputs",
         "timing_boundary_id": "vlacpp_engine_predict_synthetic",
-        "warm_policy": "steady_state"
+        "warm_policy": "steady_state",
+        "warmup_iterations": 5
       },
       "workload": {
         "common": {
@@ -5504,7 +5616,8 @@
         "timing": {
           "state_reuse": "synthetic_inputs",
           "timing_boundary_id": "vlacpp_engine_predict_synthetic",
-          "warm_policy": "steady_state"
+          "warm_policy": "steady_state",
+          "warmup_iterations": 5
         },
         "workload": {
           "common": {
@@ -5564,7 +5677,8 @@
       "timing": {
         "state_reuse": "synthetic_inputs",
         "timing_boundary_id": "vlacpp_engine_predict_synthetic",
-        "warm_policy": "steady_state"
+        "warm_policy": "steady_state",
+        "warmup_iterations": 5
       },
       "workload": {
         "common": {
@@ -5619,7 +5733,8 @@
         "timing": {
           "state_reuse": "synthetic_inputs",
           "timing_boundary_id": "vlacpp_engine_predict_synthetic",
-          "warm_policy": "steady_state"
+          "warm_policy": "steady_state",
+          "warmup_iterations": 5
         },
         "workload": {
           "common": {
@@ -5679,7 +5794,8 @@
       "timing": {
         "state_reuse": "synthetic_inputs",
         "timing_boundary_id": "vlacpp_engine_predict_synthetic",
-        "warm_policy": "steady_state"
+        "warm_policy": "steady_state",
+        "warmup_iterations": 5
       },
       "workload": {
         "common": {
@@ -5734,7 +5850,8 @@
         "timing": {
           "state_reuse": "synthetic_inputs",
           "timing_boundary_id": "vlacpp_engine_predict_synthetic",
-          "warm_policy": "steady_state"
+          "warm_policy": "steady_state",
+          "warmup_iterations": 5
         },
         "workload": {
           "common": {
@@ -5794,7 +5911,8 @@
       "timing": {
         "state_reuse": "synthetic_inputs",
         "timing_boundary_id": "vlacpp_engine_predict_synthetic",
-        "warm_policy": "steady_state"
+        "warm_policy": "steady_state",
+        "warmup_iterations": 5
       },
       "workload": {
         "common": {
@@ -5849,7 +5967,8 @@
         "timing": {
           "state_reuse": "synthetic_inputs",
           "timing_boundary_id": "vlacpp_engine_predict_synthetic",
-          "warm_policy": "steady_state"
+          "warm_policy": "steady_state",
+          "warmup_iterations": 5
         },
         "workload": {
           "common": {
@@ -5909,7 +6028,8 @@
       "timing": {
         "state_reuse": "synthetic_inputs",
         "timing_boundary_id": "vlacpp_engine_predict_synthetic",
-        "warm_policy": "steady_state"
+        "warm_policy": "steady_state",
+        "warmup_iterations": 5
       },
       "workload": {
         "common": {
@@ -5964,7 +6084,8 @@
         "timing": {
           "state_reuse": "synthetic_inputs",
           "timing_boundary_id": "vlacpp_engine_predict_synthetic",
-          "warm_policy": "steady_state"
+          "warm_policy": "steady_state",
+          "warmup_iterations": 5
         },
         "workload": {
           "common": {
@@ -6024,7 +6145,8 @@
       "timing": {
         "state_reuse": "synthetic_inputs",
         "timing_boundary_id": "vlacpp_engine_predict_synthetic",
-        "warm_policy": "steady_state"
+        "warm_policy": "steady_state",
+        "warmup_iterations": 5
       },
       "workload": {
         "common": {
@@ -6079,7 +6201,8 @@
         "timing": {
           "state_reuse": "synthetic_inputs",
           "timing_boundary_id": "vlacpp_engine_predict_synthetic",
-          "warm_policy": "steady_state"
+          "warm_policy": "steady_state",
+          "warmup_iterations": 5
         },
         "workload": {
           "common": {
@@ -6139,7 +6262,8 @@
       "timing": {
         "state_reuse": "synthetic_inputs",
         "timing_boundary_id": "vlacpp_engine_predict_synthetic",
-        "warm_policy": "steady_state"
+        "warm_policy": "steady_state",
+        "warmup_iterations": 5
       },
       "workload": {
         "common": {
@@ -6194,7 +6318,8 @@
         "timing": {
           "state_reuse": "synthetic_inputs",
           "timing_boundary_id": "vlacpp_engine_predict_synthetic",
-          "warm_policy": "steady_state"
+          "warm_policy": "steady_state",
+          "warmup_iterations": 5
         },
         "workload": {
           "common": {
@@ -6254,7 +6379,8 @@
       "timing": {
         "state_reuse": "synthetic_inputs",
         "timing_boundary_id": "vlacpp_engine_predict_synthetic",
-        "warm_policy": "steady_state"
+        "warm_policy": "steady_state",
+        "warmup_iterations": 5
       },
       "workload": {
         "common": {
@@ -6309,7 +6435,8 @@
         "timing": {
           "state_reuse": "synthetic_inputs",
           "timing_boundary_id": "vlacpp_engine_predict_synthetic",
-          "warm_policy": "steady_state"
+          "warm_policy": "steady_state",
+          "warmup_iterations": 5
         },
         "workload": {
           "common": {
@@ -6370,7 +6497,8 @@
       "timing": {
         "state_reuse": "synthetic_inputs",
         "timing_boundary_id": "vlacpp_engine_predict_synthetic",
-        "warm_policy": "steady_state"
+        "warm_policy": "steady_state",
+        "warmup_iterations": 5
       },
       "workload": {
         "common": {
@@ -6425,7 +6553,8 @@
         "timing": {
           "state_reuse": "synthetic_inputs",
           "timing_boundary_id": "vlacpp_engine_predict_synthetic",
-          "warm_policy": "steady_state"
+          "warm_policy": "steady_state",
+          "warmup_iterations": 5
         },
         "workload": {
           "common": {
@@ -6486,7 +6615,8 @@
       "timing": {
         "state_reuse": "synthetic_inputs",
         "timing_boundary_id": "vlacpp_engine_predict_synthetic",
-        "warm_policy": "steady_state"
+        "warm_policy": "steady_state",
+        "warmup_iterations": 5
       },
       "workload": {
         "common": {
@@ -6541,7 +6671,8 @@
         "timing": {
           "state_reuse": "synthetic_inputs",
           "timing_boundary_id": "vlacpp_engine_predict_synthetic",
-          "warm_policy": "steady_state"
+          "warm_policy": "steady_state",
+          "warmup_iterations": 5
         },
         "workload": {
           "common": {
@@ -6602,7 +6733,8 @@
       "timing": {
         "state_reuse": "synthetic_inputs",
         "timing_boundary_id": "vlacpp_engine_predict_synthetic",
-        "warm_policy": "steady_state"
+        "warm_policy": "steady_state",
+        "warmup_iterations": 5
       },
       "workload": {
         "common": {
@@ -6657,7 +6789,8 @@
         "timing": {
           "state_reuse": "synthetic_inputs",
           "timing_boundary_id": "vlacpp_engine_predict_synthetic",
-          "warm_policy": "steady_state"
+          "warm_policy": "steady_state",
+          "warmup_iterations": 5
         },
         "workload": {
           "common": {
@@ -6718,7 +6851,8 @@
       "timing": {
         "state_reuse": "synthetic_inputs",
         "timing_boundary_id": "vlacpp_engine_predict_synthetic",
-        "warm_policy": "steady_state"
+        "warm_policy": "steady_state",
+        "warmup_iterations": 5
       },
       "workload": {
         "common": {
@@ -6773,7 +6907,8 @@
         "timing": {
           "state_reuse": "synthetic_inputs",
           "timing_boundary_id": "vlacpp_engine_predict_synthetic",
-          "warm_policy": "steady_state"
+          "warm_policy": "steady_state",
+          "warmup_iterations": 5
         },
         "workload": {
           "common": {
@@ -6834,7 +6969,8 @@
       "timing": {
         "state_reuse": "synthetic_inputs",
         "timing_boundary_id": "vlacpp_engine_predict_synthetic",
-        "warm_policy": "steady_state"
+        "warm_policy": "steady_state",
+        "warmup_iterations": 5
       },
       "workload": {
         "common": {
@@ -6889,7 +7025,8 @@
         "timing": {
           "state_reuse": "synthetic_inputs",
           "timing_boundary_id": "vlacpp_engine_predict_synthetic",
-          "warm_policy": "steady_state"
+          "warm_policy": "steady_state",
+          "warmup_iterations": 5
         },
         "workload": {
           "common": {
@@ -6950,7 +7087,8 @@
       "timing": {
         "state_reuse": "synthetic_inputs",
         "timing_boundary_id": "vlacpp_engine_predict_synthetic",
-        "warm_policy": "steady_state"
+        "warm_policy": "steady_state",
+        "warmup_iterations": 5
       },
       "workload": {
         "common": {
@@ -7005,7 +7143,8 @@
         "timing": {
           "state_reuse": "synthetic_inputs",
           "timing_boundary_id": "vlacpp_engine_predict_synthetic",
-          "warm_policy": "steady_state"
+          "warm_policy": "steady_state",
+          "warmup_iterations": 5
         },
         "workload": {
           "common": {
@@ -7066,7 +7205,8 @@
       "timing": {
         "state_reuse": "synthetic_inputs",
         "timing_boundary_id": "vlacpp_engine_predict_synthetic",
-        "warm_policy": "steady_state"
+        "warm_policy": "steady_state",
+        "warmup_iterations": 5
       },
       "workload": {
         "common": {
@@ -7121,7 +7261,8 @@
         "timing": {
           "state_reuse": "synthetic_inputs",
           "timing_boundary_id": "vlacpp_engine_predict_synthetic",
-          "warm_policy": "steady_state"
+          "warm_policy": "steady_state",
+          "warmup_iterations": 5
         },
         "workload": {
           "common": {
@@ -7182,7 +7323,8 @@
       "timing": {
         "state_reuse": "synthetic_inputs",
         "timing_boundary_id": "vlacpp_engine_predict_synthetic",
-        "warm_policy": "steady_state"
+        "warm_policy": "steady_state",
+        "warmup_iterations": 5
       },
       "workload": {
         "common": {
@@ -7237,7 +7379,8 @@
         "timing": {
           "state_reuse": "synthetic_inputs",
           "timing_boundary_id": "vlacpp_engine_predict_synthetic",
-          "warm_policy": "steady_state"
+          "warm_policy": "steady_state",
+          "warmup_iterations": 5
         },
         "workload": {
           "common": {
@@ -7298,7 +7441,8 @@
       "timing": {
         "state_reuse": "synthetic_inputs",
         "timing_boundary_id": "vlacpp_engine_predict_synthetic",
-        "warm_policy": "steady_state"
+        "warm_policy": "steady_state",
+        "warmup_iterations": 5
       },
       "workload": {
         "common": {
@@ -7353,7 +7497,8 @@
         "timing": {
           "state_reuse": "analytical_model",
           "timing_boundary_id": "vla_perf_analytical_e2e",
-          "warm_policy": "not_applicable"
+          "warm_policy": "not_applicable",
+          "warmup_iterations": null
         },
         "workload": {
           "common": {
@@ -7385,6 +7530,7 @@
         "operating_point.power_mode": "not_collected",
         "operating_point.throttle_status": "not_collected",
         "system_id": "analytical_no_physical_system",
+        "timing.warmup_iterations": "not_applicable",
         "workload.vla.image_height": "unavailable_from_source",
         "workload.vla.image_width": "unavailable_from_source"
       },
@@ -7417,7 +7563,8 @@
       "timing": {
         "state_reuse": "analytical_model",
         "timing_boundary_id": "vla_perf_analytical_e2e",
-        "warm_policy": "not_applicable"
+        "warm_policy": "not_applicable",
+        "warmup_iterations": null
       },
       "workload": {
         "common": {
@@ -7472,7 +7619,8 @@
         "timing": {
           "state_reuse": "analytical_model",
           "timing_boundary_id": "vla_perf_analytical_e2e",
-          "warm_policy": "not_applicable"
+          "warm_policy": "not_applicable",
+          "warmup_iterations": null
         },
         "workload": {
           "common": {
@@ -7504,6 +7652,7 @@
         "operating_point.power_mode": "not_collected",
         "operating_point.throttle_status": "not_collected",
         "system_id": "analytical_no_physical_system",
+        "timing.warmup_iterations": "not_applicable",
         "workload.vla.image_height": "unavailable_from_source",
         "workload.vla.image_width": "unavailable_from_source"
       },
@@ -7536,7 +7685,8 @@
       "timing": {
         "state_reuse": "analytical_model",
         "timing_boundary_id": "vla_perf_analytical_e2e",
-        "warm_policy": "not_applicable"
+        "warm_policy": "not_applicable",
+        "warmup_iterations": null
       },
       "workload": {
         "common": {
@@ -7591,7 +7741,8 @@
         "timing": {
           "state_reuse": "analytical_model",
           "timing_boundary_id": "vla_perf_analytical_e2e",
-          "warm_policy": "not_applicable"
+          "warm_policy": "not_applicable",
+          "warmup_iterations": null
         },
         "workload": {
           "common": {
@@ -7623,6 +7774,7 @@
         "operating_point.power_mode": "not_collected",
         "operating_point.throttle_status": "not_collected",
         "system_id": "analytical_no_physical_system",
+        "timing.warmup_iterations": "not_applicable",
         "workload.vla.image_height": "unavailable_from_source",
         "workload.vla.image_width": "unavailable_from_source"
       },
@@ -7655,7 +7807,8 @@
       "timing": {
         "state_reuse": "analytical_model",
         "timing_boundary_id": "vla_perf_analytical_e2e",
-        "warm_policy": "not_applicable"
+        "warm_policy": "not_applicable",
+        "warmup_iterations": null
       },
       "workload": {
         "common": {
@@ -7710,7 +7863,8 @@
         "timing": {
           "state_reuse": "analytical_model",
           "timing_boundary_id": "vla_perf_analytical_e2e",
-          "warm_policy": "not_applicable"
+          "warm_policy": "not_applicable",
+          "warmup_iterations": null
         },
         "workload": {
           "common": {
@@ -7742,6 +7896,7 @@
         "operating_point.power_mode": "not_collected",
         "operating_point.throttle_status": "not_collected",
         "system_id": "analytical_no_physical_system",
+        "timing.warmup_iterations": "not_applicable",
         "workload.vla.image_height": "unavailable_from_source",
         "workload.vla.image_width": "unavailable_from_source"
       },
@@ -7774,7 +7929,8 @@
       "timing": {
         "state_reuse": "analytical_model",
         "timing_boundary_id": "vla_perf_analytical_e2e",
-        "warm_policy": "not_applicable"
+        "warm_policy": "not_applicable",
+        "warmup_iterations": null
       },
       "workload": {
         "common": {
@@ -7829,7 +7985,8 @@
         "timing": {
           "state_reuse": "analytical_model",
           "timing_boundary_id": "vla_perf_analytical_e2e",
-          "warm_policy": "not_applicable"
+          "warm_policy": "not_applicable",
+          "warmup_iterations": null
         },
         "workload": {
           "common": {
@@ -7861,6 +8018,7 @@
         "operating_point.power_mode": "not_collected",
         "operating_point.throttle_status": "not_collected",
         "system_id": "analytical_no_physical_system",
+        "timing.warmup_iterations": "not_applicable",
         "workload.vla.image_height": "unavailable_from_source",
         "workload.vla.image_width": "unavailable_from_source"
       },
@@ -7893,7 +8051,8 @@
       "timing": {
         "state_reuse": "analytical_model",
         "timing_boundary_id": "vla_perf_analytical_e2e",
-        "warm_policy": "not_applicable"
+        "warm_policy": "not_applicable",
+        "warmup_iterations": null
       },
       "workload": {
         "common": {
@@ -7948,7 +8107,8 @@
         "timing": {
           "state_reuse": "analytical_model",
           "timing_boundary_id": "vla_perf_analytical_e2e",
-          "warm_policy": "not_applicable"
+          "warm_policy": "not_applicable",
+          "warmup_iterations": null
         },
         "workload": {
           "common": {
@@ -7980,6 +8140,7 @@
         "operating_point.power_mode": "not_collected",
         "operating_point.throttle_status": "not_collected",
         "system_id": "analytical_no_physical_system",
+        "timing.warmup_iterations": "not_applicable",
         "workload.vla.image_height": "unavailable_from_source",
         "workload.vla.image_width": "unavailable_from_source"
       },
@@ -8012,7 +8173,8 @@
       "timing": {
         "state_reuse": "analytical_model",
         "timing_boundary_id": "vla_perf_analytical_e2e",
-        "warm_policy": "not_applicable"
+        "warm_policy": "not_applicable",
+        "warmup_iterations": null
       },
       "workload": {
         "common": {
@@ -8067,7 +8229,8 @@
         "timing": {
           "state_reuse": "analytical_model",
           "timing_boundary_id": "vla_perf_analytical_e2e",
-          "warm_policy": "not_applicable"
+          "warm_policy": "not_applicable",
+          "warmup_iterations": null
         },
         "workload": {
           "common": {
@@ -8099,6 +8262,7 @@
         "operating_point.power_mode": "not_collected",
         "operating_point.throttle_status": "not_collected",
         "system_id": "analytical_no_physical_system",
+        "timing.warmup_iterations": "not_applicable",
         "workload.vla.image_height": "unavailable_from_source",
         "workload.vla.image_width": "unavailable_from_source"
       },
@@ -8131,7 +8295,8 @@
       "timing": {
         "state_reuse": "analytical_model",
         "timing_boundary_id": "vla_perf_analytical_e2e",
-        "warm_policy": "not_applicable"
+        "warm_policy": "not_applicable",
+        "warmup_iterations": null
       },
       "workload": {
         "common": {
@@ -8186,7 +8351,8 @@
         "timing": {
           "state_reuse": "analytical_model",
           "timing_boundary_id": "vla_perf_analytical_e2e",
-          "warm_policy": "not_applicable"
+          "warm_policy": "not_applicable",
+          "warmup_iterations": null
         },
         "workload": {
           "common": {
@@ -8218,6 +8384,7 @@
         "operating_point.power_mode": "not_collected",
         "operating_point.throttle_status": "not_collected",
         "system_id": "analytical_no_physical_system",
+        "timing.warmup_iterations": "not_applicable",
         "workload.vla.image_height": "unavailable_from_source",
         "workload.vla.image_width": "unavailable_from_source"
       },
@@ -8250,7 +8417,8 @@
       "timing": {
         "state_reuse": "analytical_model",
         "timing_boundary_id": "vla_perf_analytical_e2e",
-        "warm_policy": "not_applicable"
+        "warm_policy": "not_applicable",
+        "warmup_iterations": null
       },
       "workload": {
         "common": {
@@ -8305,7 +8473,8 @@
         "timing": {
           "state_reuse": "analytical_model",
           "timing_boundary_id": "vla_perf_analytical_e2e",
-          "warm_policy": "not_applicable"
+          "warm_policy": "not_applicable",
+          "warmup_iterations": null
         },
         "workload": {
           "common": {
@@ -8337,6 +8506,7 @@
         "operating_point.power_mode": "not_collected",
         "operating_point.throttle_status": "not_collected",
         "system_id": "analytical_no_physical_system",
+        "timing.warmup_iterations": "not_applicable",
         "workload.vla.image_height": "unavailable_from_source",
         "workload.vla.image_width": "unavailable_from_source"
       },
@@ -8369,7 +8539,8 @@
       "timing": {
         "state_reuse": "analytical_model",
         "timing_boundary_id": "vla_perf_analytical_e2e",
-        "warm_policy": "not_applicable"
+        "warm_policy": "not_applicable",
+        "warmup_iterations": null
       },
       "workload": {
         "common": {
@@ -8424,7 +8595,8 @@
         "timing": {
           "state_reuse": "analytical_model",
           "timing_boundary_id": "vla_perf_analytical_e2e",
-          "warm_policy": "not_applicable"
+          "warm_policy": "not_applicable",
+          "warmup_iterations": null
         },
         "workload": {
           "common": {
@@ -8456,6 +8628,7 @@
         "operating_point.power_mode": "not_collected",
         "operating_point.throttle_status": "not_collected",
         "system_id": "analytical_no_physical_system",
+        "timing.warmup_iterations": "not_applicable",
         "workload.vla.image_height": "unavailable_from_source",
         "workload.vla.image_width": "unavailable_from_source"
       },
@@ -8488,7 +8661,8 @@
       "timing": {
         "state_reuse": "analytical_model",
         "timing_boundary_id": "vla_perf_analytical_e2e",
-        "warm_policy": "not_applicable"
+        "warm_policy": "not_applicable",
+        "warmup_iterations": null
       },
       "workload": {
         "common": {
@@ -8543,7 +8717,8 @@
         "timing": {
           "state_reuse": "analytical_model",
           "timing_boundary_id": "vla_perf_analytical_e2e",
-          "warm_policy": "not_applicable"
+          "warm_policy": "not_applicable",
+          "warmup_iterations": null
         },
         "workload": {
           "common": {
@@ -8575,6 +8750,7 @@
         "operating_point.power_mode": "not_collected",
         "operating_point.throttle_status": "not_collected",
         "system_id": "analytical_no_physical_system",
+        "timing.warmup_iterations": "not_applicable",
         "workload.vla.image_height": "unavailable_from_source",
         "workload.vla.image_width": "unavailable_from_source"
       },
@@ -8607,7 +8783,8 @@
       "timing": {
         "state_reuse": "analytical_model",
         "timing_boundary_id": "vla_perf_analytical_e2e",
-        "warm_policy": "not_applicable"
+        "warm_policy": "not_applicable",
+        "warmup_iterations": null
       },
       "workload": {
         "common": {
@@ -8662,7 +8839,8 @@
         "timing": {
           "state_reuse": "analytical_model",
           "timing_boundary_id": "vla_perf_analytical_e2e",
-          "warm_policy": "not_applicable"
+          "warm_policy": "not_applicable",
+          "warmup_iterations": null
         },
         "workload": {
           "common": {
@@ -8694,6 +8872,7 @@
         "operating_point.power_mode": "not_collected",
         "operating_point.throttle_status": "not_collected",
         "system_id": "analytical_no_physical_system",
+        "timing.warmup_iterations": "not_applicable",
         "workload.vla.image_height": "unavailable_from_source",
         "workload.vla.image_width": "unavailable_from_source"
       },
@@ -8726,7 +8905,8 @@
       "timing": {
         "state_reuse": "analytical_model",
         "timing_boundary_id": "vla_perf_analytical_e2e",
-        "warm_policy": "not_applicable"
+        "warm_policy": "not_applicable",
+        "warmup_iterations": null
       },
       "workload": {
         "common": {
@@ -8781,7 +8961,8 @@
         "timing": {
           "state_reuse": "analytical_model",
           "timing_boundary_id": "vla_perf_analytical_e2e",
-          "warm_policy": "not_applicable"
+          "warm_policy": "not_applicable",
+          "warmup_iterations": null
         },
         "workload": {
           "common": {
@@ -8813,6 +8994,7 @@
         "operating_point.power_mode": "not_collected",
         "operating_point.throttle_status": "not_collected",
         "system_id": "analytical_no_physical_system",
+        "timing.warmup_iterations": "not_applicable",
         "workload.vla.image_height": "unavailable_from_source",
         "workload.vla.image_width": "unavailable_from_source"
       },
@@ -8845,7 +9027,8 @@
       "timing": {
         "state_reuse": "analytical_model",
         "timing_boundary_id": "vla_perf_analytical_e2e",
-        "warm_policy": "not_applicable"
+        "warm_policy": "not_applicable",
+        "warmup_iterations": null
       },
       "workload": {
         "common": {
@@ -8900,7 +9083,8 @@
         "timing": {
           "state_reuse": "analytical_model",
           "timing_boundary_id": "vla_perf_analytical_e2e",
-          "warm_policy": "not_applicable"
+          "warm_policy": "not_applicable",
+          "warmup_iterations": null
         },
         "workload": {
           "common": {
@@ -8932,6 +9116,7 @@
         "operating_point.power_mode": "not_collected",
         "operating_point.throttle_status": "not_collected",
         "system_id": "analytical_no_physical_system",
+        "timing.warmup_iterations": "not_applicable",
         "workload.vla.image_height": "unavailable_from_source",
         "workload.vla.image_width": "unavailable_from_source"
       },
@@ -8964,7 +9149,8 @@
       "timing": {
         "state_reuse": "analytical_model",
         "timing_boundary_id": "vla_perf_analytical_e2e",
-        "warm_policy": "not_applicable"
+        "warm_policy": "not_applicable",
+        "warmup_iterations": null
       },
       "workload": {
         "common": {
@@ -9019,7 +9205,8 @@
         "timing": {
           "state_reuse": "analytical_model",
           "timing_boundary_id": "vla_perf_analytical_e2e",
-          "warm_policy": "not_applicable"
+          "warm_policy": "not_applicable",
+          "warmup_iterations": null
         },
         "workload": {
           "common": {
@@ -9051,6 +9238,7 @@
         "operating_point.power_mode": "not_collected",
         "operating_point.throttle_status": "not_collected",
         "system_id": "analytical_no_physical_system",
+        "timing.warmup_iterations": "not_applicable",
         "workload.vla.image_height": "unavailable_from_source",
         "workload.vla.image_width": "unavailable_from_source"
       },
@@ -9083,7 +9271,8 @@
       "timing": {
         "state_reuse": "analytical_model",
         "timing_boundary_id": "vla_perf_analytical_e2e",
-        "warm_policy": "not_applicable"
+        "warm_policy": "not_applicable",
+        "warmup_iterations": null
       },
       "workload": {
         "common": {
@@ -9138,7 +9327,8 @@
         "timing": {
           "state_reuse": "analytical_model",
           "timing_boundary_id": "vla_perf_analytical_e2e",
-          "warm_policy": "not_applicable"
+          "warm_policy": "not_applicable",
+          "warmup_iterations": null
         },
         "workload": {
           "common": {
@@ -9170,6 +9360,7 @@
         "operating_point.power_mode": "not_collected",
         "operating_point.throttle_status": "not_collected",
         "system_id": "analytical_no_physical_system",
+        "timing.warmup_iterations": "not_applicable",
         "workload.vla.image_height": "unavailable_from_source",
         "workload.vla.image_width": "unavailable_from_source"
       },
@@ -9202,7 +9393,8 @@
       "timing": {
         "state_reuse": "analytical_model",
         "timing_boundary_id": "vla_perf_analytical_e2e",
-        "warm_policy": "not_applicable"
+        "warm_policy": "not_applicable",
+        "warmup_iterations": null
       },
       "workload": {
         "common": {
@@ -9257,7 +9449,8 @@
         "timing": {
           "state_reuse": "analytical_model",
           "timing_boundary_id": "vla_perf_analytical_e2e",
-          "warm_policy": "not_applicable"
+          "warm_policy": "not_applicable",
+          "warmup_iterations": null
         },
         "workload": {
           "common": {
@@ -9289,6 +9482,7 @@
         "operating_point.power_mode": "not_collected",
         "operating_point.throttle_status": "not_collected",
         "system_id": "analytical_no_physical_system",
+        "timing.warmup_iterations": "not_applicable",
         "workload.vla.image_height": "unavailable_from_source",
         "workload.vla.image_width": "unavailable_from_source"
       },
@@ -9321,7 +9515,8 @@
       "timing": {
         "state_reuse": "analytical_model",
         "timing_boundary_id": "vla_perf_analytical_e2e",
-        "warm_policy": "not_applicable"
+        "warm_policy": "not_applicable",
+        "warmup_iterations": null
       },
       "workload": {
         "common": {
@@ -9376,7 +9571,8 @@
         "timing": {
           "state_reuse": "analytical_model",
           "timing_boundary_id": "vla_perf_analytical_e2e",
-          "warm_policy": "not_applicable"
+          "warm_policy": "not_applicable",
+          "warmup_iterations": null
         },
         "workload": {
           "common": {
@@ -9408,6 +9604,7 @@
         "operating_point.power_mode": "not_collected",
         "operating_point.throttle_status": "not_collected",
         "system_id": "analytical_no_physical_system",
+        "timing.warmup_iterations": "not_applicable",
         "workload.vla.image_height": "unavailable_from_source",
         "workload.vla.image_width": "unavailable_from_source"
       },
@@ -9440,7 +9637,8 @@
       "timing": {
         "state_reuse": "analytical_model",
         "timing_boundary_id": "vla_perf_analytical_e2e",
-        "warm_policy": "not_applicable"
+        "warm_policy": "not_applicable",
+        "warmup_iterations": null
       },
       "workload": {
         "common": {
@@ -9495,7 +9693,8 @@
         "timing": {
           "state_reuse": "analytical_model",
           "timing_boundary_id": "vla_perf_analytical_e2e",
-          "warm_policy": "not_applicable"
+          "warm_policy": "not_applicable",
+          "warmup_iterations": null
         },
         "workload": {
           "common": {
@@ -9527,6 +9726,7 @@
         "operating_point.power_mode": "not_collected",
         "operating_point.throttle_status": "not_collected",
         "system_id": "analytical_no_physical_system",
+        "timing.warmup_iterations": "not_applicable",
         "workload.vla.image_height": "unavailable_from_source",
         "workload.vla.image_width": "unavailable_from_source"
       },
@@ -9559,7 +9759,8 @@
       "timing": {
         "state_reuse": "analytical_model",
         "timing_boundary_id": "vla_perf_analytical_e2e",
-        "warm_policy": "not_applicable"
+        "warm_policy": "not_applicable",
+        "warmup_iterations": null
       },
       "workload": {
         "common": {
@@ -9614,7 +9815,8 @@
         "timing": {
           "state_reuse": "analytical_model",
           "timing_boundary_id": "vla_perf_analytical_e2e",
-          "warm_policy": "not_applicable"
+          "warm_policy": "not_applicable",
+          "warmup_iterations": null
         },
         "workload": {
           "common": {
@@ -9646,6 +9848,7 @@
         "operating_point.power_mode": "not_collected",
         "operating_point.throttle_status": "not_collected",
         "system_id": "analytical_no_physical_system",
+        "timing.warmup_iterations": "not_applicable",
         "workload.vla.image_height": "unavailable_from_source",
         "workload.vla.image_width": "unavailable_from_source"
       },
@@ -9678,7 +9881,8 @@
       "timing": {
         "state_reuse": "analytical_model",
         "timing_boundary_id": "vla_perf_analytical_e2e",
-        "warm_policy": "not_applicable"
+        "warm_policy": "not_applicable",
+        "warmup_iterations": null
       },
       "workload": {
         "common": {
@@ -9733,7 +9937,8 @@
         "timing": {
           "state_reuse": "analytical_model",
           "timing_boundary_id": "vla_perf_analytical_e2e",
-          "warm_policy": "not_applicable"
+          "warm_policy": "not_applicable",
+          "warmup_iterations": null
         },
         "workload": {
           "common": {
@@ -9765,6 +9970,7 @@
         "operating_point.power_mode": "not_collected",
         "operating_point.throttle_status": "not_collected",
         "system_id": "analytical_no_physical_system",
+        "timing.warmup_iterations": "not_applicable",
         "workload.vla.image_height": "unavailable_from_source",
         "workload.vla.image_width": "unavailable_from_source"
       },
@@ -9797,7 +10003,8 @@
       "timing": {
         "state_reuse": "analytical_model",
         "timing_boundary_id": "vla_perf_analytical_e2e",
-        "warm_policy": "not_applicable"
+        "warm_policy": "not_applicable",
+        "warmup_iterations": null
       },
       "workload": {
         "common": {
@@ -9852,7 +10059,8 @@
         "timing": {
           "state_reuse": "analytical_model",
           "timing_boundary_id": "vla_perf_analytical_e2e",
-          "warm_policy": "not_applicable"
+          "warm_policy": "not_applicable",
+          "warmup_iterations": null
         },
         "workload": {
           "common": {
@@ -9884,6 +10092,7 @@
         "operating_point.power_mode": "not_collected",
         "operating_point.throttle_status": "not_collected",
         "system_id": "analytical_no_physical_system",
+        "timing.warmup_iterations": "not_applicable",
         "workload.vla.image_height": "unavailable_from_source",
         "workload.vla.image_width": "unavailable_from_source"
       },
@@ -9916,7 +10125,8 @@
       "timing": {
         "state_reuse": "analytical_model",
         "timing_boundary_id": "vla_perf_analytical_e2e",
-        "warm_policy": "not_applicable"
+        "warm_policy": "not_applicable",
+        "warmup_iterations": null
       },
       "workload": {
         "common": {
@@ -9971,7 +10181,8 @@
         "timing": {
           "state_reuse": "analytical_model",
           "timing_boundary_id": "vla_perf_analytical_e2e",
-          "warm_policy": "not_applicable"
+          "warm_policy": "not_applicable",
+          "warmup_iterations": null
         },
         "workload": {
           "common": {
@@ -10003,6 +10214,7 @@
         "operating_point.power_mode": "not_collected",
         "operating_point.throttle_status": "not_collected",
         "system_id": "analytical_no_physical_system",
+        "timing.warmup_iterations": "not_applicable",
         "workload.vla.image_height": "unavailable_from_source",
         "workload.vla.image_width": "unavailable_from_source"
       },
@@ -10035,7 +10247,8 @@
       "timing": {
         "state_reuse": "analytical_model",
         "timing_boundary_id": "vla_perf_analytical_e2e",
-        "warm_policy": "not_applicable"
+        "warm_policy": "not_applicable",
+        "warmup_iterations": null
       },
       "workload": {
         "common": {
@@ -10090,7 +10303,8 @@
         "timing": {
           "state_reuse": "analytical_model",
           "timing_boundary_id": "vla_perf_analytical_e2e",
-          "warm_policy": "not_applicable"
+          "warm_policy": "not_applicable",
+          "warmup_iterations": null
         },
         "workload": {
           "common": {
@@ -10122,6 +10336,7 @@
         "operating_point.power_mode": "not_collected",
         "operating_point.throttle_status": "not_collected",
         "system_id": "analytical_no_physical_system",
+        "timing.warmup_iterations": "not_applicable",
         "workload.vla.image_height": "unavailable_from_source",
         "workload.vla.image_width": "unavailable_from_source"
       },
@@ -10154,7 +10369,8 @@
       "timing": {
         "state_reuse": "analytical_model",
         "timing_boundary_id": "vla_perf_analytical_e2e",
-        "warm_policy": "not_applicable"
+        "warm_policy": "not_applicable",
+        "warmup_iterations": null
       },
       "workload": {
         "common": {
@@ -10209,7 +10425,8 @@
         "timing": {
           "state_reuse": "analytical_model",
           "timing_boundary_id": "vla_perf_analytical_e2e",
-          "warm_policy": "not_applicable"
+          "warm_policy": "not_applicable",
+          "warmup_iterations": null
         },
         "workload": {
           "common": {
@@ -10241,6 +10458,7 @@
         "operating_point.power_mode": "not_collected",
         "operating_point.throttle_status": "not_collected",
         "system_id": "analytical_no_physical_system",
+        "timing.warmup_iterations": "not_applicable",
         "workload.vla.image_height": "unavailable_from_source",
         "workload.vla.image_width": "unavailable_from_source"
       },
@@ -10273,7 +10491,8 @@
       "timing": {
         "state_reuse": "analytical_model",
         "timing_boundary_id": "vla_perf_analytical_e2e",
-        "warm_policy": "not_applicable"
+        "warm_policy": "not_applicable",
+        "warmup_iterations": null
       },
       "workload": {
         "common": {
@@ -10328,7 +10547,8 @@
         "timing": {
           "state_reuse": "analytical_model",
           "timing_boundary_id": "vla_perf_analytical_e2e",
-          "warm_policy": "not_applicable"
+          "warm_policy": "not_applicable",
+          "warmup_iterations": null
         },
         "workload": {
           "common": {
@@ -10360,6 +10580,7 @@
         "operating_point.power_mode": "not_collected",
         "operating_point.throttle_status": "not_collected",
         "system_id": "analytical_no_physical_system",
+        "timing.warmup_iterations": "not_applicable",
         "workload.vla.image_height": "unavailable_from_source",
         "workload.vla.image_width": "unavailable_from_source"
       },
@@ -10392,7 +10613,8 @@
       "timing": {
         "state_reuse": "analytical_model",
         "timing_boundary_id": "vla_perf_analytical_e2e",
-        "warm_policy": "not_applicable"
+        "warm_policy": "not_applicable",
+        "warmup_iterations": null
       },
       "workload": {
         "common": {
@@ -10447,7 +10669,8 @@
         "timing": {
           "state_reuse": "analytical_model",
           "timing_boundary_id": "vla_perf_analytical_e2e",
-          "warm_policy": "not_applicable"
+          "warm_policy": "not_applicable",
+          "warmup_iterations": null
         },
         "workload": {
           "common": {
@@ -10479,6 +10702,7 @@
         "operating_point.power_mode": "not_collected",
         "operating_point.throttle_status": "not_collected",
         "system_id": "analytical_no_physical_system",
+        "timing.warmup_iterations": "not_applicable",
         "workload.vla.image_height": "unavailable_from_source",
         "workload.vla.image_width": "unavailable_from_source"
       },
@@ -10511,7 +10735,8 @@
       "timing": {
         "state_reuse": "analytical_model",
         "timing_boundary_id": "vla_perf_analytical_e2e",
-        "warm_policy": "not_applicable"
+        "warm_policy": "not_applicable",
+        "warmup_iterations": null
       },
       "workload": {
         "common": {
@@ -10566,7 +10791,8 @@
         "timing": {
           "state_reuse": "analytical_model",
           "timing_boundary_id": "vla_perf_analytical_e2e",
-          "warm_policy": "not_applicable"
+          "warm_policy": "not_applicable",
+          "warmup_iterations": null
         },
         "workload": {
           "common": {
@@ -10598,6 +10824,7 @@
         "operating_point.power_mode": "not_collected",
         "operating_point.throttle_status": "not_collected",
         "system_id": "analytical_no_physical_system",
+        "timing.warmup_iterations": "not_applicable",
         "workload.vla.image_height": "unavailable_from_source",
         "workload.vla.image_width": "unavailable_from_source"
       },
@@ -10630,7 +10857,8 @@
       "timing": {
         "state_reuse": "analytical_model",
         "timing_boundary_id": "vla_perf_analytical_e2e",
-        "warm_policy": "not_applicable"
+        "warm_policy": "not_applicable",
+        "warmup_iterations": null
       },
       "workload": {
         "common": {
@@ -10685,7 +10913,8 @@
         "timing": {
           "state_reuse": "analytical_model",
           "timing_boundary_id": "vla_perf_analytical_e2e",
-          "warm_policy": "not_applicable"
+          "warm_policy": "not_applicable",
+          "warmup_iterations": null
         },
         "workload": {
           "common": {
@@ -10717,6 +10946,7 @@
         "operating_point.power_mode": "not_collected",
         "operating_point.throttle_status": "not_collected",
         "system_id": "analytical_no_physical_system",
+        "timing.warmup_iterations": "not_applicable",
         "workload.vla.image_height": "unavailable_from_source",
         "workload.vla.image_width": "unavailable_from_source"
       },
@@ -10749,7 +10979,8 @@
       "timing": {
         "state_reuse": "analytical_model",
         "timing_boundary_id": "vla_perf_analytical_e2e",
-        "warm_policy": "not_applicable"
+        "warm_policy": "not_applicable",
+        "warmup_iterations": null
       },
       "workload": {
         "common": {
@@ -10804,7 +11035,8 @@
         "timing": {
           "state_reuse": "analytical_model",
           "timing_boundary_id": "vla_perf_analytical_e2e",
-          "warm_policy": "not_applicable"
+          "warm_policy": "not_applicable",
+          "warmup_iterations": null
         },
         "workload": {
           "common": {
@@ -10836,6 +11068,7 @@
         "operating_point.power_mode": "not_collected",
         "operating_point.throttle_status": "not_collected",
         "system_id": "analytical_no_physical_system",
+        "timing.warmup_iterations": "not_applicable",
         "workload.vla.image_height": "unavailable_from_source",
         "workload.vla.image_width": "unavailable_from_source"
       },
@@ -10868,7 +11101,8 @@
       "timing": {
         "state_reuse": "analytical_model",
         "timing_boundary_id": "vla_perf_analytical_e2e",
-        "warm_policy": "not_applicable"
+        "warm_policy": "not_applicable",
+        "warmup_iterations": null
       },
       "workload": {
         "common": {
@@ -10923,7 +11157,8 @@
         "timing": {
           "state_reuse": "analytical_model",
           "timing_boundary_id": "vla_perf_analytical_e2e",
-          "warm_policy": "not_applicable"
+          "warm_policy": "not_applicable",
+          "warmup_iterations": null
         },
         "workload": {
           "common": {
@@ -10955,6 +11190,7 @@
         "operating_point.power_mode": "not_collected",
         "operating_point.throttle_status": "not_collected",
         "system_id": "analytical_no_physical_system",
+        "timing.warmup_iterations": "not_applicable",
         "workload.vla.image_height": "unavailable_from_source",
         "workload.vla.image_width": "unavailable_from_source"
       },
@@ -10987,7 +11223,8 @@
       "timing": {
         "state_reuse": "analytical_model",
         "timing_boundary_id": "vla_perf_analytical_e2e",
-        "warm_policy": "not_applicable"
+        "warm_policy": "not_applicable",
+        "warmup_iterations": null
       },
       "workload": {
         "common": {
@@ -11042,7 +11279,8 @@
         "timing": {
           "state_reuse": "analytical_model",
           "timing_boundary_id": "vla_perf_analytical_e2e",
-          "warm_policy": "not_applicable"
+          "warm_policy": "not_applicable",
+          "warmup_iterations": null
         },
         "workload": {
           "common": {
@@ -11074,6 +11312,7 @@
         "operating_point.power_mode": "not_collected",
         "operating_point.throttle_status": "not_collected",
         "system_id": "analytical_no_physical_system",
+        "timing.warmup_iterations": "not_applicable",
         "workload.vla.image_height": "unavailable_from_source",
         "workload.vla.image_width": "unavailable_from_source"
       },
@@ -11106,7 +11345,8 @@
       "timing": {
         "state_reuse": "analytical_model",
         "timing_boundary_id": "vla_perf_analytical_e2e",
-        "warm_policy": "not_applicable"
+        "warm_policy": "not_applicable",
+        "warmup_iterations": null
       },
       "workload": {
         "common": {
@@ -11161,7 +11401,8 @@
         "timing": {
           "state_reuse": "analytical_model",
           "timing_boundary_id": "vla_perf_analytical_e2e",
-          "warm_policy": "not_applicable"
+          "warm_policy": "not_applicable",
+          "warmup_iterations": null
         },
         "workload": {
           "common": {
@@ -11193,6 +11434,7 @@
         "operating_point.power_mode": "not_collected",
         "operating_point.throttle_status": "not_collected",
         "system_id": "analytical_no_physical_system",
+        "timing.warmup_iterations": "not_applicable",
         "workload.vla.image_height": "unavailable_from_source",
         "workload.vla.image_width": "unavailable_from_source"
       },
@@ -11225,7 +11467,8 @@
       "timing": {
         "state_reuse": "analytical_model",
         "timing_boundary_id": "vla_perf_analytical_e2e",
-        "warm_policy": "not_applicable"
+        "warm_policy": "not_applicable",
+        "warmup_iterations": null
       },
       "workload": {
         "common": {
@@ -11280,7 +11523,8 @@
         "timing": {
           "state_reuse": "analytical_model",
           "timing_boundary_id": "vla_perf_analytical_e2e",
-          "warm_policy": "not_applicable"
+          "warm_policy": "not_applicable",
+          "warmup_iterations": null
         },
         "workload": {
           "common": {
@@ -11312,6 +11556,7 @@
         "operating_point.power_mode": "not_collected",
         "operating_point.throttle_status": "not_collected",
         "system_id": "analytical_no_physical_system",
+        "timing.warmup_iterations": "not_applicable",
         "workload.vla.image_height": "unavailable_from_source",
         "workload.vla.image_width": "unavailable_from_source"
       },
@@ -11344,7 +11589,8 @@
       "timing": {
         "state_reuse": "analytical_model",
         "timing_boundary_id": "vla_perf_analytical_e2e",
-        "warm_policy": "not_applicable"
+        "warm_policy": "not_applicable",
+        "warmup_iterations": null
       },
       "workload": {
         "common": {
@@ -11399,7 +11645,8 @@
         "timing": {
           "state_reuse": "analytical_model",
           "timing_boundary_id": "vla_perf_analytical_e2e",
-          "warm_policy": "not_applicable"
+          "warm_policy": "not_applicable",
+          "warmup_iterations": null
         },
         "workload": {
           "common": {
@@ -11431,6 +11678,7 @@
         "operating_point.power_mode": "not_collected",
         "operating_point.throttle_status": "not_collected",
         "system_id": "analytical_no_physical_system",
+        "timing.warmup_iterations": "not_applicable",
         "workload.vla.image_height": "unavailable_from_source",
         "workload.vla.image_width": "unavailable_from_source"
       },
@@ -11463,7 +11711,8 @@
       "timing": {
         "state_reuse": "analytical_model",
         "timing_boundary_id": "vla_perf_analytical_e2e",
-        "warm_policy": "not_applicable"
+        "warm_policy": "not_applicable",
+        "warmup_iterations": null
       },
       "workload": {
         "common": {
@@ -11518,7 +11767,8 @@
         "timing": {
           "state_reuse": "analytical_model",
           "timing_boundary_id": "vla_perf_analytical_e2e",
-          "warm_policy": "not_applicable"
+          "warm_policy": "not_applicable",
+          "warmup_iterations": null
         },
         "workload": {
           "common": {
@@ -11550,6 +11800,7 @@
         "operating_point.power_mode": "not_collected",
         "operating_point.throttle_status": "not_collected",
         "system_id": "analytical_no_physical_system",
+        "timing.warmup_iterations": "not_applicable",
         "workload.vla.image_height": "unavailable_from_source",
         "workload.vla.image_width": "unavailable_from_source"
       },
@@ -11582,7 +11833,8 @@
       "timing": {
         "state_reuse": "analytical_model",
         "timing_boundary_id": "vla_perf_analytical_e2e",
-        "warm_policy": "not_applicable"
+        "warm_policy": "not_applicable",
+        "warmup_iterations": null
       },
       "workload": {
         "common": {
@@ -11637,7 +11889,8 @@
         "timing": {
           "state_reuse": "analytical_model",
           "timing_boundary_id": "vla_perf_analytical_e2e",
-          "warm_policy": "not_applicable"
+          "warm_policy": "not_applicable",
+          "warmup_iterations": null
         },
         "workload": {
           "common": {
@@ -11669,6 +11922,7 @@
         "operating_point.power_mode": "not_collected",
         "operating_point.throttle_status": "not_collected",
         "system_id": "analytical_no_physical_system",
+        "timing.warmup_iterations": "not_applicable",
         "workload.vla.image_height": "unavailable_from_source",
         "workload.vla.image_width": "unavailable_from_source"
       },
@@ -11701,7 +11955,8 @@
       "timing": {
         "state_reuse": "analytical_model",
         "timing_boundary_id": "vla_perf_analytical_e2e",
-        "warm_policy": "not_applicable"
+        "warm_policy": "not_applicable",
+        "warmup_iterations": null
       },
       "workload": {
         "common": {
@@ -11756,7 +12011,8 @@
         "timing": {
           "state_reuse": "analytical_model",
           "timing_boundary_id": "vla_perf_analytical_e2e",
-          "warm_policy": "not_applicable"
+          "warm_policy": "not_applicable",
+          "warmup_iterations": null
         },
         "workload": {
           "common": {
@@ -11788,6 +12044,7 @@
         "operating_point.power_mode": "not_collected",
         "operating_point.throttle_status": "not_collected",
         "system_id": "analytical_no_physical_system",
+        "timing.warmup_iterations": "not_applicable",
         "workload.vla.image_height": "unavailable_from_source",
         "workload.vla.image_width": "unavailable_from_source"
       },
@@ -11820,7 +12077,8 @@
       "timing": {
         "state_reuse": "analytical_model",
         "timing_boundary_id": "vla_perf_analytical_e2e",
-        "warm_policy": "not_applicable"
+        "warm_policy": "not_applicable",
+        "warmup_iterations": null
       },
       "workload": {
         "common": {
@@ -11875,7 +12133,8 @@
         "timing": {
           "state_reuse": "analytical_model",
           "timing_boundary_id": "vla_perf_analytical_e2e",
-          "warm_policy": "not_applicable"
+          "warm_policy": "not_applicable",
+          "warmup_iterations": null
         },
         "workload": {
           "common": {
@@ -11907,6 +12166,7 @@
         "operating_point.power_mode": "not_collected",
         "operating_point.throttle_status": "not_collected",
         "system_id": "analytical_no_physical_system",
+        "timing.warmup_iterations": "not_applicable",
         "workload.vla.image_height": "unavailable_from_source",
         "workload.vla.image_width": "unavailable_from_source"
       },
@@ -11939,7 +12199,8 @@
       "timing": {
         "state_reuse": "analytical_model",
         "timing_boundary_id": "vla_perf_analytical_e2e",
-        "warm_policy": "not_applicable"
+        "warm_policy": "not_applicable",
+        "warmup_iterations": null
       },
       "workload": {
         "common": {
@@ -11994,7 +12255,8 @@
         "timing": {
           "state_reuse": "analytical_model",
           "timing_boundary_id": "vla_perf_analytical_e2e",
-          "warm_policy": "not_applicable"
+          "warm_policy": "not_applicable",
+          "warmup_iterations": null
         },
         "workload": {
           "common": {
@@ -12026,6 +12288,7 @@
         "operating_point.power_mode": "not_collected",
         "operating_point.throttle_status": "not_collected",
         "system_id": "analytical_no_physical_system",
+        "timing.warmup_iterations": "not_applicable",
         "workload.vla.image_height": "unavailable_from_source",
         "workload.vla.image_width": "unavailable_from_source"
       },
@@ -12058,7 +12321,8 @@
       "timing": {
         "state_reuse": "analytical_model",
         "timing_boundary_id": "vla_perf_analytical_e2e",
-        "warm_policy": "not_applicable"
+        "warm_policy": "not_applicable",
+        "warmup_iterations": null
       },
       "workload": {
         "common": {
@@ -12113,7 +12377,8 @@
         "timing": {
           "state_reuse": "analytical_model",
           "timing_boundary_id": "vla_perf_analytical_e2e",
-          "warm_policy": "not_applicable"
+          "warm_policy": "not_applicable",
+          "warmup_iterations": null
         },
         "workload": {
           "common": {
@@ -12145,6 +12410,7 @@
         "operating_point.power_mode": "not_collected",
         "operating_point.throttle_status": "not_collected",
         "system_id": "analytical_no_physical_system",
+        "timing.warmup_iterations": "not_applicable",
         "workload.vla.image_height": "unavailable_from_source",
         "workload.vla.image_width": "unavailable_from_source"
       },
@@ -12177,7 +12443,8 @@
       "timing": {
         "state_reuse": "analytical_model",
         "timing_boundary_id": "vla_perf_analytical_e2e",
-        "warm_policy": "not_applicable"
+        "warm_policy": "not_applicable",
+        "warmup_iterations": null
       },
       "workload": {
         "common": {
@@ -12232,7 +12499,8 @@
         "timing": {
           "state_reuse": "analytical_model",
           "timing_boundary_id": "vla_perf_analytical_e2e",
-          "warm_policy": "not_applicable"
+          "warm_policy": "not_applicable",
+          "warmup_iterations": null
         },
         "workload": {
           "common": {
@@ -12264,6 +12532,7 @@
         "operating_point.power_mode": "not_collected",
         "operating_point.throttle_status": "not_collected",
         "system_id": "analytical_no_physical_system",
+        "timing.warmup_iterations": "not_applicable",
         "workload.vla.image_height": "unavailable_from_source",
         "workload.vla.image_width": "unavailable_from_source"
       },
@@ -12296,7 +12565,8 @@
       "timing": {
         "state_reuse": "analytical_model",
         "timing_boundary_id": "vla_perf_analytical_e2e",
-        "warm_policy": "not_applicable"
+        "warm_policy": "not_applicable",
+        "warmup_iterations": null
       },
       "workload": {
         "common": {
@@ -12351,7 +12621,8 @@
         "timing": {
           "state_reuse": "analytical_model",
           "timing_boundary_id": "vla_perf_analytical_e2e",
-          "warm_policy": "not_applicable"
+          "warm_policy": "not_applicable",
+          "warmup_iterations": null
         },
         "workload": {
           "common": {
@@ -12383,6 +12654,7 @@
         "operating_point.power_mode": "not_collected",
         "operating_point.throttle_status": "not_collected",
         "system_id": "analytical_no_physical_system",
+        "timing.warmup_iterations": "not_applicable",
         "workload.vla.image_height": "unavailable_from_source",
         "workload.vla.image_width": "unavailable_from_source"
       },
@@ -12415,7 +12687,8 @@
       "timing": {
         "state_reuse": "analytical_model",
         "timing_boundary_id": "vla_perf_analytical_e2e",
-        "warm_policy": "not_applicable"
+        "warm_policy": "not_applicable",
+        "warmup_iterations": null
       },
       "workload": {
         "common": {
@@ -12470,7 +12743,8 @@
         "timing": {
           "state_reuse": "analytical_model",
           "timing_boundary_id": "vla_perf_analytical_e2e",
-          "warm_policy": "not_applicable"
+          "warm_policy": "not_applicable",
+          "warmup_iterations": null
         },
         "workload": {
           "common": {
@@ -12502,6 +12776,7 @@
         "operating_point.power_mode": "not_collected",
         "operating_point.throttle_status": "not_collected",
         "system_id": "analytical_no_physical_system",
+        "timing.warmup_iterations": "not_applicable",
         "workload.vla.image_height": "unavailable_from_source",
         "workload.vla.image_width": "unavailable_from_source"
       },
@@ -12534,7 +12809,8 @@
       "timing": {
         "state_reuse": "analytical_model",
         "timing_boundary_id": "vla_perf_analytical_e2e",
-        "warm_policy": "not_applicable"
+        "warm_policy": "not_applicable",
+        "warmup_iterations": null
       },
       "workload": {
         "common": {
@@ -12589,7 +12865,8 @@
         "timing": {
           "state_reuse": "analytical_model",
           "timing_boundary_id": "vla_perf_analytical_e2e",
-          "warm_policy": "not_applicable"
+          "warm_policy": "not_applicable",
+          "warmup_iterations": null
         },
         "workload": {
           "common": {
@@ -12621,6 +12898,7 @@
         "operating_point.power_mode": "not_collected",
         "operating_point.throttle_status": "not_collected",
         "system_id": "analytical_no_physical_system",
+        "timing.warmup_iterations": "not_applicable",
         "workload.vla.image_height": "unavailable_from_source",
         "workload.vla.image_width": "unavailable_from_source"
       },
@@ -12653,7 +12931,8 @@
       "timing": {
         "state_reuse": "analytical_model",
         "timing_boundary_id": "vla_perf_analytical_e2e",
-        "warm_policy": "not_applicable"
+        "warm_policy": "not_applicable",
+        "warmup_iterations": null
       },
       "workload": {
         "common": {
@@ -12708,7 +12987,8 @@
         "timing": {
           "state_reuse": "analytical_model",
           "timing_boundary_id": "vla_perf_analytical_e2e",
-          "warm_policy": "not_applicable"
+          "warm_policy": "not_applicable",
+          "warmup_iterations": null
         },
         "workload": {
           "common": {
@@ -12740,6 +13020,7 @@
         "operating_point.power_mode": "not_collected",
         "operating_point.throttle_status": "not_collected",
         "system_id": "analytical_no_physical_system",
+        "timing.warmup_iterations": "not_applicable",
         "workload.vla.image_height": "unavailable_from_source",
         "workload.vla.image_width": "unavailable_from_source"
       },
@@ -12772,7 +13053,8 @@
       "timing": {
         "state_reuse": "analytical_model",
         "timing_boundary_id": "vla_perf_analytical_e2e",
-        "warm_policy": "not_applicable"
+        "warm_policy": "not_applicable",
+        "warmup_iterations": null
       },
       "workload": {
         "common": {
@@ -12827,7 +13109,8 @@
         "timing": {
           "state_reuse": "analytical_model",
           "timing_boundary_id": "vla_perf_analytical_e2e",
-          "warm_policy": "not_applicable"
+          "warm_policy": "not_applicable",
+          "warmup_iterations": null
         },
         "workload": {
           "common": {
@@ -12859,6 +13142,7 @@
         "operating_point.power_mode": "not_collected",
         "operating_point.throttle_status": "not_collected",
         "system_id": "analytical_no_physical_system",
+        "timing.warmup_iterations": "not_applicable",
         "workload.vla.image_height": "unavailable_from_source",
         "workload.vla.image_width": "unavailable_from_source"
       },
@@ -12891,7 +13175,8 @@
       "timing": {
         "state_reuse": "analytical_model",
         "timing_boundary_id": "vla_perf_analytical_e2e",
-        "warm_policy": "not_applicable"
+        "warm_policy": "not_applicable",
+        "warmup_iterations": null
       },
       "workload": {
         "common": {
@@ -12946,7 +13231,8 @@
         "timing": {
           "state_reuse": "analytical_model",
           "timing_boundary_id": "vla_perf_analytical_e2e",
-          "warm_policy": "not_applicable"
+          "warm_policy": "not_applicable",
+          "warmup_iterations": null
         },
         "workload": {
           "common": {
@@ -12978,6 +13264,7 @@
         "operating_point.power_mode": "not_collected",
         "operating_point.throttle_status": "not_collected",
         "system_id": "analytical_no_physical_system",
+        "timing.warmup_iterations": "not_applicable",
         "workload.vla.image_height": "unavailable_from_source",
         "workload.vla.image_width": "unavailable_from_source"
       },
@@ -13010,7 +13297,8 @@
       "timing": {
         "state_reuse": "analytical_model",
         "timing_boundary_id": "vla_perf_analytical_e2e",
-        "warm_policy": "not_applicable"
+        "warm_policy": "not_applicable",
+        "warmup_iterations": null
       },
       "workload": {
         "common": {
@@ -13065,7 +13353,8 @@
         "timing": {
           "state_reuse": "analytical_model",
           "timing_boundary_id": "vla_perf_analytical_e2e",
-          "warm_policy": "not_applicable"
+          "warm_policy": "not_applicable",
+          "warmup_iterations": null
         },
         "workload": {
           "common": {
@@ -13097,6 +13386,7 @@
         "operating_point.power_mode": "not_collected",
         "operating_point.throttle_status": "not_collected",
         "system_id": "analytical_no_physical_system",
+        "timing.warmup_iterations": "not_applicable",
         "workload.vla.image_height": "unavailable_from_source",
         "workload.vla.image_width": "unavailable_from_source"
       },
@@ -13129,7 +13419,8 @@
       "timing": {
         "state_reuse": "analytical_model",
         "timing_boundary_id": "vla_perf_analytical_e2e",
-        "warm_policy": "not_applicable"
+        "warm_policy": "not_applicable",
+        "warmup_iterations": null
       },
       "workload": {
         "common": {
@@ -13184,7 +13475,8 @@
         "timing": {
           "state_reuse": "analytical_model",
           "timing_boundary_id": "vla_perf_analytical_e2e",
-          "warm_policy": "not_applicable"
+          "warm_policy": "not_applicable",
+          "warmup_iterations": null
         },
         "workload": {
           "common": {
@@ -13216,6 +13508,7 @@
         "operating_point.power_mode": "not_collected",
         "operating_point.throttle_status": "not_collected",
         "system_id": "analytical_no_physical_system",
+        "timing.warmup_iterations": "not_applicable",
         "workload.vla.image_height": "unavailable_from_source",
         "workload.vla.image_width": "unavailable_from_source"
       },
@@ -13248,7 +13541,8 @@
       "timing": {
         "state_reuse": "analytical_model",
         "timing_boundary_id": "vla_perf_analytical_e2e",
-        "warm_policy": "not_applicable"
+        "warm_policy": "not_applicable",
+        "warmup_iterations": null
       },
       "workload": {
         "common": {
@@ -13303,7 +13597,8 @@
         "timing": {
           "state_reuse": "analytical_model",
           "timing_boundary_id": "vla_perf_analytical_e2e",
-          "warm_policy": "not_applicable"
+          "warm_policy": "not_applicable",
+          "warmup_iterations": null
         },
         "workload": {
           "common": {
@@ -13335,6 +13630,7 @@
         "operating_point.power_mode": "not_collected",
         "operating_point.throttle_status": "not_collected",
         "system_id": "analytical_no_physical_system",
+        "timing.warmup_iterations": "not_applicable",
         "workload.vla.image_height": "unavailable_from_source",
         "workload.vla.image_width": "unavailable_from_source"
       },
@@ -13367,7 +13663,8 @@
       "timing": {
         "state_reuse": "analytical_model",
         "timing_boundary_id": "vla_perf_analytical_e2e",
-        "warm_policy": "not_applicable"
+        "warm_policy": "not_applicable",
+        "warmup_iterations": null
       },
       "workload": {
         "common": {
@@ -13422,7 +13719,8 @@
         "timing": {
           "state_reuse": "analytical_model",
           "timing_boundary_id": "vla_perf_analytical_e2e",
-          "warm_policy": "not_applicable"
+          "warm_policy": "not_applicable",
+          "warmup_iterations": null
         },
         "workload": {
           "common": {
@@ -13454,6 +13752,7 @@
         "operating_point.power_mode": "not_collected",
         "operating_point.throttle_status": "not_collected",
         "system_id": "analytical_no_physical_system",
+        "timing.warmup_iterations": "not_applicable",
         "workload.vla.image_height": "unavailable_from_source",
         "workload.vla.image_width": "unavailable_from_source"
       },
@@ -13486,7 +13785,8 @@
       "timing": {
         "state_reuse": "analytical_model",
         "timing_boundary_id": "vla_perf_analytical_e2e",
-        "warm_policy": "not_applicable"
+        "warm_policy": "not_applicable",
+        "warmup_iterations": null
       },
       "workload": {
         "common": {
@@ -13541,7 +13841,8 @@
         "timing": {
           "state_reuse": "analytical_model",
           "timing_boundary_id": "vla_perf_analytical_e2e",
-          "warm_policy": "not_applicable"
+          "warm_policy": "not_applicable",
+          "warmup_iterations": null
         },
         "workload": {
           "common": {
@@ -13573,6 +13874,7 @@
         "operating_point.power_mode": "not_collected",
         "operating_point.throttle_status": "not_collected",
         "system_id": "analytical_no_physical_system",
+        "timing.warmup_iterations": "not_applicable",
         "workload.vla.image_height": "unavailable_from_source",
         "workload.vla.image_width": "unavailable_from_source"
       },
@@ -13605,7 +13907,8 @@
       "timing": {
         "state_reuse": "analytical_model",
         "timing_boundary_id": "vla_perf_analytical_e2e",
-        "warm_policy": "not_applicable"
+        "warm_policy": "not_applicable",
+        "warmup_iterations": null
       },
       "workload": {
         "common": {
@@ -13660,7 +13963,8 @@
         "timing": {
           "state_reuse": "analytical_model",
           "timing_boundary_id": "vla_perf_analytical_e2e",
-          "warm_policy": "not_applicable"
+          "warm_policy": "not_applicable",
+          "warmup_iterations": null
         },
         "workload": {
           "common": {
@@ -13692,6 +13996,7 @@
         "operating_point.power_mode": "not_collected",
         "operating_point.throttle_status": "not_collected",
         "system_id": "analytical_no_physical_system",
+        "timing.warmup_iterations": "not_applicable",
         "workload.vla.image_height": "unavailable_from_source",
         "workload.vla.image_width": "unavailable_from_source"
       },
@@ -13724,7 +14029,8 @@
       "timing": {
         "state_reuse": "analytical_model",
         "timing_boundary_id": "vla_perf_analytical_e2e",
-        "warm_policy": "not_applicable"
+        "warm_policy": "not_applicable",
+        "warmup_iterations": null
       },
       "workload": {
         "common": {

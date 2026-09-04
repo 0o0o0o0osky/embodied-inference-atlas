@@ -66,6 +66,7 @@ def valid_run(
         "timing_boundary_id": "predict_cached_graph_sync",
         "state_reuse": "cached_prompt_and_graph",
         "warm_policy": "steady_state",
+        "warmup_iterations": 30,
     }
     operating_point = {
         "operating_point_id": "thor-120w-dynamic",

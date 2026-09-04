@@ -20,8 +20,13 @@ assets.
 Source import commands accept an external file path through `--input` and write
 sanitized bundles only under `.local/staging/`. The input path is used to read
 the source and is never persisted in a staging bundle, canonical `data/`, or the
-generated site. Review a promotion diff before using `tools.promote --apply` to
-write canonical data.
+generated site. Review a promotion diff before applying it, for example:
+
+```bash
+python3 -m tools.promote .local/staging/<bundle>.json --apply
+```
+
+Only the promotion command writes canonical data.
 
 See `docs/methodology.md` for evidence, timing, comparison, precision, and
 missing-data semantics.

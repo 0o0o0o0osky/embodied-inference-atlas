@@ -11,7 +11,7 @@
   function stateChip(row) {
     const chip = Atlas.element("span", { className: `state-chip state-${row.state}` });
     chip.textContent = row.state.replaceAll("_", " ");
-    const details = [row.system_label, row.evidence, row.precision_id].filter(Boolean).join(" · ");
+    const details = [row.system_label, row.evidence, row.precision_label || row.precision_id].filter(Boolean).join(" · ");
     chip.title = [details, row.reason_code].filter(Boolean).join(" — ");
     return chip;
   }

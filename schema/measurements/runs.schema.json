@@ -71,12 +71,13 @@
       },
       "timing": {
         "type": "object",
-        "required": ["timing_boundary_id", "state_reuse", "warm_policy"],
+        "required": ["timing_boundary_id", "state_reuse", "warm_policy", "warmup_iterations"],
         "additional_properties": false,
         "properties": {
           "timing_boundary_id": {"type": "string", "min_length": 1, "max_length": 120},
           "state_reuse": {"type": "string", "min_length": 1, "max_length": 120},
-          "warm_policy": {"type": "string", "min_length": 1, "max_length": 120}
+          "warm_policy": {"type": "string", "min_length": 1, "max_length": 120},
+          "warmup_iterations": {"type": ["integer", "null"], "minimum": 0}
         }
       },
       "operating_point": {
@@ -184,12 +185,13 @@
           },
           "timing": {
             "type": "object",
-            "required": ["timing_boundary_id", "state_reuse", "warm_policy"],
+            "required": ["timing_boundary_id", "state_reuse", "warm_policy", "warmup_iterations"],
             "additional_properties": false,
             "properties": {
               "timing_boundary_id": {"type": "string", "min_length": 1, "max_length": 120},
               "state_reuse": {"type": "string", "min_length": 1, "max_length": 120},
-              "warm_policy": {"type": "string", "min_length": 1, "max_length": 120}
+              "warm_policy": {"type": "string", "min_length": 1, "max_length": 120},
+              "warmup_iterations": {"type": ["integer", "null"], "minimum": 0}
             }
           },
           "runtime_overhead": {"type": "string", "min_length": 1, "max_length": 120}
@@ -210,6 +212,7 @@
           "workload.vla.action_chunk": {"type": "string", "enum": ["not_applicable", "not_collected", "not_reported", "unavailable_from_source"]},
           "workload.vla.denoise_steps": {"type": "string", "enum": ["not_applicable", "not_collected", "not_reported", "unavailable_from_source"]},
           "precision.scale_zero_point_bytes": {"type": "string", "enum": ["not_applicable", "not_collected", "not_reported", "unavailable_from_source"]},
+          "timing.warmup_iterations": {"type": "string", "enum": ["not_applicable", "not_collected", "not_reported", "unavailable_from_source"]},
           "operating_point.power_mode": {"type": "string", "enum": ["not_collected", "not_reported", "unavailable_from_source"]},
           "operating_point.clock_policy": {"type": "string", "enum": ["not_collected", "not_reported", "unavailable_from_source"]},
           "operating_point.throttle_status": {"type": "string", "enum": ["not_collected", "not_reported", "unavailable_from_source"]}

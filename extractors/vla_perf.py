@@ -104,6 +104,7 @@ def _estimate(
         "timing_boundary_id": _TIMING_BOUNDARY,
         "state_reuse": "analytical_model",
         "warm_policy": "not_applicable",
+        "warmup_iterations": None,
     }
     operating_point = {
         "operating_point_id": "analytical-assumption",
@@ -114,6 +115,7 @@ def _estimate(
     missing = {
         "workload.vla.image_height": "unavailable_from_source",
         "workload.vla.image_width": "unavailable_from_source",
+        "timing.warmup_iterations": "not_applicable",
         "operating_point.power_mode": "not_collected",
         "operating_point.clock_policy": "not_collected",
         "operating_point.throttle_status": "not_collected",

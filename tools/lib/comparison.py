@@ -58,6 +58,8 @@ def ratio_eligibility(left: Mapping, right: Mapping) -> str:
     )
     if "failed" in statuses:
         return "blocked_known_unequal"
+    if "unknown" in (_operating_point_id(left), _operating_point_id(right)):
+        return "blocked_unknown_invariant"
     if statuses == ("passed", "passed"):
         return "validated_speedup"
     return "latency_ratio_unvalidated"
@@ -100,3 +102,13 @@ def _correctness_status(run: Mapping) -> object:
     if not isinstance(correctness, Mapping):
         return None
     return correctness.get("status")
+
+
+def _operating_point_id(run: Mapping) -> object:
+    context = run.get("comparison_context")
+    if not isinstance(context, Mapping):
+        return None
+    platform = context.get("platform")
+    if not isinstance(platform, Mapping):
+        return None
+    return platform.get("operating_point_id")

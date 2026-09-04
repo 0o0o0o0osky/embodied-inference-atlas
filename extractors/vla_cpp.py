@@ -33,6 +33,7 @@ def import_vla_cpp(records: Iterable[Mapping], context: ImportContext) -> dict[s
     artifacts: dict[tuple[str, str], object] = {}
     timings: list[Mapping] = []
     operating_point = _unknown_operating_point()
+    warmup_iterations: int | None = None
     for raw_source in records:
         source = source_record(raw_source, context)
         if source.get("record") == "artifact":
@@ -42,6 +43,11 @@ def import_vla_cpp(records: Iterable[Mapping], context: ImportContext) -> dict[s
                 artifacts[(model_id, variant)] = source.get("scale_zero_point_bytes")
         elif source.get("record") == "run_config":
             operating_point = _operating_point(source, context)
+            source_warmups = source.get("warmups")
+            if source_warmups is not None:
+                warmup_iterations = nonnegative_integer(
+                    source_warmups, context, "run_config"
+                )
         elif source.get("record") == "timing":
             timings.append(source)
 
@@ -49,7 +55,7 @@ def import_vla_cpp(records: Iterable[Mapping], context: ImportContext) -> dict[s
     end_to_end: list[dict[str, object]] = []
     for index, timing_source in enumerate(timings, start=1):
         run, measurement = _timing(
-            timing_source, artifacts, operating_point, context, index
+            timing_source, artifacts, operating_point, warmup_iterations, context, index
         )
         runs.append(run)
         end_to_end.append(measurement)
@@ -62,7 +68,8 @@ def import_vla_cpp(records: Iterable[Mapping], context: ImportContext) -> dict[s
 
 def _timing(
     source: Mapping[str, object], artifacts: Mapping[tuple[str, str], object],
-    operating_point: Mapping[str, object], context: ImportContext, index: int,
+    operating_point: Mapping[str, object], warmup_iterations: int | None,
+    context: ImportContext, index: int,
 ) -> tuple[dict[str, object], dict[str, object]]:
     model_id = source.get("model_family")
     variant = source.get("variant")
@@ -106,6 +113,7 @@ def _timing(
         "timing_boundary_id": _TIMING_BOUNDARY,
         "state_reuse": "synthetic_inputs",
         "warm_policy": "steady_state",
+        "warmup_iterations": warmup_iterations,
     }
     run_id = record_id("run", context, index)
     missing = {
@@ -113,6 +121,8 @@ def _timing(
         "operating_point.throttle_status": "not_collected",
         **precision_missing,
     }
+    if warmup_iterations is None:
+        missing["timing.warmup_iterations"] = "unavailable_from_source"
     if operating_point["power_mode"] is None:
         missing["operating_point.power_mode"] = "not_collected"
     if operating_point["clock_policy"] is None:
@@ -166,7 +176,7 @@ def _timing(
         "metric": "latency",
         "statistics": _statistics(source, context),
         "sample_count": nonnegative_integer(source.get("repetitions"), context, "timing"),
-        "percentile_method": None,
+        "percentile_method": "source_reported",
         "work_unit": "action_chunk",
         "timing_boundary_id": _TIMING_BOUNDARY,
         "missing_reason": None,

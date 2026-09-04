@@ -143,6 +143,7 @@ def render_foundation_pages(
                 '<section class="panel"><h2>End-to-end latency by precision</h2><div id="e2e-charts" class="chart-grid"></div></section>'
                 '<section class="panel"><h2>End-to-end latency by runtime</h2><div id="runtime-charts" class="chart-grid"></div></section>'
                 '<section class="panel"><h2>Comparison labels</h2><div id="comparison-table"></div></section>'
+                '<section class="panel"><h2>End-to-end provenance</h2><p class="notice">Every E2E record remains listed even when no comparison-safe multi-record group exists.</p><div id="e2e-provenance-table"></div></section>'
                 '<section class="panel"><h2>Stage summaries</h2><p class="notice">independent summary statistics are not additive</p><div id="stage-charts" class="chart-grid"></div><div id="stage-table"></div></section>'
                 '<section class="panel"><h2>Analytical gap</h2><div id="gap-charts" class="chart-grid"></div></section>'
                 '<section class="panel"><h2>Profiler coverage</h2><div id="profiler-coverage"></div></section>',
@@ -172,6 +173,7 @@ def render_foundation_pages(
                 "Precision-specific rooflines",
                 "Each series uses one device, memory level, and actual operator precision ceiling.",
                 '<section class="panel"><h2>Roofline series</h2><div id="roofline-charts" class="chart-grid"></div></section>'
+                '<section class="panel"><h2>Analytical provenance</h2><div id="roofline-provenance-table"></div></section>'
                 '<section class="panel"><h2>Precision inventory</h2><div id="precision-table"></div></section>',
                 "",
             ),
@@ -266,14 +268,12 @@ def _build_view_models(
         precision_inventory.append(
             {
                 "precision_id": precision_id,
-                "label": (
-                    "weight-only Q8"
-                    if precision_id == "q8_0-weight-only"
-                    else precision_id
-                ),
+                "label": _precision_label(precision_id),
                 "weight_dtype": sample["weight_dtype"],
                 "activation_dtype": sample["activation_dtype"],
                 "execution_dtype": sample["execution_dtype"],
+                "quant_scheme": sample["quant_scheme"],
+                "granularity": sample["precision_granularity"],
                 "e2e_records": sum(
                     row["precision_id"] == precision_id for row in joined_runs
                 ),
@@ -330,6 +330,7 @@ def _build_view_models(
             "e2e_charts": comparison_groups["precision"],
             "runtime_charts": comparison_groups["runtime"],
             "comparisons": comparisons,
+            "e2e_records": joined_runs,
             "stages": stage_views,
             "stage_charts": stage_charts,
             "analytical_gap_charts": comparison_groups["measured_vs_bound"],
@@ -362,6 +363,8 @@ def _joined_run(
     vla = vla if isinstance(vla, Mapping) else {}
     precision = run.get("precision")
     precision = precision if isinstance(precision, Mapping) else {}
+    timing = run.get("timing")
+    timing = timing if isinstance(timing, Mapping) else {}
     operating_point = run.get("operating_point")
     operating_point = operating_point if isinstance(operating_point, Mapping) else {}
     correctness = run.get("correctness")
@@ -370,6 +373,9 @@ def _joined_run(
     runtime = runtime_by_id.get(str(run.get("runtime_id")), {})
     system = system_by_id.get(str(run.get("system_id")), {})
     statistics = _statistics(measurement)
+    selected_latency_ms, selected_statistic = _select_latency(
+        run.get("evidence"), statistics
+    )
     return {
         "run_id": run.get("run_id"),
         "model_id": run.get("model_id"),
@@ -382,9 +388,12 @@ def _joined_run(
         "device_id": run.get("device_id"),
         "evidence": run.get("evidence"),
         "precision_id": precision.get("precision_id"),
+        "precision_label": _precision_label(precision.get("precision_id")),
         "weight_dtype": precision.get("weight_dtype"),
         "activation_dtype": precision.get("activation_dtype"),
         "execution_dtype": precision.get("execution_dtype"),
+        "quant_scheme": precision.get("quant_scheme"),
+        "precision_granularity": precision.get("granularity"),
         "camera_views": vla.get("camera_views"),
         "executed_prompt_tokens": vla.get("executed_prompt_tokens"),
         "semantic_prompt_tokens": vla.get("semantic_prompt_tokens"),
@@ -394,12 +403,22 @@ def _joined_run(
         "image_height": vla.get("image_height"),
         "image_width": vla.get("image_width"),
         "power_mode": operating_point.get("power_mode"),
+        "operating_point_id": operating_point.get("operating_point_id"),
         "correctness": correctness.get("status"),
         "timing_boundary_id": (
             measurement.get("timing_boundary_id") if measurement else None
         ),
         "sample_count": measurement.get("sample_count") if measurement else None,
+        "warmup_iterations": timing.get("warmup_iterations"),
+        "percentile_method": (
+            measurement.get("percentile_method") if measurement else None
+        ),
+        "measurement_method": (
+            measurement.get("measurement_method") if measurement else None
+        ),
         "statistics": statistics,
+        "selected_latency_ms": selected_latency_ms,
+        "selected_statistic": selected_statistic,
         "mean_ms": statistics.get("mean"),
         "p50_ms": statistics.get("p50"),
         "p95_ms": statistics.get("p95"),
@@ -416,6 +435,31 @@ def _statistics(measurement: dict[str, object] | None) -> dict[str, object]:
             if isinstance(value, Mapping) and isinstance(value.get("statistic"), str):
                 result[str(value["statistic"])] = value.get("value")
     return result
+
+
+def _select_latency(
+    evidence: object, statistics: Mapping[str, object]
+) -> tuple[object, str | None]:
+    candidates = (
+        ("analytical_estimate",)
+        if evidence == "analytical"
+        else ("mean", "p50")
+    )
+    for statistic in candidates:
+        value = statistics.get(statistic)
+        if isinstance(value, (int, float)) and not isinstance(value, bool):
+            return value, statistic
+    return None, None
+
+
+def _precision_label(precision_id: object) -> object:
+    labels = {
+        "mixed-fp8-e4m3-fp16": (
+            "selective FP8-E4M3 GEMMs; FP16 attention/residual/buffers"
+        ),
+        "q8_0-weight-only": "Q8_0 weight-only",
+    }
+    return labels.get(precision_id, precision_id)
 
 
 def _coverage_rows(
@@ -570,7 +614,7 @@ def _comparison_charts(
     group_ids = assign_group_ids(runs, kind, varying_field)
     groups: dict[str, list[dict[str, object]]] = defaultdict(list)
     for row in joined_runs:
-        if row.get("mean_ms") is not None:
+        if row.get("selected_latency_ms") is not None:
             groups[group_ids[str(row["run_id"])]].append(row)
     charts = []
     for group_id, records in sorted(groups.items()):
@@ -615,10 +659,20 @@ def _comparison_rows(
                 "candidate_run_id": candidate["run_id"],
                 "correctness": correctness,
                 "ratio_kind": ratio_kind,
+                "baseline_statistic": baseline.get("selected_statistic"),
+                "candidate_statistic": candidate.get("selected_statistic"),
+                "baseline_latency_ms": baseline.get("selected_latency_ms"),
+                "candidate_latency_ms": candidate.get("selected_latency_ms"),
             }
-            if ratio_kind != "blocked_known_unequal":
-                baseline_ms = baseline.get("mean_ms")
-                candidate_ms = candidate.get("mean_ms")
+            if ratio_kind == "blocked_known_unequal":
+                row["not_comparable_reason"] = "known unequal outputs"
+            elif ratio_kind == "blocked_unknown_invariant":
+                row["not_comparable_reason"] = (
+                    "operating point invariant unknown; fixed power/clock is unproven"
+                )
+            else:
+                baseline_ms = baseline.get("selected_latency_ms")
+                candidate_ms = candidate.get("selected_latency_ms")
                 if isinstance(baseline_ms, (int, float)) and isinstance(candidate_ms, (int, float)) and candidate_ms:
                     row["ratio"] = baseline_ms / candidate_ms
             rows.append(row)
@@ -700,6 +754,11 @@ def _joined_stage(
     run = run_by_id[str(stage["run_id"])]
     result = dict(stage)
     stats = _statistics(stage)
+    selected_latency_ms, selected_statistic = _select_latency(
+        stage.get("evidence"), stats
+    )
+    timing = run.get("timing")
+    timing = timing if isinstance(timing, Mapping) else {}
     result.update(
         {
             "model_id": run.get("model_id"),
@@ -707,6 +766,10 @@ def _joined_stage(
             "runtime_id": run.get("runtime_id"),
             "runtime_name": runtime_by_id[str(run["runtime_id"])].get("display_name"),
             "precision_id": _nested(run, "precision", "precision_id"),
+            "statistics": stats,
+            "selected_latency_ms": selected_latency_ms,
+            "selected_statistic": selected_statistic,
+            "warmup_iterations": timing.get("warmup_iterations"),
             "mean_ms": stats.get("mean"),
             "p50_ms": stats.get("p50"),
             "p95_ms": stats.get("p95"),
@@ -788,6 +851,7 @@ def _joined_rooflines(
                 "arithmetic_intensity_flop_per_byte": operator.get("arithmetic_intensity_flop_per_byte"),
                 "work_gflop": work_gflop,
                 "traffic_gib": operator.get("traffic_gib"),
+                "source_method": operator.get("source_method"),
                 "achieved_gflop_per_s": achieved,
             }
         )

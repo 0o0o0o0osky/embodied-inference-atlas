@@ -65,6 +65,9 @@ def normalize_lerobot_context(
         "num_steps": nonnegative_integer(source.get("num_steps"), context, "run"),
         "action_chunk": nonnegative_integer(source.get("action_chunk_size"), context, "run"),
         "repetitions": nonnegative_integer(source.get("repetitions_per_case"), context, "run"),
+        "warmup_iterations": nonnegative_integer(
+            source.get("warmups_per_case"), context, "run"
+        ),
         "precision": _precision_bf16_fp32(),
     }
 
@@ -101,6 +104,7 @@ def normalize_lerobot_timing(
         "timing_boundary_id": "predict_action_chunk_preprocessed",
         "state_reuse": "fixed_prompt_and_noise",
         "warm_policy": "steady_state",
+        "warmup_iterations": active["warmup_iterations"],
     }
     run_id = record_id("run", context, run_index)
     run = _run(
@@ -122,7 +126,7 @@ def normalize_lerobot_timing(
         "metric": "latency",
         "statistics": statistics(_latency(source, "total_wall_ms", context), context),
         "sample_count": active["repetitions"],
-        "percentile_method": None,
+        "percentile_method": "source_reported",
         "work_unit": "action_chunk",
         "timing_boundary_id": timing["timing_boundary_id"],
         "missing_reason": None,
@@ -146,7 +150,7 @@ def normalize_lerobot_timing(
             "metric": "latency",
             "statistics": statistics(latency[source_key], context),
             "sample_count": active["repetitions"],
-            "percentile_method": None,
+            "percentile_method": "source_reported",
             "work_unit": "action_chunk",
             "timing_boundary_id": timing["timing_boundary_id"],
             "missing_reason": None,
