@@ -2,9 +2,10 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from tests.helpers import valid_model_document, valid_run
+from tests.helpers import valid_model_document, valid_model_graph_document, valid_run
 from tools.lib.comparison import assign_group_ids, ratio_eligibility
 from tools.lib.contracts import validate_document
+from tools.lib.model_graph import graph_semantic_problems, materialize_model_graph
 from tools.lib.privacy import scan_json, scan_release_tree
 from tools.validate import validate_references
 
@@ -33,6 +34,23 @@ class ValidationTests(unittest.TestCase):
         self.assertEqual(
             [issue.code for issue in validate_document("models", document, ROOT)],
             ["unknown_field"],
+        )
+
+    def test_model_graph_expression_and_internal_reference(self):
+        document = valid_model_graph_document()
+        graph = document["records"][0]
+        self.assertEqual(graph_semantic_problems(graph), [])
+        materialized = materialize_model_graph(graph, {"V": 3})
+        self.assertEqual(materialized["bindings"]["S"], 768)
+        self.assertEqual(
+            materialized["stages"][0]["modules"][0]["outputs"][0]["shape"],
+            [1, 768, 8],
+        )
+
+        graph["stages"][0]["modules"][0]["template_id"] = "missing-template"
+        self.assertIn(
+            "broken_reference",
+            [problem.code for problem in graph_semantic_problems(graph)],
         )
 
     def test_run_context_must_match(self):

@@ -1,6 +1,111 @@
 import copy
 
 
+def valid_model_graph_document() -> dict[str, object]:
+    return {
+        "schema_version": "1.0.0",
+        "dataset": "model_graphs",
+        "records": [{
+            "model_graph_id": "graph-test",
+            "model_id": "pi0",
+            "label": "Test graph",
+            "version": "1",
+            "source_ids": ["source-test"],
+            "shape_symbols": [
+                {
+                    "symbol": "B", "label": "Batch", "semantic": "batch",
+                    "editable": False, "default": 1, "minimum": 1, "maximum": 1,
+                    "expression": None,
+                },
+                {
+                    "symbol": "V", "label": "Views", "semantic": "views",
+                    "editable": True, "default": 3, "minimum": 1, "maximum": 4,
+                    "expression": None,
+                },
+                {
+                    "symbol": "S", "label": "Tokens", "semantic": "tokens",
+                    "editable": False, "default": None, "minimum": None, "maximum": None,
+                    "expression": {"op": "mul", "args": [{"symbol": "V"}, 256]},
+                },
+            ],
+            "operator_definitions": [{
+                "definition_id": "linear", "label": "Linear", "category": "linear",
+                "formula_display": "Y = XW", "visualizer": "gemm",
+                "parameters": ["M", "N", "K"],
+                "input_ports": ["input"], "output_ports": ["output"],
+                "analysis": [{
+                    "metric": "flops", "unit": "operations", "scope": "operator",
+                    "expression": {"op": "mul", "args": [2, {"symbol": "M"}, {"symbol": "N"}, {"symbol": "K"}]},
+                }],
+            }],
+            "block_templates": [{
+                "template_id": "linear-block", "label": "Linear block",
+                "parameters": ["B", "M", "N", "K"],
+                "input_ports": [{"port": "input", "tensor_id": "input"}],
+                "output_ports": [{"port": "output", "tensor_id": "output"}],
+                "tensors": [
+                    {
+                        "tensor_id": "input", "label": "Input", "semantic_role": "input",
+                        "axes": [{"axis": "batch", "expression": {"symbol": "B"}}, {"axis": "tokens", "expression": {"symbol": "M"}}, {"axis": "width", "expression": {"symbol": "K"}}],
+                        "producer": None,
+                        "consumers": [{"node_kind": "operator", "node_id": "linear-op", "port": "input"}],
+                    },
+                    {
+                        "tensor_id": "output", "label": "Output", "semantic_role": "output",
+                        "axes": [{"axis": "batch", "expression": {"symbol": "B"}}, {"axis": "tokens", "expression": {"symbol": "M"}}, {"axis": "width", "expression": {"symbol": "N"}}],
+                        "producer": {"node_kind": "operator", "node_id": "linear-op", "port": "output"},
+                        "consumers": [],
+                    },
+                ],
+                "operators": [{
+                    "operator_id": "linear-op", "label": "Linear", "definition_id": "linear",
+                    "multiplicity": 1,
+                    "inputs": [{"port": "input", "tensor_id": "input"}],
+                    "outputs": [{"port": "output", "tensor_id": "output"}],
+                    "bindings": [
+                        {"symbol": "M", "expression": {"symbol": "M"}},
+                        {"symbol": "N", "expression": {"symbol": "N"}},
+                        {"symbol": "K", "expression": {"symbol": "K"}},
+                    ],
+                }],
+            }],
+            "graph_tensors": [
+                {
+                    "tensor_id": "graph-input", "label": "Input", "semantic_role": "input",
+                    "axes": [{"axis": "batch", "expression": {"symbol": "B"}}, {"axis": "tokens", "expression": {"symbol": "S"}}, {"axis": "width", "expression": 8}],
+                    "producer": None,
+                    "consumers": [{"node_kind": "module", "node_id": "module", "port": "input"}],
+                },
+                {
+                    "tensor_id": "graph-output", "label": "Output", "semantic_role": "output",
+                    "axes": [{"axis": "batch", "expression": {"symbol": "B"}}, {"axis": "tokens", "expression": {"symbol": "S"}}, {"axis": "width", "expression": 8}],
+                    "producer": {"node_kind": "module", "node_id": "module", "port": "output"},
+                    "consumers": [],
+                },
+            ],
+            "stages": [{
+                "stage_id": "stage", "label": "Stage", "description": "Test stage",
+                "repeat": 1, "loop_carried": None,
+                "modules": [{
+                    "module_id": "module", "label": "Module", "template_id": "linear-block",
+                    "repeat": 1,
+                    "bindings": [
+                        {"symbol": "B", "expression": {"symbol": "B"}},
+                        {"symbol": "M", "expression": {"symbol": "S"}},
+                        {"symbol": "N", "expression": 8},
+                        {"symbol": "K", "expression": 8},
+                    ],
+                    "inputs": [{"port": "input", "tensor_id": "graph-input"}],
+                    "outputs": [{"port": "output", "tensor_id": "graph-output"}],
+                    "indexed_inputs": [],
+                }],
+            }],
+            "graph_inputs": ["graph-input"],
+            "graph_outputs": ["graph-output"],
+        }],
+    }
+
+
 def valid_model_document() -> dict[str, object]:
     return {
         "schema_version": "1.0.0",
