@@ -28,111 +28,349 @@
     animation: null,
   };
 
-  // The figure is intentionally composed like a paper diagram instead of laid
-  // out by a generic graph algorithm. Rows are top-to-bottom; entries in the
-  // same row are the only operators that spread horizontally. Everything else
-  // (names, shapes, repeats, and edges) is resolved from the materialized graph.
+  // The figure is intentionally composed like a paper diagram. A slot may hold
+  // one operator or a compact left-to-right mini-chain. Names, repeats, and
+  // connector validity are resolved after materialization.
   const PI0_PAPER_LAYOUT = Object.freeze({
     "vision-encoder": [
-      ["vision-encoder/image-patch-embedding/patch-project"],
-      ["vision-encoder/vision-blocks/self-attention/attention-norm"],
-      [
+      { slots: ["vision-encoder/image-patch-embedding/patch-project"] },
+      { gapBefore: true, slots: ["vision-encoder/vision-blocks/self-attention/attention-norm"] },
+      { slots: [
         "vision-encoder/vision-blocks/self-attention/query-projection",
         "vision-encoder/vision-blocks/self-attention/key-projection",
         "vision-encoder/vision-blocks/self-attention/value-projection",
-      ],
-      ["vision-encoder/vision-blocks/self-attention/attention"],
-      ["vision-encoder/vision-blocks/self-attention/output-projection"],
-      ["vision-encoder/vision-blocks/self-attention/attention-residual"],
-      ["vision-encoder/vision-blocks/feed-forward/mlp-norm"],
-      ["vision-encoder/vision-blocks/feed-forward/mlp-up-projection"],
-      ["vision-encoder/vision-blocks/feed-forward/mlp-gelu"],
-      ["vision-encoder/vision-blocks/feed-forward/mlp-down-projection"],
-      ["vision-encoder/vision-blocks/feed-forward/mlp-residual"],
-      ["vision-encoder/vision-final-normalization/normalize"],
-      ["vision-encoder/vision-projector/project"],
+      ] },
+      { slots: ["vision-encoder/vision-blocks/self-attention/attention"] },
+      { slots: [[
+        "vision-encoder/vision-blocks/self-attention/output-projection",
+        "vision-encoder/vision-blocks/self-attention/attention-residual",
+      ]] },
+      { gapBefore: true, slots: ["vision-encoder/vision-blocks/feed-forward/mlp-norm"] },
+      { slots: [[
+        "vision-encoder/vision-blocks/feed-forward/mlp-up-projection",
+        "vision-encoder/vision-blocks/feed-forward/mlp-gelu",
+      ]] },
+      { slots: [[
+        "vision-encoder/vision-blocks/feed-forward/mlp-down-projection",
+        "vision-encoder/vision-blocks/feed-forward/mlp-residual",
+      ]] },
+      { gapBefore: true, slots: ["vision-encoder/vision-final-normalization/normalize"] },
+      { slots: ["vision-encoder/vision-projector/project"] },
     ],
     "prefix-encoder": [
-      [
+      { slots: [
         "prefix-encoder/prompt-prefix-builder/flatten-views",
         "prefix-encoder/prompt-prefix-builder/embed-prompt",
-      ],
-      ["prefix-encoder/prompt-prefix-builder/build-prefix"],
-      ["prefix-encoder/prefix-blocks/self-attention/attention-norm"],
-      [
+      ] },
+      { slots: ["prefix-encoder/prompt-prefix-builder/build-prefix"] },
+      { gapBefore: true, slots: ["prefix-encoder/prefix-blocks/self-attention/attention-norm"] },
+      { slots: [
         "prefix-encoder/prefix-blocks/self-attention/query-projection",
         "prefix-encoder/prefix-blocks/self-attention/key-projection",
         "prefix-encoder/prefix-blocks/self-attention/value-projection",
-      ],
-      [
+      ] },
+      { slots: [
         "prefix-encoder/prefix-blocks/self-attention/query-rope",
         "prefix-encoder/prefix-blocks/self-attention/key-rope",
         null,
-      ],
-      ["prefix-encoder/prefix-blocks/self-attention/attention"],
-      [
+      ] },
+      { slots: ["prefix-encoder/prefix-blocks/self-attention/attention"] },
+      { slots: [[
         "prefix-encoder/prefix-blocks/self-attention/output-projection",
-        "prefix-encoder/prefix-blocks/self-attention/cache-output",
-      ],
-      ["prefix-encoder/prefix-blocks/self-attention/attention-residual"],
-      ["prefix-encoder/prefix-blocks/feed-forward/mlp-norm"],
-      [
+        "prefix-encoder/prefix-blocks/self-attention/attention-residual",
+      ]] },
+      { slots: [null, "prefix-encoder/prefix-blocks/self-attention/cache-output"] },
+      { gapBefore: true, slots: ["prefix-encoder/prefix-blocks/feed-forward/mlp-norm"] },
+      { slots: [
         "prefix-encoder/prefix-blocks/feed-forward/gate-projection",
         "prefix-encoder/prefix-blocks/feed-forward/up-projection",
-      ],
-      ["prefix-encoder/prefix-blocks/feed-forward/gate-gelu", null],
-      ["prefix-encoder/prefix-blocks/feed-forward/gate-product"],
-      ["prefix-encoder/prefix-blocks/feed-forward/down-projection"],
-      ["prefix-encoder/prefix-blocks/feed-forward/mlp-residual"],
+      ] },
+      { slots: [[
+        "prefix-encoder/prefix-blocks/feed-forward/gate-gelu",
+        "prefix-encoder/prefix-blocks/feed-forward/gate-product",
+      ]] },
+      { slots: [[
+        "prefix-encoder/prefix-blocks/feed-forward/down-projection",
+        "prefix-encoder/prefix-blocks/feed-forward/mlp-residual",
+      ]] },
     ],
     "action-flow-decoder": [
-      [
+      { slots: [
         "action-flow-decoder/action-suffix-builder/state-projection",
         "action-flow-decoder/action-suffix-builder/action-projection",
         "action-flow-decoder/action-suffix-builder/time-embedding",
-      ],
-      [null, "action-flow-decoder/action-suffix-builder/action-time-concat"],
-      [null, "action-flow-decoder/action-suffix-builder/time-mlp-in"],
-      [null, "action-flow-decoder/action-suffix-builder/time-mlp-silu"],
-      [null, "action-flow-decoder/action-suffix-builder/time-mlp-out"],
-      ["action-flow-decoder/action-suffix-builder/suffix-concat"],
-      [
+      ] },
+      { slots: [null, "action-flow-decoder/action-suffix-builder/action-time-concat"] },
+      { slots: [[
+        "action-flow-decoder/action-suffix-builder/time-mlp-in",
+        "action-flow-decoder/action-suffix-builder/time-mlp-silu",
+        "action-flow-decoder/action-suffix-builder/time-mlp-out",
+      ]] },
+      { gapBefore: true, slots: ["action-flow-decoder/action-suffix-builder/suffix-concat"] },
+      { gapBefore: true, slots: [
         "action-flow-decoder/action-expert-blocks/self-attention/extract-prefix-key",
+        "action-flow-decoder/action-expert-blocks/self-attention/attention-norm",
         "action-flow-decoder/action-expert-blocks/self-attention/extract-prefix-value",
-      ],
-      ["action-flow-decoder/action-expert-blocks/self-attention/attention-norm"],
-      [
+      ] },
+      { slots: [
         "action-flow-decoder/action-expert-blocks/self-attention/query-projection",
         "action-flow-decoder/action-expert-blocks/self-attention/key-projection",
         "action-flow-decoder/action-expert-blocks/self-attention/value-projection",
-      ],
-      [
+      ] },
+      { slots: [
         "action-flow-decoder/action-expert-blocks/self-attention/query-rope",
         "action-flow-decoder/action-expert-blocks/self-attention/key-rope",
         null,
-      ],
-      [
+      ] },
+      { slots: [
         "action-flow-decoder/action-expert-blocks/self-attention/key-concat",
         "action-flow-decoder/action-expert-blocks/self-attention/value-concat",
-      ],
-      ["action-flow-decoder/action-expert-blocks/self-attention/attention"],
-      ["action-flow-decoder/action-expert-blocks/self-attention/output-projection"],
-      ["action-flow-decoder/action-expert-blocks/self-attention/attention-residual"],
-      ["action-flow-decoder/action-expert-blocks/feed-forward/mlp-norm"],
-      [
+      ] },
+      { slots: ["action-flow-decoder/action-expert-blocks/self-attention/attention"] },
+      { slots: [[
+        "action-flow-decoder/action-expert-blocks/self-attention/output-projection",
+        "action-flow-decoder/action-expert-blocks/self-attention/attention-residual",
+      ]] },
+      { gapBefore: true, slots: ["action-flow-decoder/action-expert-blocks/feed-forward/mlp-norm"] },
+      { slots: [
         "action-flow-decoder/action-expert-blocks/feed-forward/gate-projection",
         "action-flow-decoder/action-expert-blocks/feed-forward/up-projection",
-      ],
-      ["action-flow-decoder/action-expert-blocks/feed-forward/gate-gelu", null],
-      ["action-flow-decoder/action-expert-blocks/feed-forward/gate-product"],
-      ["action-flow-decoder/action-expert-blocks/feed-forward/down-projection"],
-      ["action-flow-decoder/action-expert-blocks/feed-forward/mlp-residual"],
-      ["action-flow-decoder/velocity-euler-update/final-norm"],
-      ["action-flow-decoder/velocity-euler-update/select-action-rows"],
-      ["action-flow-decoder/velocity-euler-update/velocity-projection"],
-      ["action-flow-decoder/velocity-euler-update/euler-update"],
+      ] },
+      { slots: [[
+        "action-flow-decoder/action-expert-blocks/feed-forward/gate-gelu",
+        "action-flow-decoder/action-expert-blocks/feed-forward/gate-product",
+      ]] },
+      { slots: [[
+        "action-flow-decoder/action-expert-blocks/feed-forward/down-projection",
+        "action-flow-decoder/action-expert-blocks/feed-forward/mlp-residual",
+      ]] },
+      { gapBefore: true, slots: [[
+        "action-flow-decoder/velocity-euler-update/final-norm",
+        "action-flow-decoder/velocity-euler-update/select-action-rows",
+        "action-flow-decoder/velocity-euler-update/velocity-projection",
+      ]] },
+      { slots: ["action-flow-decoder/velocity-euler-update/euler-update"] },
     ],
   });
+
+  const PAPER_OPERATOR_ALIASES = Object.freeze({
+    "patch-project": "Patch",
+    "attention-norm": "Norm",
+    "query-projection": "Q",
+    "key-projection": "K",
+    "value-projection": "V",
+    attention: "Attn",
+    "output-projection": "O",
+    "attention-residual": "Add",
+    "mlp-norm": "MLP Norm",
+    "mlp-up-projection": "Up",
+    "mlp-gelu": "GELU",
+    "mlp-down-projection": "Down",
+    "mlp-residual": "Add",
+    normalize: "Final Norm",
+    project: "Project",
+    "flatten-views": "Flatten",
+    "embed-prompt": "Token embed",
+    "build-prefix": "Concat",
+    "query-rope": "Q RoPE",
+    "key-rope": "K RoPE",
+    "cache-output": "Cache K/V",
+    "gate-projection": "Gate",
+    "up-projection": "Up",
+    "gate-gelu": "GELU",
+    "gate-product": "Mul",
+    "down-projection": "Down",
+    "state-projection": "State",
+    "action-projection": "Action",
+    "time-embedding": "Time",
+    "action-time-concat": "A + t",
+    "time-mlp-in": "MLP in",
+    "time-mlp-silu": "SiLU",
+    "time-mlp-out": "MLP out",
+    "suffix-concat": "Suffix",
+    "extract-prefix-key": "Cache K",
+    "extract-prefix-value": "Cache V",
+    "key-concat": "K Join",
+    "value-concat": "V Join",
+    "final-norm": "Final RMS",
+    "select-action-rows": "Rows",
+    "velocity-projection": "Velocity",
+    "euler-update": "Euler",
+  });
+
+  const PAPER_BOUNDARY_ALIASES = Object.freeze({
+    "input/images": "Images",
+    "input/prompt-token-ids": "Prompt",
+    "input/state": "State input",
+    "input/initial-noise": "Noise",
+    "loop/action-flow-loop": "Denoise state",
+    "output/prefix-stack-output": "Prefix out",
+    "output/final-action-state": "Actions",
+  });
+
+  const PI0_PAPER_CONNECTORS = Object.freeze([
+    { id: "vision-input", kind: "chain", pairs: [["input/images", "vision-encoder/image-patch-embedding/patch-project"]] },
+    { id: "vision-patch-residual", kind: "residual", pairs: [
+      ["vision-encoder/image-patch-embedding/patch-project", "vision-encoder/vision-blocks/self-attention/attention-norm"],
+      ["vision-encoder/image-patch-embedding/patch-project", "vision-encoder/vision-blocks/self-attention/attention-residual"],
+    ] },
+    { id: "vision-qkv", kind: "branch-out", pairs: [
+      ["vision-encoder/vision-blocks/self-attention/attention-norm", "vision-encoder/vision-blocks/self-attention/query-projection"],
+      ["vision-encoder/vision-blocks/self-attention/attention-norm", "vision-encoder/vision-blocks/self-attention/key-projection"],
+      ["vision-encoder/vision-blocks/self-attention/attention-norm", "vision-encoder/vision-blocks/self-attention/value-projection"],
+    ] },
+    { id: "vision-attn-input", kind: "branch-in", pairs: [
+      ["vision-encoder/vision-blocks/self-attention/query-projection", "vision-encoder/vision-blocks/self-attention/attention"],
+      ["vision-encoder/vision-blocks/self-attention/key-projection", "vision-encoder/vision-blocks/self-attention/attention"],
+      ["vision-encoder/vision-blocks/self-attention/value-projection", "vision-encoder/vision-blocks/self-attention/attention"],
+    ] },
+    { id: "vision-attn-output", kind: "chain", pairs: [
+      ["vision-encoder/vision-blocks/self-attention/attention", "vision-encoder/vision-blocks/self-attention/output-projection"],
+      ["vision-encoder/vision-blocks/self-attention/output-projection", "vision-encoder/vision-blocks/self-attention/attention-residual"],
+    ] },
+    { id: "vision-ffn-residual", kind: "residual", pairs: [
+      ["vision-encoder/vision-blocks/self-attention/attention-residual", "vision-encoder/vision-blocks/feed-forward/mlp-norm"],
+      ["vision-encoder/vision-blocks/self-attention/attention-residual", "vision-encoder/vision-blocks/feed-forward/mlp-residual"],
+    ] },
+    { id: "vision-ffn-exit", kind: "chain", pairs: [
+      ["vision-encoder/vision-blocks/feed-forward/mlp-norm", "vision-encoder/vision-blocks/feed-forward/mlp-up-projection"],
+      ["vision-encoder/vision-blocks/feed-forward/mlp-up-projection", "vision-encoder/vision-blocks/feed-forward/mlp-gelu"],
+      ["vision-encoder/vision-blocks/feed-forward/mlp-gelu", "vision-encoder/vision-blocks/feed-forward/mlp-down-projection"],
+      ["vision-encoder/vision-blocks/feed-forward/mlp-down-projection", "vision-encoder/vision-blocks/feed-forward/mlp-residual"],
+      ["vision-encoder/vision-blocks/feed-forward/mlp-residual", "vision-encoder/vision-final-normalization/normalize"],
+      ["vision-encoder/vision-final-normalization/normalize", "vision-encoder/vision-projector/project"],
+    ] },
+    { id: "vision-prefix", kind: "cross", pairs: [["vision-encoder/vision-projector/project", "prefix-encoder/prompt-prefix-builder/flatten-views"]] },
+    { id: "prefix-input", kind: "branch-in", pairs: [
+      ["input/prompt-token-ids", "prefix-encoder/prompt-prefix-builder/embed-prompt"],
+      ["prefix-encoder/prompt-prefix-builder/flatten-views", "prefix-encoder/prompt-prefix-builder/build-prefix"],
+      ["prefix-encoder/prompt-prefix-builder/embed-prompt", "prefix-encoder/prompt-prefix-builder/build-prefix"],
+    ] },
+    { id: "prefix-block-residual", kind: "residual", pairs: [
+      ["prefix-encoder/prompt-prefix-builder/build-prefix", "prefix-encoder/prefix-blocks/self-attention/attention-norm"],
+      ["prefix-encoder/prompt-prefix-builder/build-prefix", "prefix-encoder/prefix-blocks/self-attention/attention-residual"],
+    ] },
+    { id: "prefix-qkv", kind: "branch-out", pairs: [
+      ["prefix-encoder/prefix-blocks/self-attention/attention-norm", "prefix-encoder/prefix-blocks/self-attention/query-projection"],
+      ["prefix-encoder/prefix-blocks/self-attention/attention-norm", "prefix-encoder/prefix-blocks/self-attention/key-projection"],
+      ["prefix-encoder/prefix-blocks/self-attention/attention-norm", "prefix-encoder/prefix-blocks/self-attention/value-projection"],
+    ] },
+    { id: "prefix-rope", kind: "chain", pairs: [
+      ["prefix-encoder/prefix-blocks/self-attention/query-projection", "prefix-encoder/prefix-blocks/self-attention/query-rope"],
+      ["prefix-encoder/prefix-blocks/self-attention/key-projection", "prefix-encoder/prefix-blocks/self-attention/key-rope"],
+    ] },
+    { id: "prefix-attn-input", kind: "branch-in", pairs: [
+      ["prefix-encoder/prefix-blocks/self-attention/query-rope", "prefix-encoder/prefix-blocks/self-attention/attention"],
+      ["prefix-encoder/prefix-blocks/self-attention/key-rope", "prefix-encoder/prefix-blocks/self-attention/attention"],
+      ["prefix-encoder/prefix-blocks/self-attention/value-projection", "prefix-encoder/prefix-blocks/self-attention/attention"],
+    ] },
+    { id: "prefix-cache", kind: "cache", pairs: [
+      ["prefix-encoder/prefix-blocks/self-attention/key-rope", "prefix-encoder/prefix-blocks/self-attention/cache-output"],
+      ["prefix-encoder/prefix-blocks/self-attention/value-projection", "prefix-encoder/prefix-blocks/self-attention/cache-output"],
+    ] },
+    { id: "prefix-attn-output", kind: "chain", pairs: [
+      ["prefix-encoder/prefix-blocks/self-attention/attention", "prefix-encoder/prefix-blocks/self-attention/output-projection"],
+      ["prefix-encoder/prefix-blocks/self-attention/output-projection", "prefix-encoder/prefix-blocks/self-attention/attention-residual"],
+    ] },
+    { id: "prefix-ffn-residual", kind: "residual", pairs: [
+      ["prefix-encoder/prefix-blocks/self-attention/attention-residual", "prefix-encoder/prefix-blocks/feed-forward/mlp-norm"],
+      ["prefix-encoder/prefix-blocks/self-attention/attention-residual", "prefix-encoder/prefix-blocks/feed-forward/mlp-residual"],
+    ] },
+    { id: "prefix-gate-up", kind: "branch-out", pairs: [
+      ["prefix-encoder/prefix-blocks/feed-forward/mlp-norm", "prefix-encoder/prefix-blocks/feed-forward/gate-projection"],
+      ["prefix-encoder/prefix-blocks/feed-forward/mlp-norm", "prefix-encoder/prefix-blocks/feed-forward/up-projection"],
+    ] },
+    { id: "prefix-gate-activation", kind: "chain", pairs: [["prefix-encoder/prefix-blocks/feed-forward/gate-projection", "prefix-encoder/prefix-blocks/feed-forward/gate-gelu"]] },
+    { id: "prefix-gated-join", kind: "branch-in", pairs: [
+      ["prefix-encoder/prefix-blocks/feed-forward/gate-gelu", "prefix-encoder/prefix-blocks/feed-forward/gate-product"],
+      ["prefix-encoder/prefix-blocks/feed-forward/up-projection", "prefix-encoder/prefix-blocks/feed-forward/gate-product"],
+    ] },
+    { id: "prefix-exit", kind: "chain", pairs: [
+      ["prefix-encoder/prefix-blocks/feed-forward/gate-product", "prefix-encoder/prefix-blocks/feed-forward/down-projection"],
+      ["prefix-encoder/prefix-blocks/feed-forward/down-projection", "prefix-encoder/prefix-blocks/feed-forward/mlp-residual"],
+      ["prefix-encoder/prefix-blocks/feed-forward/mlp-residual", "output/prefix-stack-output"],
+    ] },
+    { id: "action-inputs", kind: "chain", pairs: [
+      ["input/state", "action-flow-decoder/action-suffix-builder/state-projection"],
+      ["input/initial-noise", "loop/action-flow-loop"],
+    ] },
+    { id: "action-loop-fanout", kind: "branch-out", pairs: [
+      ["loop/action-flow-loop", "action-flow-decoder/action-suffix-builder/action-projection"],
+      ["loop/action-flow-loop", "action-flow-decoder/velocity-euler-update/euler-update"],
+      ["loop/action-flow-loop", "output/final-action-state"],
+    ] },
+    { id: "action-time-input", kind: "branch-in", pairs: [
+      ["action-flow-decoder/action-suffix-builder/action-projection", "action-flow-decoder/action-suffix-builder/action-time-concat"],
+      ["action-flow-decoder/action-suffix-builder/time-embedding", "action-flow-decoder/action-suffix-builder/action-time-concat"],
+    ] },
+    { id: "action-time-mlp", kind: "chain", pairs: [
+      ["action-flow-decoder/action-suffix-builder/action-time-concat", "action-flow-decoder/action-suffix-builder/time-mlp-in"],
+      ["action-flow-decoder/action-suffix-builder/time-mlp-in", "action-flow-decoder/action-suffix-builder/time-mlp-silu"],
+      ["action-flow-decoder/action-suffix-builder/time-mlp-silu", "action-flow-decoder/action-suffix-builder/time-mlp-out"],
+    ] },
+    { id: "action-suffix", kind: "branch-in", pairs: [
+      ["action-flow-decoder/action-suffix-builder/state-projection", "action-flow-decoder/action-suffix-builder/suffix-concat"],
+      ["action-flow-decoder/action-suffix-builder/time-mlp-out", "action-flow-decoder/action-suffix-builder/suffix-concat"],
+    ] },
+    { id: "action-block-residual", kind: "residual", pairs: [
+      ["action-flow-decoder/action-suffix-builder/suffix-concat", "action-flow-decoder/action-expert-blocks/self-attention/attention-norm"],
+      ["action-flow-decoder/action-suffix-builder/suffix-concat", "action-flow-decoder/action-expert-blocks/self-attention/attention-residual"],
+    ] },
+    { id: "prefix-kv-action", kind: "cross", pairs: [
+      ["prefix-encoder/prefix-blocks/self-attention/cache-output", "action-flow-decoder/action-expert-blocks/self-attention/extract-prefix-key"],
+      ["prefix-encoder/prefix-blocks/self-attention/cache-output", "action-flow-decoder/action-expert-blocks/self-attention/extract-prefix-value"],
+    ] },
+    { id: "action-qkv", kind: "branch-out", pairs: [
+      ["action-flow-decoder/action-expert-blocks/self-attention/attention-norm", "action-flow-decoder/action-expert-blocks/self-attention/query-projection"],
+      ["action-flow-decoder/action-expert-blocks/self-attention/attention-norm", "action-flow-decoder/action-expert-blocks/self-attention/key-projection"],
+      ["action-flow-decoder/action-expert-blocks/self-attention/attention-norm", "action-flow-decoder/action-expert-blocks/self-attention/value-projection"],
+    ] },
+    { id: "action-rope", kind: "chain", pairs: [
+      ["action-flow-decoder/action-expert-blocks/self-attention/query-projection", "action-flow-decoder/action-expert-blocks/self-attention/query-rope"],
+      ["action-flow-decoder/action-expert-blocks/self-attention/key-projection", "action-flow-decoder/action-expert-blocks/self-attention/key-rope"],
+    ] },
+    { id: "action-key-cache", kind: "cache", pairs: [
+      ["action-flow-decoder/action-expert-blocks/self-attention/extract-prefix-key", "action-flow-decoder/action-expert-blocks/self-attention/key-concat"],
+      ["action-flow-decoder/action-expert-blocks/self-attention/key-rope", "action-flow-decoder/action-expert-blocks/self-attention/key-concat"],
+    ] },
+    { id: "action-value-cache", kind: "cache", pairs: [
+      ["action-flow-decoder/action-expert-blocks/self-attention/extract-prefix-value", "action-flow-decoder/action-expert-blocks/self-attention/value-concat"],
+      ["action-flow-decoder/action-expert-blocks/self-attention/value-projection", "action-flow-decoder/action-expert-blocks/self-attention/value-concat"],
+    ] },
+    { id: "action-attn-input", kind: "branch-in", pairs: [
+      ["action-flow-decoder/action-expert-blocks/self-attention/query-rope", "action-flow-decoder/action-expert-blocks/self-attention/attention"],
+      ["action-flow-decoder/action-expert-blocks/self-attention/key-concat", "action-flow-decoder/action-expert-blocks/self-attention/attention"],
+      ["action-flow-decoder/action-expert-blocks/self-attention/value-concat", "action-flow-decoder/action-expert-blocks/self-attention/attention"],
+    ] },
+    { id: "action-attn-output", kind: "chain", pairs: [
+      ["action-flow-decoder/action-expert-blocks/self-attention/attention", "action-flow-decoder/action-expert-blocks/self-attention/output-projection"],
+      ["action-flow-decoder/action-expert-blocks/self-attention/output-projection", "action-flow-decoder/action-expert-blocks/self-attention/attention-residual"],
+    ] },
+    { id: "action-ffn-residual", kind: "residual", pairs: [
+      ["action-flow-decoder/action-expert-blocks/self-attention/attention-residual", "action-flow-decoder/action-expert-blocks/feed-forward/mlp-norm"],
+      ["action-flow-decoder/action-expert-blocks/self-attention/attention-residual", "action-flow-decoder/action-expert-blocks/feed-forward/mlp-residual"],
+    ] },
+    { id: "action-gate-up", kind: "branch-out", pairs: [
+      ["action-flow-decoder/action-expert-blocks/feed-forward/mlp-norm", "action-flow-decoder/action-expert-blocks/feed-forward/gate-projection"],
+      ["action-flow-decoder/action-expert-blocks/feed-forward/mlp-norm", "action-flow-decoder/action-expert-blocks/feed-forward/up-projection"],
+    ] },
+    { id: "action-gate-activation", kind: "chain", pairs: [["action-flow-decoder/action-expert-blocks/feed-forward/gate-projection", "action-flow-decoder/action-expert-blocks/feed-forward/gate-gelu"]] },
+    { id: "action-gated-join", kind: "branch-in", pairs: [
+      ["action-flow-decoder/action-expert-blocks/feed-forward/gate-gelu", "action-flow-decoder/action-expert-blocks/feed-forward/gate-product"],
+      ["action-flow-decoder/action-expert-blocks/feed-forward/up-projection", "action-flow-decoder/action-expert-blocks/feed-forward/gate-product"],
+    ] },
+    { id: "action-expert-exit", kind: "chain", pairs: [
+      ["action-flow-decoder/action-expert-blocks/feed-forward/gate-product", "action-flow-decoder/action-expert-blocks/feed-forward/down-projection"],
+      ["action-flow-decoder/action-expert-blocks/feed-forward/down-projection", "action-flow-decoder/action-expert-blocks/feed-forward/mlp-residual"],
+      ["action-flow-decoder/action-expert-blocks/feed-forward/mlp-residual", "action-flow-decoder/velocity-euler-update/final-norm"],
+    ] },
+    { id: "action-head", kind: "chain", pairs: [
+      ["action-flow-decoder/velocity-euler-update/final-norm", "action-flow-decoder/velocity-euler-update/select-action-rows"],
+      ["action-flow-decoder/velocity-euler-update/select-action-rows", "action-flow-decoder/velocity-euler-update/velocity-projection"],
+      ["action-flow-decoder/velocity-euler-update/velocity-projection", "action-flow-decoder/velocity-euler-update/euler-update"],
+    ] },
+    { id: "euler-feedback", kind: "feedback", pairs: [["action-flow-decoder/velocity-euler-update/euler-update", "loop/action-flow-loop"]] },
+  ]);
 
   class ExpressionError extends Error {
     constructor(message, symbol) {
@@ -532,8 +770,23 @@
 
   function updateDagSelection() {
     const selectedKey = operatorKey(state.selection);
+    const adjacent = new Set();
+    targets.dag.querySelectorAll(".dag-connector").forEach((connector) => {
+      const sources = (connector.getAttribute("data-source-ids") || "").split(" ").filter(Boolean);
+      const targets = (connector.getAttribute("data-target-ids") || "").split(" ").filter(Boolean);
+      const incident = Boolean(selectedKey) && (sources.includes(selectedKey) || targets.includes(selectedKey));
+      connector.classList.toggle("is-incident", incident);
+      connector.classList.toggle("is-muted", Boolean(selectedKey) && !incident);
+      if (incident) {
+        sources.concat(targets).forEach((nodeId) => {
+          if (nodeId !== selectedKey) adjacent.add(nodeId);
+        });
+      }
+    });
     targets.dag.querySelectorAll(".dag-node--operator").forEach((node) => {
-      node.classList.toggle("is-selected", node.getAttribute("data-node-id") === selectedKey);
+      const nodeId = node.getAttribute("data-node-id");
+      node.classList.toggle("is-selected", nodeId === selectedKey);
+      node.classList.toggle("is-related", adjacent.has(nodeId));
     });
   }
 
@@ -949,50 +1202,84 @@
     "slice",
   ]);
 
-  function paperNodeSize(node, slotCount, slotWidth) {
-    if (node.kind !== "operator") {
-      return { width: Math.min(142, slotWidth - 8), height: 32, compact: true };
-    }
-    const compact = PAPER_COMPACT_DEFINITIONS.has(node.definitionId);
-    const preferredWidth = slotCount === 1 ? 232 : slotCount === 2 ? 132 : 90;
+  function paperNodeAlias(node) {
+    if (node.kind !== "operator") return PAPER_BOUNDARY_ALIASES[node.id] || node.kind;
+    const fallback = node.operator.operator_id
+      .split("-")
+      .slice(0, 2)
+      .map((part) => `${part.charAt(0).toUpperCase()}${part.slice(1)}`)
+      .join(" ");
+    return PAPER_OPERATOR_ALIASES[node.operator.operator_id] || fallback.slice(0, 14);
+  }
+
+  function paperSlotIds(slot) {
+    if (!slot) return [];
+    return Array.isArray(slot) ? slot : [slot];
+  }
+
+  function paperLayoutIds() {
+    return Object.values(PI0_PAPER_LAYOUT).flatMap((rows) => rows.flatMap(
+      (row) => row.slots.flatMap(paperSlotIds),
+    ));
+  }
+
+  function paperNodeSize(node, availableWidth, solo) {
+    const compact = node.kind !== "operator" || PAPER_COMPACT_DEFINITIONS.has(node.definitionId);
+    const aliasWidth = Math.max(54, paperNodeAlias(node).length * 6.4 + 20);
     return {
-      width: Math.min(preferredWidth, slotWidth - 7),
-      height: compact ? 32 : 48,
+      width: Math.min(availableWidth, solo ? Math.max(84, aliasWidth) : aliasWidth),
+      height: compact ? 28 : 38,
       compact,
     };
   }
 
-  function placePaperRow(positions, nodes, stageLayout, entries, centerY, rowIndex) {
-    const slotWidth = stageLayout.contentWidth / entries.length;
-    entries.forEach((nodeId, slotIndex) => {
-      if (!nodeId) return;
-      const node = nodes.get(nodeId);
-      if (!node) return;
-      const size = paperNodeSize(node, entries.length, slotWidth);
-      positions.set(nodeId, {
-        x: stageLayout.contentX + slotIndex * slotWidth + (slotWidth - size.width) / 2,
-        y: centerY - size.height / 2,
-        width: size.width,
-        height: size.height,
-        compact: size.compact,
-        row: rowIndex,
-        lane: slotIndex,
+  function placePaperRow(positions, nodes, stageLayout, row, centerY, rowIndex) {
+    const slotWidth = stageLayout.contentWidth / row.slots.length;
+    row.slots.forEach((slot, slotIndex) => {
+      const nodeIds = paperSlotIds(slot);
+      if (!nodeIds.length) return;
+      const chainGap = 5;
+      const availableWidth = (slotWidth - chainGap * (nodeIds.length - 1)) / nodeIds.length;
+      const sizes = nodeIds.map((nodeId) => {
+        const node = nodes.get(nodeId);
+        return node ? paperNodeSize(node, availableWidth - 4, row.slots.length === 1 && nodeIds.length === 1) : null;
+      });
+      const chainWidth = sizes.reduce(
+        (total, size) => total + (size ? size.width : 0),
+        chainGap * (nodeIds.length - 1),
+      );
+      let x = stageLayout.contentX + slotIndex * slotWidth + (slotWidth - chainWidth) / 2;
+      nodeIds.forEach((nodeId, chainIndex) => {
+        const node = nodes.get(nodeId);
+        const size = sizes[chainIndex];
+        if (!node || !size) return;
+        positions.set(nodeId, {
+          x,
+          y: centerY - size.height / 2,
+          width: size.width,
+          height: size.height,
+          compact: size.compact,
+          row: rowIndex,
+          lane: slotIndex,
+          chain: chainIndex,
+        });
+        x += size.width + chainGap;
       });
     });
   }
 
   function placePaperBoundaryRow(positions, nodes, stageLayout, entries, centerY, rowName) {
     if (!entries.length) return;
-    const slots = entries.map((node) => node.id);
-    const slotWidth = stageLayout.contentWidth / slots.length;
-    slots.forEach((nodeId, slotIndex) => {
+    const slotWidth = stageLayout.contentWidth / entries.length;
+    entries.forEach((entry, slotIndex) => {
+      const nodeId = entry.id;
       const node = nodes.get(nodeId);
-      const size = paperNodeSize(node, slots.length, slotWidth);
+      const size = paperNodeSize(node, slotWidth - 10, entries.length === 1);
       positions.set(nodeId, {
         x: stageLayout.contentX + slotIndex * slotWidth + (slotWidth - size.width) / 2,
         y: centerY - size.height / 2,
         width: size.width,
-        height: size.height,
+        height: 28,
         compact: true,
         row: rowName,
         lane: slotIndex,
@@ -1008,9 +1295,7 @@
     const positions = new Map();
     const stages = [];
     const fallbacks = [];
-    const configuredIds = new Set(
-      Object.values(PI0_PAPER_LAYOUT).flat(2).filter(Boolean),
-    );
+    const configuredIds = new Set(paperLayoutIds());
 
     state.materialized.stages.forEach((stage, stageIndex) => {
       const stageNodes = [...model.nodes.values()].filter((node) => node.stageId === stage.stage_id);
@@ -1029,23 +1314,28 @@
       placePaperBoundaryRow(positions, model.nodes, stageLayout, loops, 166, "loop");
 
       const rows = PI0_PAPER_LAYOUT[stage.stage_id] || [];
-      const firstRowY = loops.length ? 228 : 132;
-      const rowStep = 56;
-      rows.forEach((entries, rowIndex) => {
+      const firstRowY = loops.length ? 214 : 112;
+      const rowStep = 42;
+      const moduleGap = 20;
+      let rowY = firstRowY;
+      let lastCenterY = firstRowY;
+      rows.forEach((row, rowIndex) => {
+        if (rowIndex && row.gapBefore) rowY += moduleGap;
         placePaperRow(
           positions,
           model.nodes,
           stageLayout,
-          entries,
-          firstRowY + rowIndex * rowStep,
+          row,
+          rowY,
           rowIndex,
         );
+        lastCenterY = rowY;
+        rowY += rowStep;
       });
 
       const unplaced = stageNodes.filter(
         (node) => node.kind === "operator" && !configuredIds.has(node.id),
       );
-      let lastCenterY = rows.length ? firstRowY + (rows.length - 1) * rowStep : firstRowY;
       if (unplaced.length) {
         const fallbackTop = lastCenterY + 62;
         unplaced.forEach((node, fallbackIndex) => {
@@ -1053,7 +1343,7 @@
             positions,
             model.nodes,
             stageLayout,
-            [node.id],
+            { slots: [node.id] },
             fallbackTop + 44 + fallbackIndex * rowStep,
             `fallback-${fallbackIndex}`,
           );
@@ -1074,7 +1364,8 @@
       placePaperBoundaryRow(positions, model.nodes, stageLayout, outputs, outputY, "output");
       const stageBoxes = stageNodes.map((node) => positions.get(node.id)).filter(Boolean);
       const bottom = Math.max(160, ...stageBoxes.map((box) => box.y + box.height));
-      stageLayout.height = bottom + 60;
+      stageLayout.height = bottom + 48;
+      stageLayout.effectiveRows = rows.length;
       stages.push(stageLayout);
     });
 
@@ -1096,142 +1387,333 @@
     };
   }
 
-  function scopeBounds(scope, positions, padding) {
+  function paperScopeBounds(scope, positions, padding) {
     const values = scope.nodeIds.map((id) => positions.get(id)).filter(Boolean);
     if (!values.length) return null;
+    const headerHeight = 18;
     const left = Math.min(...values.map((value) => value.x));
     const top = Math.min(...values.map((value) => value.y));
     const right = Math.max(...values.map((value) => value.x + value.width));
     const bottom = Math.max(...values.map((value) => value.y + value.height));
+    const contentTop = top - padding;
     return {
       x: left - padding,
-      y: top - padding - 20,
+      y: contentTop - headerHeight,
       width: right - left + padding * 2,
-      height: bottom - top + padding * 2 + 20,
+      height: bottom - contentTop + padding + headerHeight,
+      contentTop,
+      headerHeight,
     };
   }
 
-  function edgeRoute(edge, layout, model) {
-    const source = layout.positions.get(edge.source);
-    const target = layout.positions.get(edge.target);
-    const sourceNode = model.nodes.get(edge.source);
-    const targetNode = model.nodes.get(edge.target);
-    if (!source || !target || !sourceNode || !targetNode) return null;
-    const stage = layout.stages.find((item) => item.stage.stage_id === sourceNode.stageId);
-    const sourceRight = source.x + source.width;
-    const targetRight = target.x + target.width;
-    const sourceMiddleY = source.y + source.height / 2;
-    const targetMiddleY = target.y + target.height / 2;
-    if (edge.kind === "feedback") {
-      const railX = stage ? stage.x + stage.width - 13 : Math.max(sourceRight, targetRight) + 24;
-      return {
-        kind: "feedback",
-        d: `M ${sourceRight} ${sourceMiddleY} C ${railX} ${sourceMiddleY}, ${railX} ${targetMiddleY}, ${targetRight} ${targetMiddleY}`,
-      };
+  function paperScopeLabel(scope) {
+    if (scope.kind === "denoise") {
+      const stage = state.materialized.stages.find((item) => item.stage_id === scope.stageId);
+      return `Denoise ×${stage ? Atlas.format(stage.stage_repeat, 0) : "?"}`;
     }
-    const longResidual = targetNode.definitionId === "residual-add" && target.y - source.y > 78;
-    const loopRail = sourceNode.kind === "loop" && targetNode.kind === "operator";
-    const backward = target.y <= source.y;
-    if (longResidual || loopRail || backward) {
-      const railX = loopRail
-        ? stage.x + stage.width - 24
-        : stage.x + 28;
-      const sourceX = loopRail ? sourceRight : source.x;
-      const targetX = loopRail ? targetRight : target.x;
-      return {
-        kind: longResidual ? "residual" : "rail",
-        d: `M ${sourceX} ${sourceMiddleY} C ${railX} ${sourceMiddleY}, ${railX} ${targetMiddleY}, ${targetX} ${targetMiddleY}`,
-      };
-    }
-    const sourceX = source.x + source.width / 2;
-    const sourceY = source.y + source.height;
-    const targetX = target.x + target.width / 2;
-    const targetY = target.y;
-    const bendY = sourceY + Math.max(8, (targetY - sourceY) / 2);
-    return {
-      kind: "trunk",
-      d: Math.abs(sourceX - targetX) < 1
-        ? `M ${sourceX} ${sourceY} L ${targetX} ${targetY}`
-        : `M ${sourceX} ${sourceY} C ${sourceX} ${bendY}, ${targetX} ${bendY}, ${targetX} ${targetY}`,
+    const stage = state.materialized.stages.find((item) => item.stage_id === scope.stageId);
+    const module = stage && stage.modules.find((item) => item.module_id === scope.moduleId);
+    const aliases = {
+      "vision-blocks": "SigLIP block",
+      "prefix-blocks": "Gemma block",
+      "action-expert-blocks": "Expert block",
     };
+    const label = aliases[scope.moduleId] || (module ? module.label : "Repeated block");
+    return `${label} ×${module ? Atlas.format(module.module_repeat, 0) : "?"}`;
   }
 
-  function splitNodeLabel(label, maximumLength) {
-    const lineLength = maximumLength || 22;
-    if (label.length <= lineLength) return [label];
-    const words = label.split(" ");
-    const lines = [""];
-    words.forEach((word) => {
-      const current = lines.at(-1);
-      if (current && `${current} ${word}`.length > lineLength && lines.length < 2) lines.push(word);
-      else lines[lines.length - 1] = current ? `${current} ${word}` : word;
+  function connectorPairKey(source, target) {
+    return `${source}|${target}`;
+  }
+
+  function resolvePaperConnectors(model) {
+    const edgeIndex = new Map();
+    model.edges.forEach((edge) => {
+      const key = connectorPairKey(edge.source, edge.target);
+      if (!edgeIndex.has(key)) edgeIndex.set(key, []);
+      edgeIndex.get(key).push(edge);
     });
-    return lines;
-  }
-
-  function paperDimension(value) {
-    return typeof value === "number" ? String(value) : "?";
-  }
-
-  function paperOperatorShape(operator) {
-    if (operator.definition && operator.definition.visualizer === "gemm") {
-      const dimensions = gemmDimensions(operator);
-      if ([dimensions.M, dimensions.K, dimensions.N].some((value) => value !== null)) {
-        return `${paperDimension(dimensions.M)}×${paperDimension(dimensions.K)}×${paperDimension(dimensions.N)}`;
-      }
+    const resolved = [];
+    const invalid = [];
+    PI0_PAPER_CONNECTORS.forEach((descriptor) => {
+      const missing = descriptor.pairs.filter(([source, target]) => (
+        !model.nodes.has(source)
+        || !model.nodes.has(target)
+        || !edgeIndex.has(connectorPairKey(source, target))
+      ));
+      if (missing.length) invalid.push({ descriptor, missing });
+      else resolved.push({ ...descriptor, edges: descriptor.pairs.flatMap(
+        ([source, target]) => edgeIndex.get(connectorPairKey(source, target)),
+      ) });
+    });
+    if (invalid.length) {
+      console.error("Pi0 paper connector truth validation failed", invalid.map((item) => ({
+        connector: item.descriptor.id,
+        missing: item.missing,
+      })));
     }
-    const output = operator.output_tensors.find((port) => port.tensor && Array.isArray(port.tensor.shape));
-    if (!output) return "";
-    const values = output.tensor.shape.map(paperDimension);
-    return `${values.length > 3 ? "…×" : ""}${values.slice(-3).join("×")}`;
+    return { resolved, invalid };
+  }
+
+  function paperBoxAnchor(box) {
+    return {
+      left: box.x,
+      right: box.x + box.width,
+      top: box.y,
+      bottom: box.y + box.height,
+      x: box.x + box.width / 2,
+      y: box.y + box.height / 2,
+    };
+  }
+
+  function paperStageForNode(layout, model, nodeId) {
+    const node = model.nodes.get(nodeId);
+    return node && layout.stages.find((item) => item.stage.stage_id === node.stageId);
+  }
+
+  function appendConnectorPath(group, d, arrow) {
+    const attributes = { d };
+    if (arrow) attributes["marker-end"] = "url(#dag-arrow)";
+    group.appendChild(svgElement("path", attributes));
+  }
+
+  function renderConnectorPair(group, sourceBox, targetBox) {
+    const source = paperBoxAnchor(sourceBox);
+    const target = paperBoxAnchor(targetBox);
+    if (Math.abs(source.y - target.y) < 3) {
+      if (source.x < target.x) appendConnectorPath(group, `M ${source.right} ${source.y} H ${target.left}`, true);
+      else appendConnectorPath(group, `M ${source.left} ${source.y} H ${target.right}`, true);
+      return;
+    }
+    if (target.top >= source.bottom) {
+      const bendY = source.bottom + Math.max(5, (target.top - source.bottom) / 2);
+      appendConnectorPath(group, `M ${source.x} ${source.bottom} V ${bendY} H ${target.x} V ${target.top}`, true);
+      return;
+    }
+    const railX = Math.max(source.right, target.right) + 10;
+    appendConnectorPath(group, `M ${source.right} ${source.y} H ${railX} V ${target.y} H ${target.right}`, true);
+  }
+
+  function renderBranchOut(group, descriptor, layout, model) {
+    const bySource = new Map();
+    descriptor.pairs.forEach(([source, target]) => {
+      if (!bySource.has(source)) bySource.set(source, []);
+      bySource.get(source).push(target);
+    });
+    bySource.forEach((targetIds, sourceId) => {
+      const sourceBox = layout.positions.get(sourceId);
+      const targetBoxes = targetIds.map((id) => layout.positions.get(id));
+      if (!sourceBox || targetBoxes.some((box) => !box)) return;
+      if (targetBoxes.length === 1) {
+        renderConnectorPair(group, sourceBox, targetBoxes[0]);
+        return;
+      }
+      const source = paperBoxAnchor(sourceBox);
+      const targets = targetBoxes.map(paperBoxAnchor);
+      const longRail = Math.max(...targets.map((target) => target.y)) - Math.min(...targets.map((target) => target.y)) > 76
+        || targets.some((target) => target.top <= source.bottom);
+      if (longRail) {
+        const stage = paperStageForNode(layout, model, sourceId);
+        const railX = stage ? stage.x + stage.width - 13 : Math.max(...targets.map((target) => target.right)) + 12;
+        appendConnectorPath(
+          group,
+          `M ${source.right} ${source.y} H ${railX} V ${Math.max(...targets.map((target) => target.y))}`,
+          false,
+        );
+        targets.forEach((target) => appendConnectorPath(group, `M ${railX} ${target.y} H ${target.right}`, true));
+        return;
+      }
+      const busY = source.bottom + Math.max(5, (Math.min(...targets.map((target) => target.top)) - source.bottom) / 2);
+      const minimumX = Math.min(...targets.map((target) => target.x));
+      const maximumX = Math.max(...targets.map((target) => target.x));
+      appendConnectorPath(group, `M ${source.x} ${source.bottom} V ${busY} M ${minimumX} ${busY} H ${maximumX}`, false);
+      targets.forEach((target) => appendConnectorPath(group, `M ${target.x} ${busY} V ${target.top}`, true));
+    });
+  }
+
+  function renderSideFanIn(group, sourceBoxes, targetBox, stage, side) {
+    const sources = sourceBoxes.map(paperBoxAnchor);
+    const target = paperBoxAnchor(targetBox);
+    const railX = side === "left" ? stage.x + 13 : stage.x + stage.width - 13;
+    const sourceYs = sources.map((source) => source.y);
+    const startY = Math.min(...sourceYs, target.y);
+    const endY = Math.max(...sourceYs, target.y);
+    appendConnectorPath(group, `M ${railX} ${startY} V ${endY}`, false);
+    sources.forEach((source) => {
+      const sourceX = side === "left" ? source.left : source.right;
+      appendConnectorPath(group, `M ${sourceX} ${source.y} H ${railX}`, false);
+    });
+    const targetX = side === "left" ? target.left : target.right;
+    appendConnectorPath(group, `M ${railX} ${target.y} H ${targetX}`, true);
+  }
+
+  function renderBranchIn(group, descriptor, layout, model) {
+    const byTarget = new Map();
+    descriptor.pairs.forEach(([source, target]) => {
+      if (!byTarget.has(target)) byTarget.set(target, []);
+      byTarget.get(target).push(source);
+    });
+    byTarget.forEach((sourceIds, targetId) => {
+      const targetBox = layout.positions.get(targetId);
+      const sourceBoxes = sourceIds.map((id) => layout.positions.get(id));
+      if (!targetBox || sourceBoxes.some((box) => !box)) return;
+      if (sourceBoxes.length === 1) {
+        renderConnectorPair(group, sourceBoxes[0], targetBox);
+        return;
+      }
+      const target = paperBoxAnchor(targetBox);
+      const sources = sourceBoxes.map(paperBoxAnchor);
+      const stage = paperStageForNode(layout, model, targetId);
+      const spread = Math.max(...sources.map((source) => source.y)) - Math.min(...sources.map((source) => source.y));
+      if (descriptor.kind === "cache" || spread > 76) {
+        const side = target.x < stage.x + stage.width / 2 ? "left" : "right";
+        renderSideFanIn(group, sourceBoxes, targetBox, stage, side);
+        return;
+      }
+      const busY = target.top - Math.max(5, (target.top - Math.max(...sources.map((source) => source.bottom))) / 2);
+      const minimumX = Math.min(...sources.map((source) => source.x), target.x);
+      const maximumX = Math.max(...sources.map((source) => source.x), target.x);
+      sources.forEach((source) => appendConnectorPath(group, `M ${source.x} ${source.bottom} V ${busY}`, false));
+      appendConnectorPath(group, `M ${minimumX} ${busY} H ${maximumX}`, false);
+      appendConnectorPath(group, `M ${target.x} ${busY} V ${target.top}`, true);
+    });
+  }
+
+  function renderResidual(group, descriptor, layout, model) {
+    const bySource = new Map();
+    descriptor.pairs.forEach(([source, target]) => {
+      if (!bySource.has(source)) bySource.set(source, []);
+      bySource.get(source).push(target);
+    });
+    bySource.forEach((targetIds, sourceId) => {
+      const sourceBox = layout.positions.get(sourceId);
+      const targetBoxes = targetIds.map((id) => layout.positions.get(id));
+      const stage = paperStageForNode(layout, model, sourceId);
+      if (!sourceBox || !stage || targetBoxes.some((box) => !box)) return;
+      const source = paperBoxAnchor(sourceBox);
+      const targets = targetBoxes.map(paperBoxAnchor);
+      const railX = stage.x + 13;
+      appendConnectorPath(group, `M ${source.left} ${source.y} H ${railX} V ${Math.max(...targets.map((target) => target.y))}`, false);
+      targets.forEach((target) => appendConnectorPath(group, `M ${railX} ${target.y} H ${target.left}`, true));
+    });
+  }
+
+  function renderCrossConnector(group, descriptor, layout, model) {
+    const sourceIds = [...new Set(descriptor.pairs.map(([source]) => source))];
+    if (sourceIds.length !== 1) {
+      descriptor.pairs.forEach(([sourceId, targetId]) => renderConnectorPair(
+        group,
+        layout.positions.get(sourceId),
+        layout.positions.get(targetId),
+      ));
+      return;
+    }
+    const sourceId = sourceIds[0];
+    const targetIds = descriptor.pairs.map(([, target]) => target);
+    const sourceBox = layout.positions.get(sourceId);
+    const targetBoxes = targetIds.map((id) => layout.positions.get(id));
+    const sourceStage = paperStageForNode(layout, model, sourceId);
+    const targetStage = paperStageForNode(layout, model, targetIds[0]);
+    if (!sourceBox || !sourceStage || !targetStage || targetBoxes.some((box) => !box)) return;
+    const source = paperBoxAnchor(sourceBox);
+    const targets = targetBoxes.map(paperBoxAnchor);
+    const gapX = (sourceStage.x + sourceStage.width + targetStage.x) / 2;
+    if (targets.length === 1) {
+      appendConnectorPath(group, `M ${source.right} ${source.y} H ${gapX} V ${targets[0].y} H ${targets[0].left}`, true);
+      return;
+    }
+    const busY = Math.min(...targets.map((target) => target.top)) - 7;
+    appendConnectorPath(group, `M ${source.right} ${source.y} H ${gapX} V ${busY} H ${Math.max(...targets.map((target) => target.x))}`, false);
+    targets.forEach((target) => appendConnectorPath(group, `M ${target.x} ${busY} V ${target.top}`, true));
+  }
+
+  function renderFeedback(group, descriptor, layout, model) {
+    descriptor.pairs.forEach(([sourceId, targetId]) => {
+      const sourceBox = layout.positions.get(sourceId);
+      const targetBox = layout.positions.get(targetId);
+      const stage = paperStageForNode(layout, model, sourceId);
+      if (!sourceBox || !targetBox || !stage) return;
+      const source = paperBoxAnchor(sourceBox);
+      const target = paperBoxAnchor(targetBox);
+      const railX = stage.x + stage.width - 6;
+      appendConnectorPath(group, `M ${source.right} ${source.y} H ${railX} V ${target.y} H ${target.right}`, true);
+    });
+  }
+
+  function renderPaperConnector(svg, descriptor, layout, model) {
+    const sourceIds = [...new Set(descriptor.pairs.map(([source]) => source))];
+    const targetIds = [...new Set(descriptor.pairs.map(([, target]) => target))];
+    const classes = ["dag-connector", `dag-connector--${descriptor.kind}`];
+    if (descriptor.kind === "cross") classes.push("dag-global-connector");
+    const group = svgElement("g", {
+      class: classes.join(" "),
+      "data-connector-id": descriptor.id,
+      "data-source-ids": sourceIds.join(" "),
+      "data-target-ids": targetIds.join(" "),
+      "data-pair-count": descriptor.pairs.length,
+    });
+    if (descriptor.kind === "branch-out") renderBranchOut(group, descriptor, layout, model);
+    else if (descriptor.kind === "branch-in" || descriptor.kind === "cache") renderBranchIn(group, descriptor, layout, model);
+    else if (descriptor.kind === "residual") renderResidual(group, descriptor, layout, model);
+    else if (descriptor.kind === "cross") renderCrossConnector(group, descriptor, layout, model);
+    else if (descriptor.kind === "feedback") renderFeedback(group, descriptor, layout, model);
+    else descriptor.pairs.forEach(([sourceId, targetId]) => renderConnectorPair(
+      group,
+      layout.positions.get(sourceId),
+      layout.positions.get(targetId),
+    ));
+    svg.appendChild(group);
+  }
+
+  function paperPortSummary(label, ports) {
+    if (!ports.length) return `${label}: none`;
+    return `${label}: ${ports.map((port) => (
+      `${port.port} [${symbolicShape(port.tensor)}] → [${concreteShape(port.tensor)}]`
+    )).join("; ")}`;
+  }
+
+  function paperNodeDescription(node) {
+    if (node.kind !== "operator") return `${node.label} · ${node.definitionId}`;
+    const definition = node.operator.definition;
+    return [
+      node.label,
+      `${definition.label} · ${definition.category}`,
+      definition.formula_display,
+      paperPortSummary("Inputs", node.operator.input_tensors),
+      paperPortSummary("Outputs", node.operator.output_tensors),
+    ].join(" · ");
   }
 
   function renderDagNode(svg, node, box) {
+    const alias = paperNodeAlias(node);
+    const description = paperNodeDescription(node);
     const group = svgElement("g", {
-      class: `dag-node dag-node--${node.kind}${node.id === operatorKey(state.selection) ? " is-selected" : ""}`,
+      class: `dag-node dag-node--${node.kind}${box.compact ? " dag-node--compact" : " dag-node--main"}`,
       transform: `translate(${box.x} ${box.y})`,
       "data-node-id": node.id,
       "data-node-kind": node.kind,
       "data-definition-id": node.definitionId,
+      "data-display-alias": alias,
     });
     if (node.kind === "operator") {
       group.setAttribute("role", "button");
       group.setAttribute("tabindex", "0");
-      group.setAttribute("aria-label", `Inspect ${node.label}`);
+      group.setAttribute("aria-label", `Inspect ${description}`);
     }
-    group.appendChild(svgElement("rect", {
-      width: box.width,
-      height: box.height,
-      rx: node.kind === "operator" ? 9 : 24,
-    }));
-    const shape = node.kind === "operator" ? paperOperatorShape(node.operator) : node.definitionId;
-    const labelLength = box.width < 100 ? 13 : box.width < 150 ? 20 : 30;
-    const lines = splitNodeLabel(node.label, labelLength);
-    if (box.compact) {
-      group.appendChild(svgElement("text", {
+    group.append(
+      svgElement("rect", {
+        width: box.width,
+        height: box.height,
+        rx: node.kind === "operator" ? 8 : 18,
+      }),
+      svgElement("text", {
         x: box.width / 2,
         y: box.height / 2 + 4,
         class: "dag-node-label",
         "text-anchor": "middle",
-      }, lines.join(" ")));
-    } else {
-      const firstY = lines.length > 1 ? 14 : 18;
-      lines.forEach((line, index) => {
-        group.appendChild(svgElement("text", {
-          x: box.width / 2,
-          y: firstY + index * 12,
-          class: "dag-node-label",
-          "text-anchor": "middle",
-        }, line));
-      });
-      group.appendChild(svgElement("text", {
-        x: box.width / 2,
-        y: box.height - 6,
-        class: "dag-node-shape",
-        "text-anchor": "middle",
-      }, shape));
-    }
-    group.appendChild(svgElement("title", {}, `${node.label} · ${node.definitionId}${shape ? ` · ${shape}` : ""}`));
+      }, alias),
+      svgElement("title", {}, description),
+    );
     if (node.kind === "operator") {
       const selectNode = () => select({
         stage: node.stageId,
@@ -1254,8 +1736,10 @@
     Atlas.clear(targets.dag);
     const model = buildDagModel();
     const layout = layoutPaperDag(model);
+    const connectors = resolvePaperConnectors(model);
+    const warningHeight = connectors.invalid.length ? 30 + connectors.invalid.length * 16 : 0;
     const legend = Atlas.element("div", { className: "dag-legend" });
-    [["dag-legend-tensor", "declared data flow"], ["dag-legend-repeat", "residual / denoise rail"]].forEach(([kind, label]) => {
+    [["dag-legend-tensor", "curated declared flow"], ["dag-legend-repeat", "residual / denoise rail"]].forEach(([kind, label]) => {
       const item = Atlas.element("span", { className: `dag-legend-item ${kind}` });
       item.append(
         Atlas.element("span", { className: "dag-legend-line" }),
@@ -1265,19 +1749,23 @@
     });
     legend.appendChild(Atlas.element("span", {
       className: "dag-legend-note",
-      text: "Paper-style overview · every declared operator remains selectable.",
+      text: "Paper-style overview · select a short operator alias for full detail.",
     }));
+    const svgHeight = layout.height + warningHeight;
     const svg = svgElement("svg", {
       class: "dag-svg",
-      viewBox: `0 0 ${layout.width} ${layout.height}`,
+      viewBox: `0 0 ${layout.width} ${svgHeight}`,
       width: layout.width,
-      height: layout.height,
+      height: svgHeight,
       role: "img",
       "aria-label": "Pi0 paper-style logical operator overview",
       "data-layout": "paper-columns",
       "data-operator-count": layout.coverage.operators,
       "data-placed-operator-count": layout.coverage.placed,
       "data-fallback-operator-count": layout.coverage.fallback,
+      "data-truth-edge-count": model.edges.length,
+      "data-connector-count": connectors.resolved.length,
+      "data-invalid-connector-count": connectors.invalid.length,
     });
     const definitions = svgElement("defs");
     const marker = svgElement("marker", {
@@ -1294,7 +1782,11 @@
     svg.appendChild(definitions);
 
     layout.stages.forEach((item, index) => {
-      const stageGroup = svgElement("g", { class: `dag-stage dag-stage--${index + 1}` });
+      const stageGroup = svgElement("g", {
+        class: `dag-stage dag-stage--${index + 1}`,
+        "data-stage-id": item.stage.stage_id,
+        "data-effective-rows": item.effectiveRows,
+      });
       const shortLabel = item.stage.label.split(/\s+/)[0];
       stageGroup.append(
         svgElement("rect", {
@@ -1340,88 +1832,62 @@
       svg.appendChild(group);
     });
 
-    const scopeOrder = { denoise: 0, transformer: 1, module: 2, component: 3 };
-    [...model.scopes].sort((left, right) => scopeOrder[left.kind] - scopeOrder[right.kind]).forEach((scope) => {
-      const padding = scope.kind === "denoise" ? 10 : scope.kind === "transformer" ? 18 : scope.kind === "component" ? 8 : 12;
-      const bounds = scopeBounds(scope, layout.positions, padding);
-      if (!bounds) return;
-      const group = svgElement("g", {
-        class: `dag-scope dag-scope--${scope.kind}`,
-        "data-scope-kind": scope.kind,
-        "data-module-id": scope.moduleId,
+    [...model.scopes]
+      .filter((scope) => scope.kind === "denoise" || scope.kind === "transformer")
+      .sort((left, right) => (left.kind === "denoise" ? -1 : right.kind === "denoise" ? 1 : 0))
+      .forEach((scope) => {
+        const padding = scope.kind === "denoise" ? 8 : 4;
+        const bounds = paperScopeBounds(scope, layout.positions, padding);
+        if (!bounds) return;
+        const label = paperScopeLabel(scope);
+        const badgeWidth = Math.min(bounds.width - 16, Math.max(84, label.length * 6.6 + 18));
+        const group = svgElement("g", {
+          class: `dag-scope dag-scope--${scope.kind}`,
+          "data-scope-kind": scope.kind,
+          "data-module-id": scope.moduleId,
+          "data-header-bottom": bounds.contentTop,
+          "data-content-top": bounds.contentTop,
+        });
+        group.append(
+          svgElement("rect", {
+            x: bounds.x,
+            y: bounds.y,
+            width: bounds.width,
+            height: bounds.height,
+            rx: 14,
+            class: "dag-scope-frame",
+          }),
+          svgElement("rect", {
+            x: bounds.x + 8,
+            y: bounds.y,
+            width: badgeWidth,
+            height: bounds.headerHeight,
+            rx: 7,
+            class: "dag-scope-badge",
+          }),
+          svgElement("text", {
+            x: bounds.x + 17,
+            y: bounds.y + 12.5,
+            class: "dag-scope-label",
+          }, label),
+        );
+        svg.appendChild(group);
       });
-      group.append(
-        svgElement("rect", { ...bounds, rx: scope.kind === "component" ? 12 : 18 }),
-        svgElement("text", {
-          x: bounds.x + 14,
-          y: bounds.y + 18,
-          class: "dag-scope-label",
-        }, scope.label),
-      );
-      svg.appendChild(group);
-    });
 
-    model.edges.filter((edge) => {
-      const source = model.nodes.get(edge.source);
-      const target = model.nodes.get(edge.target);
-      return source && target && source.stageId === target.stageId && edge.kind !== "repeat";
-    }).forEach((edge) => {
-      const route = edgeRoute(edge, layout, model);
-      if (!route) return;
-      const group = svgElement("g", {
-        class: `dag-edge dag-edge--${edge.kind} dag-edge--${route.kind}`,
-        "data-tensor-id": edge.tensor ? edge.tensor.tensor_id : "repeat-carry",
-        "data-source": edge.source,
-        "data-target": edge.target,
-      });
-      group.appendChild(svgElement("path", {
-        d: route.d,
-        "marker-end": "url(#dag-arrow)",
-      }));
-      svg.appendChild(group);
-    });
-
-    [
-      ["vision-prefix", "vision-encoder", "prefix-encoder"],
-      ["prefix-kv-action", "prefix-encoder", "action-flow-decoder"],
-    ].forEach(([connectorId, sourceStage, targetStage]) => {
-      const edges = model.edges.filter((edge) => {
-        const source = model.nodes.get(edge.source);
-        const target = model.nodes.get(edge.target);
-        return edge.kind === "tensor"
-          && source && target
-          && source.stageId === sourceStage
-          && target.stageId === targetStage;
-      });
-      if (!edges.length) return;
-      const group = svgElement("g", {
-        class: "dag-edge dag-global-connector",
-        "data-global-connector": connectorId,
-        "data-tensor-ids": [...new Set(edges.map((edge) => edge.tensor.tensor_id))].join(" "),
-      });
-      edges.forEach((edge) => {
-        const source = layout.positions.get(edge.source);
-        const target = layout.positions.get(edge.target);
-        if (!source || !target) return;
-        const sourceX = source.x + source.width;
-        const sourceY = source.y + source.height / 2;
-        const targetX = target.x;
-        const targetY = target.y + target.height / 2;
-        const busX = (sourceX + targetX) / 2;
-        group.appendChild(svgElement("path", {
-          d: `M ${sourceX} ${sourceY} C ${busX} ${sourceY}, ${busX} ${targetY}, ${targetX} ${targetY}`,
-          "marker-end": "url(#dag-arrow)",
-          "data-source": edge.source,
-          "data-target": edge.target,
-        }));
-      });
-      svg.appendChild(group);
-    });
+    connectors.resolved.forEach((descriptor) => renderPaperConnector(svg, descriptor, layout, model));
     [...model.nodes.values()].forEach((node) => {
       const box = layout.positions.get(node.id);
       if (box) renderDagNode(svg, node, box);
     });
+    connectors.invalid.forEach((item, index) => {
+      svg.appendChild(svgElement("text", {
+        x: 24,
+        y: layout.height + 24 + index * 16,
+        class: "dag-connector-warning",
+      }, `Missing declared connector ${item.descriptor.id}: ${item.missing.map((pair) => pair.join(" → ")).join(", ")}`));
+    });
     targets.dag.append(legend, svg);
+    updateDagSelection();
   }
 
   function renderStages() {

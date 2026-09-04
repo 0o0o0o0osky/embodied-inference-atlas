@@ -521,8 +521,7 @@ body {
 
 .gemm-dimensions,
 .attention-sequence,
-.basic-operator-flow,
-.gemm-mac-sequence {
+.basic-operator-flow {
   display: flex;
   flex-wrap: wrap;
   gap: 0.45rem;
@@ -540,58 +539,6 @@ body {
   color: var(--navy);
   background: #fff;
   font-size: 0.72rem;
-}
-
-.gemm-mac-sequence {
-  margin-top: 0.8rem;
-  flex-wrap: nowrap;
-}
-
-.matrix-demo {
-  display: grid;
-  gap: 0.25rem;
-  color: var(--muted);
-  font-size: 0.65rem;
-  text-align: center;
-}
-
-.matrix-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 0.72rem);
-  gap: 0.12rem;
-}
-
-.matrix-cell {
-  width: 0.72rem;
-  height: 0.72rem;
-  border: 1px solid #b8c7ce;
-  border-radius: 0.08rem;
-  background: #e7edef;
-}
-
-.matrix-a .matrix-cell:nth-child(n+4):nth-child(-n+6),
-.matrix-b .matrix-cell:nth-child(2),
-.matrix-b .matrix-cell:nth-child(5),
-.matrix-b .matrix-cell:nth-child(8),
-.matrix-d .matrix-cell:nth-child(5) {
-  border-color: var(--teal);
-  background: #61bbb4;
-  animation: mac-highlight 2.4s ease-in-out infinite;
-}
-
-.matrix-b .matrix-cell:nth-child(2),
-.matrix-b .matrix-cell:nth-child(5),
-.matrix-b .matrix-cell:nth-child(8) {
-  animation-delay: 0.35s;
-}
-
-.matrix-d .matrix-cell:nth-child(5) {
-  animation-delay: 0.7s;
-}
-
-@keyframes mac-highlight {
-  0%, 100% { box-shadow: none; transform: scale(1); }
-  45% { box-shadow: 0 0 0 0.18rem rgba(20, 125, 118, 0.2); transform: scale(1.08); }
 }
 
 .visualizer-arrow {
@@ -630,8 +577,7 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .model-card,
-  .matrix-cell {
+  .model-card {
     transition: none;
     animation: none;
   }
@@ -655,10 +601,6 @@ body {
     max-height: none;
   }
 
-  .gemm-mac-sequence {
-    overflow-x: auto;
-    justify-content: flex-start;
-  }
 }
 
 /* Pi0 logical workspace: one paper-style overview and one persistent microscope. */
@@ -879,67 +821,82 @@ body {
   text-transform: uppercase;
 }
 
-.dag-scope rect {
+.dag-scope-frame {
   fill: rgba(255, 255, 255, 0.44);
   stroke: #9eb7c1;
   stroke-width: 1;
 }
 
-.dag-scope--component rect {
-  fill: rgba(255, 255, 255, 0.22);
-  stroke: #bfd0d7;
-  stroke-dasharray: 3 4;
-}
-
-.dag-scope--transformer rect {
+.dag-scope--transformer .dag-scope-frame {
   fill: rgba(20, 125, 118, 0.025);
   stroke: #4d9b95;
   stroke-width: 1.5;
 }
 
-.dag-scope--denoise rect {
+.dag-scope--denoise .dag-scope-frame {
   fill: rgba(31, 70, 98, 0.02);
   stroke: #476f87;
   stroke-width: 2;
 }
 
+.dag-scope-badge {
+  fill: #fff;
+  stroke: #4d9b95;
+  stroke-width: 1.2;
+}
+
+.dag-scope--denoise .dag-scope-badge {
+  fill: #eef5f6;
+  stroke: #476f87;
+}
+
 .dag-scope-label {
-  fill: #496570;
-  font-size: 10.5px;
-  font-weight: 750;
-  letter-spacing: 0.035em;
-}
-
-.dag-scope--transformer .dag-scope-label,
-.dag-scope--denoise .dag-scope-label {
   fill: var(--teal);
-  font-size: 11.5px;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.025em;
 }
 
-.dag-edge path {
+.dag-connector path {
   fill: none;
   stroke: #718c98;
   stroke-linecap: round;
+  stroke-linejoin: round;
   stroke-width: 1.15;
-  opacity: 0.72;
+  opacity: 0.78;
+  transition: opacity 130ms ease, stroke 130ms ease, stroke-width 130ms ease;
 }
 
-.dag-edge--feedback path,
-.dag-edge--residual path,
-.dag-edge--rail path {
+.dag-connector--feedback path,
+.dag-connector--residual path {
   stroke: var(--teal);
   stroke-width: 1.4;
 }
 
-.dag-edge--feedback path {
+.dag-connector--feedback path {
   stroke-dasharray: 6 5;
   stroke-width: 1.7;
 }
 
-.dag-global-connector path {
+.dag-connector--cross path {
   stroke: #345f76;
   stroke-width: 1.8;
   opacity: 0.9;
+}
+
+.dag-connector--cache path {
+  stroke: #597f91;
+  stroke-dasharray: 3 3;
+}
+
+.dag-connector.is-muted path {
+  opacity: 0.12;
+}
+
+.dag-connector.is-incident path {
+  stroke: #087f78;
+  stroke-width: 2.5;
+  opacity: 1;
 }
 
 .dag-arrow-head {
@@ -970,6 +927,12 @@ body {
   stroke-width: 3;
 }
 
+.dag-node.is-related rect {
+  fill: #f0f9f7;
+  stroke: #65aaa4;
+  stroke-width: 1.8;
+}
+
 .dag-node--input rect,
 .dag-node--output rect,
 .dag-node--loop rect {
@@ -989,13 +952,6 @@ body {
   pointer-events: none;
 }
 
-.dag-node-shape {
-  fill: #6d7e87;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 9.75px;
-  pointer-events: none;
-}
-
 .dag-node--input .dag-node-label,
 .dag-node--output .dag-node-label,
 .dag-node--loop .dag-node-label {
@@ -1010,6 +966,12 @@ body {
 
 .dag-fallback text {
   fill: #765d1c;
+  font-size: 10px;
+  font-weight: 750;
+}
+
+.dag-connector-warning {
+  fill: #8a3f22;
   font-size: 10px;
   font-weight: 750;
 }
