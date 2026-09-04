@@ -270,8 +270,13 @@
   font-size: 1rem;
 }
 
-.logical-viewport-controls span {
+.logical-viewport-note {
   margin-right: auto;
+}
+
+.logical-edge-coverage {
+  color: #294946;
+  font-weight: 700;
 }
 
 .logical-viewport-controls button {
@@ -731,6 +736,7 @@
 .operator-visualizer > header code {
   overflow-wrap: anywhere;
   color: #1d5965;
+  font-size: 1rem;
   font-weight: 700;
 }
 
@@ -766,10 +772,14 @@
   min-width: 0;
 }
 
-.gemm-matrix strong,
-.patch-diagram strong {
+.gemm-matrix strong {
   color: #264e5e;
   font-size: 0.7rem;
+}
+
+.patch-diagram strong {
+  color: #264e5e;
+  font-size: 1rem;
 }
 
 .gemm-grid {
@@ -828,7 +838,7 @@
   border: 1px solid #aabcb8;
   color: #53635f;
   background: #f5f8f7;
-  font-size: 0.72rem;
+  font-size: 1rem;
   text-align: center;
 }
 

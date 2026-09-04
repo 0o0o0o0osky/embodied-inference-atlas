@@ -223,6 +223,16 @@ export interface RoutedConnector {
 export interface ConnectorResolution {
   connectors: readonly RoutedConnector[];
   invalidHints: readonly { id: string; missingPairs: readonly (readonly [LogicalRef, LogicalRef])[] }[];
+  coverage: {
+    truthEdgeCount: number;
+    routedEdgeIds: readonly string[];
+    foldedEdges: readonly {
+      edgeId: string;
+      scopeId: string;
+      reason: "folded-repeat-boundary";
+    }[];
+    uncoveredEdgeIds: readonly string[];
+  };
 }
 
 export interface MaterializedGraph {

@@ -122,7 +122,17 @@ export function LogicalDagSvg({
   return (
     <div className="logical-viewport">
       <div className="logical-viewport-controls" aria-label="Logical graph viewport controls">
-        <span>Fixed 1080-unit layout · pan to inspect at full scale</span>
+        <span className="logical-viewport-note">Fixed 1080-unit layout · pan to inspect at full scale</span>
+        <span
+          className="logical-edge-coverage"
+          title="Folded repeat edges connect one represented block to the next; each named ×N boundary stands in for those paths."
+        >
+          {connectors.coverage.truthEdgeCount} truth edges: {connectors.coverage.routedEdgeIds.length} routed
+          {" · "}{connectors.coverage.foldedEdges.length} folded by ×N boundaries
+          {connectors.coverage.uncoveredEdgeIds.length
+            ? ` · ${connectors.coverage.uncoveredEdgeIds.length} uncovered`
+            : ""}
+        </span>
         <button type="button" onClick={() => pan(-1)} aria-label="Pan logical graph left">
           ← Pan left
         </button>
@@ -150,6 +160,9 @@ export function LogicalDagSvg({
         data-truth-edge-count={dag.edges.length}
         data-connector-count={connectors.connectors.length}
         data-invalid-connector-count={connectors.invalidHints.length}
+        data-routed-truth-edge-count={connectors.coverage.routedEdgeIds.length}
+        data-folded-truth-edge-count={connectors.coverage.foldedEdges.length}
+        data-uncovered-truth-edge-count={connectors.coverage.uncoveredEdgeIds.length}
       >
         <defs>
           <marker

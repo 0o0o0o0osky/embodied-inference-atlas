@@ -130,9 +130,15 @@ function ResolvedModelGraph({
 
       <GraphBreadcrumb modelLabel={model.display_name} graph={graph} operator={operator} />
 
-      {layout.diagnostics.length || connectors.invalidHints.length ? (
+      {layout.diagnostics.length || connectors.invalidHints.length || connectors.coverage.uncoveredEdgeIds.length ? (
         <div className="graph-diagnostics" role="status">
-          {[...layout.diagnostics, ...connectors.invalidHints.map((hint) => `Invalid route hint: ${hint.id}`)].join(" ")}
+          {[
+            ...layout.diagnostics,
+            ...connectors.invalidHints.map((hint) => `Invalid route hint: ${hint.id}`),
+            ...(connectors.coverage.uncoveredEdgeIds.length
+              ? [`Uncovered truth edges: ${connectors.coverage.uncoveredEdgeIds.join(", ")}`]
+              : []),
+          ].join(" ")}
         </div>
       ) : null}
 

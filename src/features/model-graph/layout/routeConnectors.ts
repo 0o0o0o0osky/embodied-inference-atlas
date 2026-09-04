@@ -309,6 +309,7 @@ export function resolveConnectorHints(
   layout: LogicalLayout,
 ): ConnectorResolution {
   const truth = new Set(dag.edges.map((edge) => `${edge.source}|${edge.target}`));
+  const routedPairs = new Set<string>();
   const invalidHints: ConnectorResolution["invalidHints"] extends readonly (infer T)[] ? T[] : never = [];
   const connectors: RoutedConnector[] = [];
 
@@ -330,6 +331,12 @@ export function resolveConnectorHints(
     else if (hint.kind === "rail") routeRail(hint, layout, dag, builder.add);
     else if (hint.kind === "feedback") routeFeedback(hint, layout, dag, builder.add);
     else routePairs(hint, layout, builder.add);
+    hint.pairs.forEach(([source, target]) => {
+      const hasRenderedPath = builder.paths.some(
+        (path) => path.sourceRefs.includes(source) && path.targetRefs.includes(target),
+      );
+      if (hasRenderedPath) routedPairs.add(`${source}|${target}`);
+    });
     connectors.push({
       id: hint.id,
       kind: hint.kind,
@@ -339,5 +346,46 @@ export function resolveConnectorHints(
     });
   });
 
-  return { connectors, invalidHints };
+  const routedEdgeIds: string[] = [];
+  const foldedEdges: Array<{
+    edgeId: string;
+    scopeId: string;
+    reason: "folded-repeat-boundary";
+  }> = [];
+  const uncoveredEdgeIds: string[] = [];
+  dag.edges.forEach((edge) => {
+    if (routedPairs.has(`${edge.source}|${edge.target}`)) {
+      routedEdgeIds.push(edge.id);
+      return;
+    }
+    const foldedScope = edge.kind === "repeat"
+      ? dag.scopes.find(
+          (scope) =>
+            scope.kind === "transformer" &&
+            scope.repeat > 1 &&
+            scope.nodeRefs.includes(edge.source) &&
+            scope.nodeRefs.includes(edge.target),
+        )
+      : undefined;
+    if (foldedScope) {
+      foldedEdges.push({
+        edgeId: edge.id,
+        scopeId: foldedScope.id,
+        reason: "folded-repeat-boundary",
+      });
+      return;
+    }
+    uncoveredEdgeIds.push(edge.id);
+  });
+
+  return {
+    connectors,
+    invalidHints,
+    coverage: {
+      truthEdgeCount: dag.edges.length,
+      routedEdgeIds,
+      foldedEdges,
+      uncoveredEdgeIds,
+    },
+  };
 }
