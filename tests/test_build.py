@@ -1,6 +1,6 @@
-import json
 import tempfile
 import unittest
+from html.parser import HTMLParser
 from pathlib import Path
 
 from tools.lib.site import build_site
@@ -9,57 +9,40 @@ from tools.lib.site import build_site
 ROOT = Path(__file__).resolve().parents[1]
 
 
-class BuildTests(unittest.TestCase):
-    def test_build_writes_file_openable_index_without_remote_scripts(self):
-        with tempfile.TemporaryDirectory() as directory:
-            output = Path(directory) / "site"
-            result = build_site(ROOT, output)
-            html = (output / "index.html").read_text(encoding="utf-8")
-            self.assertTrue(result.pages)
-            self.assertIn('id="page-data"', html)
-            self.assertNotIn('<script src="http', html)
-            self.assertTrue((output / "assets" / "vendor" / "echarts.min.js").is_file())
+class _AssetReferences(HTMLParser):
+    def __init__(self) -> None:
+        super().__init__()
+        self.references: list[str] = []
+        self.module_entries: list[str] = []
 
-    def test_build_emits_foundation_pages_and_safe_comparisons(self):
+    def handle_starttag(
+        self, tag: str, attrs: list[tuple[str, str | None]]
+    ) -> None:
+        attributes = dict(attrs)
+        if tag == "script" and attributes.get("src"):
+            source = str(attributes["src"])
+            self.references.append(source)
+            if attributes.get("type") == "module":
+                self.module_entries.append(source)
+        if tag == "link" and attributes.get("href"):
+            self.references.append(str(attributes["href"]))
+
+
+class BuildTests(unittest.TestCase):
+    def test_builder_emits_local_application_entry_without_remote_assets(self):
         with tempfile.TemporaryDirectory() as directory:
             output = Path(directory) / "site"
             build_site(ROOT, output)
-            expected = [
-                "index.html", "performance.html", "operators.html", "rooflines.html",
-                "models/pi0.html",
-            ]
-            self.assertTrue(all((output / path).is_file() for path in expected))
-            index = (output / "index.html").read_text(encoding="utf-8")
-            pi0 = (output / "models" / "pi0.html").read_text(encoding="utf-8")
-            pi05 = (output / "models" / "pi05.html").read_text(encoding="utf-8")
-            performance = (output / "performance.html").read_text(encoding="utf-8")
-            self.assertIn("model-cards", index)
-            self.assertLess(index.index('id="model-cards"'), index.index('id="coverage"'))
-            self.assertIn("pi0-logical-v1", pi0)
-            self.assertIn("workspace.js", pi0)
-            self.assertIn('id="model-overview"', pi0)
-            self.assertIn('id="block-dag"', pi0)
-            self.assertIn('id="operator-detail"', pi0)
-            self.assertNotIn('id="stage-flow"', pi0)
-            pi0_page_data = json.loads(
-                pi0.split('<script id="page-data" type="application/json">', 1)[1]
-                .split("</script>", 1)[0]
+
+            parser = _AssetReferences()
+            parser.feed((output / "index.html").read_text(encoding="utf-8"))
+
+            self.assertEqual(len(parser.module_entries), 1)
+            self.assertFalse(
+                any(
+                    reference.startswith(("http://", "https://", "//"))
+                    for reference in parser.references
+                )
             )
-            self.assertEqual(
-                pi0_page_data["model_graph"]["model_graph_id"],
-                "pi0-logical-v1",
-            )
-            self.assertIn("model.js", pi05)
-            self.assertNotIn("workspace.js", pi05)
-            self.assertIn("measured_local", performance)
-            self.assertIn("analytical", performance)
-            self.assertIn("reported_external", performance)
-            page_data = json.loads(
-                performance.split('<script id="page-data" type="application/json">', 1)[1]
-                .split("</script>", 1)[0]
-            )
-            self.assertFalse(any(
-                row.get("ratio_kind") == "validated_speedup"
-                and row.get("correctness") == "failed"
-                for row in page_data["comparisons"]
-            ))
+            for reference in parser.references:
+                self.assertTrue((output / reference).resolve().is_file(), reference)

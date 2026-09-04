@@ -9,11 +9,13 @@ from tools.lib.site import BuildError, build_site
 
 
 def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Build the offline Embodied Inference Atlas")
+    parser = argparse.ArgumentParser(
+        description="Build validated data and the offline Embodied Inference Atlas app"
+    )
     parser.add_argument(
         "--check",
         action="store_true",
-        help="build and scan a temporary tree without replacing site/",
+        help="build and scan a temporary application without replacing site/",
     )
     return parser.parse_args(argv)
 
@@ -26,7 +28,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     except BuildError as error:
         print(error, file=sys.stderr)
         return 1
-    print(f"built {len(result.pages)} page(s){' for check' if result.checked else ''}")
+    suffix = " for check" if result.checked else ""
+    print(f"built offline application ({len(result.pages)} entry page){suffix}")
     return 0
 
 

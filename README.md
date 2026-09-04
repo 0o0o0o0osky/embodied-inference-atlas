@@ -7,15 +7,26 @@ Raw profiler reports stay on each collection machine under `.local/` and are nev
 ## Local commands
 
 ```bash
+npm ci
+npm run typecheck
+npm run build
 python3 -m unittest
 python3 -m tools.validate --all
 python3 -m tools.build
 python3 -m tools.build --check
 ```
 
-After building, open `site/index.html` directly in a browser. The generated
-pages embed validated page data and use only local scripts, styles, and vendored
-assets.
+The Python builder validates canonical JSON, creates the deterministic frontend
+payload, runs the locked Vite build, and replaces `site/` with relative,
+offline assets. Review the generated application through a local-only server:
+
+```bash
+python3 -m http.server 8000 --bind 127.0.0.1 --directory site
+```
+
+Then open `http://127.0.0.1:8000/`. The application makes no runtime internet
+requests. Direct `file://` viewing is not a release target because browsers may
+block the generated JSON request.
 
 Source import commands accept an external file path through `--input` and write
 sanitized bundles only under `.local/staging/`. The input path is used to read
