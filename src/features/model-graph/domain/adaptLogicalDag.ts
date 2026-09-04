@@ -14,7 +14,11 @@ import type {
 } from "./types";
 
 function genericVisual(definitionId: string): NodeVisualKind {
-  if (definitionId === "residual-add" || definitionId === "elementwise-multiply") {
+  if (
+    definitionId === "residual-add" ||
+    definitionId === "elementwise-multiply" ||
+    definitionId === "scalar-scale"
+  ) {
     return "inline";
   }
   if (

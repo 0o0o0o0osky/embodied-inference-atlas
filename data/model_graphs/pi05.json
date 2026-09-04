@@ -4317,7 +4317,15 @@
                 {
                   "axis": "width",
                   "expression": {
-                    "symbol": "D"
+                    "op": "mul",
+                    "args": [
+                      {
+                        "symbol": "H"
+                      },
+                      {
+                        "symbol": "HD"
+                      }
+                    ]
                   }
                 }
               ],
@@ -8616,6 +8624,116 @@
             }
           ],
           "components": []
+        },
+        {
+          "template_id": "public-action-slice",
+          "label": "Public action contract boundary",
+          "parameters": [
+            "B",
+            "T",
+            "DIN",
+            "DOUT"
+          ],
+          "input_ports": [
+            {
+              "port": "input",
+              "tensor_id": "input"
+            }
+          ],
+          "output_ports": [
+            {
+              "port": "output",
+              "tensor_id": "output"
+            }
+          ],
+          "tensors": [
+            {
+              "tensor_id": "input",
+              "label": "Internal action chunk",
+              "semantic_role": "action",
+              "axes": [
+                {
+                  "axis": "batch",
+                  "expression": {
+                    "symbol": "B"
+                  }
+                },
+                {
+                  "axis": "sequence",
+                  "expression": {
+                    "symbol": "T"
+                  }
+                },
+                {
+                  "axis": "width",
+                  "expression": {
+                    "symbol": "DIN"
+                  }
+                }
+              ],
+              "producer": null,
+              "consumers": [
+                {
+                  "node_kind": "operator",
+                  "node_id": "public-action-slice",
+                  "port": "input"
+                }
+              ]
+            },
+            {
+              "tensor_id": "output",
+              "label": "Public action contract",
+              "semantic_role": "output",
+              "axes": [
+                {
+                  "axis": "batch",
+                  "expression": {
+                    "symbol": "B"
+                  }
+                },
+                {
+                  "axis": "sequence",
+                  "expression": {
+                    "symbol": "T"
+                  }
+                },
+                {
+                  "axis": "width",
+                  "expression": {
+                    "symbol": "DOUT"
+                  }
+                }
+              ],
+              "producer": {
+                "node_kind": "operator",
+                "node_id": "public-action-slice",
+                "port": "output"
+              },
+              "consumers": []
+            }
+          ],
+          "operators": [
+            {
+              "operator_id": "public-action-slice",
+              "label": "Expose public action dimensions",
+              "definition_id": "slice",
+              "multiplicity": 1,
+              "inputs": [
+                {
+                  "port": "input",
+                  "tensor_id": "input"
+                }
+              ],
+              "outputs": [
+                {
+                  "port": "output",
+                  "tensor_id": "output"
+                }
+              ],
+              "bindings": []
+            }
+          ],
+          "components": []
         }
       ],
       "graph_tensors": [
@@ -9314,9 +9432,9 @@
           ]
         },
         {
-          "tensor_id": "final-action-state",
-          "label": "Internal and public action chunk",
-          "semantic_role": "output",
+          "tensor_id": "final-internal-action",
+          "label": "Final internal action state",
+          "semantic_role": "action",
           "axes": [
             {
               "axis": "batch",
@@ -9341,6 +9459,43 @@
             "node_kind": "loop",
             "node_id": "action-flow-loop",
             "port": "final"
+          },
+          "consumers": [
+            {
+              "node_kind": "module",
+              "node_id": "public-action-slice",
+              "port": "input"
+            }
+          ]
+        },
+        {
+          "tensor_id": "public-action-chunk",
+          "label": "Public 32-wide action chunk",
+          "semantic_role": "output",
+          "axes": [
+            {
+              "axis": "batch",
+              "expression": {
+                "symbol": "B"
+              }
+            },
+            {
+              "axis": "sequence",
+              "expression": {
+                "symbol": "T_ACTION"
+              }
+            },
+            {
+              "axis": "width",
+              "expression": {
+                "symbol": "D_LATENT_ACTION"
+              }
+            }
+          ],
+          "producer": {
+            "node_kind": "module",
+            "node_id": "public-action-slice",
+            "port": "output"
           },
           "consumers": []
         }
@@ -9777,7 +9932,7 @@
             "initial_tensor_id": "initial-noise",
             "iteration_input_tensor_id": "action-loop-state",
             "iteration_output_tensor_id": "next-action-state",
-            "final_tensor_id": "final-action-state",
+            "final_tensor_id": "final-internal-action",
             "iteration_controls": [
               {
                 "tensor_id": "denoise-timestep",
@@ -10050,6 +10205,63 @@
               "required_output_tail": null
             }
           ]
+        },
+        {
+          "stage_id": "public-output",
+          "label": "Public action contract",
+          "description": "The artifact-native public action contract exposes the complete 32-wide flow state; runtime-specific slicing remains an overlay.",
+          "repeat": 1,
+          "loop_carried": null,
+          "modules": [
+            {
+              "module_id": "public-action-slice",
+              "label": "Public action identity boundary",
+              "template_id": "public-action-slice",
+              "repeat": 1,
+              "bindings": [
+                {
+                  "symbol": "B",
+                  "expression": {
+                    "symbol": "B"
+                  }
+                },
+                {
+                  "symbol": "T",
+                  "expression": {
+                    "symbol": "T_ACTION"
+                  }
+                },
+                {
+                  "symbol": "DIN",
+                  "expression": {
+                    "symbol": "D_LATENT_ACTION"
+                  }
+                },
+                {
+                  "symbol": "DOUT",
+                  "expression": {
+                    "symbol": "D_LATENT_ACTION"
+                  }
+                }
+              ],
+              "inputs": [
+                {
+                  "port": "input",
+                  "tensor_id": "final-internal-action"
+                }
+              ],
+              "outputs": [
+                {
+                  "port": "output",
+                  "tensor_id": "public-action-chunk"
+                }
+              ],
+              "indexed_inputs": [],
+              "repeat_carried": null,
+              "collected_outputs": [],
+              "required_output_tail": null
+            }
+          ]
         }
       ],
       "graph_inputs": [
@@ -10058,7 +10270,7 @@
         "initial-noise"
       ],
       "graph_outputs": [
-        "final-action-state"
+        "public-action-chunk"
       ]
     }
   ]

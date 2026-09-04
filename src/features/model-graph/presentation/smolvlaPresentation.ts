@@ -29,10 +29,12 @@ export const smolvlaPresentation: GraphPresentation = {
       scopedRow("vision-encoder/vision-final-normalization", ["normalize"], true),
       scopedRow("vision-encoder/patch-grid-connector", ["grid-rearrange"]),
       scopedRow("vision-encoder/patch-grid-connector", ["connector-projection"]),
+      scopedRow("vision-encoder/patch-grid-connector", ["connector-scale"]),
     ],
     "prefix-encoder": [
       scopedRow("prefix-encoder/state-token-projector", ["pad-state", "state-projection"]),
       scopedRow("prefix-encoder/prompt-prefix-builder", ["flatten-views", "embed-prompt"], true),
+      scopedRow("prefix-encoder/prompt-prefix-builder", [null, "prompt-scale"]),
       scopedRow("prefix-encoder/prompt-prefix-builder", ["image-language-concat"]),
       scopedRow("prefix-encoder/prompt-prefix-builder", ["build-prefix"]),
       ...transformerAttentionRows(PREFIX_ATTENTION, { rope: true }),
@@ -95,6 +97,7 @@ export const smolvlaPresentation: GraphPresentation = {
     "control/action-flow-loop/timestep": "tₖ",
     "output/prefix-stack-output": "VLM hidden (unused)",
     "output/public-action-chunk": "Public actions · 6D",
+    "public-output/public-action-slice/public-action-slice": "slice 32 → 6",
   },
   visualOverrides: {
     [`${PREFIX_ATTENTION}/key-cache-output`]: "storage",

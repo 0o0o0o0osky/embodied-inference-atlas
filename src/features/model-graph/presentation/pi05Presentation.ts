@@ -84,6 +84,9 @@ export const pi05Presentation: GraphPresentation = {
       scopedRow(HEAD, ["velocity-projection"]),
       scopedRow("action-flow-decoder/euler-update", ["euler-update"], true),
     ],
+    "public-output": [
+      scopedRow("public-output/public-action-slice", ["public-action-slice"]),
+    ],
   },
   boundaryLanes: {
     "prefix-encoder": {
@@ -104,7 +107,8 @@ export const pi05Presentation: GraphPresentation = {
     "loop/action-flow-loop": "xₖ",
     "control/action-flow-loop/timestep": "tₖ",
     "output/prefix-stack-output": "Prefix hidden (unused)",
-    "output/final-action-state": "Action chunk · 32D",
+    "output/public-action-chunk": "Public actions · 32D",
+    "public-output/public-action-slice/public-action-slice": "identity 32 → 32",
   },
   visualOverrides: {
     [`${PREFIX_ATTENTION}/key-cache-output`]: "storage",
@@ -113,6 +117,7 @@ export const pi05Presentation: GraphPresentation = {
     [`${ATTENTION}/extract-prefix-value`]: "read-port",
     [`${ATTENTION}/key-concat`]: "logical-view",
     [`${ATTENTION}/value-concat`]: "logical-view",
+    "public-output/public-action-slice/public-action-slice": "line-op",
   },
   connectorHints: [
     { id: "expert-prefix-key", kind: "cross", route: "top-bus", side: "left", pairs: [[

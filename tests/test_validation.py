@@ -585,9 +585,11 @@ class ValidationTests(unittest.TestCase):
              {"vision-patch-tokens": [1, 3, 256, 1152],
               "projected-vision-tokens": [1, 3, 256, 2048], "prefix-tokens": [1, 968, 2048],
               "action-tokens": [1, 15, 1024], "time-condition": [1, 1024],
-              "velocity": [1, 15, 32], "final-action-state": [1, 15, 32]}, [1, 1, 968, 256],
+              "velocity": [1, 15, 32], "final-internal-action": [1, 15, 32],
+              "public-action-chunk": [1, 15, 32]}, [1, 1, 968, 256],
              {"vision-blocks": (27, 27), "prefix-blocks": (18, 18),
-              "action-expert-blocks": (18, 180)}, None),
+              "action-expert-blocks": (18, 180)}, None, "action-expert-blocks",
+             {"self-attention": ([1, 15, 2048], 2048)}, {}),
             ("smolvla", {"V": 3, "L_PROMPT": 48, "T_ACTION": 50, "N_DENOISE": 10},
              {"S_PREFIX": 241, "S_ATTENTION": 291},
              {"executed-images": [1, 3, 3, 512, 512],
@@ -597,14 +599,22 @@ class ValidationTests(unittest.TestCase):
               "public-action-chunk": [1, 50, 6]}, [1, 5, 241, 64],
              {"vision-blocks": (12, 12), "prefix-blocks": (16, 16),
               "expert-layer-pairs": (8, 80)},
-             ["self-attention", "self-feed-forward", "cross-attention", "cross-feed-forward"]),
+             ["self-attention", "self-feed-forward", "cross-attention", "cross-feed-forward"],
+             "expert-layer-pairs",
+             {"self-attention": ([1, 50, 960], 960),
+              "cross-attention": ([1, 50, 960], 960)},
+             {"patch-grid-connector": ("connector-scale", "scaled-output", [1, 3, 64, 960]),
+              "prompt-prefix-builder": ("prompt-scale", "scaled-prompt-tokens", [1, 48, 960])}),
         )
 
-        for model_id, workload, bindings, shapes, cache_shape, repeats, components in cases:
+        for (model_id, workload, bindings, shapes, cache_shape, repeats, components,
+             expert_module_id, attention_contexts, scale_ops) in cases:
             with self.subTest(model=model_id):
                 graph = load_json(ROOT / "data" / "model_graphs" / f"{model_id}.json")["records"][0]
                 materialized = materialize_model_graph(graph, workload)
                 self.assertEqual({key: materialized["bindings"][key] for key in bindings}, bindings)
+                self.assertEqual([item["tensor_id"] for item in materialized["graph_outputs"]],
+                                 ["public-action-chunk"])
                 tensors = {item["tensor_id"]: item["shape"] for item in materialized["graph_tensors"]}
                 self.assertEqual({key: tensors[key] for key in shapes}, shapes)
                 modules = {module["module_id"]: module for stage in materialized["stages"]
@@ -622,6 +632,25 @@ class ValidationTests(unittest.TestCase):
                 if components:
                     self.assertEqual([item["component_id"] for item in
                                       modules["expert-layer-pairs"]["template"]["components"]], components)
+                expert_components = {item["component_id"]: item for item in
+                                     modules[expert_module_id]["template"]["components"]}
+                for component_id, (context_shape, projection_k) in attention_contexts.items():
+                    template = expert_components[component_id]["template"]
+                    context = next(item for item in template["tensors"]
+                                   if item["tensor_id"] == "context")
+                    projection = next(item for item in template["operators"]
+                                      if item["operator_id"] == "output-projection")
+                    self.assertEqual((context["shape"], projection["bindings"]["K"]),
+                                     (context_shape, projection_k))
+                for module_id, (operator_id, tensor_id, expected_shape) in scale_ops.items():
+                    template = modules[module_id]["template"]
+                    scale = next(item for item in template["operators"]
+                                 if item["operator_id"] == operator_id)
+                    output = next(item for item in template["tensors"]
+                                  if item["tensor_id"] == tensor_id)
+                    self.assertEqual((scale["definition_id"], scale["bindings"]["D_MODEL"],
+                                      output["shape"]),
+                                     ("scalar-scale", 960, expected_shape))
 
     def test_run_context_must_match(self):
         run = valid_run("run-context")

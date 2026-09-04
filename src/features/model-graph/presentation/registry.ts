@@ -95,11 +95,13 @@ const operatorAliases: Readonly<Record<string, string>> = {
   "euler-update": "Euler",
   "grid-rearrange": "4×4 merge",
   "connector-projection": "Project",
+  "connector-scale": "×√960",
+  "prompt-scale": "×√960",
   "pad-state": "pad to 32",
   "state-projection": "State token",
   "pair-key-layers": "K layer pairs",
   "pair-value-layers": "V layer pairs",
-  "public-action-slice": "slice 32 → 6",
+  "public-action-slice": "Public boundary",
 };
 
 const profiles: Readonly<Record<string, ProfileSpec>> = {
@@ -128,7 +130,7 @@ const profiles: Readonly<Record<string, ProfileSpec>> = {
       note: "AdaRMS scale, shift, and gates are conditioned by time; time is not an action token.",
     },
     panelLabel: "Pi0.5 logical operator graph",
-    diagramLabel: "Pi0.5 logical operator graph with three authored stage columns",
+    diagramLabel: "Pi0.5 logical operator graph with four authored stage columns",
     workloadNote: "Prompt length is the executed post-tokenization length. Native preprocessing and runtime-executed camera slots remain evidence annotations, not UI limits.",
   },
   "smolvla-base-logical-v1": {

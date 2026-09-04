@@ -777,6 +777,23 @@
             "output"
           ],
           "analysis": []
+        },
+        {
+          "definition_id": "scalar-scale",
+          "label": "Scale by a declared scalar",
+          "category": "elementwise",
+          "formula_display": "Y = alpha * X, alpha = sqrt(D_MODEL)",
+          "visualizer": "basic",
+          "parameters": [
+            "D_MODEL"
+          ],
+          "input_ports": [
+            "input"
+          ],
+          "output_ports": [
+            "output"
+          ],
+          "analysis": []
         }
       ],
       "component_templates": [
@@ -3951,7 +3968,15 @@
                 {
                   "axis": "width",
                   "expression": {
-                    "symbol": "D"
+                    "op": "mul",
+                    "args": [
+                      {
+                        "symbol": "H"
+                      },
+                      {
+                        "symbol": "HD"
+                      }
+                    ]
                   }
                 }
               ],
@@ -5068,7 +5093,15 @@
                 {
                   "axis": "width",
                   "expression": {
-                    "symbol": "D"
+                    "op": "mul",
+                    "args": [
+                      {
+                        "symbol": "H"
+                      },
+                      {
+                        "symbol": "HD"
+                      }
+                    ]
                   }
                 }
               ],
@@ -6242,7 +6275,7 @@
           "output_ports": [
             {
               "port": "output",
-              "tensor_id": "output"
+              "tensor_id": "scaled-output"
             }
           ],
           "tensors": [
@@ -6329,8 +6362,8 @@
               ]
             },
             {
-              "tensor_id": "output",
-              "label": "Connector tokens (scaled by √DOUT at prefix boundary)",
+              "tensor_id": "projected",
+              "label": "Projected connector tokens",
               "semantic_role": "activation",
               "axes": [
                 {
@@ -6363,6 +6396,49 @@
                 "node_id": "connector-projection",
                 "port": "output"
               },
+              "consumers": [
+                {
+                  "node_kind": "operator",
+                  "node_id": "connector-scale",
+                  "port": "input"
+                }
+              ]
+            },
+            {
+              "tensor_id": "scaled-output",
+              "label": "Connector tokens scaled by √DOUT",
+              "semantic_role": "activation",
+              "axes": [
+                {
+                  "axis": "batch",
+                  "expression": {
+                    "symbol": "B"
+                  }
+                },
+                {
+                  "axis": "view",
+                  "expression": {
+                    "symbol": "V"
+                  }
+                },
+                {
+                  "axis": "tokens",
+                  "expression": {
+                    "symbol": "TOUT"
+                  }
+                },
+                {
+                  "axis": "width",
+                  "expression": {
+                    "symbol": "DOUT"
+                  }
+                }
+              ],
+              "producer": {
+                "node_kind": "operator",
+                "node_id": "connector-scale",
+                "port": "output"
+              },
               "consumers": []
             }
           ],
@@ -6388,7 +6464,7 @@
             },
             {
               "operator_id": "connector-projection",
-              "label": "Connector projection + prefix scale",
+              "label": "Connector projection",
               "definition_id": "linear",
               "multiplicity": 1,
               "inputs": [
@@ -6400,7 +6476,7 @@
               "outputs": [
                 {
                   "port": "output",
-                  "tensor_id": "output"
+                  "tensor_id": "projected"
                 }
               ],
               "bindings": [
@@ -6431,6 +6507,32 @@
                   "symbol": "K",
                   "expression": {
                     "symbol": "DMERGED"
+                  }
+                }
+              ]
+            },
+            {
+              "operator_id": "connector-scale",
+              "label": "Scale connector by √DOUT",
+              "definition_id": "scalar-scale",
+              "multiplicity": 1,
+              "inputs": [
+                {
+                  "port": "input",
+                  "tensor_id": "projected"
+                }
+              ],
+              "outputs": [
+                {
+                  "port": "output",
+                  "tensor_id": "scaled-output"
+                }
+              ],
+              "bindings": [
+                {
+                  "symbol": "D_MODEL",
+                  "expression": {
+                    "symbol": "DOUT"
                   }
                 }
               ]
@@ -6782,7 +6884,7 @@
               ]
             },
             {
-              "tensor_id": "prompt-tokens",
+              "tensor_id": "prompt-embeddings",
               "label": "Language embeddings",
               "semantic_role": "activation",
               "axes": [
@@ -6808,6 +6910,43 @@
               "producer": {
                 "node_kind": "operator",
                 "node_id": "embed-prompt",
+                "port": "output"
+              },
+              "consumers": [
+                {
+                  "node_kind": "operator",
+                  "node_id": "prompt-scale",
+                  "port": "input"
+                }
+              ]
+            },
+            {
+              "tensor_id": "scaled-prompt-tokens",
+              "label": "Language embeddings scaled by √D",
+              "semantic_role": "activation",
+              "axes": [
+                {
+                  "axis": "batch",
+                  "expression": {
+                    "symbol": "B"
+                  }
+                },
+                {
+                  "axis": "sequence",
+                  "expression": {
+                    "symbol": "L"
+                  }
+                },
+                {
+                  "axis": "width",
+                  "expression": {
+                    "symbol": "D"
+                  }
+                }
+              ],
+              "producer": {
+                "node_kind": "operator",
+                "node_id": "prompt-scale",
                 "port": "output"
               },
               "consumers": [
@@ -6909,7 +7048,7 @@
             },
             {
               "operator_id": "embed-prompt",
-              "label": "Language embedding + √D scale",
+              "label": "Language embedding",
               "definition_id": "token-embedding",
               "multiplicity": 1,
               "inputs": [
@@ -6921,10 +7060,36 @@
               "outputs": [
                 {
                   "port": "output",
-                  "tensor_id": "prompt-tokens"
+                  "tensor_id": "prompt-embeddings"
                 }
               ],
               "bindings": []
+            },
+            {
+              "operator_id": "prompt-scale",
+              "label": "Scale language by √D",
+              "definition_id": "scalar-scale",
+              "multiplicity": 1,
+              "inputs": [
+                {
+                  "port": "input",
+                  "tensor_id": "prompt-embeddings"
+                }
+              ],
+              "outputs": [
+                {
+                  "port": "output",
+                  "tensor_id": "scaled-prompt-tokens"
+                }
+              ],
+              "bindings": [
+                {
+                  "symbol": "D_MODEL",
+                  "expression": {
+                    "symbol": "D"
+                  }
+                }
+              ]
             },
             {
               "operator_id": "image-language-concat",
@@ -6938,7 +7103,7 @@
                 },
                 {
                   "port": "right",
-                  "tensor_id": "prompt-tokens"
+                  "tensor_id": "scaled-prompt-tokens"
                 }
               ],
               "outputs": [
@@ -8997,7 +9162,7 @@
         },
         {
           "template_id": "public-action-slice",
-          "label": "Public action contract slice",
+          "label": "Public action contract boundary",
           "parameters": [
             "B",
             "T",
@@ -9052,7 +9217,7 @@
             },
             {
               "tensor_id": "output",
-              "label": "Public action slice",
+              "label": "Public action contract",
               "semantic_role": "output",
               "axes": [
                 {
@@ -9085,7 +9250,7 @@
           "operators": [
             {
               "operator_id": "public-action-slice",
-              "label": "First public action dimensions",
+              "label": "Expose public action dimensions",
               "definition_id": "slice",
               "multiplicity": 1,
               "inputs": [

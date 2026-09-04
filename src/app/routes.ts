@@ -50,6 +50,8 @@ export function routeHref(route: RouteState, patch: RoutePatch = {}): string {
   const params = new URLSearchParams();
   if (next.model) {
     params.set("model", next.model);
+  }
+  if (next.model || next.tab !== "logical") {
     params.set("tab", next.tab);
   }
   for (const field of ROUTE_FIELDS) {

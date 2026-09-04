@@ -16,5 +16,5 @@ export function modelSwitchPatch(
       ? currentEntity
       : null
     : null;
-  return { model: modelId, tab: "logical", entity };
+  return { model: modelId, entity };
 }
