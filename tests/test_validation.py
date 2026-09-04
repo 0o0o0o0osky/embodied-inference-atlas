@@ -396,6 +396,14 @@ class ValidationTests(unittest.TestCase):
         }
         self.assertEqual(len(definitions), 16)
         self.assertEqual(definitions["slice"]["visualizer"], "basic")
+        with self.subTest(visualizer="patch embedding"):
+            self.assertEqual(
+                definitions["patch-embedding"]["visualizer"],
+                "conv",
+            )
+        with self.subTest(workload="unbounded denoise count"):
+            twelve_step = materialize_model_graph(graph, {"N_DENOISE": 12})
+            self.assertEqual(twelve_step["stages"][2]["stage_repeat"], 12)
 
         prefix_template = next(
             template for template in graph["block_templates"]

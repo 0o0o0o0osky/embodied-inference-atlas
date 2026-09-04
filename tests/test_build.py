@@ -37,9 +37,18 @@ class BuildTests(unittest.TestCase):
             self.assertLess(index.index('id="model-cards"'), index.index('id="coverage"'))
             self.assertIn("pi0-logical-v1", pi0)
             self.assertIn("workspace.js", pi0)
-            self.assertIn("attention-core", pi0)
-            self.assertIn("euler-update", pi0)
-            self.assertIn("Structure-only review", pi0)
+            self.assertIn('id="model-overview"', pi0)
+            self.assertIn('id="block-dag"', pi0)
+            self.assertIn('id="operator-detail"', pi0)
+            self.assertNotIn('id="stage-flow"', pi0)
+            pi0_page_data = json.loads(
+                pi0.split('<script id="page-data" type="application/json">', 1)[1]
+                .split("</script>", 1)[0]
+            )
+            self.assertEqual(
+                pi0_page_data["model_graph"]["model_graph_id"],
+                "pi0-logical-v1",
+            )
             self.assertIn("model.js", pi05)
             self.assertNotIn("workspace.js", pi05)
             self.assertIn("measured_local", performance)

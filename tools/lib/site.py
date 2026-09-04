@@ -897,21 +897,20 @@ def _nested(row: Mapping[str, object], parent: str, child: str) -> object:
 
 def _logical_workspace_content() -> str:
     return (
-        '<section id="model-summary" class="panel model-summary"></section>'
-        '<section class="panel workload-panel"><h2>Logical workload</h2>'
-        '<div id="workload-controls" class="workload-controls"></div></section>'
-        '<nav id="graph-breadcrumb" class="graph-breadcrumb" aria-label="Logical graph selection"></nav>'
-        '<div id="logical-workspace" class="logical-workspace">'
-        '<section class="panel graph-browser" aria-label="Pi0 logical graph">'
-        '<h2>Model pipeline</h2><div id="stage-flow" class="pipeline stage-flow"></div>'
-        '<h3>Blocks and modules</h3><div id="module-flow" class="pipeline module-flow"></div>'
-        '<div id="component-section"><h3>Components</h3>'
-        '<div id="component-flow" class="pipeline component-flow"></div></div>'
-        '<h3>Atomic operators</h3><div id="operator-flow" class="pipeline operator-flow"></div>'
+        '<section class="workspace-identity-row">'
+        '<div id="model-summary" class="model-summary"></div>'
+        '<div class="workload-panel"><h2>Workload</h2>'
+        '<div id="workload-controls" class="workload-controls"></div></div>'
         '</section>'
-        '<aside id="operator-detail" class="panel operator-detail" aria-live="polite"></aside>'
-        '</div>'
-        '<p id="phase-scope-note" class="scope-note">Structure-only review: runtime, hardware, precision, profiler, and roofline overlays are outside this slice.</p>'
+        '<section id="model-overview" class="model-overview">'
+        '<header class="overview-heading"><div><p class="section-kicker">One representative pass</p>'
+        '<h2>Pi0 logical model</h2><p>Atomic operators are connected by declared tensors; rounded scopes fold repeated layers and denoise steps.</p></div>'
+        '<nav id="graph-breadcrumb" class="graph-breadcrumb" aria-label="Selected atomic operator"></nav></header>'
+        '<div id="logical-workspace" class="logical-workspace">'
+        '<section class="dag-panel" aria-label="Pi0 logical operator DAG">'
+        '<div id="block-dag" class="dag-viewport" tabindex="0"></div></section>'
+        '<aside id="operator-detail" class="operator-detail" aria-live="polite"></aside>'
+        '</div></section>'
     )
 
 

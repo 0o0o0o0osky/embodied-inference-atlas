@@ -59,7 +59,7 @@
           "editable": true,
           "default": 10,
           "minimum": 1,
-          "maximum": 10,
+          "maximum": null,
           "expression": null
         },
         {
@@ -335,7 +335,7 @@
           "label": "Patch embedding",
           "category": "embedding",
           "formula_display": "Image patches projected to token embeddings",
-          "visualizer": "gemm",
+          "visualizer": "conv",
           "parameters": [],
           "input_ports": [
             "image"

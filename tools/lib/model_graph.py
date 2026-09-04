@@ -7,6 +7,7 @@ from typing import Callable
 
 
 Number = int | float
+MAX_SAFE_INTEGER = (1 << 53) - 1
 
 
 @dataclass(frozen=True)
@@ -31,6 +32,13 @@ def _non_negative_integer(value: object, label: str) -> int:
     if number < 0 or (isinstance(number, float) and not number.is_integer()):
         raise ValueError(f"{label} must be a non-negative integer")
     return int(number)
+
+
+def _safe_non_negative_integer(value: object, label: str) -> int:
+    number = _non_negative_integer(value, label)
+    if number > MAX_SAFE_INTEGER:
+        raise ValueError(f"{label} must be a safe integer")
+    return number
 
 
 def _add(values: list[Number]) -> Number:
@@ -166,20 +174,37 @@ def resolve_symbols(
             if expression is None:
                 if default is None:
                     raise ValueError(f"base symbol has no default: {symbol}")
-                value = supplied.get(symbol, default)
-                value = _finite_number(value, f"symbol {symbol}")
-                minimum = item.get("minimum")
-                maximum = item.get("maximum")
-                if not _is_number(minimum) or not _is_number(maximum):
+                minimum_value = item.get("minimum")
+                maximum_value = item.get("maximum")
+                try:
+                    minimum = _safe_non_negative_integer(
+                        minimum_value,
+                        f"minimum bound for {symbol}",
+                    )
+                    maximum = (
+                        None
+                        if maximum_value is None
+                        else _safe_non_negative_integer(
+                            maximum_value,
+                            f"maximum bound for {symbol}",
+                        )
+                    )
+                except ValueError as error:
+                    raise ValueError(f"base symbol bounds are invalid: {symbol}") from error
+                if maximum is not None and maximum < minimum:
                     raise ValueError(f"base symbol bounds are invalid: {symbol}")
-                if value < minimum or value > maximum:
+                value = _safe_non_negative_integer(
+                    supplied.get(symbol, default),
+                    f"symbol {symbol}",
+                )
+                if value < minimum or (maximum is not None and value > maximum):
                     raise ValueError(f"symbol override is out of bounds: {symbol}")
             else:
                 if default is not None or item.get("editable") is True:
                     raise ValueError(f"derived symbol declaration is invalid: {symbol}")
                 references = sorted(_symbol_references(expression))
                 value = evaluate_expression(expression, {name: resolve(name) for name in references})
-            resolved[symbol] = _non_negative_integer(value, f"symbol {symbol}")
+            resolved[symbol] = _safe_non_negative_integer(value, f"symbol {symbol}")
             return resolved[symbol]
         finally:
             resolving.pop()

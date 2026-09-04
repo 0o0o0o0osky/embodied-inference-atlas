@@ -766,3 +766,587 @@ body {
     justify-content: flex-start;
   }
 }
+
+/* Pi0 logical workspace: one tensor-derived DAG and one persistent microscope. */
+.workspace-identity-row {
+  display: grid;
+  grid-template-columns: minmax(18rem, 0.72fr) minmax(32rem, 1.45fr);
+  gap: 1.5rem;
+  align-items: start;
+  margin: 1rem 0 1.4rem;
+  padding: 1rem 0 1.15rem;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.workspace-identity-row h2,
+.workload-panel h2,
+.model-overview h2 {
+  margin: 0.1rem 0 0.65rem;
+}
+
+.section-kicker {
+  margin: 0;
+  color: var(--teal);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.workspace-identity-row .model-summary-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.6rem;
+}
+
+.workspace-identity-row .model-summary-fact {
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.workspace-identity-row .model-summary-fact dd {
+  color: var(--navy);
+  font-size: 0.82rem;
+  font-weight: 650;
+}
+
+.workspace-identity-row .workload-control-grid {
+  grid-template-columns: repeat(4, minmax(7rem, 1fr));
+  gap: 0.55rem;
+}
+
+.workspace-identity-row .workload-control {
+  grid-template-columns: minmax(0, 1fr) 4.8rem;
+  gap: 0.18rem 0.5rem;
+  align-items: center;
+  padding: 0.45rem 0.55rem;
+  border: 0;
+  border-radius: 0.45rem;
+  background: #eaf1f4;
+}
+
+.workspace-identity-row .workload-control small {
+  grid-column: 1 / -1;
+  font-size: 0.66rem;
+}
+
+.workspace-identity-row .workload-control input {
+  padding: 0.34rem 0.4rem;
+}
+
+.workspace-identity-row .derived-symbols {
+  margin-top: 0.6rem;
+}
+
+.workspace-identity-row .derived-symbols h3 {
+  display: none;
+}
+
+.workspace-identity-row .derived-symbol {
+  padding: 0.24rem 0.45rem;
+  border: 0;
+  font-size: 0.7rem;
+}
+
+.model-overview {
+  margin-top: 0.4rem;
+}
+
+.overview-heading {
+  display: flex;
+  gap: 1.5rem;
+  align-items: end;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.overview-heading p:not(.section-kicker) {
+  max-width: 48rem;
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.overview-heading .graph-breadcrumb {
+  justify-content: flex-end;
+  max-width: 34rem;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.logical-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(20rem, 23rem);
+  gap: 0;
+  align-items: stretch;
+  overflow: hidden;
+  border: 1px solid #c3d0d6;
+  border-radius: 1rem;
+  background: #fff;
+  box-shadow: 0 0.8rem 2.5rem rgba(31, 70, 98, 0.08);
+}
+
+.dag-panel {
+  min-width: 0;
+  background:
+    linear-gradient(rgba(31, 70, 98, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(31, 70, 98, 0.035) 1px, transparent 1px),
+    #f8fbfc;
+  background-size: 24px 24px;
+}
+
+.dag-viewport {
+  min-height: 44rem;
+  overflow: auto;
+  outline: none;
+}
+
+.dag-viewport:focus-visible {
+  box-shadow: inset 0 0 0 2px var(--teal);
+}
+
+.dag-legend {
+  position: sticky;
+  z-index: 8;
+  top: 0;
+  left: 0;
+  display: flex;
+  gap: 0.9rem;
+  align-items: center;
+  width: max-content;
+  min-width: 100%;
+  box-sizing: border-box;
+  padding: 0.55rem 0.8rem;
+  border-bottom: 1px solid rgba(195, 208, 214, 0.85);
+  color: var(--muted);
+  background: rgba(248, 251, 252, 0.94);
+  backdrop-filter: blur(5px);
+  font-size: 0.68rem;
+}
+
+.dag-legend-item {
+  display: inline-flex;
+  align-items: center;
+}
+
+.dag-legend-line {
+  display: inline-block;
+  width: 1.7rem;
+  margin-right: 0.36rem;
+  border-top: 2px solid #6f8b98;
+  vertical-align: middle;
+}
+
+.dag-legend-repeat .dag-legend-line {
+  border-color: var(--teal);
+  border-top-style: dashed;
+}
+
+.dag-legend-note {
+  margin-left: auto;
+}
+
+.dag-svg {
+  display: block;
+  overflow: visible;
+}
+
+.dag-stage rect {
+  fill: rgba(255, 255, 255, 0.68);
+  stroke: #d7e0e4;
+  stroke-width: 1;
+}
+
+.dag-stage--2 rect {
+  fill: rgba(236, 244, 247, 0.72);
+}
+
+.dag-stage--3 rect {
+  fill: rgba(242, 247, 246, 0.78);
+}
+
+.dag-stage-index {
+  fill: #95a7b0;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.dag-stage-label {
+  fill: var(--navy);
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.dag-scope rect {
+  fill: rgba(255, 255, 255, 0.34);
+  stroke: #9eb7c1;
+  stroke-width: 1;
+}
+
+.dag-scope--component rect {
+  fill: rgba(255, 255, 255, 0.3);
+  stroke: #bfd0d7;
+  stroke-dasharray: 3 4;
+}
+
+.dag-scope--transformer rect {
+  fill: rgba(20, 125, 118, 0.035);
+  stroke: #4d9b95;
+  stroke-width: 1.5;
+}
+
+.dag-scope--denoise rect {
+  fill: rgba(31, 70, 98, 0.028);
+  stroke: #476f87;
+  stroke-width: 2;
+}
+
+.dag-scope-label {
+  fill: #496570;
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: 0.035em;
+}
+
+.dag-scope--transformer .dag-scope-label,
+.dag-scope--denoise .dag-scope-label {
+  fill: var(--teal);
+  font-size: 11px;
+}
+
+.dag-edge path {
+  fill: none;
+  stroke: #718c98;
+  stroke-linecap: round;
+  stroke-width: 1.35;
+  opacity: 0.86;
+}
+
+.dag-edge--feedback path,
+.dag-edge--repeat path {
+  stroke: var(--teal);
+  stroke-dasharray: 6 5;
+  stroke-width: 1.65;
+}
+
+.dag-arrow-head {
+  fill: #718c98;
+}
+
+.dag-edge-label {
+  fill: #455d68;
+  stroke: rgba(248, 251, 252, 0.98);
+  stroke-width: 3px;
+  paint-order: stroke;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 7.5px;
+  pointer-events: none;
+}
+
+.dag-node rect {
+  fill: #fff;
+  stroke: #9eb1bb;
+  stroke-width: 1.2;
+  transition: fill 140ms ease, stroke 140ms ease, stroke-width 140ms ease;
+}
+
+.dag-node--operator {
+  cursor: pointer;
+  outline: none;
+}
+
+.dag-node--operator:hover rect,
+.dag-node--operator:focus-visible rect {
+  fill: #f1f9f8;
+  stroke: var(--teal);
+}
+
+.dag-node.is-selected rect {
+  fill: #d9f1ee;
+  stroke: var(--teal);
+  stroke-width: 3;
+}
+
+.dag-node--input rect,
+.dag-node--output rect,
+.dag-node--loop rect {
+  fill: #e7eef2;
+  stroke: #8da3ae;
+}
+
+.dag-node--loop rect {
+  fill: #e4f3f1;
+  stroke: var(--teal);
+}
+
+.dag-node-label {
+  fill: var(--ink);
+  font-size: 10px;
+  font-weight: 760;
+  pointer-events: none;
+}
+
+.dag-node-kind {
+  fill: #6d7e87;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 7.5px;
+  pointer-events: none;
+}
+
+.operator-detail {
+  position: sticky;
+  top: 0;
+  align-self: start;
+  box-sizing: border-box;
+  max-height: 100vh;
+  margin: 0;
+  padding: 1rem;
+  overflow-y: auto;
+  border: 0;
+  border-left: 1px solid #cbd7dc;
+  background: #fff;
+}
+
+.operator-detail .tensor-shape-row {
+  padding: 0.4rem 0;
+  border: 0;
+  border-bottom: 1px solid #e8edef;
+  border-radius: 0;
+}
+
+.operator-detail .tensor-shape-chip {
+  padding: 0.18rem 0.3rem;
+}
+
+.operator-analysis .analysis-grid {
+  grid-template-columns: 1fr;
+}
+
+.operator-analysis .analysis-fact {
+  padding: 0.55rem 0.65rem;
+  border: 0;
+  border-left: 3px solid #9fc9c5;
+  background: #f2f8f7;
+}
+
+.analysis-fact dd + dd {
+  margin-top: 0.24rem;
+}
+
+.analysis-primary,
+.analysis-aggregate {
+  font-size: 0.76rem;
+}
+
+.analysis-aggregate {
+  color: #175e59;
+  font-weight: 750;
+}
+
+.analysis-factors {
+  color: var(--muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.65rem;
+}
+
+.operator-visualizer.microscope {
+  padding: 0.7rem;
+  border: 0;
+  border-radius: 0.7rem;
+  background: #eef4f6;
+}
+
+.microscope-dimensions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  align-items: center;
+  justify-content: center;
+}
+
+.microscope-dimensions > span,
+.microscope-dimensions .model-summary-fact {
+  padding: 0.26rem 0.4rem;
+  border: 1px solid #c5d5db;
+  border-radius: 999px;
+  background: #fff;
+  font-size: 0.66rem;
+}
+
+.microscope-dimensions .model-summary-fact dt {
+  display: none;
+}
+
+.microscope-dimensions .model-summary-fact dd {
+  font-size: 0.66rem;
+}
+
+.microscope-canvas {
+  display: block;
+  width: 100%;
+  min-height: 10.5rem;
+  margin-top: 0.55rem;
+  border-radius: 0.55rem;
+  background: #fff;
+}
+
+.microscope-tile rect,
+.conv-output-cell,
+.conv-grid-cell {
+  fill: #e4eaed;
+  stroke: #a9bbc3;
+  stroke-width: 1;
+}
+
+.microscope-tile text {
+  fill: #3f5661;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.microscope-tile.is-active rect,
+.conv-receptive-field.is-active {
+  fill: #bce4df;
+  stroke: var(--teal);
+  stroke-width: 2;
+}
+
+.microscope-tile.is-accumulating rect {
+  fill: #dcefea;
+  stroke: #3b938c;
+}
+
+.microscope-tile.is-complete rect {
+  fill: #d7e3e7;
+  stroke: #668591;
+}
+
+.microscope-tile.is-written rect,
+.conv-output-cell.is-written {
+  fill: var(--teal);
+  stroke: #0c625d;
+  stroke-width: 2;
+}
+
+.conv-receptive-field {
+  fill: rgba(20, 125, 118, 0.24);
+  stroke: var(--teal);
+}
+
+.microscope-phase {
+  fill: var(--navy);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.microscope-caption {
+  fill: var(--muted);
+  font-size: 9px;
+}
+
+.microscope-symbol {
+  fill: var(--teal);
+  font-size: 15px;
+  font-weight: 850;
+}
+
+.animation-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  align-items: center;
+  margin-top: 0.55rem;
+}
+
+.animation-controls button,
+.animation-controls select {
+  padding: 0.32rem 0.48rem;
+  border: 1px solid #9eb3bd;
+  border-radius: 0.4rem;
+  color: var(--navy);
+  background: #fff;
+  font: inherit;
+  font-size: 0.7rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.animation-controls button:hover,
+.animation-controls button:focus-visible,
+.animation-controls select:focus-visible {
+  border-color: var(--teal);
+  outline: 2px solid rgba(20, 125, 118, 0.18);
+}
+
+.animation-speed {
+  display: inline-flex;
+  gap: 0.3rem;
+  align-items: center;
+  color: var(--muted);
+  font-size: 0.68rem;
+}
+
+.animation-status {
+  flex-basis: 100%;
+  min-height: 1.2em;
+  color: #45606b;
+  font-size: 0.67rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dag-node rect {
+    transition: none;
+  }
+}
+
+@media (max-width: 68rem) {
+  .workspace-identity-row {
+    grid-template-columns: 1fr;
+  }
+
+  .logical-workspace {
+    grid-template-columns: 1fr;
+    overflow: visible;
+  }
+
+  .operator-detail {
+    position: static;
+    max-height: none;
+    border-top: 1px solid #cbd7dc;
+    border-left: 0;
+  }
+
+  .overview-heading {
+    align-items: start;
+    flex-direction: column;
+  }
+
+  .overview-heading .graph-breadcrumb {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 42rem) {
+  .workspace-identity-row {
+    grid-template-columns: 1fr;
+    min-width: 0;
+  }
+
+  .workspace-identity-row .model-summary-grid,
+  .workspace-identity-row .workload-control-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .dag-viewport {
+    min-height: 32rem;
+  }
+
+  .dag-legend-note {
+    display: none;
+  }
+}
