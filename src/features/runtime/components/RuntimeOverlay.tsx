@@ -26,11 +26,29 @@ function activate(event: KeyboardEvent<SVGGElement>, action: () => void) {
   }
 }
 
-interface LabelBox {
+export interface LabelBox {
   x: number;
   y: number;
   width: number;
   height: number;
+}
+
+const LABEL_GAP = 10;
+const NODE_CLEARANCE = 8;
+
+const SHORT_PRECISION_LABELS: Readonly<Record<string, string>> = {
+  "mixed-bf16-fp32": "BF16/FP32",
+  "mixed-fp8-e4m3-fp16": "FP8/FP16",
+  "q8_0-weight-only": "Q8_0",
+  "uniform-fp16": "FP16",
+  "flashrt-fp16-control": "FP16 ctrl",
+  "flashrt-pi05-fp16-control": "FP16 ctrl",
+  "lerobot-fp32-attention-control": "FP32 ctrl",
+};
+
+function shortPrecisionMark(precision: PrecisionPath | undefined) {
+  if (!precision) return "precision";
+  return SHORT_PRECISION_LABELS[precision.precisionPathId] ?? precision.label;
 }
 
 function intersects(first: LabelBox, second: LabelBox) {
@@ -40,7 +58,7 @@ function intersects(first: LabelBox, second: LabelBox) {
   );
 }
 
-function placeLabel(
+export function placeRuntimeLabel(
   anchor: Pick<NodeBox, "x" | "y" | "width" | "height">,
   width: number,
   layout: LogicalLayout,
@@ -53,25 +71,42 @@ function placeLabel(
     x: Math.min(Math.max(4, candidate.x), Math.max(4, layout.width - width - 4)),
     y: Math.min(Math.max(2, candidate.y), Math.max(2, layout.height - height - 2)),
   });
-  const right = { x: anchor.x + anchor.width + 5, y: anchor.y + (anchor.height - height) / 2, width, height };
-  const left = { x: anchor.x - width - 5, y: anchor.y + (anchor.height - height) / 2, width, height };
-  const candidates = [
-    ...(preferLeft ? [left, right] : [right, left]),
-    { x: anchor.x + (anchor.width - width) / 2, y: anchor.y - height - 5, width, height },
-    { x: anchor.x + (anchor.width - width) / 2, y: anchor.y + anchor.height + 5, width, height },
-    { x: anchor.x + anchor.width + 5, y: anchor.y - height - 5, width, height },
-    { x: anchor.x - width - 5, y: anchor.y - height - 5, width, height },
-  ].map(clamp);
-  const placed = candidates.find((candidate) => occupied.every((box) => !intersects(candidate, box)))
-    ?? candidates[0]!;
-  occupied.push(placed);
+  const right = { x: anchor.x + anchor.width + LABEL_GAP, y: anchor.y + (anchor.height - height) / 2, width, height };
+  const left = { x: anchor.x - width - LABEL_GAP, y: anchor.y + (anchor.height - height) / 2, width, height };
+  const above = { x: anchor.x + (anchor.width - width) / 2, y: anchor.y - height - LABEL_GAP, width, height };
+  const below = { x: anchor.x + (anchor.width - width) / 2, y: anchor.y + anchor.height + LABEL_GAP, width, height };
+  const rightAbove = { x: right.x, y: above.y, width, height };
+  const leftAbove = { x: left.x, y: above.y, width, height };
+  const rightBelow = { x: right.x, y: below.y, width, height };
+  const leftBelow = { x: left.x, y: below.y, width, height };
+  const rowStep = height + LABEL_GAP;
+  const candidates = (preferLeft
+    ? [
+        left, leftAbove, leftBelow,
+        { ...leftAbove, y: leftAbove.y - rowStep },
+        { ...leftBelow, y: leftBelow.y + rowStep },
+      ]
+    : [
+        right, left, above, below, rightAbove, leftAbove, rightBelow, leftBelow,
+        { ...rightAbove, y: rightAbove.y - rowStep },
+        { ...leftAbove, y: leftAbove.y - rowStep },
+        { ...rightBelow, y: rightBelow.y + rowStep },
+        { ...leftBelow, y: leftBelow.y + rowStep },
+      ]).map(clamp);
+  const placed = candidates.find((candidate) => occupied.every((box) => !intersects(candidate, box))) ?? null;
+  if (placed) occupied.push(placed);
   return placed;
 }
 
 export function RuntimeOverlay({ layout, realization, overlay, onSelectGroup }: RuntimeOverlayProps) {
   const index = indexRuntimeRealization(realization);
   const occupied: LabelBox[] = [
-    ...[...layout.nodeBoxes.values()].map((box) => ({ x: box.x - 2, y: box.y - 2, width: box.width + 4, height: box.height + 4 })),
+    ...[...layout.nodeBoxes.values()].map((box) => ({
+      x: box.x - NODE_CLEARANCE,
+      y: box.y - NODE_CLEARANCE,
+      width: box.width + NODE_CLEARANCE * 2,
+      height: box.height + NODE_CLEARANCE * 2,
+    })),
     ...layout.scopeBoxes.map((box) => ({ x: box.x, y: box.y, width: box.width, height: box.headerHeight + 3 })),
   ];
   const labelledGroups = new Set<string>();
@@ -80,20 +115,33 @@ export function RuntimeOverlay({ layout, realization, overlay, onSelectGroup }: 
     labelledGroups.add(boundary.groupId);
     const group = index.groupById.get(boundary.groupId);
     const precision = index.precisionById.get(boundary.precisionPathId);
-    const label = `Fused · ${precisionMark(precision)}`;
-    const width = Math.max(106, label.length * 8.1 + 18);
-    return [{ boundary, group, label, box: placeLabel(boundary.box, width, layout, occupied, true) }];
+    const labels = [...new Set([
+      `Fused · ${precisionMark(precision)}`,
+      `Fused · ${shortPrecisionMark(precision)}`,
+    ])];
+    for (const label of labels) {
+      const width = Math.max(106, label.length * 8.1 + 18);
+      const box = placeRuntimeLabel(boundary.box, width, layout, occupied, true);
+      if (box) return [{ boundary, group, label, box }];
+    }
+    return [];
   });
   const positionedBadges = [...overlay.badgesByNode].flatMap(([ref, badges]) => {
     const anchor = layout.nodeBoxes.get(ref);
     if (!anchor) return [];
-    return badges.map((badge) => {
+    return badges.flatMap((badge) => {
       const group = badge.groupId ? index.groupById.get(badge.groupId) : undefined;
       const label = badge.kind === "precision" && group
         ? precisionMark(index.precisionById.get(group.precisionPathId))
         : badge.label;
-      const width = Math.max(48, label.length * 8.2 + 16);
-      return { ref, badge, group, label, box: placeLabel(anchor, width, layout, occupied) };
+      const precision = group ? index.precisionById.get(group.precisionPathId) : undefined;
+      const labels = badge.kind === "precision" ? [...new Set([label, shortPrecisionMark(precision)])] : [label];
+      for (const candidateLabel of labels) {
+        const width = Math.max(48, candidateLabel.length * 8.2 + 16);
+        const box = placeRuntimeLabel(anchor, width, layout, occupied);
+        if (box) return [{ ref, badge, group, label: candidateLabel, box }];
+      }
+      return [];
     });
   });
   return (

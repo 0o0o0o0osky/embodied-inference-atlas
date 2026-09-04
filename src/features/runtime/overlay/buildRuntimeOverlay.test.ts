@@ -2,11 +2,12 @@ import { expect, it } from "vitest";
 
 import { readRoute, routeHref } from "../../../app/routes";
 import type { LogicalDag, LogicalLayout, LogicalNode } from "../../model-graph/domain/types";
+import { placeRuntimeLabel } from "../components/RuntimeOverlay";
 import type { ExecutionGroup, RuntimeMapping, RuntimeRealizationRecord } from "../domain/types";
 import { resolveRuntimeCandidates } from "../domain/resolveRuntimeRealization";
 import { buildRuntimeOverlay } from "./buildRuntimeOverlay";
 
-it("projects runtime states as row-local fragments without changing logical boxes", () => {
+it("projects runtime states without altering or obscuring fixed logical geometry", () => {
   const refs = ["stage/a", "stage/gate", "stage/c", "stage/d", "stage/e", "stage/f", "stage/g", "stage/h"];
   const node = (ref: string): LogicalNode => ({
     ref, kind: "operator", stageId: "stage", moduleId: "module", componentId: null,
@@ -81,4 +82,11 @@ it("projects runtime states as row-local fragments without changing logical boxe
     modelId: "smolvla", modelGraphId: "smolvla-base-logical-v1", runtimeId: "vla-cpp",
     hardwareId: "thor", workload: "cfg-other", precisionId: "q8",
   })[0]?.realization.availabilityReasonCode).toBe("loader_rejects_q8_tensor");
+  const blocked = { ...layout, width: 320, height: 220 };
+  const blockers = [{ x: 0, y: 0, width: 320, height: 220 }];
+  expect(placeRuntimeLabel({ x: 100, y: 100, width: 60, height: 30 }, 190, blocked, blockers)).toBeNull();
+  expect(placeRuntimeLabel(
+    { x: 100, y: 100, width: 60, height: 30 }, 80, blocked,
+    [{ x: 0, y: 0, width: 95, height: 220 }], true,
+  )).toBeNull();
 });
