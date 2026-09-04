@@ -28,6 +28,112 @@
     animation: null,
   };
 
+  // The figure is intentionally composed like a paper diagram instead of laid
+  // out by a generic graph algorithm. Rows are top-to-bottom; entries in the
+  // same row are the only operators that spread horizontally. Everything else
+  // (names, shapes, repeats, and edges) is resolved from the materialized graph.
+  const PI0_PAPER_LAYOUT = Object.freeze({
+    "vision-encoder": [
+      ["vision-encoder/image-patch-embedding/patch-project"],
+      ["vision-encoder/vision-blocks/self-attention/attention-norm"],
+      [
+        "vision-encoder/vision-blocks/self-attention/query-projection",
+        "vision-encoder/vision-blocks/self-attention/key-projection",
+        "vision-encoder/vision-blocks/self-attention/value-projection",
+      ],
+      ["vision-encoder/vision-blocks/self-attention/attention"],
+      ["vision-encoder/vision-blocks/self-attention/output-projection"],
+      ["vision-encoder/vision-blocks/self-attention/attention-residual"],
+      ["vision-encoder/vision-blocks/feed-forward/mlp-norm"],
+      ["vision-encoder/vision-blocks/feed-forward/mlp-up-projection"],
+      ["vision-encoder/vision-blocks/feed-forward/mlp-gelu"],
+      ["vision-encoder/vision-blocks/feed-forward/mlp-down-projection"],
+      ["vision-encoder/vision-blocks/feed-forward/mlp-residual"],
+      ["vision-encoder/vision-final-normalization/normalize"],
+      ["vision-encoder/vision-projector/project"],
+    ],
+    "prefix-encoder": [
+      [
+        "prefix-encoder/prompt-prefix-builder/flatten-views",
+        "prefix-encoder/prompt-prefix-builder/embed-prompt",
+      ],
+      ["prefix-encoder/prompt-prefix-builder/build-prefix"],
+      ["prefix-encoder/prefix-blocks/self-attention/attention-norm"],
+      [
+        "prefix-encoder/prefix-blocks/self-attention/query-projection",
+        "prefix-encoder/prefix-blocks/self-attention/key-projection",
+        "prefix-encoder/prefix-blocks/self-attention/value-projection",
+      ],
+      [
+        "prefix-encoder/prefix-blocks/self-attention/query-rope",
+        "prefix-encoder/prefix-blocks/self-attention/key-rope",
+        null,
+      ],
+      ["prefix-encoder/prefix-blocks/self-attention/attention"],
+      [
+        "prefix-encoder/prefix-blocks/self-attention/output-projection",
+        "prefix-encoder/prefix-blocks/self-attention/cache-output",
+      ],
+      ["prefix-encoder/prefix-blocks/self-attention/attention-residual"],
+      ["prefix-encoder/prefix-blocks/feed-forward/mlp-norm"],
+      [
+        "prefix-encoder/prefix-blocks/feed-forward/gate-projection",
+        "prefix-encoder/prefix-blocks/feed-forward/up-projection",
+      ],
+      ["prefix-encoder/prefix-blocks/feed-forward/gate-gelu", null],
+      ["prefix-encoder/prefix-blocks/feed-forward/gate-product"],
+      ["prefix-encoder/prefix-blocks/feed-forward/down-projection"],
+      ["prefix-encoder/prefix-blocks/feed-forward/mlp-residual"],
+    ],
+    "action-flow-decoder": [
+      [
+        "action-flow-decoder/action-suffix-builder/state-projection",
+        "action-flow-decoder/action-suffix-builder/action-projection",
+        "action-flow-decoder/action-suffix-builder/time-embedding",
+      ],
+      [null, "action-flow-decoder/action-suffix-builder/action-time-concat"],
+      [null, "action-flow-decoder/action-suffix-builder/time-mlp-in"],
+      [null, "action-flow-decoder/action-suffix-builder/time-mlp-silu"],
+      [null, "action-flow-decoder/action-suffix-builder/time-mlp-out"],
+      ["action-flow-decoder/action-suffix-builder/suffix-concat"],
+      [
+        "action-flow-decoder/action-expert-blocks/self-attention/extract-prefix-key",
+        "action-flow-decoder/action-expert-blocks/self-attention/extract-prefix-value",
+      ],
+      ["action-flow-decoder/action-expert-blocks/self-attention/attention-norm"],
+      [
+        "action-flow-decoder/action-expert-blocks/self-attention/query-projection",
+        "action-flow-decoder/action-expert-blocks/self-attention/key-projection",
+        "action-flow-decoder/action-expert-blocks/self-attention/value-projection",
+      ],
+      [
+        "action-flow-decoder/action-expert-blocks/self-attention/query-rope",
+        "action-flow-decoder/action-expert-blocks/self-attention/key-rope",
+        null,
+      ],
+      [
+        "action-flow-decoder/action-expert-blocks/self-attention/key-concat",
+        "action-flow-decoder/action-expert-blocks/self-attention/value-concat",
+      ],
+      ["action-flow-decoder/action-expert-blocks/self-attention/attention"],
+      ["action-flow-decoder/action-expert-blocks/self-attention/output-projection"],
+      ["action-flow-decoder/action-expert-blocks/self-attention/attention-residual"],
+      ["action-flow-decoder/action-expert-blocks/feed-forward/mlp-norm"],
+      [
+        "action-flow-decoder/action-expert-blocks/feed-forward/gate-projection",
+        "action-flow-decoder/action-expert-blocks/feed-forward/up-projection",
+      ],
+      ["action-flow-decoder/action-expert-blocks/feed-forward/gate-gelu", null],
+      ["action-flow-decoder/action-expert-blocks/feed-forward/gate-product"],
+      ["action-flow-decoder/action-expert-blocks/feed-forward/down-projection"],
+      ["action-flow-decoder/action-expert-blocks/feed-forward/mlp-residual"],
+      ["action-flow-decoder/velocity-euler-update/final-norm"],
+      ["action-flow-decoder/velocity-euler-update/select-action-rows"],
+      ["action-flow-decoder/velocity-euler-update/velocity-projection"],
+      ["action-flow-decoder/velocity-euler-update/euler-update"],
+    ],
+  });
+
   class ExpressionError extends Error {
     constructor(message, symbol) {
       super(message);
@@ -595,13 +701,10 @@
       if (edgeKeys.has(key)) return;
       edgeKeys.add(key);
       edges.push({
-        id: `dag-edge-${edges.length}`,
         source,
         target,
         tensor: tensor || null,
         kind: kind || "tensor",
-        label: labelOverride || (tensor ? tensor.label : "tensor"),
-        shape: tensor && Array.isArray(tensor.shape) ? tensor.shape : null,
       });
     }
 
@@ -653,7 +756,7 @@
       if (module.module_repeat > 1) {
         scopes.push({
           kind: "transformer",
-          label: `Transformer layers ×${Atlas.format(module.module_repeat, 0)}`,
+          label: `${module.label} ×${Atlas.format(module.module_repeat, 0)}`,
           stageId: stage.stage_id,
           moduleId: module.module_id,
           nodeIds: moduleNodeIds,
@@ -832,86 +935,164 @@
     return { nodes, edges, scopes };
   }
 
-  function layoutDag(model) {
-    const positions = new Map();
-    const stageLayouts = [];
-    let stageY = 18;
-    let canvasWidth = 0;
-    const nodeWidth = 164;
-    const nodeHeight = 58;
-    const xStep = 224;
-    const yStep = 92;
+  const PAPER_COMPACT_DEFINITIONS = new Set([
+    "concat",
+    "elementwise-multiply",
+    "euler-update",
+    "gelu",
+    "layer-norm",
+    "reshape",
+    "residual-add",
+    "rms-norm",
+    "rope",
+    "silu",
+    "slice",
+  ]);
 
-    state.materialized.stages.forEach((stage) => {
-      const stageNodes = [...model.nodes.values()].filter((node) => node.stageId === stage.stage_id);
-      const nodeIds = new Set(stageNodes.map((node) => node.id));
-      const regularEdges = model.edges.filter(
-        (edge) => edge.kind === "tensor" && nodeIds.has(edge.source) && nodeIds.has(edge.target),
-      );
-      const indegree = new Map(stageNodes.map((node) => [node.id, 0]));
-      const outgoing = new Map(stageNodes.map((node) => [node.id, []]));
-      regularEdges.forEach((edge) => {
-        indegree.set(edge.target, (indegree.get(edge.target) || 0) + 1);
-        outgoing.get(edge.source).push(edge.target);
+  function paperNodeSize(node, slotCount, slotWidth) {
+    if (node.kind !== "operator") {
+      return { width: Math.min(142, slotWidth - 8), height: 32, compact: true };
+    }
+    const compact = PAPER_COMPACT_DEFINITIONS.has(node.definitionId);
+    const preferredWidth = slotCount === 1 ? 232 : slotCount === 2 ? 132 : 90;
+    return {
+      width: Math.min(preferredWidth, slotWidth - 7),
+      height: compact ? 32 : 48,
+      compact,
+    };
+  }
+
+  function placePaperRow(positions, nodes, stageLayout, entries, centerY, rowIndex) {
+    const slotWidth = stageLayout.contentWidth / entries.length;
+    entries.forEach((nodeId, slotIndex) => {
+      if (!nodeId) return;
+      const node = nodes.get(nodeId);
+      if (!node) return;
+      const size = paperNodeSize(node, entries.length, slotWidth);
+      positions.set(nodeId, {
+        x: stageLayout.contentX + slotIndex * slotWidth + (slotWidth - size.width) / 2,
+        y: centerY - size.height / 2,
+        width: size.width,
+        height: size.height,
+        compact: size.compact,
+        row: rowIndex,
+        lane: slotIndex,
       });
-      const ranks = new Map(stageNodes.map((node) => [node.id, 0]));
-      const queue = stageNodes
-        .filter((node) => indegree.get(node.id) === 0)
-        .sort((left, right) => left.order - right.order);
-      while (queue.length) {
-        const source = queue.shift();
-        (outgoing.get(source.id) || []).forEach((targetId) => {
-          ranks.set(targetId, Math.max(ranks.get(targetId) || 0, (ranks.get(source.id) || 0) + 1));
-          indegree.set(targetId, indegree.get(targetId) - 1);
-          if (indegree.get(targetId) === 0) {
-            queue.push(model.nodes.get(targetId));
-            queue.sort((left, right) => left.order - right.order);
-          }
+    });
+  }
+
+  function placePaperBoundaryRow(positions, nodes, stageLayout, entries, centerY, rowName) {
+    if (!entries.length) return;
+    const slots = entries.map((node) => node.id);
+    const slotWidth = stageLayout.contentWidth / slots.length;
+    slots.forEach((nodeId, slotIndex) => {
+      const node = nodes.get(nodeId);
+      const size = paperNodeSize(node, slots.length, slotWidth);
+      positions.set(nodeId, {
+        x: stageLayout.contentX + slotIndex * slotWidth + (slotWidth - size.width) / 2,
+        y: centerY - size.height / 2,
+        width: size.width,
+        height: size.height,
+        compact: true,
+        row: rowName,
+        lane: slotIndex,
+      });
+    });
+  }
+
+  function layoutPaperDag(model) {
+    const width = 1080;
+    const margin = 14;
+    const columnWidth = 340;
+    const columnGap = 16;
+    const positions = new Map();
+    const stages = [];
+    const fallbacks = [];
+    const configuredIds = new Set(
+      Object.values(PI0_PAPER_LAYOUT).flat(2).filter(Boolean),
+    );
+
+    state.materialized.stages.forEach((stage, stageIndex) => {
+      const stageNodes = [...model.nodes.values()].filter((node) => node.stageId === stage.stage_id);
+      const stageLayout = {
+        stage,
+        x: margin + stageIndex * (columnWidth + columnGap),
+        y: 10,
+        width: columnWidth,
+        height: 0,
+        contentX: margin + stageIndex * (columnWidth + columnGap) + 24,
+        contentWidth: columnWidth - 48,
+      };
+      const inputs = stageNodes.filter((node) => node.kind === "input");
+      const loops = stageNodes.filter((node) => node.kind === "loop");
+      placePaperBoundaryRow(positions, model.nodes, stageLayout, inputs, loops.length ? 116 : 76, "input");
+      placePaperBoundaryRow(positions, model.nodes, stageLayout, loops, 166, "loop");
+
+      const rows = PI0_PAPER_LAYOUT[stage.stage_id] || [];
+      const firstRowY = loops.length ? 228 : 132;
+      const rowStep = 56;
+      rows.forEach((entries, rowIndex) => {
+        placePaperRow(
+          positions,
+          model.nodes,
+          stageLayout,
+          entries,
+          firstRowY + rowIndex * rowStep,
+          rowIndex,
+        );
+      });
+
+      const unplaced = stageNodes.filter(
+        (node) => node.kind === "operator" && !configuredIds.has(node.id),
+      );
+      let lastCenterY = rows.length ? firstRowY + (rows.length - 1) * rowStep : firstRowY;
+      if (unplaced.length) {
+        const fallbackTop = lastCenterY + 62;
+        unplaced.forEach((node, fallbackIndex) => {
+          placePaperRow(
+            positions,
+            model.nodes,
+            stageLayout,
+            [node.id],
+            fallbackTop + 44 + fallbackIndex * rowStep,
+            `fallback-${fallbackIndex}`,
+          );
+        });
+        lastCenterY = fallbackTop + 44 + (unplaced.length - 1) * rowStep;
+        fallbacks.push({
+          stageId: stage.stage_id,
+          x: stageLayout.contentX,
+          y: fallbackTop,
+          width: stageLayout.contentWidth,
+          height: 68 + (unplaced.length - 1) * rowStep,
+          count: unplaced.length,
         });
       }
-      let maxRank = Math.max(0, ...ranks.values());
-      stageNodes.filter((node) => node.kind === "output").forEach((node) => {
-        ranks.set(node.id, maxRank + 1);
-      });
-      maxRank = Math.max(0, ...ranks.values());
-      const byRank = new Map();
-      stageNodes.forEach((node) => {
-        const rank = ranks.get(node.id) || 0;
-        if (!byRank.has(rank)) byRank.set(rank, []);
-        byRank.get(rank).push(node);
-      });
-      const maxLanes = Math.max(1, ...[...byRank.values()].map((items) => items.length));
-      const stageHeight = 126 + maxLanes * yStep;
-      const stageWidth = 206 + (maxRank + 1) * xStep;
-      byRank.forEach((items, rank) => {
-        items.sort((left, right) => left.order - right.order);
-        const contentHeight = items.length * yStep;
-        const laneStart = stageY + 76 + ((maxLanes * yStep - contentHeight) / 2);
-        items.forEach((node, lane) => {
-          const compact = node.kind !== "operator";
-          positions.set(node.id, {
-            x: 66 + rank * xStep,
-            y: laneStart + lane * yStep,
-            width: compact ? 142 : nodeWidth,
-            height: compact ? 48 : nodeHeight,
-          });
-        });
-      });
-      stageLayouts.push({
-        stage,
-        x: 12,
-        y: stageY,
-        width: stageWidth,
-        height: stageHeight,
-      });
-      canvasWidth = Math.max(canvasWidth, stageWidth + 24);
-      stageY += stageHeight + 24;
+
+      const outputs = stageNodes.filter((node) => node.kind === "output");
+      const outputY = lastCenterY + 76;
+      placePaperBoundaryRow(positions, model.nodes, stageLayout, outputs, outputY, "output");
+      const stageBoxes = stageNodes.map((node) => positions.get(node.id)).filter(Boolean);
+      const bottom = Math.max(160, ...stageBoxes.map((box) => box.y + box.height));
+      stageLayout.height = bottom + 60;
+      stages.push(stageLayout);
     });
+
+    const operators = [...model.nodes.values()].filter((node) => node.kind === "operator");
+    const placedOperators = operators.filter((node) => positions.has(node.id));
+    const missingSlotIds = [...configuredIds].filter((nodeId) => !model.nodes.has(nodeId));
     return {
       positions,
-      stages: stageLayouts,
-      width: Math.max(1120, canvasWidth),
-      height: stageY,
+      stages,
+      fallbacks,
+      width,
+      height: Math.max(...stages.map((stage) => stage.height)) + 10,
+      coverage: {
+        operators: operators.length,
+        placed: placedOperators.length,
+        fallback: fallbacks.reduce((total, item) => total + item.count, 0),
+        missingSlotIds,
+      },
     };
   }
 
@@ -930,48 +1111,79 @@
     };
   }
 
-  function edgePath(edge, layout) {
+  function edgeRoute(edge, layout, model) {
     const source = layout.positions.get(edge.source);
     const target = layout.positions.get(edge.target);
-    if (!source || !target) return "";
-    const x1 = source.x + source.width;
-    const y1 = source.y + source.height / 2;
-    const x2 = target.x;
-    const y2 = target.y + target.height / 2;
-    if (edge.kind === "feedback" || edge.kind === "repeat") {
-      const stage = layout.stages.find((item) => item.stage.stage_id === modelNodeStage(edge.source));
-      const bendY = stage ? stage.y + stage.height - 18 : Math.max(y1, y2) + 80;
-      return `M ${x1} ${y1} C ${x1 + 55} ${bendY}, ${x2 - 55} ${bendY}, ${x2} ${y2}`;
+    const sourceNode = model.nodes.get(edge.source);
+    const targetNode = model.nodes.get(edge.target);
+    if (!source || !target || !sourceNode || !targetNode) return null;
+    const stage = layout.stages.find((item) => item.stage.stage_id === sourceNode.stageId);
+    const sourceRight = source.x + source.width;
+    const targetRight = target.x + target.width;
+    const sourceMiddleY = source.y + source.height / 2;
+    const targetMiddleY = target.y + target.height / 2;
+    if (edge.kind === "feedback") {
+      const railX = stage ? stage.x + stage.width - 13 : Math.max(sourceRight, targetRight) + 24;
+      return {
+        kind: "feedback",
+        d: `M ${sourceRight} ${sourceMiddleY} C ${railX} ${sourceMiddleY}, ${railX} ${targetMiddleY}, ${targetRight} ${targetMiddleY}`,
+      };
     }
-    const bend = Math.max(54, Math.abs(x2 - x1) * 0.46);
-    return `M ${x1} ${y1} C ${x1 + bend} ${y1}, ${x2 - bend} ${y2}, ${x2} ${y2}`;
+    const longResidual = targetNode.definitionId === "residual-add" && target.y - source.y > 78;
+    const loopRail = sourceNode.kind === "loop" && targetNode.kind === "operator";
+    const backward = target.y <= source.y;
+    if (longResidual || loopRail || backward) {
+      const railX = loopRail
+        ? stage.x + stage.width - 24
+        : stage.x + 28;
+      const sourceX = loopRail ? sourceRight : source.x;
+      const targetX = loopRail ? targetRight : target.x;
+      return {
+        kind: longResidual ? "residual" : "rail",
+        d: `M ${sourceX} ${sourceMiddleY} C ${railX} ${sourceMiddleY}, ${railX} ${targetMiddleY}, ${targetX} ${targetMiddleY}`,
+      };
+    }
+    const sourceX = source.x + source.width / 2;
+    const sourceY = source.y + source.height;
+    const targetX = target.x + target.width / 2;
+    const targetY = target.y;
+    const bendY = sourceY + Math.max(8, (targetY - sourceY) / 2);
+    return {
+      kind: "trunk",
+      d: Math.abs(sourceX - targetX) < 1
+        ? `M ${sourceX} ${sourceY} L ${targetX} ${targetY}`
+        : `M ${sourceX} ${sourceY} C ${sourceX} ${bendY}, ${targetX} ${bendY}, ${targetX} ${targetY}`,
+    };
   }
 
-  let activeDagModel = null;
-
-  function modelNodeStage(nodeId) {
-    const node = activeDagModel && activeDagModel.nodes.get(nodeId);
-    return node ? node.stageId : null;
-  }
-
-  function shortEdgeLabel(edge) {
-    const shape = edge.shape
-      ? `[${edge.shape.map((value) => value === null ? "?" : Atlas.format(value, 0)).join("×")}]`
-      : "";
-    const label = edge.label.length > 28 ? `${edge.label.slice(0, 26)}…` : edge.label;
-    return `${label} ${shape}`.trim();
-  }
-
-  function splitNodeLabel(label) {
-    if (label.length <= 22) return [label];
+  function splitNodeLabel(label, maximumLength) {
+    const lineLength = maximumLength || 22;
+    if (label.length <= lineLength) return [label];
     const words = label.split(" ");
     const lines = [""];
     words.forEach((word) => {
       const current = lines.at(-1);
-      if (current && `${current} ${word}`.length > 22 && lines.length < 2) lines.push(word);
+      if (current && `${current} ${word}`.length > lineLength && lines.length < 2) lines.push(word);
       else lines[lines.length - 1] = current ? `${current} ${word}` : word;
     });
     return lines;
+  }
+
+  function paperDimension(value) {
+    return typeof value === "number" ? String(value) : "?";
+  }
+
+  function paperOperatorShape(operator) {
+    if (operator.definition && operator.definition.visualizer === "gemm") {
+      const dimensions = gemmDimensions(operator);
+      if ([dimensions.M, dimensions.K, dimensions.N].some((value) => value !== null)) {
+        return `${paperDimension(dimensions.M)}×${paperDimension(dimensions.K)}×${paperDimension(dimensions.N)}`;
+      }
+    }
+    const output = operator.output_tensors.find((port) => port.tensor && Array.isArray(port.tensor.shape));
+    if (!output) return "";
+    const values = output.tensor.shape.map(paperDimension);
+    return `${values.length > 3 ? "…×" : ""}${values.slice(-3).join("×")}`;
   }
 
   function renderDagNode(svg, node, box) {
@@ -992,22 +1204,34 @@
       height: box.height,
       rx: node.kind === "operator" ? 9 : 24,
     }));
-    const lines = splitNodeLabel(node.label);
-    lines.forEach((line, index) => {
+    const shape = node.kind === "operator" ? paperOperatorShape(node.operator) : node.definitionId;
+    const labelLength = box.width < 100 ? 13 : box.width < 150 ? 20 : 30;
+    const lines = splitNodeLabel(node.label, labelLength);
+    if (box.compact) {
       group.appendChild(svgElement("text", {
         x: box.width / 2,
-        y: 20 + index * 14,
+        y: box.height / 2 + 4,
         class: "dag-node-label",
         "text-anchor": "middle",
-      }, line));
-    });
-    group.appendChild(svgElement("text", {
-      x: box.width / 2,
-      y: box.height - 9,
-      class: "dag-node-kind",
-      "text-anchor": "middle",
-    }, node.definitionId));
-    group.appendChild(svgElement("title", {}, `${node.label} · ${node.definitionId}`));
+      }, lines.join(" ")));
+    } else {
+      const firstY = lines.length > 1 ? 14 : 18;
+      lines.forEach((line, index) => {
+        group.appendChild(svgElement("text", {
+          x: box.width / 2,
+          y: firstY + index * 12,
+          class: "dag-node-label",
+          "text-anchor": "middle",
+        }, line));
+      });
+      group.appendChild(svgElement("text", {
+        x: box.width / 2,
+        y: box.height - 6,
+        class: "dag-node-shape",
+        "text-anchor": "middle",
+      }, shape));
+    }
+    group.appendChild(svgElement("title", {}, `${node.label} · ${node.definitionId}${shape ? ` · ${shape}` : ""}`));
     if (node.kind === "operator") {
       const selectNode = () => select({
         stage: node.stageId,
@@ -1029,10 +1253,9 @@
   function renderDag() {
     Atlas.clear(targets.dag);
     const model = buildDagModel();
-    activeDagModel = model;
-    const layout = layoutDag(model);
+    const layout = layoutPaperDag(model);
     const legend = Atlas.element("div", { className: "dag-legend" });
-    [["dag-legend-tensor", "tensor edge"], ["dag-legend-repeat", "repeat / loop carry"]].forEach(([kind, label]) => {
+    [["dag-legend-tensor", "declared data flow"], ["dag-legend-repeat", "residual / denoise rail"]].forEach(([kind, label]) => {
       const item = Atlas.element("span", { className: `dag-legend-item ${kind}` });
       item.append(
         Atlas.element("span", { className: "dag-legend-line" }),
@@ -1042,7 +1265,7 @@
     });
     legend.appendChild(Atlas.element("span", {
       className: "dag-legend-note",
-      text: "Representative operators; scopes are folded, never unrolled.",
+      text: "Paper-style overview · every declared operator remains selectable.",
     }));
     const svg = svgElement("svg", {
       class: "dag-svg",
@@ -1050,7 +1273,11 @@
       width: layout.width,
       height: layout.height,
       role: "img",
-      "aria-label": "Pi0 logical tensor dependency graph",
+      "aria-label": "Pi0 paper-style logical operator overview",
+      "data-layout": "paper-columns",
+      "data-operator-count": layout.coverage.operators,
+      "data-placed-operator-count": layout.coverage.placed,
+      "data-fallback-operator-count": layout.coverage.fallback,
     });
     const definitions = svgElement("defs");
     const marker = svgElement("marker", {
@@ -1068,31 +1295,54 @@
 
     layout.stages.forEach((item, index) => {
       const stageGroup = svgElement("g", { class: `dag-stage dag-stage--${index + 1}` });
+      const shortLabel = item.stage.label.split(/\s+/)[0];
       stageGroup.append(
         svgElement("rect", {
           x: item.x,
           y: item.y,
-          width: layout.width - 24,
+          width: item.width,
           height: item.height,
           rx: 18,
         }),
         svgElement("text", {
-          x: item.x + 22,
-          y: item.y + 30,
+          x: item.x + 18,
+          y: item.y + 31,
           class: "dag-stage-index",
         }, `0${index + 1}`),
         svgElement("text", {
-          x: item.x + 62,
-          y: item.y + 30,
+          x: item.x + 54,
+          y: item.y + 31,
           class: "dag-stage-label",
-        }, item.stage.label),
+        }, shortLabel),
       );
       svg.appendChild(stageGroup);
     });
 
+    layout.fallbacks.forEach((fallback) => {
+      const group = svgElement("g", {
+        class: "dag-fallback",
+        "data-stage-id": fallback.stageId,
+        "data-operator-count": fallback.count,
+      });
+      group.append(
+        svgElement("rect", {
+          x: fallback.x,
+          y: fallback.y,
+          width: fallback.width,
+          height: fallback.height,
+          rx: 12,
+        }),
+        svgElement("text", {
+          x: fallback.x + 10,
+          y: fallback.y + 18,
+        }, `Unplaced future operators · ${fallback.count}`),
+      );
+      svg.appendChild(group);
+    });
+
     const scopeOrder = { denoise: 0, transformer: 1, module: 2, component: 3 };
     [...model.scopes].sort((left, right) => scopeOrder[left.kind] - scopeOrder[right.kind]).forEach((scope) => {
-      const padding = scope.kind === "denoise" ? 38 : scope.kind === "transformer" ? 28 : 16;
+      const padding = scope.kind === "denoise" ? 10 : scope.kind === "transformer" ? 18 : scope.kind === "component" ? 8 : 12;
       const bounds = scopeBounds(scope, layout.positions, padding);
       if (!bounds) return;
       const group = svgElement("g", {
@@ -1111,28 +1361,60 @@
       svg.appendChild(group);
     });
 
-    model.edges.forEach((edge) => {
-      const path = edgePath(edge, layout);
-      if (!path) return;
+    model.edges.filter((edge) => {
+      const source = model.nodes.get(edge.source);
+      const target = model.nodes.get(edge.target);
+      return source && target && source.stageId === target.stageId && edge.kind !== "repeat";
+    }).forEach((edge) => {
+      const route = edgeRoute(edge, layout, model);
+      if (!route) return;
       const group = svgElement("g", {
-        class: `dag-edge dag-edge--${edge.kind}`,
+        class: `dag-edge dag-edge--${edge.kind} dag-edge--${route.kind}`,
         "data-tensor-id": edge.tensor ? edge.tensor.tensor_id : "repeat-carry",
         "data-source": edge.source,
         "data-target": edge.target,
       });
-      const edgePathElement = svgElement("path", {
-        id: edge.id,
-        d: path,
+      group.appendChild(svgElement("path", {
+        d: route.d,
         "marker-end": "url(#dag-arrow)",
+      }));
+      svg.appendChild(group);
+    });
+
+    [
+      ["vision-prefix", "vision-encoder", "prefix-encoder"],
+      ["prefix-kv-action", "prefix-encoder", "action-flow-decoder"],
+    ].forEach(([connectorId, sourceStage, targetStage]) => {
+      const edges = model.edges.filter((edge) => {
+        const source = model.nodes.get(edge.source);
+        const target = model.nodes.get(edge.target);
+        return edge.kind === "tensor"
+          && source && target
+          && source.stageId === sourceStage
+          && target.stageId === targetStage;
       });
-      const text = svgElement("text", { class: "dag-edge-label" });
-      const textPath = svgElement("textPath", {
-        href: `#${edge.id}`,
-        startOffset: "50%",
-        "text-anchor": "middle",
-      }, shortEdgeLabel(edge));
-      text.appendChild(textPath);
-      group.append(edgePathElement, text);
+      if (!edges.length) return;
+      const group = svgElement("g", {
+        class: "dag-edge dag-global-connector",
+        "data-global-connector": connectorId,
+        "data-tensor-ids": [...new Set(edges.map((edge) => edge.tensor.tensor_id))].join(" "),
+      });
+      edges.forEach((edge) => {
+        const source = layout.positions.get(edge.source);
+        const target = layout.positions.get(edge.target);
+        if (!source || !target) return;
+        const sourceX = source.x + source.width;
+        const sourceY = source.y + source.height / 2;
+        const targetX = target.x;
+        const targetY = target.y + target.height / 2;
+        const busX = (sourceX + targetX) / 2;
+        group.appendChild(svgElement("path", {
+          d: `M ${sourceX} ${sourceY} C ${busX} ${sourceY}, ${busX} ${targetY}, ${targetX} ${targetY}`,
+          "marker-end": "url(#dag-arrow)",
+          "data-source": edge.source,
+          "data-target": edge.target,
+        }));
+      });
       svg.appendChild(group);
     });
     [...model.nodes.values()].forEach((node) => {
@@ -1306,10 +1588,11 @@
     while (svg.firstChild) svg.removeChild(svg.firstChild);
   }
 
-  function microscopeCanvas(label) {
+  function microscopeCanvas(label, height) {
+    const canvasHeight = height || 210;
     return svgElement("svg", {
       class: "microscope-canvas",
-      viewBox: "0 0 420 210",
+      viewBox: `0 0 420 ${canvasHeight}`,
       role: "img",
       "aria-label": label,
     });
@@ -1496,62 +1779,132 @@
     visualizer.dataset.visualizerMode = "conv";
     visualizer.append(
       Atlas.element("h3", { text: "Patch convolution microscope" }),
-      Atlas.element("p", { className: "visualizer-formula", text: "output tile = receptive field · weight tile" }),
+      Atlas.element("p", { className: "visualizer-formula", text: "patch · weight → output" }),
     );
     const dimensions = Atlas.element("div", { className: "microscope-dimensions" });
     [
       `Image ${bindings.H} × ${bindings.W}`,
-      `Patch / stride ${bindings.P} × ${bindings.P}`,
+      `Patch ${bindings.P} × ${bindings.P}`,
+      `Stride ${bindings.P} × ${bindings.P}`,
       `Channels ${bindings.C}`,
       `Tokens / view ${bindings.T}`,
       `Output width ${bindings.D}`,
     ].forEach((label) => dimensions.appendChild(Atlas.element("span", { text: label })));
-    const canvas = microscopeCanvas("Patch embedding convolution maps image receptive fields to output tokens");
+    dimensions.appendChild(Atlas.element("span", { text: "Illustrative math · not a runtime tile" }));
+    const canvas = microscopeCanvas(
+      "Illustrative patch embedding math with an exact image patch lattice and matching output token lattice",
+      248,
+    );
     visualizer.append(dimensions, canvas);
-    animationControls(visualizer, 4, (frame) => {
+
+    const valid = [bindings.H, bindings.W, bindings.P, bindings.C, bindings.T, bindings.D]
+      .every((value) => Number.isSafeInteger(value) && value > 0)
+      && bindings.H % bindings.P === 0
+      && bindings.W % bindings.P === 0;
+    const rows = valid ? bindings.H / bindings.P : null;
+    const columns = valid ? bindings.W / bindings.P : null;
+    const frameCount = rows && columns ? rows * columns : null;
+    if (!valid || frameCount !== bindings.T) {
       clearSvg(canvas);
-      const patchPositions = [[0, 0], [1, 0], [0, 1], [1, 1]];
-      const [column, row] = patchPositions[frame];
-      canvas.appendChild(svgElement("text", { x: 18, y: 24, class: "microscope-phase" }, `Patch ${frame + 1}: image field → projected token`));
-      const cell = 16;
-      for (let y = 0; y < 6; y += 1) {
-        for (let x = 0; x < 6; x += 1) {
-          canvas.appendChild(svgElement("rect", {
-            x: 20 + x * cell,
-            y: 52 + y * cell,
-            width: cell - 2,
-            height: cell - 2,
-            class: "conv-grid-cell",
-          }));
-        }
-      }
-      canvas.appendChild(svgElement("rect", {
-        x: 20 + column * 48,
-        y: 52 + row * 48,
-        width: 46,
-        height: 46,
-        rx: 4,
-        class: "conv-receptive-field is-active",
-        "data-tile-role": "input-receptive-field",
+      canvas.append(
+        svgElement("text", { x: 18, y: 36, class: "microscope-phase" }, "Static view: patch lattice is unresolved"),
+        svgElement("text", { x: 18, y: 64, class: "microscope-caption" }, "The declared image, patch, and token dimensions do not form one honest non-overlapping lattice."),
+      );
+      visualizer.appendChild(Atlas.element("p", {
+        className: "conv-static-fallback",
+        text: "Animation is unavailable because H/P, W/P, or the token count is inconsistent.",
       }));
-      diagramTile(canvas, 150, 70, 72, 60, "weights", "is-active", "weight-tile");
-      canvas.appendChild(svgElement("text", { x: 132, y: 104, class: "microscope-symbol", "text-anchor": "middle" }, "×"));
-      canvas.appendChild(svgElement("text", { x: 242, y: 104, class: "microscope-symbol", "text-anchor": "middle" }, "→"));
-      for (let y = 0; y < 2; y += 1) {
-        for (let x = 0; x < 2; x += 1) {
+      return visualizer;
+    }
+
+    const inputX = 12;
+    const outputX = 296;
+    const gridY = 64;
+    const gridSize = 112;
+    const inputCell = gridSize / columns;
+    const outputCell = gridSize / columns;
+    const weightRows = 7;
+    const weightColumns = 7;
+    const weightCell = 8;
+    animationControls(visualizer, frameCount, (frame) => {
+      clearSvg(canvas);
+      const row = Math.floor(frame / columns);
+      const column = frame % columns;
+      const pixelYStart = row * bindings.P;
+      const pixelYEnd = pixelYStart + bindings.P - 1;
+      const pixelXStart = column * bindings.P;
+      const pixelXEnd = pixelXStart + bindings.P - 1;
+      const flattenedPatch = bindings.P * bindings.P * bindings.C;
+
+      canvas.append(
+        svgElement("text", { x: 12, y: 24, class: "microscope-phase" }, `Patch ${frame + 1}/${frameCount} · row ${row + 1}, column ${column + 1}`),
+        svgElement("text", { x: inputX, y: 49, class: "conv-grid-label" }, "INPUT IMAGE"),
+        svgElement("text", { x: inputX + gridSize, y: 49, class: "conv-grid-meta", "text-anchor": "end" }, `${rows}×${columns} patch lattice`),
+        svgElement("text", { x: 151, y: 49, class: "conv-grid-label" }, "KERNEL / WEIGHT"),
+        svgElement("text", { x: outputX, y: 49, class: "conv-grid-label" }, "OUTPUT TOKENS"),
+      );
+
+      for (let y = 0; y < rows; y += 1) {
+        for (let x = 0; x < columns; x += 1) {
+          const active = x === column && y === row;
           canvas.appendChild(svgElement("rect", {
-            x: 276 + x * 50,
-            y: 62 + y * 50,
-            width: 44,
-            height: 44,
-            rx: 6,
-            class: `conv-output-cell${x === column && y === row ? " is-written" : ""}`,
-            "data-tile-role": x === column && y === row ? "output-tile" : "output-grid-cell",
+            x: inputX + x * inputCell,
+            y: gridY + y * inputCell,
+            width: inputCell,
+            height: inputCell,
+            class: `conv-lattice-cell conv-input-cell${active ? " is-active" : ""}`,
+            "data-tile-role": active ? "input-receptive-field" : "input-patch-cell",
+            "data-row": y + 1,
+            "data-column": x + 1,
+          }));
+          canvas.appendChild(svgElement("rect", {
+            x: outputX + x * outputCell,
+            y: gridY + y * outputCell,
+            width: outputCell,
+            height: outputCell,
+            class: `conv-lattice-cell conv-output-cell${active ? " is-written" : ""}`,
+            "data-tile-role": active ? "output-token" : "output-token-cell",
+            "data-token-index": y * columns + x + 1,
           }));
         }
       }
-      canvas.appendChild(svgElement("text", { x: 20, y: 172, class: "microscope-caption" }, "Illustrative 3 × 3 field; labels above retain Pi0’s actual patch geometry."));
-      return `Patch tile ${frame + 1} of 4 writes output token tile ${frame + 1}`;
+
+      const weightGroup = svgElement("g", {
+        class: "conv-weight-panel",
+        "data-tile-role": "weight-panel",
+      });
+      weightGroup.appendChild(svgElement("rect", {
+        x: 151,
+        y: 64,
+        width: 120,
+        height: 112,
+        rx: 9,
+      }));
+      for (let y = 0; y < weightRows; y += 1) {
+        for (let x = 0; x < weightColumns; x += 1) {
+          weightGroup.appendChild(svgElement("rect", {
+            x: 183 + x * weightCell,
+            y: 78 + y * weightCell,
+            width: weightCell - 1,
+            height: weightCell - 1,
+            class: "conv-weight-cell",
+          }));
+        }
+      }
+      weightGroup.append(
+        svgElement("text", { x: 211, y: 147, class: "conv-weight-symbol", "text-anchor": "middle" }, "[P²C × D]"),
+        svgElement("text", { x: 211, y: 162, class: "conv-grid-meta", "text-anchor": "middle" }, `[${flattenedPatch} × ${bindings.D}]`),
+      );
+      canvas.appendChild(weightGroup);
+      canvas.append(
+        svgElement("text", { x: 137, y: 120, class: "microscope-symbol", "text-anchor": "middle" }, "·"),
+        svgElement("text", { x: 283, y: 113, class: "microscope-symbol", "text-anchor": "middle" }, "Σ"),
+        svgElement("text", { x: 283, y: 130, class: "conv-grid-meta", "text-anchor": "middle" }, "accumulate"),
+        svgElement("text", { x: 12, y: 200, class: "microscope-caption" }, `Current P×P×C patch: ${bindings.P}×${bindings.P}×${bindings.C}`),
+        svgElement("text", { x: 12, y: 216, class: "microscope-caption" }, `Pixels y ${pixelYStart}–${pixelYEnd}, x ${pixelXStart}–${pixelXEnd} → output token ${frame + 1}`),
+        svgElement("text", { x: 12, y: 236, class: "conv-illustrative-note" }, "Illustrative math: one true stride-P patch advances per step; this is not a runtime tile."),
+      );
+      return `Patch ${frame + 1}/${frameCount} · row ${row + 1}, column ${column + 1} · pixels y ${pixelYStart}–${pixelYEnd}, x ${pixelXStart}–${pixelXEnd} → token ${frame + 1}`;
     });
     return visualizer;
   }

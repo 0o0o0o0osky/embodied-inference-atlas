@@ -420,104 +420,6 @@ body {
   color: #8b9aa2;
 }
 
-.logical-workspace {
-  display: grid;
-  grid-template-columns: minmax(0, 1.55fr) minmax(19rem, 0.85fr);
-  gap: 1rem;
-  align-items: start;
-}
-
-.graph-browser {
-  min-width: 0;
-}
-
-.graph-browser h3 {
-  margin: 1.25rem 0 0.55rem;
-  color: var(--navy);
-  font-size: 0.9rem;
-}
-
-.pipeline {
-  display: flex;
-  gap: 0.5rem;
-  align-items: stretch;
-  overflow-x: auto;
-  padding: 0.2rem 0.1rem 0.45rem;
-}
-
-.pipeline-arrow {
-  align-self: center;
-  flex: 0 0 auto;
-  color: #7d919b;
-  font-size: 1.2rem;
-  font-weight: 700;
-}
-
-.workspace-node {
-  display: grid;
-  flex: 1 0 9rem;
-  gap: 0.4rem;
-  min-width: 9rem;
-  padding: 0.7rem;
-  border: 1px solid #b9c8cf;
-  border-radius: 0.55rem;
-  color: var(--ink);
-  background: #f8fbfc;
-  font: inherit;
-  text-align: left;
-  cursor: pointer;
-}
-
-.workspace-node:hover,
-.workspace-node:focus-visible {
-  border-color: var(--teal);
-}
-
-.workspace-node.is-selected {
-  border-color: var(--teal);
-  box-shadow: inset 0 0 0 1px var(--teal);
-  background: #eaf6f4;
-}
-
-.stage-node {
-  flex-basis: 12rem;
-  border-top: 0.28rem solid var(--navy);
-}
-
-.operator-node {
-  flex-basis: 10rem;
-}
-
-.node-id {
-  color: var(--muted);
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 0.68rem;
-  overflow-wrap: anywhere;
-}
-
-.repeat-chip {
-  justify-self: start;
-  padding: 0.15rem 0.38rem;
-  border: 1px solid #a8bdc7;
-  border-radius: 999px;
-  color: var(--navy);
-  background: #fff;
-  font-size: 0.66rem;
-  font-weight: 700;
-}
-
-.loop-carried {
-  padding-top: 0.35rem;
-  border-top: 1px dashed #87aaa7;
-  color: #175e59;
-  font-size: 0.7rem;
-  line-height: 1.35;
-}
-
-#component-section[hidden] {
-  display: none;
-}
-
 .operator-detail {
   position: sticky;
   top: 1rem;
@@ -753,21 +655,13 @@ body {
     max-height: none;
   }
 
-  .pipeline {
-    align-items: center;
-  }
-
-  .workspace-node {
-    flex-basis: 10rem;
-  }
-
   .gemm-mac-sequence {
     overflow-x: auto;
     justify-content: flex-start;
   }
 }
 
-/* Pi0 logical workspace: one tensor-derived DAG and one persistent microscope. */
+/* Pi0 logical workspace: one paper-style overview and one persistent microscope. */
 .workspace-identity-row {
   display: grid;
   grid-template-columns: minmax(18rem, 0.72fr) minmax(32rem, 1.45fr);
@@ -879,7 +773,7 @@ body {
 
 .logical-workspace {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(20rem, 23rem);
+  grid-template-columns: minmax(0, 1fr) clamp(21.5rem, 24vw, 23rem);
   gap: 0;
   align-items: stretch;
   overflow: hidden;
@@ -899,8 +793,9 @@ body {
 }
 
 .dag-viewport {
-  min-height: 44rem;
-  overflow: auto;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: visible;
   outline: none;
 }
 
@@ -916,8 +811,7 @@ body {
   display: flex;
   gap: 0.9rem;
   align-items: center;
-  width: max-content;
-  min-width: 100%;
+  width: 100%;
   box-sizing: border-box;
   padding: 0.55rem 0.8rem;
   border-bottom: 1px solid rgba(195, 208, 214, 0.85);
@@ -951,13 +845,15 @@ body {
 
 .dag-svg {
   display: block;
-  overflow: visible;
+  width: 100%;
+  height: auto;
+  overflow: hidden;
 }
 
 .dag-stage rect {
-  fill: rgba(255, 255, 255, 0.68);
-  stroke: #d7e0e4;
-  stroke-width: 1;
+  fill: rgba(255, 255, 255, 0.82);
+  stroke: #c9d5da;
+  stroke-width: 1.2;
 }
 
 .dag-stage--2 rect {
@@ -969,45 +865,47 @@ body {
 }
 
 .dag-stage-index {
-  fill: #95a7b0;
-  font-size: 11px;
+  fill: #7d929c;
+  font-size: 10.5px;
   font-weight: 800;
   letter-spacing: 0.08em;
 }
 
 .dag-stage-label {
   fill: var(--navy);
-  font-size: 15px;
-  font-weight: 800;
+  font-size: 17px;
+  font-weight: 850;
+  letter-spacing: 0.025em;
+  text-transform: uppercase;
 }
 
 .dag-scope rect {
-  fill: rgba(255, 255, 255, 0.34);
+  fill: rgba(255, 255, 255, 0.44);
   stroke: #9eb7c1;
   stroke-width: 1;
 }
 
 .dag-scope--component rect {
-  fill: rgba(255, 255, 255, 0.3);
+  fill: rgba(255, 255, 255, 0.22);
   stroke: #bfd0d7;
   stroke-dasharray: 3 4;
 }
 
 .dag-scope--transformer rect {
-  fill: rgba(20, 125, 118, 0.035);
+  fill: rgba(20, 125, 118, 0.025);
   stroke: #4d9b95;
   stroke-width: 1.5;
 }
 
 .dag-scope--denoise rect {
-  fill: rgba(31, 70, 98, 0.028);
+  fill: rgba(31, 70, 98, 0.02);
   stroke: #476f87;
   stroke-width: 2;
 }
 
 .dag-scope-label {
   fill: #496570;
-  font-size: 10px;
+  font-size: 10.5px;
   font-weight: 750;
   letter-spacing: 0.035em;
 }
@@ -1015,36 +913,37 @@ body {
 .dag-scope--transformer .dag-scope-label,
 .dag-scope--denoise .dag-scope-label {
   fill: var(--teal);
-  font-size: 11px;
+  font-size: 11.5px;
 }
 
 .dag-edge path {
   fill: none;
   stroke: #718c98;
   stroke-linecap: round;
-  stroke-width: 1.35;
-  opacity: 0.86;
+  stroke-width: 1.15;
+  opacity: 0.72;
 }
 
 .dag-edge--feedback path,
-.dag-edge--repeat path {
+.dag-edge--residual path,
+.dag-edge--rail path {
   stroke: var(--teal);
+  stroke-width: 1.4;
+}
+
+.dag-edge--feedback path {
   stroke-dasharray: 6 5;
-  stroke-width: 1.65;
+  stroke-width: 1.7;
+}
+
+.dag-global-connector path {
+  stroke: #345f76;
+  stroke-width: 1.8;
+  opacity: 0.9;
 }
 
 .dag-arrow-head {
   fill: #718c98;
-}
-
-.dag-edge-label {
-  fill: #455d68;
-  stroke: rgba(248, 251, 252, 0.98);
-  stroke-width: 3px;
-  paint-order: stroke;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 7.5px;
-  pointer-events: none;
 }
 
 .dag-node rect {
@@ -1085,16 +984,34 @@ body {
 
 .dag-node-label {
   fill: var(--ink);
-  font-size: 10px;
+  font-size: 11.75px;
   font-weight: 760;
   pointer-events: none;
 }
 
-.dag-node-kind {
+.dag-node-shape {
   fill: #6d7e87;
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 7.5px;
+  font-size: 9.75px;
   pointer-events: none;
+}
+
+.dag-node--input .dag-node-label,
+.dag-node--output .dag-node-label,
+.dag-node--loop .dag-node-label {
+  font-size: 11px;
+}
+
+.dag-fallback rect {
+  fill: rgba(255, 248, 220, 0.82);
+  stroke: #b79846;
+  stroke-dasharray: 4 4;
+}
+
+.dag-fallback text {
+  fill: #765d1c;
+  font-size: 10px;
+  font-weight: 750;
 }
 
 .operator-detail {
@@ -1194,9 +1111,7 @@ body {
   background: #fff;
 }
 
-.microscope-tile rect,
-.conv-output-cell,
-.conv-grid-cell {
+.microscope-tile rect {
   fill: #e4eaed;
   stroke: #a9bbc3;
   stroke-width: 1;
@@ -1209,8 +1124,7 @@ body {
   font-weight: 700;
 }
 
-.microscope-tile.is-active rect,
-.conv-receptive-field.is-active {
+.microscope-tile.is-active rect {
   fill: #bce4df;
   stroke: var(--teal);
   stroke-width: 2;
@@ -1226,16 +1140,71 @@ body {
   stroke: #668591;
 }
 
-.microscope-tile.is-written rect,
-.conv-output-cell.is-written {
+.microscope-tile.is-written rect {
   fill: var(--teal);
   stroke: #0c625d;
   stroke-width: 2;
 }
 
-.conv-receptive-field {
-  fill: rgba(20, 125, 118, 0.24);
-  stroke: var(--teal);
+.conv-lattice-cell {
+  fill: #eef2f4;
+  stroke: #adbec5;
+  stroke-width: 0.45;
+}
+
+.conv-input-cell.is-active {
+  fill: #82cec7;
+  stroke: #075f5a;
+  stroke-width: 2.1;
+}
+
+.conv-output-cell.is-written {
+  fill: var(--teal);
+  stroke: #075f5a;
+  stroke-width: 2.1;
+}
+
+.conv-weight-panel > rect:first-child {
+  fill: #edf4f5;
+  stroke: #7fa0ad;
+  stroke-width: 1.2;
+}
+
+.conv-weight-cell {
+  fill: #cbdade;
+  stroke: #8fa8b2;
+  stroke-width: 0.45;
+}
+
+.conv-grid-label {
+  fill: var(--navy);
+  font-size: 9px;
+  font-weight: 850;
+  letter-spacing: 0.035em;
+}
+
+.conv-grid-meta {
+  fill: #617984;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 7.5px;
+}
+
+.conv-weight-symbol {
+  fill: #28576c;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.conv-illustrative-note {
+  fill: #496570;
+  font-size: 8.5px;
+  font-weight: 700;
+}
+
+.conv-static-fallback {
+  color: #7f1727;
+  font-size: 0.72rem;
 }
 
 .microscope-phase {
@@ -1304,7 +1273,7 @@ body {
   }
 }
 
-@media (max-width: 68rem) {
+@media (max-width: 80rem) {
   .workspace-identity-row {
     grid-template-columns: 1fr;
   }
