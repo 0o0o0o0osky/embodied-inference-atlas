@@ -859,11 +859,11 @@ body {
 
 .dag-connector path {
   fill: none;
-  stroke: #718c98;
+  stroke: #4f6f7e;
   stroke-linecap: round;
   stroke-linejoin: round;
-  stroke-width: 1.15;
-  opacity: 0.78;
+  stroke-width: 1.5;
+  opacity: 0.95;
   transition: opacity 130ms ease, stroke 130ms ease, stroke-width 130ms ease;
 }
 
@@ -890,17 +890,31 @@ body {
 }
 
 .dag-connector-segment.is-muted path {
-  opacity: 0.12;
+  opacity: 0.42;
 }
 
 .dag-connector-segment.is-incident path {
   stroke: #087f78;
-  stroke-width: 2.5;
+  stroke-width: 2.2;
   opacity: 1;
 }
 
+.dag-arrow-halo,
 .dag-arrow-head {
-  fill: #718c98;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.dag-arrow-halo {
+  stroke: #fff;
+  stroke-width: 4;
+}
+
+.dag-arrow-head {
+  stroke: #4f6f7e;
+  stroke: context-stroke;
+  stroke-width: 1.5;
 }
 
 .dag-node rect {

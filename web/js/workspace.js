@@ -282,10 +282,8 @@
       ["action-flow-decoder/action-suffix-builder/time-mlp-in", "action-flow-decoder/action-suffix-builder/time-mlp-silu"],
       ["action-flow-decoder/action-suffix-builder/time-mlp-silu", "action-flow-decoder/action-suffix-builder/time-mlp-out"],
     ] },
-    { id: "action-suffix", kind: "branch-in", route: "top-bus", pairs: [
-      ["action-flow-decoder/action-suffix-builder/state-projection", "action-flow-decoder/action-suffix-builder/suffix-concat"],
-      ["action-flow-decoder/action-suffix-builder/time-mlp-out", "action-flow-decoder/action-suffix-builder/suffix-concat"],
-    ] },
+    { id: "action-state-suffix", kind: "rail", side: "left", railInset: 32, pairs: [["action-flow-decoder/action-suffix-builder/state-projection", "action-flow-decoder/action-suffix-builder/suffix-concat"]] },
+    { id: "action-token-suffix", kind: "chain", pairs: [["action-flow-decoder/action-suffix-builder/time-mlp-out", "action-flow-decoder/action-suffix-builder/suffix-concat"]] },
     { id: "action-block-entry", kind: "chain", pairs: [["action-flow-decoder/action-suffix-builder/suffix-concat", "action-flow-decoder/action-expert-blocks/self-attention/attention-norm"]] },
     { id: "action-block-residual", kind: "residual", pairs: [["action-flow-decoder/action-suffix-builder/suffix-concat", "action-flow-decoder/action-expert-blocks/self-attention/attention-residual"]] },
     { id: "prefix-kv-action", kind: "cross", pairs: [
@@ -1204,7 +1202,7 @@
     row.slots.forEach((slot, slotIndex) => {
       const nodeIds = paperSlotIds(slot);
       if (!nodeIds.length) return;
-      const chainGap = 5;
+      const chainGap = 10;
       const availableWidth = (slotWidth - chainGap * (nodeIds.length - 1)) / nodeIds.length;
       const sizes = nodeIds.map((nodeId) => {
         const node = nodes.get(nodeId);
@@ -1280,8 +1278,8 @@
       placePaperBoundaryRow(positions, model.nodes, stageLayout, loops, 166, "loop");
 
       const rows = PI0_PAPER_LAYOUT[stage.stage_id] || [];
-      const firstRowY = loops.length ? 214 : 112;
-      const rowStep = 42;
+      const firstRowY = loops.length ? 214 : 120;
+      const rowStep = 48;
       const moduleGap = 20;
       let rowY = firstRowY;
       let lastCenterY = firstRowY;
@@ -1768,14 +1766,18 @@
     const definitions = svgElement("defs");
     const marker = svgElement("marker", {
       id: "dag-arrow",
-      markerWidth: 8,
-      markerHeight: 8,
-      refX: 7,
-      refY: 4,
+      markerWidth: 6,
+      markerHeight: 6,
+      refX: 5.4,
+      refY: 3,
       orient: "auto",
-      markerUnits: "strokeWidth",
+      markerUnits: "userSpaceOnUse",
+      overflow: "visible",
     });
-    marker.appendChild(svgElement("path", { d: "M 0 0 L 8 4 L 0 8 z", class: "dag-arrow-head" }));
+    marker.append(
+      svgElement("path", { d: "M 0 0 L 6 3 L 0 6", class: "dag-arrow-halo" }),
+      svgElement("path", { d: "M 0 0 L 6 3 L 0 6", class: "dag-arrow-head" }),
+    );
     definitions.appendChild(marker);
     svg.appendChild(definitions);
 
