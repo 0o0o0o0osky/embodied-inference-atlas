@@ -21,6 +21,7 @@ import { createRooflineIndex, indexRoofline } from "../data/indexRoofline";
 import {
   materializeInteractiveRoofline,
   parseInteractiveWorkload,
+  runtimeResolutionWorkload,
   serializeInteractiveWorkload,
   type InteractiveWorkloadBounds,
 } from "../data/materialize";
@@ -38,12 +39,6 @@ export interface RooflineViewProps {
 }
 
 const CORE_MODELS = new Set(["pi0", "pi05", "smolvla"]);
-
-function runtimeWorkload(encoded: string | null, workload: ReturnType<typeof parseInteractiveWorkload>) {
-  if (!encoded) return null;
-  if (!encoded.startsWith("v=")) return encoded;
-  return `V=${workload.executedCameraViews},L_PROMPT=${workload.executedPromptTokens},T_ACTION=${workload.actionHorizon},N_DENOISE=${workload.denoiseSteps}`;
-}
 
 function isAnalyticalWorkload(encoded: string | null) {
   return encoded?.split(",").some((part) => /^(?:v|p|a|n|V|L_PROMPT|T_ACTION|N_DENOISE)=/.test(part.trim())) ?? false;
@@ -126,11 +121,15 @@ function sparseObservedRunIds(data: AtlasData) {
   });
 }
 
-export function RooflineView({ data, model, route, navigate }: RooflineViewProps) {
-  const canonical = useMemo(() => indexRoofline(data), [data]);
-  if (!CORE_MODELS.has(model.model_id)) {
-    return <section className="roofline-empty"><p>Roofline unavailable</p><h2>No canonical model materializer</h2><span>{model.model_id} is outside the three core Task 5 models.</span></section>;
+export function RooflineView(props: RooflineViewProps) {
+  if (!CORE_MODELS.has(props.model.model_id)) {
+    return <section className="roofline-empty"><p>Roofline unavailable</p><h2>No canonical model materializer</h2><span>{props.model.model_id} is outside the three core Task 5 models.</span></section>;
   }
+  return <CoreRooflineView {...props} />;
+}
+
+function CoreRooflineView({ data, model, route, navigate }: RooflineViewProps) {
+  const canonical = useMemo(() => indexRoofline(data), [data]);
   const modelId = model.model_id as "pi0" | "pi05" | "smolvla";
   const requestedBasis = route.basis ? canonical.basisById.get(route.basis) : null;
   const requestedScenario = requestedBasis ? canonical.scenarioById.get(requestedBasis.scenario_id) : null;
@@ -174,7 +173,7 @@ export function RooflineView({ data, model, route, navigate }: RooflineViewProps
     modelGraphId: sourceScenario.model_graph_id!,
     runtimeId: route.runtime,
     hardwareId: route.hardware,
-    workload: runtimeWorkload(route.workload, workload),
+    workload: runtimeResolutionWorkload(route.workload, workload),
     precisionId: route.runtimePrecision,
   }) : [], [data.datasets.runs, modelId, realizations, route.hardware, route.runtime, route.runtimePrecision, route.workload, sourceScenario.model_graph_id, workload]);
   const activeCandidate = exactRuntimeCandidate(runtimeCandidates);

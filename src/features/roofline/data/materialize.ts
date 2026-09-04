@@ -393,8 +393,24 @@ export function materializeInteractiveRoofline(
   };
   const materializationId = `v${workload.executed_camera_views}-p${workload.executed_prompt_tokens}-a${workload.action_horizon}-n${workload.denoise_steps}`;
   const scenarioId = `${sourceScenario.scenario_id}-interactive-${materializationId}`;
+  const retainsRuntimeProof = !runtimeMixed || (
+    workload.executed_camera_views === sourceScenario.workload.executed_camera_views
+    && workload.executed_prompt_tokens === sourceScenario.workload.executed_prompt_tokens
+    && workload.action_horizon === sourceScenario.workload.action_horizon
+    && workload.denoise_steps === sourceScenario.workload.denoise_steps
+  );
   const provenance: Provenance = { evidence: "analytical", class: "analytical_model", source_ids: sourceScenario.provenance.source_ids, derivation: { kind: "formula", expression: "client materialization of canonical logical formulas with FMA=2", input_refs: [sourceScenario.scenario_id, materializationId] }, condition: "Interactive state is not promoted to canonical data." };
-  const scenario: RooflineScenarioRecord = { ...sourceScenario, scenario_id: scenarioId, label: `${sourceScenario.model_id} interactive ${materializationId} · ${sourceScenario.precision_path.precision_path_id}`, origin: "interactive_analytical", workload, provenance };
+  const scenario: RooflineScenarioRecord = {
+    ...sourceScenario,
+    scenario_id: scenarioId,
+    label: `${sourceScenario.model_id} interactive ${materializationId} · ${sourceScenario.precision_path.precision_path_id}`,
+    origin: "interactive_analytical",
+    workload,
+    precision_path: retainsRuntimeProof
+      ? sourceScenario.precision_path
+      : { ...sourceScenario.precision_path, runtime_support: "unproven" },
+    provenance,
+  };
   const bases = (["stage", "atomic"] as const).map((level): RooflineBasisRecord => ({
     schema_version: "2.0.0", basis_id: `basis-${sourceScenario.model_id}-${sourceScenario.precision_path.precision_path_id}-${level}-interactive-${materializationId}`, label: `${scenario.label} · ${level === "stage" ? "Stage" : "Atomic"}`, level, scenario_id: scenarioId, precision_path_id: sourceScenario.precision_path.precision_path_id, ceiling_id: ceiling.ceiling_id, bandwidth_ceiling_id: ceiling.bandwidth[0]!.bandwidth_ceiling_id, device_id: ceiling.device_id, operating_point_id: ceiling.operating_point.operating_point_id, work_unit: level === "stage" ? "action_chunk" : "operator_invocation", time_basis: "analytical_roof", traffic_basis: "atomic_materialized", work_basis: runtimeMixed ? "runtime_executed_formula" : "logical_formula", aggregation: level === "stage" ? "dag_resource_and_critical_path" : "entity", runtime_overhead: "excluded", runtime_id: realization?.runtimeId ?? null, realization_id: realization?.realizationId ?? null, run_id: null, capture_id: null, comparison_mode: "same_coverage_only", provenance, missing: [{ field: "run_id", reason: "not_applicable", detail: "Interactive analytical basis has no observed run." }, { field: "capture_id", reason: "not_collected", detail: "No capture is bound to this interactive basis." }, ...(runtimeMixed ? [] : [{ field: "runtime_id", reason: "not_applicable" as const, detail: "Analytical what-if is runtime-independent." }, { field: "realization_id", reason: "not_applicable" as const, detail: "Analytical what-if has no realization." }])],
   }));
@@ -462,4 +478,9 @@ export function parseInteractiveWorkload(
 
 export function serializeInteractiveWorkload(value: InteractiveWorkload) {
   return `v=${value.executedCameraViews},p=${value.executedPromptTokens},a=${value.actionHorizon},n=${value.denoiseSteps}`;
+}
+
+export function runtimeResolutionWorkload(encoded: string | null, value: InteractiveWorkload) {
+  if (encoded?.startsWith("cfg-")) return encoded;
+  return `V=${value.executedCameraViews},L_PROMPT=${value.executedPromptTokens},T_ACTION=${value.actionHorizon},N_DENOISE=${value.denoiseSteps}`;
 }

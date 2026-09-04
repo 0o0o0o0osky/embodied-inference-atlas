@@ -312,10 +312,21 @@ def roofline_problems(datasets: Mapping[str, list[Mapping]]) -> list[RooflinePro
             if realization_id not in realization_ids:
                 issues.append(_broken(f"{base}.precision_path.realization_ids[{realization_index}]"))
         if path.get("kind") == "mapped_mixed":
+            applicability_matches = True
+            applicability_complete = True
+            has_bound_configuration = False
             if len(path.get("realization_ids", [])) != 1:
                 issues.append(_problem(f"{base}.precision_path.realization_ids", "mapped_realization", "mapped-mixed paths require exactly one realization"))
             elif path.get("realization_ids"):
                 realization = realization_by_id.get(path["realization_ids"][0])
+                realization_artifacts = set(realization.get("model_artifact_ids", [])) if isinstance(realization, Mapping) else set()
+                if scenario.get("model_artifact_id") not in realization_artifacts:
+                    applicability_matches = False
+                    issues.append(_problem(
+                        f"{base}.model_artifact_id",
+                        "runtime_artifact_mismatch",
+                        "mapped-mixed scenario artifact must belong to its bound realization",
+                    ))
                 group_ids = {
                     group.get("execution_group_id")
                     for group in _mapping_list(realization.get("execution_groups") if isinstance(realization, Mapping) else None)
@@ -323,6 +334,66 @@ def roofline_problems(datasets: Mapping[str, list[Mapping]]) -> list[RooflinePro
                 }
                 if selected_refs != group_ids:
                     issues.append(_problem(f"{base}.precision_path.segments", "mapped_coverage", "mapped-mixed selectors must cover every execution group exactly once"))
+                applicability = realization.get("workload_applicability") if isinstance(realization, Mapping) else None
+                if not isinstance(workload, Mapping) or not isinstance(applicability, Mapping):
+                    applicability_matches = False
+                    applicability_complete = False
+                else:
+                    applicability_fields = (
+                        ("action_horizon", "runtime_action_horizon"),
+                        ("action_horizon", "public_action_horizon"),
+                        ("public_action_dimension", "public_action_dimension"),
+                        ("internal_action_dimension", "runtime_internal_action_dimension"),
+                        ("denoise_steps", "denoise_steps"),
+                    )
+                    for workload_field, applicability_field in applicability_fields:
+                        expected = applicability.get(applicability_field)
+                        if expected is None:
+                            applicability_complete = False
+                            continue
+                        if workload.get(workload_field) != expected:
+                            applicability_matches = False
+                            issues.append(_problem(
+                                f"{base}.workload.{workload_field}",
+                                "runtime_workload_mismatch",
+                                f"mapped-mixed workload must match {applicability_field}={expected} from its bound realization",
+                            ))
+                    configuration_ids = set(realization.get("configuration_ids", [])) if isinstance(realization, Mapping) else set()
+                    for run in run_by_id.values():
+                        if run.get("configuration_id") not in configuration_ids:
+                            continue
+                        run_workload = run.get("workload")
+                        common = run_workload.get("common") if isinstance(run_workload, Mapping) else None
+                        vla = run_workload.get("vla") if isinstance(run_workload, Mapping) else None
+                        if not isinstance(common, Mapping) or not isinstance(vla, Mapping):
+                            continue
+                        if (
+                            run.get("model_artifact_id") == scenario.get("model_artifact_id")
+                            and common.get("batch_size") == workload.get("batch_size")
+                            and vla.get("camera_views") == workload.get("executed_camera_views")
+                            and vla.get("semantic_prompt_tokens") == workload.get("semantic_prompt_tokens")
+                            and vla.get("executed_prompt_tokens") == workload.get("executed_prompt_tokens")
+                            and vla.get("action_chunk") == workload.get("action_horizon")
+                            and vla.get("action_dimension") == workload.get("public_action_dimension")
+                        ):
+                            has_bound_configuration = True
+                            break
+                    if not has_bound_configuration:
+                        issues.append(_problem(
+                            f"{base}.workload",
+                            "runtime_configuration_mismatch",
+                            "mapped-mixed workload must select a source-backed configuration bound to its realization",
+                        ))
+                    if applicability.get("missing_reason_code") is not None:
+                        applicability_complete = False
+            if path.get("runtime_support") == "proven" and (
+                not applicability_matches or not applicability_complete or not has_bound_configuration
+            ):
+                issues.append(_problem(
+                    f"{base}.precision_path.runtime_support",
+                    "runtime_support_unproven",
+                    "proven runtime support requires a bound configuration and complete matching workload applicability",
+                ))
 
     for index, basis in enumerate(bases):
         base = f"$.roofline_bases[{index}]"

@@ -358,6 +358,18 @@
   line-height: 1.45;
 }
 
+.roofline-runtime-workload-note {
+  margin: 0;
+  padding: 0.7rem 1rem;
+  border-bottom: 1px solid var(--line-dark);
+  color: var(--slate);
+  background: #f1f6f7;
+  font-size: 1rem;
+  line-height: 1.45;
+}
+
+.roofline-runtime-workload-note strong { color: var(--signal-blue-dark); }
+
 .roofline-basis-fingerprint {
   display: grid;
   grid-template-columns: repeat(8, minmax(0, 1fr));
@@ -571,20 +583,37 @@
   animation: roofline-marker-in var(--roofline-reveal-ms, 400ms) ease-out both;
 }
 
-.roofline-marker-core {
+.roofline-marker-base {
   fill: var(--white);
-  stroke: var(--signal-blue-dark);
-  stroke-width: 2;
-  vector-effect: non-scaling-stroke;
+  stroke: none;
+  pointer-events: none;
 }
 
-.roofline-marker.is-filled .roofline-marker-core {
+.roofline-marker.is-filled .roofline-marker-base {
   fill: var(--signal-blue-dark);
 }
 
 .roofline-marker-half {
   fill: var(--signal-blue-dark);
   stroke: none;
+  pointer-events: none;
+}
+
+.roofline-marker-mixed {
+  stroke: none;
+  pointer-events: none;
+}
+
+.roofline-marker-mixed-hatch {
+  stroke: var(--signal-blue-dark);
+}
+
+.roofline-marker-outline {
+  fill: none;
+  stroke: var(--signal-blue-dark);
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+  pointer-events: none;
 }
 
 .roofline-marker-halo {
@@ -592,12 +621,14 @@
   stroke: var(--roofline-selection);
   stroke-width: 3;
   vector-effect: non-scaling-stroke;
+  pointer-events: none;
 }
 
 .roofline-marker-hit {
   fill: transparent;
   stroke: transparent;
   cursor: pointer;
+  pointer-events: all;
 }
 
 .roofline-marker-hit:focus {
@@ -605,25 +636,15 @@
   stroke-width: 3;
 }
 
-.roofline-cluster-tether {
-  stroke: #70807a;
-  stroke-dasharray: 2 2;
-  stroke-width: 1;
-  vector-effect: non-scaling-stroke;
-}
-
-.roofline-cluster-count circle {
+.roofline-cluster-count {
   fill: var(--graphite);
-  stroke: var(--white);
-  stroke-width: 2;
-  vector-effect: non-scaling-stroke;
-}
-
-.roofline-cluster-count text {
-  fill: var(--white);
   font-family: var(--mono-face);
   font-size: 9px;
   font-weight: 800;
+  paint-order: stroke;
+  stroke: var(--white);
+  stroke-width: 2px;
+  pointer-events: none;
 }
 
 .roofline-selected-label {
@@ -634,6 +655,7 @@
   paint-order: stroke;
   stroke: var(--white);
   stroke-width: 4;
+  pointer-events: none;
 }
 
 .roofline-chart-legend {

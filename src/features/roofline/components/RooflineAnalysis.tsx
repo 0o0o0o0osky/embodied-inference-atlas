@@ -6,6 +6,17 @@ import { RooflineChart } from "./RooflineChart";
 import { RooflineInspector } from "./RooflineInspector";
 import { RooflineTable } from "./RooflineTable";
 
+const PLOT_FIELDS = new Set([
+  "work.total_flop",
+  "traffic.total_byte",
+  "derived.arithmetic_intensity_flop_per_byte",
+  "derived.compute_second",
+  "derived.memory_second",
+  "derived.roof_second",
+  "derived.roof_flop_per_second",
+  "derived.achieved_flop_per_second",
+]);
+
 export function RooflineAnalysis({
   model,
   selectedEntityKey,
@@ -28,13 +39,16 @@ export function RooflineAnalysis({
     ? model.records.find((point) => point.point_id === focusedPointId) ?? model.inspectorPoint
     : model.inspectorPoint;
   const routeSelectsPoint = model.rows.some((row) => row.selected);
+  const declaredPlotBlockers = selectedPoint?.missing.filter((item) => PLOT_FIELDS.has(item.field)) ?? [];
+  const otherEvidence = selectedPoint?.missing.filter((item) => !PLOT_FIELDS.has(item.field)) ?? [];
   const unplottedSelection = selectedPoint && (focusedPointId !== null || routeSelectsPoint)
     && !model.points.some((point) => point.pointId === selectedPoint.point_id)
     ? {
         label: selectedPoint.entity.label,
-        reasons: selectedPoint.missing.length
-          ? selectedPoint.missing.map((item) => `${item.field}: ${item.reason.replaceAll("_", " ")} — ${item.detail}`)
+        plotBlockers: declaredPlotBlockers.length
+          ? declaredPlotBlockers.map((item) => `${item.field}: ${item.reason.replaceAll("_", " ")} — ${item.detail}`)
           : ["derived chart coordinates: no positive, basis-compatible AI and throughput pair is available."],
+        otherEvidence: otherEvidence.map((item) => `${item.field}: ${item.reason.replaceAll("_", " ")} — ${item.detail}`),
       }
     : null;
   const select = (entityKey: CrossViewEntityKey, pointId: string) => {

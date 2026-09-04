@@ -5,7 +5,7 @@ import scenarioDocument from "../../../../data/analysis/roofline_scenarios.json"
 import graphDocument from "../../../../data/model_graphs/pi0.json";
 import realizationDocument from "../../../../data/runtime_realizations/pi0.json";
 import type { CanonicalRecord } from "../../../types/atlas";
-import { materializeInteractiveRoofline } from "../data/materialize";
+import { materializeInteractiveRoofline, runtimeResolutionWorkload } from "../data/materialize";
 import { attentionMetrics } from "./attention";
 import { stageLowerBound } from "./criticalPath";
 import { linearBoundaryTraffic } from "./fusedTraffic";
@@ -86,15 +86,40 @@ describe("roofline analytical contracts", () => {
       expect(metrics.fusedBoundaryByte).toBe(anchor.fusedByte);
     }
 
+    expect(scenarioDocument.records
+      .filter((item) => item.scenario_id.endsWith("runtime_mixed-default"))
+      .map((item) => [item.model_id, {
+        artifact: item.model_artifact_id,
+        representative: item.provenance.derivation?.input_refs.find((ref) => ref.startsWith("run-")),
+        views: item.workload.executed_camera_views,
+        semanticPrompt: item.workload.semantic_prompt_tokens,
+        prompt: item.workload.executed_prompt_tokens,
+        action: item.workload.action_horizon,
+        publicDimension: item.workload.public_action_dimension,
+        internalDimension: item.workload.internal_action_dimension,
+        denoise: item.workload.denoise_steps,
+      }])).toEqual([
+      ["pi0", { artifact: "pi0-flashrt-local-01", representative: "run-flashrt-pi0-matrix-008", views: 3, semanticPrompt: 22, prompt: 22, action: 10, publicDimension: 7, internalDimension: 32, denoise: 10 }],
+      ["pi05", { artifact: "pi05-flashrt-local-01", representative: "run-flashrt-pi05-matrix-008", views: 3, semanticPrompt: 159, prompt: 160, action: 10, publicDimension: 7, internalDimension: 32, denoise: 10 }],
+      ["smolvla", { artifact: "smolvla-lerobot-local-01", representative: "run-lerobot-smolvla-matrix-006", views: 3, semanticPrompt: 21, prompt: 48, action: 50, publicDimension: 6, internalDimension: 32, denoise: 10 }],
+    ]);
+    expect(runtimeResolutionWorkload(null, {
+      executedCameraViews: 3,
+      executedPromptTokens: 22,
+      actionHorizon: 10,
+      denoiseSteps: 10,
+    })).toBe("V=3,L_PROMPT=22,T_ACTION=10,N_DENOISE=10");
+
     const scenario = scenarioDocument.records.find((item) => item.scenario_id === "scenario-pi0-runtime_mixed-default") as unknown as RooflineScenarioRecord;
     const ceiling = ceilingDocument.records.find((item) => item.ceiling_id === "thor-t5000-120w-1386mhz") as unknown as RooflineCeilingRecord;
     const interactive = materializeInteractiveRoofline(
       graphDocument.records[0] as unknown as CanonicalRecord,
       scenario,
       ceiling,
-      { executedCameraViews: 3, executedPromptTokens: 48, actionHorizon: 50, denoiseSteps: 10 },
+      { executedCameraViews: 3, executedPromptTokens: 48, actionHorizon: 10, denoiseSteps: 10 },
       realizationDocument.records[0] as unknown as CanonicalRecord,
     );
+    expect(interactive.scenario.precision_path.runtime_support).toBe("unproven");
     const keyProjection = interactive.points.find((point) => point.entity.entity_id === "prefix-encoder/prefix-blocks/self-attention/key-projection")!;
     expect(keyProjection.traffic.components.map(({ kind, byte }) => [kind, byte])).toEqual([
       ["input_read", 30_081_024], ["scale_read", 72],

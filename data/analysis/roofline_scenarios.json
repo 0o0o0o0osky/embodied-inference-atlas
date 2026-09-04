@@ -10175,7 +10175,7 @@
     {
       "schema_version": "2.0.0",
       "scenario_id": "scenario-pi0-runtime_mixed-default",
-      "label": "pi0 default · evidenced runtime-mixed allocation",
+      "label": "pi0 representative runtime matrix V=3,L_PROMPT=22,T_ACTION=10,N_DENOISE=10 · evidenced mixed allocation",
       "origin": "default_precomputed",
       "model_id": "pi0",
       "model_graph_id": "pi0-logical-v1",
@@ -10188,10 +10188,10 @@
         "raw_image_width": 224,
         "executed_image_height": 224,
         "executed_image_width": 224,
-        "semantic_prompt_tokens": null,
-        "executed_prompt_tokens": 48,
-        "action_horizon": 50,
-        "public_action_dimension": null,
+        "semantic_prompt_tokens": 22,
+        "executed_prompt_tokens": 22,
+        "action_horizon": 10,
+        "public_action_dimension": 7,
         "internal_action_dimension": 32,
         "denoise_steps": 10,
         "work_unit": "action_chunk"
@@ -10224,7 +10224,9 @@
                 "class": "analytical_model",
                 "source_ids": [
                   "source-openpi",
-                  "source-realtime-vla"
+                  "source-realtime-vla",
+                  "source-flashrt",
+                  "source-local-thor"
                 ],
                 "derivation": {
                   "kind": "formula",
@@ -10251,7 +10253,9 @@
                 "class": "analytical_model",
                 "source_ids": [
                   "source-openpi",
-                  "source-realtime-vla"
+                  "source-realtime-vla",
+                  "source-flashrt",
+                  "source-local-thor"
                 ],
                 "derivation": {
                   "kind": "formula",
@@ -10278,7 +10282,9 @@
                 "class": "analytical_model",
                 "source_ids": [
                   "source-openpi",
-                  "source-realtime-vla"
+                  "source-realtime-vla",
+                  "source-flashrt",
+                  "source-local-thor"
                 ],
                 "derivation": {
                   "kind": "formula",
@@ -10322,7 +10328,9 @@
                 "class": "analytical_model",
                 "source_ids": [
                   "source-openpi",
-                  "source-realtime-vla"
+                  "source-realtime-vla",
+                  "source-flashrt",
+                  "source-local-thor"
                 ],
                 "derivation": {
                   "kind": "formula",
@@ -10349,7 +10357,9 @@
                 "class": "analytical_model",
                 "source_ids": [
                   "source-openpi",
-                  "source-realtime-vla"
+                  "source-realtime-vla",
+                  "source-flashrt",
+                  "source-local-thor"
                 ],
                 "derivation": {
                   "kind": "formula",
@@ -10376,7 +10386,9 @@
                 "class": "analytical_model",
                 "source_ids": [
                   "source-openpi",
-                  "source-realtime-vla"
+                  "source-realtime-vla",
+                  "source-flashrt",
+                  "source-local-thor"
                 ],
                 "derivation": {
                   "kind": "formula",
@@ -10409,31 +10421,23 @@
         "class": "analytical_model",
         "source_ids": [
           "source-openpi",
-          "source-realtime-vla"
+          "source-realtime-vla",
+          "source-flashrt",
+          "source-local-thor"
         ],
         "derivation": {
           "kind": "formula",
-          "expression": "map formula-backed logical work to exact Task 4 execution groups and preserve omissions",
+          "expression": "materialize source-backed representative runtime-matrix coordinates with realization-native action applicability and map formula-backed logical work to exact Task 4 execution groups",
           "input_refs": [
             "pi0-logical-v1",
             "rr-flashrt-pi0-thor-fp8-v1",
+            "run-flashrt-pi0-matrix-008",
             "thor-t5000-120w-1386mhz"
           ]
         },
-        "condition": "Partial Task 4 mapping prevents a uniform runtime curve and complete model coverage."
+        "condition": "Coordinates V=3,L_PROMPT=22,T_ACTION=10,N_DENOISE=10 are representative matrix values, distinct from logical BF16 defaults. Semantic/executed prompt lengths come verbatim from cfg-flashrt-pi0-matrix-008; no conversion is inferred. Action horizon, public/internal dimensions, and NFE come from realization applicability. The run supplies workload only—never latency or telemetry. The curated graph may map across a runtime artifact; coverage remains partial."
       },
-      "missing": [
-        {
-          "field": "workload.semantic_prompt_tokens",
-          "reason": "not_reported",
-          "detail": "Executed prompt length is bound; semantic length is not asserted."
-        },
-        {
-          "field": "workload.public_action_dimension",
-          "reason": "not_reported",
-          "detail": "The logical graph does not assert a public action dimension."
-        }
-      ]
+      "missing": []
     },
     {
       "schema_version": "2.0.0",
@@ -11493,11 +11497,11 @@
     {
       "schema_version": "2.0.0",
       "scenario_id": "scenario-pi05-runtime_mixed-default",
-      "label": "pi05 default · evidenced runtime-mixed allocation",
+      "label": "pi05 representative runtime matrix V=3,L_PROMPT=160,T_ACTION=10,N_DENOISE=10 · evidenced mixed allocation",
       "origin": "default_precomputed",
       "model_id": "pi05",
       "model_graph_id": "pi05-droid-logical-v1",
-      "model_artifact_id": "pi05-droid-logical-01",
+      "model_artifact_id": "pi05-flashrt-local-01",
       "workload": {
         "batch_size": 1,
         "active_camera_views": 3,
@@ -11506,10 +11510,10 @@
         "raw_image_width": 224,
         "executed_image_height": 224,
         "executed_image_width": 224,
-        "semantic_prompt_tokens": null,
-        "executed_prompt_tokens": 200,
-        "action_horizon": 15,
-        "public_action_dimension": 32,
+        "semantic_prompt_tokens": 159,
+        "executed_prompt_tokens": 160,
+        "action_horizon": 10,
+        "public_action_dimension": 7,
         "internal_action_dimension": 32,
         "denoise_steps": 10,
         "work_unit": "action_chunk"
@@ -11543,7 +11547,9 @@
                 "class": "analytical_model",
                 "source_ids": [
                   "source-pi05-droid",
-                  "source-lerobot-fbb811f"
+                  "source-lerobot-fbb811f",
+                  "source-flashrt",
+                  "source-local-thor"
                 ],
                 "derivation": {
                   "kind": "formula",
@@ -11570,7 +11576,9 @@
                 "class": "analytical_model",
                 "source_ids": [
                   "source-pi05-droid",
-                  "source-lerobot-fbb811f"
+                  "source-lerobot-fbb811f",
+                  "source-flashrt",
+                  "source-local-thor"
                 ],
                 "derivation": {
                   "kind": "formula",
@@ -11597,7 +11605,9 @@
                 "class": "analytical_model",
                 "source_ids": [
                   "source-pi05-droid",
-                  "source-lerobot-fbb811f"
+                  "source-lerobot-fbb811f",
+                  "source-flashrt",
+                  "source-local-thor"
                 ],
                 "derivation": {
                   "kind": "formula",
@@ -11642,7 +11652,9 @@
                 "class": "analytical_model",
                 "source_ids": [
                   "source-pi05-droid",
-                  "source-lerobot-fbb811f"
+                  "source-lerobot-fbb811f",
+                  "source-flashrt",
+                  "source-local-thor"
                 ],
                 "derivation": {
                   "kind": "formula",
@@ -11669,7 +11681,9 @@
                 "class": "analytical_model",
                 "source_ids": [
                   "source-pi05-droid",
-                  "source-lerobot-fbb811f"
+                  "source-lerobot-fbb811f",
+                  "source-flashrt",
+                  "source-local-thor"
                 ],
                 "derivation": {
                   "kind": "formula",
@@ -11696,7 +11710,9 @@
                 "class": "analytical_model",
                 "source_ids": [
                   "source-pi05-droid",
-                  "source-lerobot-fbb811f"
+                  "source-lerobot-fbb811f",
+                  "source-flashrt",
+                  "source-local-thor"
                 ],
                 "derivation": {
                   "kind": "formula",
@@ -11729,26 +11745,23 @@
         "class": "analytical_model",
         "source_ids": [
           "source-pi05-droid",
-          "source-lerobot-fbb811f"
+          "source-lerobot-fbb811f",
+          "source-flashrt",
+          "source-local-thor"
         ],
         "derivation": {
           "kind": "formula",
-          "expression": "map formula-backed logical work to exact Task 4 execution groups and preserve omissions",
+          "expression": "materialize source-backed representative runtime-matrix coordinates with realization-native action applicability and map formula-backed logical work to exact Task 4 execution groups",
           "input_refs": [
             "pi05-droid-logical-v1",
             "rr-flashrt-pi05-thor-fp8-v1",
+            "run-flashrt-pi05-matrix-008",
             "thor-t5000-120w-1386mhz"
           ]
         },
-        "condition": "Partial Task 4 mapping prevents a uniform runtime curve and complete model coverage."
+        "condition": "Coordinates V=3,L_PROMPT=160,T_ACTION=10,N_DENOISE=10 are representative matrix values, distinct from logical BF16 defaults. Semantic/executed prompt lengths come verbatim from cfg-flashrt-pi05-matrix-008; no conversion is inferred. Action horizon, public/internal dimensions, and NFE come from realization applicability. The run supplies workload only—never latency or telemetry. The curated graph may map across a runtime artifact; coverage remains partial."
       },
-      "missing": [
-        {
-          "field": "workload.semantic_prompt_tokens",
-          "reason": "not_reported",
-          "detail": "Executed prompt length is bound; semantic length is not asserted."
-        }
-      ]
+      "missing": []
     },
     {
       "schema_version": "2.0.0",
@@ -12838,7 +12851,7 @@
     {
       "schema_version": "2.0.0",
       "scenario_id": "scenario-smolvla-runtime_mixed-default",
-      "label": "smolvla default · evidenced runtime-mixed allocation",
+      "label": "smolvla representative runtime matrix V=3,L_PROMPT=48,T_ACTION=50,N_DENOISE=10 · evidenced mixed allocation",
       "origin": "default_precomputed",
       "model_id": "smolvla",
       "model_graph_id": "smolvla-base-logical-v1",
@@ -12851,7 +12864,7 @@
         "raw_image_width": 256,
         "executed_image_height": 512,
         "executed_image_width": 512,
-        "semantic_prompt_tokens": null,
+        "semantic_prompt_tokens": 21,
         "executed_prompt_tokens": 48,
         "action_horizon": 50,
         "public_action_dimension": 6,
@@ -12889,7 +12902,9 @@
                   "source-smolvla-base-c83c316",
                   "source-smolvlm2-7b375e",
                   "source-lerobot-fbb811f",
-                  "source-transformers-5-5-4"
+                  "source-transformers-5-5-4",
+                  "source-lerobot",
+                  "source-local-thor"
                 ],
                 "derivation": {
                   "kind": "formula",
@@ -12918,7 +12933,9 @@
                   "source-smolvla-base-c83c316",
                   "source-smolvlm2-7b375e",
                   "source-lerobot-fbb811f",
-                  "source-transformers-5-5-4"
+                  "source-transformers-5-5-4",
+                  "source-lerobot",
+                  "source-local-thor"
                 ],
                 "derivation": {
                   "kind": "formula",
@@ -12947,7 +12964,9 @@
                   "source-smolvla-base-c83c316",
                   "source-smolvlm2-7b375e",
                   "source-lerobot-fbb811f",
-                  "source-transformers-5-5-4"
+                  "source-transformers-5-5-4",
+                  "source-lerobot",
+                  "source-local-thor"
                 ],
                 "derivation": {
                   "kind": "formula",
@@ -12997,7 +13016,9 @@
                   "source-smolvla-base-c83c316",
                   "source-smolvlm2-7b375e",
                   "source-lerobot-fbb811f",
-                  "source-transformers-5-5-4"
+                  "source-transformers-5-5-4",
+                  "source-lerobot",
+                  "source-local-thor"
                 ],
                 "derivation": {
                   "kind": "formula",
@@ -13026,7 +13047,9 @@
                   "source-smolvla-base-c83c316",
                   "source-smolvlm2-7b375e",
                   "source-lerobot-fbb811f",
-                  "source-transformers-5-5-4"
+                  "source-transformers-5-5-4",
+                  "source-lerobot",
+                  "source-local-thor"
                 ],
                 "derivation": {
                   "kind": "formula",
@@ -13055,7 +13078,9 @@
                   "source-smolvla-base-c83c316",
                   "source-smolvlm2-7b375e",
                   "source-lerobot-fbb811f",
-                  "source-transformers-5-5-4"
+                  "source-transformers-5-5-4",
+                  "source-lerobot",
+                  "source-local-thor"
                 ],
                 "derivation": {
                   "kind": "formula",
@@ -13090,26 +13115,23 @@
           "source-smolvla-base-c83c316",
           "source-smolvlm2-7b375e",
           "source-lerobot-fbb811f",
-          "source-transformers-5-5-4"
+          "source-transformers-5-5-4",
+          "source-lerobot",
+          "source-local-thor"
         ],
         "derivation": {
           "kind": "formula",
-          "expression": "map formula-backed logical work to exact Task 4 execution groups and preserve omissions",
+          "expression": "materialize source-backed representative runtime-matrix coordinates with realization-native action applicability and map formula-backed logical work to exact Task 4 execution groups",
           "input_refs": [
             "smolvla-base-logical-v1",
             "rr-lerobot-smolvla-thor-eager-v1",
+            "run-lerobot-smolvla-matrix-006",
             "thor-t5000-120w-1386mhz"
           ]
         },
-        "condition": "Partial Task 4 mapping prevents a uniform runtime curve and complete model coverage."
+        "condition": "Coordinates V=3,L_PROMPT=48,T_ACTION=50,N_DENOISE=10 are representative matrix values, distinct from logical BF16 defaults. Semantic/executed prompt lengths come verbatim from cfg-lerobot-smolvla-matrix-006; no conversion is inferred. Action horizon, public/internal dimensions, and NFE come from realization applicability. The run supplies workload only—never latency or telemetry. The curated graph may map across a runtime artifact; coverage remains partial."
       },
-      "missing": [
-        {
-          "field": "workload.semantic_prompt_tokens",
-          "reason": "not_reported",
-          "detail": "Executed prompt length is bound; semantic length is not asserted."
-        }
-      ]
+      "missing": []
     },
     {
       "schema_version": "2.0.0",

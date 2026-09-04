@@ -407,6 +407,74 @@ MODEL_DEFAULTS = {
 }
 
 
+def runtime_representative_run(realization, runs):
+    """Pick a real bound configuration without importing any measured timing."""
+    configuration_ids = set(realization["configuration_ids"])
+    candidates = sorted(
+        (run for run in runs if run.get("configuration_id") in configuration_ids),
+        key=lambda run: run["run_id"],
+    )
+    if not candidates:
+        raise ValueError(f"{realization['realization_id']} has no bound workload configuration")
+    views = {run["workload"]["vla"]["camera_views"] for run in candidates}
+    preferred_views = 3 if 3 in views else max(views)
+    view_candidates = [
+        run for run in candidates
+        if run["workload"]["vla"]["camera_views"] == preferred_views
+    ]
+    prompts = sorted({
+        run["workload"]["vla"]["executed_prompt_tokens"]
+        for run in view_candidates
+    })
+    preferred_prompt = prompts[len(prompts) // 2]
+    exact = [
+        run for run in view_candidates
+        if run["workload"]["vla"]["executed_prompt_tokens"] == preferred_prompt
+    ]
+    if any(
+        not isinstance(run["workload"]["vla"].get("semantic_prompt_tokens"), int)
+        or isinstance(run["workload"]["vla"].get("semantic_prompt_tokens"), bool)
+        for run in exact
+    ):
+        raise ValueError(f"{realization['realization_id']} has no fully reported semantic prompt representative")
+    exact.sort(key=lambda run: (
+        run["workload"]["vla"]["semantic_prompt_tokens"],
+        run["run_id"],
+    ))
+    return exact[len(exact) // 2]
+
+
+def runtime_default_workload(logical_workload, realization, runs):
+    """Bind a mapped-mixed default to its realization, not the logical default."""
+    representative = runtime_representative_run(realization, runs)
+    observed = representative["workload"]
+    applicability = realization["workload_applicability"]
+    required = (
+        "runtime_action_horizon", "public_action_horizon",
+        "public_action_dimension", "runtime_internal_action_dimension",
+        "denoise_steps",
+    )
+    if any(not isinstance(applicability.get(field), int) for field in required):
+        raise ValueError(f"{realization['realization_id']} lacks complete workload applicability")
+    if applicability["runtime_action_horizon"] != applicability["public_action_horizon"]:
+        raise ValueError(f"{realization['realization_id']} has incompatible public/runtime horizons")
+    if representative.get("model_artifact_id") not in realization["model_artifact_ids"]:
+        raise ValueError(f"{representative['run_id']} does not use an artifact bound to {realization['realization_id']}")
+    workload = dict(logical_workload)
+    workload.update({
+        "batch_size": observed["common"]["batch_size"],
+        "active_camera_views": observed["vla"]["camera_views"],
+        "executed_camera_views": observed["vla"]["camera_views"],
+        "semantic_prompt_tokens": observed["vla"]["semantic_prompt_tokens"],
+        "executed_prompt_tokens": observed["vla"]["executed_prompt_tokens"],
+        "action_horizon": applicability["runtime_action_horizon"],
+        "public_action_dimension": applicability["public_action_dimension"],
+        "internal_action_dimension": applicability["runtime_internal_action_dimension"],
+        "denoise_steps": applicability["denoise_steps"],
+    })
+    return workload, representative
+
+
 def runtime_scenario_segments(realization, source_ids):
     runtime_prov = ANALYTICAL(source_ids, "copy exact execution-group precision allocation from the selected Task 4 realization", [realization["realization_id"]], "Mapping coverage is partial; unmapped logical formulas remain omitted.")
     precision = {item["precision_path_id"]: item for item in realization["precision_paths"]}
@@ -438,7 +506,7 @@ def runtime_scenario_segments(realization, source_ids):
     return segments
 
 
-def default_scenarios(graph_records, realizations):
+def default_scenarios(graph_records, realizations, runs):
     result = []
     for model_id, config in MODEL_DEFAULTS.items():
         graph = graph_records[config["graph"]]
@@ -450,7 +518,18 @@ def default_scenarios(graph_records, realizations):
                 scenario_missing.append(missing("workload.public_action_dimension", "not_reported", "The logical graph does not assert a public action dimension."))
             result.append({"schema_version": VERSION, "scenario_id": f"scenario-{model_id}-{path_id}-default", "label": f"{model_id} default · {label}", "origin": "default_precomputed", "model_id": model_id, "model_graph_id": config["graph"], "model_artifact_id": config["artifact"], "workload": config["workload"], "precision_path": {"precision_path_id": path_id, "kind": kind, "segments": [segment], "runtime_support": "unproven", "realization_ids": []}, "modeling_scope": "ideal_analytical", "provenance": ANALYTICAL(source_ids, "materialize the canonical logical graph at its artifact-native default with FMA=2", [config["graph"], CEILING]), "missing": scenario_missing})
         realization = realizations[config["realization"]]
-        result.append({"schema_version": VERSION, "scenario_id": f"scenario-{model_id}-runtime_mixed-default", "label": f"{model_id} default · evidenced runtime-mixed allocation", "origin": "default_precomputed", "model_id": model_id, "model_graph_id": config["graph"], "model_artifact_id": config["artifact"], "workload": config["workload"], "precision_path": {"precision_path_id": "runtime_mixed", "kind": "mapped_mixed", "segments": runtime_scenario_segments(realization, source_ids), "runtime_support": "proven", "realization_ids": [config["realization"]]}, "modeling_scope": "implementation_modeled", "provenance": ANALYTICAL(source_ids, "map formula-backed logical work to exact Task 4 execution groups and preserve omissions", [config["graph"], config["realization"], CEILING], "Partial Task 4 mapping prevents a uniform runtime curve and complete model coverage."), "missing": [missing("workload.semantic_prompt_tokens", "not_reported", "Executed prompt length is bound; semantic length is not asserted."), *([missing("workload.public_action_dimension", "not_reported", "The logical graph does not assert a public action dimension.")] if config["workload"]["public_action_dimension"] is None else [])]})
+        runtime_workload, representative = runtime_default_workload(config["workload"], realization, runs)
+        runtime_source_ids = list(dict.fromkeys([
+            *source_ids,
+            *(item["source_id"] for item in realization["evidence"] if item.get("source_id")),
+        ]))
+        workload_key = (
+            f"V={runtime_workload['executed_camera_views']},"
+            f"L_PROMPT={runtime_workload['executed_prompt_tokens']},"
+            f"T_ACTION={runtime_workload['action_horizon']},"
+            f"N_DENOISE={runtime_workload['denoise_steps']}"
+        )
+        result.append({"schema_version": VERSION, "scenario_id": f"scenario-{model_id}-runtime_mixed-default", "label": f"{model_id} representative runtime matrix {workload_key} · evidenced mixed allocation", "origin": "default_precomputed", "model_id": model_id, "model_graph_id": config["graph"], "model_artifact_id": representative["model_artifact_id"], "workload": runtime_workload, "precision_path": {"precision_path_id": "runtime_mixed", "kind": "mapped_mixed", "segments": runtime_scenario_segments(realization, runtime_source_ids), "runtime_support": "proven", "realization_ids": [config["realization"]]}, "modeling_scope": "implementation_modeled", "provenance": ANALYTICAL(runtime_source_ids, "materialize source-backed representative runtime-matrix coordinates with realization-native action applicability and map formula-backed logical work to exact Task 4 execution groups", [config["graph"], config["realization"], representative["run_id"], CEILING], f"Coordinates {workload_key} are representative matrix values, distinct from logical BF16 defaults. Semantic/executed prompt lengths come verbatim from {representative['configuration_id']}; no conversion is inferred. Action horizon, public/internal dimensions, and NFE come from realization applicability. The run supplies workload only—never latency or telemetry. The curated graph may map across a runtime artifact; coverage remains partial."), "missing": []})
     return result
 
 
@@ -977,7 +1056,7 @@ def main():
     runs = load(ROOT / "data" / "measurements" / "runs.json")["records"]
     old_operators = load(ROOT / "data" / "measurements" / "operators.json")["records"]
     old_rooflines = load(ROOT / "data" / "measurements" / "rooflines.json")["records"]
-    scenarios = default_scenarios(graph_records, realizations)
+    scenarios = default_scenarios(graph_records, realizations, runs)
     legacy_scenarios, legacy_bases = legacy_scenarios_and_bases(runs)
     scenarios.extend(legacy_scenarios)
     bases = default_bases(scenarios) + legacy_bases

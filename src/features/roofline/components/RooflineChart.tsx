@@ -23,7 +23,8 @@ export interface RooflineRevealPolicy {
 
 export interface UnplottedSelection {
   label: string;
-  reasons: readonly string[];
+  plotBlockers: readonly string[];
+  otherEvidence: readonly string[];
 }
 
 interface PointCluster {
@@ -31,6 +32,14 @@ interface PointCluster {
   xFlopPerByte: number;
   yFlopPerSecond: number;
   points: readonly RooflinePointVM[];
+}
+
+type ClusterMarker = RooflinePointVM["marker"] | "mixed";
+
+interface PositionedCluster extends PointCluster {
+  screenX: number;
+  screenY: number;
+  marker: ClusterMarker;
 }
 
 function throughput(value: number) {
@@ -66,14 +75,24 @@ function clusterPoints(points: readonly RooflinePointVM[]): PointCluster[] {
   }));
 }
 
-function fanOffset(index: number, count: number) {
-  if (count === 1) return { x: 0, y: 0 };
-  const ring = Math.floor(index / 8);
-  const withinRing = index % 8;
-  const ringCount = Math.min(8, count - ring * 8);
-  const radius = 18 + ring * 13;
-  const angle = -Math.PI / 2 + withinRing / ringCount * Math.PI * 2;
-  return { x: Math.cos(angle) * radius, y: Math.sin(angle) * radius };
+function clusterMarker(points: readonly RooflinePointVM[]): ClusterMarker {
+  const markers = new Set(points.map((point) => point.marker));
+  return markers.size === 1 ? points[0]!.marker : "mixed";
+}
+
+function markerEvidence(marker: ClusterMarker) {
+  if (marker === "hollow") return "analytical time and modeled traffic";
+  if (marker === "half") return "observed time and modeled traffic";
+  if (marker === "filled") return "observed time and measured traffic";
+  return "mixed evidence markers; inspect the member roster";
+}
+
+function nearestCenterDistance(clusters: readonly PositionedCluster[], index: number) {
+  const current = clusters[index]!;
+  return clusters.reduce((nearest, candidate, candidateIndex) => {
+    if (candidateIndex === index) return nearest;
+    return Math.min(nearest, Math.hypot(candidate.screenX - current.screenX, candidate.screenY - current.screenY));
+  }, Number.POSITIVE_INFINITY);
 }
 
 export function RooflineChart({
@@ -103,6 +122,12 @@ export function RooflineChart({
   const uid = useId().replaceAll(":", "");
   const xTicks = compact ? geometry.xTicks.filter((_, index) => index % 2 === 0) : geometry.xTicks;
   const yTicks = compact ? geometry.yTicks.filter((_, index) => index % 2 === 0) : geometry.yTicks;
+  const positionedClusters: PositionedCluster[] = clusters.map((cluster) => ({
+    ...cluster,
+    screenX: logX(cluster.xFlopPerByte, geometry.x, box),
+    screenY: logY(cluster.yFlopPerSecond, geometry.y, box),
+    marker: clusterMarker(cluster.points),
+  }));
   return (
     <section className="roofline-chart-panel" aria-labelledby={`${uid}-title`}>
       <header>
@@ -114,17 +139,26 @@ export function RooflineChart({
           <div className="roofline-not-plotted" role="status">
             <strong>Selected entity not plotted</strong>
             <span>{unplottedSelection.label}</span>
-            <ul>{unplottedSelection.reasons.map((reason) => <li key={reason}>{reason}</li>)}</ul>
+            <b>Plot blockers</b>
+            <ul>{unplottedSelection.plotBlockers.map((reason) => <li key={reason}>{reason}</li>)}</ul>
+            {unplottedSelection.otherEvidence.length ? <>
+              <b>Other evidence status</b>
+              <ul>{unplottedSelection.otherEvidence.map((reason) => <li key={reason}>{reason}</li>)}</ul>
+            </> : null}
           </div>
         ) : null}
         <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-labelledby={`${uid}-svg-title ${uid}-svg-desc`}>
           <title id={`${uid}-svg-title`}>{title}</title>
-          <desc id={`${uid}-svg-desc`}>Logarithmic roofline chart. Hollow markers are analytical; half-filled markers combine observed time with modeled traffic; filled markers require observed time and measured traffic. Coincident points retain their true values and use screen-space fanout only for selection.</desc>
+          <desc id={`${uid}-svg-desc`}>Logarithmic roofline chart. Hollow markers are analytical; half-filled markers combine observed time with modeled traffic; filled markers require observed time and measured traffic. Exact coincidences use one aggregate glyph at the true coordinate; activate it repeatedly or use the roster to select members.</desc>
           <defs>
             <clipPath id={`${uid}-plot`}><rect x={box.left} y={box.top} width={box.width} height={box.height} /></clipPath>
-            {points.filter((point) => point.marker === "half").map((point) => (
-              <clipPath key={point.pointId} id={`${uid}-${safe(point.pointId)}`} clipPathUnits="objectBoundingBox"><rect x="0" y="0" width="0.5" height="1" /></clipPath>
+            {positionedClusters.filter((cluster) => cluster.marker === "half").map((cluster) => (
+              <clipPath key={cluster.key} id={`${uid}-${safe(cluster.key)}`} clipPathUnits="objectBoundingBox"><rect x="0" y="0" width="0.5" height="1" /></clipPath>
             ))}
+            <pattern id={`${uid}-mixed-marker`} width="5" height="5" patternUnits="userSpaceOnUse">
+              <rect width="5" height="5" fill="white" />
+              <path className="roofline-marker-mixed-hatch" d="M-1 1 L1 -1 M0 5 L5 0 M4 6 L6 4" strokeWidth="1.5" />
+            </pattern>
           </defs>
           <rect className="roofline-plot-field" x={box.left} y={box.top} width={box.width} height={box.height} />
           {xTicks.map((tick) => {
@@ -143,41 +177,56 @@ export function RooflineChart({
                 {curve.kind === "uniform_roof" ? <line className="roofline-ridge" x1={ridgeX} x2={ridgeX} y1={box.top} y2={box.top + box.height} /> : null}
               </g>;
             })}
-            {clusters.map((cluster) => {
-              const trueX = logX(cluster.xFlopPerByte, geometry.x, box);
-              const trueY = logY(cluster.yFlopPerSecond, geometry.y, box);
-              return <g className="roofline-cluster" key={cluster.key} transform={`translate(${trueX} ${trueY})`}>
-                {cluster.points.length > 1 ? cluster.points.map((_, index) => {
-                  const offset = fanOffset(index, cluster.points.length);
-                  return <line className="roofline-cluster-tether" key={`tether-${index}`} x1="0" y1="0" x2={offset.x} y2={offset.y} />;
-                }) : null}
-                {cluster.points.map((point, index) => {
-                  const offset = fanOffset(index, cluster.points.length);
-                  const radius = markerRadius(point.markerAreaPx2);
-                  const selected = focusedPointId ? focusedPointId === point.pointId : point.selected;
-                  return <g className={`roofline-marker is-${point.marker} ${selected ? "is-selected" : ""}`} key={point.pointId} transform={`translate(${offset.x} ${offset.y})`}>
-                    <title>{point.label}; true AI {formatNumber(point.xFlopPerByte)} FLOP/byte; true throughput {throughput(point.yFlopPerSecond)} FLOP/s; {point.marker}</title>
-                    {selected ? <circle className="roofline-marker-halo" r={radius + 5} /> : null}
-                    {point.marker === "half" ? <circle className="roofline-marker-half" r={radius} clipPath={`url(#${uid}-${safe(point.pointId)})`} /> : null}
-                    <circle className="roofline-marker-core" r={radius} />
-                    <circle
-                      className="roofline-marker-hit"
-                      r={Math.max(12, radius + 4)}
-                      role="button"
-                      tabIndex={0}
-                      aria-label={`Select ${point.label}; true arithmetic intensity ${formatNumber(point.xFlopPerByte)} FLOP per byte; true throughput ${throughput(point.yFlopPerSecond)} FLOP per second`}
-                      onClick={() => onSelect(point.entityKey, point.pointId)}
-                      onKeyDown={(event) => {
-                        if (event.key === "Enter" || event.key === " ") {
-                          event.preventDefault();
-                          onSelect(point.entityKey, point.pointId);
-                        }
-                      }}
-                    />
-                    {selected ? <text className="roofline-selected-label" x={radius + 8} y={-radius - 4}>{point.label}</text> : null}
-                  </g>;
-                })}
-                {cluster.points.length > 1 ? <g className="roofline-cluster-count" aria-label={`${cluster.points.length} coincident points`}><circle r="10" /><text y="4" textAnchor="middle">{cluster.points.length}</text></g> : null}
+            {positionedClusters.map((cluster, clusterIndex) => {
+              const nearest = nearestCenterDistance(positionedClusters, clusterIndex);
+              const ownershipRadius = Number.isFinite(nearest)
+                ? Math.max(0.05, nearest / 2 - 0.05)
+                : 18;
+              const desiredRadius = markerRadius(cluster.points.reduce((sum, point) => sum + point.markerAreaPx2, 0));
+              const radius = Math.min(desiredRadius, Math.max(0.025, ownershipRadius - 0.025));
+              const hitRadius = Math.min(ownershipRadius, Math.max(radius, Math.min(12, radius + 4)));
+              const haloRadius = Math.min(radius + 4, ownershipRadius);
+              const focusedIndex = cluster.points.findIndex((point) => point.pointId === focusedPointId);
+              const selectedMember = focusedPointId !== null
+                ? (focusedIndex >= 0 ? cluster.points[focusedIndex]! : null)
+                : cluster.points.find((point) => point.selected) ?? null;
+              const nextMember = cluster.points[focusedIndex >= 0 ? (focusedIndex + 1) % cluster.points.length : 0]!;
+              const title = `${cluster.points.length} point${cluster.points.length === 1 ? "" : "s"} at true AI ${formatNumber(cluster.xFlopPerByte)} FLOP/byte and true throughput ${throughput(cluster.yFlopPerSecond)} FLOP/s; ${markerEvidence(cluster.marker)}; members: ${cluster.points.map((point) => `${point.label} (${markerEvidence(point.marker)})`).join("; ")}`;
+              const activate = () => onSelect(nextMember.entityKey, nextMember.pointId);
+              return <g
+                className={`roofline-cluster roofline-marker is-${cluster.marker} ${selectedMember ? "is-selected" : ""}`}
+                key={cluster.key}
+                transform={`translate(${cluster.screenX} ${cluster.screenY})`}
+                data-cluster-center="true"
+                data-cluster-size={cluster.points.length}
+                data-true-x={cluster.xFlopPerByte}
+                data-true-y={cluster.yFlopPerSecond}
+                data-hit-radius={hitRadius}
+                data-marker-evidence={cluster.marker}
+              >
+                <title>{title}</title>
+                {selectedMember ? <circle className="roofline-marker-halo" r={haloRadius} data-halo-radius={haloRadius} /> : null}
+                <circle className="roofline-marker-base" r={radius} />
+                {cluster.marker === "half" ? <circle className="roofline-marker-half" r={radius} clipPath={`url(#${uid}-${safe(cluster.key)})`} /> : null}
+                {cluster.marker === "mixed" ? <circle className="roofline-marker-mixed" r={radius} fill={`url(#${uid}-mixed-marker)`} /> : null}
+                <circle className="roofline-marker-outline" r={radius} />
+                {cluster.points.length > 1 ? <text className="roofline-cluster-count" y="3.5" textAnchor="middle" aria-hidden="true">{cluster.points.length}</text> : null}
+                <circle
+                  className="roofline-marker-hit"
+                  r={hitRadius}
+                  role="button"
+                  tabIndex={0}
+                  aria-pressed={selectedMember !== null}
+                  aria-label={`${cluster.points.length > 1 ? `Select or cycle ${cluster.points.length} coincident points` : `Select ${nextMember.label}`}; true arithmetic intensity ${formatNumber(cluster.xFlopPerByte)} FLOP per byte; true throughput ${throughput(cluster.yFlopPerSecond)} FLOP per second; ${markerEvidence(cluster.marker)}; next ${nextMember.label}`}
+                  onClick={activate}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      activate();
+                    }
+                  }}
+                />
+                {selectedMember ? <text className="roofline-selected-label" x={radius + 8} y={-radius - 4}>{selectedMember.label}</text> : null}
               </g>;
             })}
           </g>
@@ -206,7 +255,7 @@ export function RooflineChart({
           <summary>{overlapping.length} coincident clusters · open entity roster</summary>
           <div>{overlapping.map((cluster) => (
             <article key={cluster.key}>
-              <strong>{cluster.points.length} points at true AI {formatNumber(cluster.xFlopPerByte)} FLOP/B · {throughput(cluster.yFlopPerSecond)} FLOP/s</strong>
+              <strong>{cluster.points.length} points at true AI {formatNumber(cluster.xFlopPerByte)} FLOP/B · {throughput(cluster.yFlopPerSecond)} FLOP/s · {markerEvidence(clusterMarker(cluster.points))}</strong>
               <ul>{cluster.points.map((point) => <li key={point.pointId}><button type="button" onClick={() => onSelect(point.entityKey, point.pointId)}>{point.label}</button><span>{humanize(point.marker)} · true coordinates unchanged</span></li>)}</ul>
             </article>
           ))}</div>
@@ -216,7 +265,7 @@ export function RooflineChart({
         <span><i className="marker-swatch is-hollow" /> Analytical time + traffic</span>
         <span><i className="marker-swatch is-half" /> Observed time + modeled traffic</span>
         <span><i className="marker-swatch is-filled" /> Observed time + measured traffic</span>
-        <strong>Marker area = compatible time share</strong>
+        <strong>Marker area = compatible time share · coincident glyphs aggregate member area</strong>
       </div>
     </section>
   );

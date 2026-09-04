@@ -89,6 +89,11 @@ export function RooflineBasisBar({
           <button type="button" disabled>Use matching observed basis</button>
         </section>
       </div>
+      {scenario.precision_path.kind === "mapped_mixed" ? (
+        <p className="roofline-runtime-workload-note">
+          <strong>Representative runtime-matrix coordinates.</strong> Views and executed/semantic prompt lengths come directly from one bound configuration; action horizon, public/internal dimensions, and denoise steps come from realization applicability. This tuple is distinct from the logical BF16 default, and the representative run contributes no latency or telemetry.
+        </p>
+      ) : null}
       <dl className="roofline-basis-fingerprint">
         <div><dt>Level</dt><dd>{humanize(basis.level)}</dd></div>
         <div><dt>Time</dt><dd>{humanize(basis.time_basis)}</dd></div>
