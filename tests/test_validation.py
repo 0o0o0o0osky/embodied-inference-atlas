@@ -60,6 +60,20 @@ class ValidationTests(unittest.TestCase):
             [problem.code for problem in graph_semantic_problems(graph)],
         )
 
+    def test_component_boundary_shapes_accept_subtract_zero_identity(self):
+        graph = valid_model_graph_document()["records"][0]
+        component = graph["block_templates"][0]["components"][0]
+        tokens = next(
+            binding for binding in component["bindings"]
+            if binding["symbol"] == "M"
+        )
+        tokens["expression"] = {
+            "op": "sub",
+            "args": [{"symbol": "M"}, 0],
+        }
+
+        self.assertEqual(graph_semantic_problems(graph), [])
+
     def test_component_ports_reject_duplicate_bindings(self):
         graph = valid_model_graph_document()["records"][0]
         component = graph["block_templates"][0]["components"][0]

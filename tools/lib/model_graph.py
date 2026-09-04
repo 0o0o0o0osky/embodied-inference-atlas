@@ -385,6 +385,8 @@ def _canonical_expression(
         if len(symbolic) == 1:
             return symbolic[0]
         return (operation, tuple(symbolic))
+    if operation == "sub" and canonical_args[1] == _canonical_number(0):
+        return canonical_args[0]
     if operation in {"div", "ceil_div"} and canonical_args[1] == _canonical_number(1):
         return canonical_args[0]
     return (operation, tuple(canonical_args))
