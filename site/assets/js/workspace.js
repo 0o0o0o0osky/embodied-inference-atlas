@@ -28,28 +28,79 @@
     animation: null,
   };
 
-  // The figure is intentionally composed like a paper diagram. A slot may hold
-  // one operator or a compact left-to-right mini-chain. Names, repeats, and
-  // connector validity are resolved after materialization.
+  // The figure is intentionally composed like a paper diagram. Nodes placed
+  // beside one another are independent branches; dependencies run downward.
+  // Names, repeats, and connector validity are resolved after materialization.
+  function paperScopedRow(scope, operatorIds, gapBefore = false) {
+    const slots = operatorIds.map((operatorId) => (
+      operatorId === null ? null : `${scope}/${operatorId}`
+    ));
+    return gapBefore ? { gapBefore: true, slots } : { slots };
+  }
+
+  function paperSerialRows(scope, operatorIds, gapBefore = false) {
+    return operatorIds.map((operatorId, index) => (
+      paperScopedRow(scope, [operatorId], gapBefore && index === 0)
+    ));
+  }
+
+  function paperAttentionRows(scope, {
+    entry = ["attention-norm"],
+    rope = false,
+    cacheOutput = false,
+    prefixKvViews = false,
+  } = {}) {
+    const rows = [
+      paperScopedRow(scope, entry, true),
+      paperScopedRow(scope, ["query-projection", "key-projection", "value-projection"]),
+    ];
+    if (rope) rows.push(paperScopedRow(scope, ["query-rope", "key-rope", null]));
+    if (prefixKvViews) rows.push(paperScopedRow(scope, ["key-concat", "value-concat"]));
+    rows.push(cacheOutput
+      ? paperScopedRow(scope, [null, "attention", "cache-output"])
+      : paperScopedRow(scope, ["attention"]));
+    rows.push(
+      paperScopedRow(scope, ["output-projection"]),
+      paperScopedRow(scope, ["attention-residual"]),
+    );
+    return rows;
+  }
+
+  function paperVitGeluMlpRows(scope) {
+    return paperSerialRows(scope, [
+      "mlp-norm",
+      "mlp-up-projection",
+      "mlp-gelu",
+      "mlp-down-projection",
+      "mlp-residual",
+    ], true);
+  }
+
+  function paperGatedMlpRows(scope) {
+    return [
+      paperScopedRow(scope, ["mlp-norm"], true),
+      paperScopedRow(scope, ["gate-projection", "up-projection"]),
+      paperScopedRow(scope, ["gate-gelu", null]),
+      paperScopedRow(scope, ["gate-product"]),
+      paperScopedRow(scope, ["down-projection"]),
+      paperScopedRow(scope, ["mlp-residual"]),
+    ];
+  }
+
+  function paperActionHeadRows(scope) {
+    return paperSerialRows(scope, [
+      "final-norm",
+      "select-action-rows",
+      "velocity-projection",
+      "euler-update",
+    ], true);
+  }
+
   const PI0_PAPER_LAYOUT = Object.freeze({
     "vision-encoder": [
       { slots: ["vision-encoder/image-patch-embedding/patch-project"] },
-      { gapBefore: true, slots: ["vision-encoder/vision-blocks/self-attention/attention-norm"] },
-      { slots: [
-        "vision-encoder/vision-blocks/self-attention/query-projection",
-        "vision-encoder/vision-blocks/self-attention/key-projection",
-        "vision-encoder/vision-blocks/self-attention/value-projection",
-      ] },
-      { slots: ["vision-encoder/vision-blocks/self-attention/attention"] },
-      { slots: ["vision-encoder/vision-blocks/self-attention/output-projection"] },
-      { slots: ["vision-encoder/vision-blocks/self-attention/attention-residual"] },
-      { gapBefore: true, slots: ["vision-encoder/vision-blocks/feed-forward/mlp-norm"] },
-      { slots: [[
-        "vision-encoder/vision-blocks/feed-forward/mlp-up-projection",
-        "vision-encoder/vision-blocks/feed-forward/mlp-gelu",
-      ]] },
-      { slots: ["vision-encoder/vision-blocks/feed-forward/mlp-down-projection"] },
-      { slots: ["vision-encoder/vision-blocks/feed-forward/mlp-residual"] },
+      ...paperAttentionRows("vision-encoder/vision-blocks/self-attention"),
+      ...paperVitGeluMlpRows("vision-encoder/vision-blocks/feed-forward"),
       { gapBefore: true, slots: ["vision-encoder/vision-final-normalization/normalize"] },
       { slots: ["vision-encoder/vision-projector/project"] },
     ],
@@ -59,82 +110,58 @@
         "prefix-encoder/prompt-prefix-builder/embed-prompt",
       ] },
       { slots: ["prefix-encoder/prompt-prefix-builder/build-prefix"] },
-      { gapBefore: true, slots: ["prefix-encoder/prefix-blocks/self-attention/attention-norm"] },
-      { slots: [
-        "prefix-encoder/prefix-blocks/self-attention/query-projection",
-        "prefix-encoder/prefix-blocks/self-attention/key-projection",
-        "prefix-encoder/prefix-blocks/self-attention/value-projection",
-      ] },
-      { slots: [
-        "prefix-encoder/prefix-blocks/self-attention/query-rope",
-        "prefix-encoder/prefix-blocks/self-attention/key-rope",
-        null,
-      ] },
-      { slots: ["prefix-encoder/prefix-blocks/self-attention/attention"] },
-      { slots: ["prefix-encoder/prefix-blocks/self-attention/output-projection"] },
-      { slots: ["prefix-encoder/prefix-blocks/self-attention/attention-residual"] },
-      { slots: [null, "prefix-encoder/prefix-blocks/self-attention/cache-output"] },
-      { gapBefore: true, slots: ["prefix-encoder/prefix-blocks/feed-forward/mlp-norm"] },
-      { slots: [
-        "prefix-encoder/prefix-blocks/feed-forward/gate-projection",
-        "prefix-encoder/prefix-blocks/feed-forward/up-projection",
-      ] },
-      { slots: ["prefix-encoder/prefix-blocks/feed-forward/gate-gelu"] },
-      { slots: ["prefix-encoder/prefix-blocks/feed-forward/gate-product"] },
-      { slots: ["prefix-encoder/prefix-blocks/feed-forward/down-projection"] },
-      { slots: ["prefix-encoder/prefix-blocks/feed-forward/mlp-residual"] },
+      ...paperAttentionRows("prefix-encoder/prefix-blocks/self-attention", {
+        rope: true,
+        cacheOutput: true,
+      }),
+      ...paperGatedMlpRows("prefix-encoder/prefix-blocks/feed-forward"),
     ],
     "action-flow-decoder": [
+      { slots: [
+        null,
+        null,
+        "action-flow-decoder/action-suffix-builder/denoise-time-schedule",
+      ] },
       { slots: [
         "action-flow-decoder/action-suffix-builder/state-projection",
         "action-flow-decoder/action-suffix-builder/action-projection",
         "action-flow-decoder/action-suffix-builder/time-embedding",
       ] },
       { slots: [null, "action-flow-decoder/action-suffix-builder/action-time-concat"] },
-      { slots: [[
-        "action-flow-decoder/action-suffix-builder/time-mlp-in",
-        "action-flow-decoder/action-suffix-builder/time-mlp-silu",
-        "action-flow-decoder/action-suffix-builder/time-mlp-out",
-      ]] },
+      { slots: ["action-flow-decoder/action-suffix-builder/time-mlp-in"] },
+      { slots: ["action-flow-decoder/action-suffix-builder/time-mlp-silu"] },
+      { slots: ["action-flow-decoder/action-suffix-builder/time-mlp-out"] },
       { gapBefore: true, slots: ["action-flow-decoder/action-suffix-builder/suffix-concat"] },
-      { gapBefore: true, slots: [
-        "action-flow-decoder/action-expert-blocks/self-attention/extract-prefix-key",
-        "action-flow-decoder/action-expert-blocks/self-attention/attention-norm",
-        "action-flow-decoder/action-expert-blocks/self-attention/extract-prefix-value",
-      ] },
-      { slots: [
-        "action-flow-decoder/action-expert-blocks/self-attention/query-projection",
-        "action-flow-decoder/action-expert-blocks/self-attention/key-projection",
-        "action-flow-decoder/action-expert-blocks/self-attention/value-projection",
-      ] },
-      { slots: [
-        "action-flow-decoder/action-expert-blocks/self-attention/query-rope",
-        "action-flow-decoder/action-expert-blocks/self-attention/key-rope",
-        null,
-      ] },
-      { slots: [
-        "action-flow-decoder/action-expert-blocks/self-attention/key-concat",
-        "action-flow-decoder/action-expert-blocks/self-attention/value-concat",
-      ] },
-      { slots: ["action-flow-decoder/action-expert-blocks/self-attention/attention"] },
-      { slots: ["action-flow-decoder/action-expert-blocks/self-attention/output-projection"] },
-      { slots: ["action-flow-decoder/action-expert-blocks/self-attention/attention-residual"] },
-      { gapBefore: true, slots: ["action-flow-decoder/action-expert-blocks/feed-forward/mlp-norm"] },
-      { slots: [
-        "action-flow-decoder/action-expert-blocks/feed-forward/gate-projection",
-        "action-flow-decoder/action-expert-blocks/feed-forward/up-projection",
-      ] },
-      { slots: ["action-flow-decoder/action-expert-blocks/feed-forward/gate-gelu"] },
-      { slots: ["action-flow-decoder/action-expert-blocks/feed-forward/gate-product"] },
-      { slots: ["action-flow-decoder/action-expert-blocks/feed-forward/down-projection"] },
-      { slots: ["action-flow-decoder/action-expert-blocks/feed-forward/mlp-residual"] },
-      { gapBefore: true, slots: [[
-        "action-flow-decoder/velocity-euler-update/final-norm",
-        "action-flow-decoder/velocity-euler-update/select-action-rows",
-        "action-flow-decoder/velocity-euler-update/velocity-projection",
-      ]] },
-      { slots: ["action-flow-decoder/velocity-euler-update/euler-update"] },
+      ...paperAttentionRows("action-flow-decoder/action-expert-blocks/self-attention", {
+        entry: ["extract-prefix-key", "attention-norm", "extract-prefix-value"],
+        rope: true,
+        prefixKvViews: true,
+      }),
+      ...paperGatedMlpRows("action-flow-decoder/action-expert-blocks/feed-forward"),
+      ...paperActionHeadRows("action-flow-decoder/velocity-euler-update"),
     ],
+  });
+
+  const PI0_PAPER_BOUNDARY_LAYOUT = Object.freeze({
+    "prefix-encoder": Object.freeze({
+      input: Object.freeze({
+        slotCount: 2,
+        lanes: Object.freeze({ "input/prompt-token-ids": 1 }),
+      }),
+    }),
+    "action-flow-decoder": Object.freeze({
+      input: Object.freeze({
+        slotCount: 3,
+        lanes: Object.freeze({
+          "input/state": 0,
+          "input/initial-noise": 1,
+        }),
+      }),
+      loop: Object.freeze({
+        slotCount: 3,
+        lanes: Object.freeze({ "loop/action-flow-loop": 1 }),
+      }),
+    }),
   });
 
   const PAPER_OPERATOR_ALIASES = Object.freeze({
@@ -153,12 +180,12 @@
     "mlp-residual": "Add",
     normalize: "Final Norm",
     project: "Project",
-    "flatten-views": "Flatten",
+    "flatten-views": "reshape",
     "embed-prompt": "Token embed",
-    "build-prefix": "Concat",
+    "build-prefix": "concat",
     "query-rope": "Q RoPE",
     "key-rope": "K RoPE",
-    "cache-output": "Cache K/V",
+    "cache-output": "Prefix KV",
     "gate-projection": "Gate",
     "up-projection": "Up",
     "gate-gelu": "GELU",
@@ -166,19 +193,20 @@
     "down-projection": "Down",
     "state-projection": "State",
     "action-projection": "Action",
-    "time-embedding": "Time",
-    "action-time-concat": "A + t",
+    "denoise-time-schedule": "tₖ",
+    "time-embedding": "Sin/Cos",
+    "action-time-concat": "concat",
     "time-mlp-in": "MLP in",
     "time-mlp-silu": "SiLU",
     "time-mlp-out": "MLP out",
-    "suffix-concat": "Suffix",
-    "extract-prefix-key": "Cache K",
-    "extract-prefix-value": "Cache V",
-    "key-concat": "K Join",
-    "value-concat": "V Join",
-    "final-norm": "Final RMS",
-    "select-action-rows": "Rows",
-    "velocity-projection": "Velocity",
+    "suffix-concat": "concat",
+    "extract-prefix-key": "Prefix K",
+    "extract-prefix-value": "Prefix V",
+    "key-concat": "K view",
+    "value-concat": "V view",
+    "final-norm": "Final RMSNorm",
+    "select-action-rows": "Keep action rows",
+    "velocity-projection": "Velocity proj",
     "euler-update": "Euler",
   });
 
@@ -186,10 +214,19 @@
     "input/images": "Images",
     "input/prompt-token-ids": "Prompt",
     "input/state": "State input",
-    "input/initial-noise": "Noise",
-    "loop/action-flow-loop": "Denoise state",
+    "input/initial-noise": "Noise x₀",
+    "loop/action-flow-loop": "xₖ",
     "output/prefix-stack-output": "Prefix out",
     "output/final-action-state": "Actions",
+  });
+
+  const PAPER_NODE_ALIASES = Object.freeze({
+    "prefix-encoder/prefix-blocks/self-attention/cache-output": "KVₚ[ℓ]",
+    "action-flow-decoder/action-expert-blocks/self-attention/query-projection": "Qₛ",
+    "action-flow-decoder/action-expert-blocks/self-attention/key-projection": "Kₛ",
+    "action-flow-decoder/action-expert-blocks/self-attention/value-projection": "Vₛ",
+    "action-flow-decoder/action-expert-blocks/self-attention/query-rope": "Qₛ RoPE",
+    "action-flow-decoder/action-expert-blocks/self-attention/key-rope": "Kₛ RoPE",
   });
 
   const PI0_PAPER_CONNECTORS = Object.freeze([
@@ -271,6 +308,7 @@
       ["input/initial-noise", "loop/action-flow-loop"],
     ] },
     { id: "action-loop-local", kind: "chain", pairs: [["loop/action-flow-loop", "action-flow-decoder/action-suffix-builder/action-projection"]] },
+    { id: "action-time-schedule", kind: "chain", pairs: [["action-flow-decoder/action-suffix-builder/denoise-time-schedule", "action-flow-decoder/action-suffix-builder/time-embedding"]] },
     { id: "action-loop-euler", kind: "rail", side: "right", railInset: 26, sourceOffset: -5, targetOffset: -7, pairs: [["loop/action-flow-loop", "action-flow-decoder/velocity-euler-update/euler-update"]] },
     { id: "action-loop-output", kind: "rail", side: "right", railInset: 14, sourceOffset: 5, pairs: [["loop/action-flow-loop", "output/final-action-state"]] },
     { id: "action-time-input", kind: "branch-in", pairs: [
@@ -1154,6 +1192,7 @@
 
   const PAPER_COMPACT_DEFINITIONS = new Set([
     "concat",
+    "denoise-time-schedule",
     "euler-update",
     "gelu",
     "layer-norm",
@@ -1168,15 +1207,22 @@
     "prefix-encoder/prefix-blocks/self-attention/cache-output",
   ]);
   const PAPER_READ_PORT_NODE_IDS = new Map([
-    ["action-flow-decoder/action-expert-blocks/self-attention/extract-prefix-key", "K"],
-    ["action-flow-decoder/action-expert-blocks/self-attention/extract-prefix-value", "V"],
+    ["action-flow-decoder/action-expert-blocks/self-attention/extract-prefix-key", "Kₚ"],
+    ["action-flow-decoder/action-expert-blocks/self-attention/extract-prefix-value", "Vₚ"],
+  ]);
+  const PAPER_LOGICAL_VIEW_NODE_IDS = new Map([
+    ["action-flow-decoder/action-expert-blocks/self-attention/key-concat", ["Kₚ", "Kₛ"]],
+    ["action-flow-decoder/action-expert-blocks/self-attention/value-concat", ["Vₚ", "Vₛ"]],
   ]);
 
   function paperNodeVisual(node) {
     if (node.kind !== "operator") return "box";
     if (PAPER_STORAGE_NODE_IDS.has(node.id)) return "storage";
     if (PAPER_READ_PORT_NODE_IDS.has(node.id)) return "read-port";
-    if (PAPER_INLINE_DEFINITIONS.has(node.definitionId) || node.definitionId === "concat") {
+    if (PAPER_LOGICAL_VIEW_NODE_IDS.has(node.id)) return "logical-view";
+    if (node.definitionId === "reshape" || node.definitionId === "concat") return "line-op";
+    if (node.definitionId === "denoise-time-schedule") return "control";
+    if (PAPER_INLINE_DEFINITIONS.has(node.definitionId)) {
       return "inline";
     }
     return "box";
@@ -1184,6 +1230,7 @@
 
   function paperNodeAlias(node) {
     if (node.kind !== "operator") return PAPER_BOUNDARY_ALIASES[node.id] || node.kind;
+    if (PAPER_NODE_ALIASES[node.id]) return PAPER_NODE_ALIASES[node.id];
     const fallback = node.operator.operator_id
       .split("-")
       .slice(0, 2)
@@ -1209,10 +1256,19 @@
       return { width: 20, height: 20, compact: true, inline: true };
     }
     if (visual === "storage") {
-      return { width: Math.min(38, availableWidth), height: 26, compact: true, inline: false };
+      return { width: Math.min(64, availableWidth), height: 28, compact: true, inline: false };
     }
     if (visual === "read-port") {
-      return { width: Math.min(26, availableWidth), height: 22, compact: true, inline: false };
+      return { width: Math.min(30, availableWidth), height: 24, compact: true, inline: false };
+    }
+    if (visual === "logical-view") {
+      return { width: Math.min(82, availableWidth), height: 26, compact: true, inline: false };
+    }
+    if (visual === "line-op") {
+      return { width: Math.min(58, availableWidth), height: 20, compact: true, inline: false };
+    }
+    if (visual === "control") {
+      return { width: Math.min(42, availableWidth), height: 22, compact: true, inline: false };
     }
     const compact = node.kind !== "operator" || PAPER_COMPACT_DEFINITIONS.has(node.definitionId);
     const aliasWidth = Math.max(54, paperNodeAlias(node).length * 6.4 + 20);
@@ -1260,21 +1316,35 @@
     });
   }
 
-  function placePaperBoundaryRow(positions, nodes, stageLayout, entries, centerY, rowName) {
+  function placePaperBoundaryRow(
+    positions,
+    nodes,
+    stageLayout,
+    entries,
+    centerY,
+    rowName,
+    authoredLayout,
+  ) {
     if (!entries.length) return;
-    const slotWidth = stageLayout.contentWidth / entries.length;
+    const slotCount = authoredLayout && authoredLayout.slotCount
+      ? authoredLayout.slotCount
+      : entries.length;
+    const slotWidth = stageLayout.contentWidth / slotCount;
     entries.forEach((entry, slotIndex) => {
       const nodeId = entry.id;
       const node = nodes.get(nodeId);
-      const size = paperNodeSize(node, slotWidth - 10, entries.length === 1);
+      const lane = authoredLayout && authoredLayout.lanes && authoredLayout.lanes[nodeId] !== undefined
+        ? authoredLayout.lanes[nodeId]
+        : slotIndex;
+      const size = paperNodeSize(node, slotWidth - 10, slotCount === 1);
       positions.set(nodeId, {
-        x: stageLayout.contentX + slotIndex * slotWidth + (slotWidth - size.width) / 2,
+        x: stageLayout.contentX + lane * slotWidth + (slotWidth - size.width) / 2,
         y: centerY - size.height / 2,
         width: size.width,
         height: 28,
         compact: true,
         row: rowName,
-        lane: slotIndex,
+        lane,
       });
     });
   }
@@ -1302,8 +1372,25 @@
       };
       const inputs = stageNodes.filter((node) => node.kind === "input");
       const loops = stageNodes.filter((node) => node.kind === "loop");
-      placePaperBoundaryRow(positions, model.nodes, stageLayout, inputs, loops.length ? 116 : 76, "input");
-      placePaperBoundaryRow(positions, model.nodes, stageLayout, loops, 166, "loop");
+      const boundaryLayout = PI0_PAPER_BOUNDARY_LAYOUT[stage.stage_id] || {};
+      placePaperBoundaryRow(
+        positions,
+        model.nodes,
+        stageLayout,
+        inputs,
+        loops.length ? 116 : 76,
+        "input",
+        boundaryLayout.input,
+      );
+      placePaperBoundaryRow(
+        positions,
+        model.nodes,
+        stageLayout,
+        loops,
+        166,
+        "loop",
+        boundaryLayout.loop,
+      );
 
       const rows = PI0_PAPER_LAYOUT[stage.stage_id] || [];
       const firstRowY = loops.length ? 214 : 120;
@@ -1383,17 +1470,20 @@
     const values = scope.nodeIds.map((id) => positions.get(id)).filter(Boolean);
     if (!values.length) return null;
     const headerHeight = 18;
+    const headerGap = 12;
     const left = Math.min(...values.map((value) => value.x));
     const top = Math.min(...values.map((value) => value.y));
     const right = Math.max(...values.map((value) => value.x + value.width));
     const bottom = Math.max(...values.map((value) => value.y + value.height));
     const contentTop = top - padding;
+    const headerBottom = contentTop - headerGap;
     return {
       x: left - padding,
-      y: contentTop - headerHeight,
+      y: headerBottom - headerHeight,
       width: right - left + padding * 2,
-      height: bottom - contentTop + padding + headerHeight,
+      height: bottom - headerBottom + padding + headerHeight,
       contentTop,
+      headerBottom,
       headerHeight,
     };
   }
@@ -1406,12 +1496,20 @@
     const stage = state.materialized.stages.find((item) => item.stage_id === scope.stageId);
     const module = stage && stage.modules.find((item) => item.module_id === scope.moduleId);
     const aliases = {
-      "vision-blocks": "SigLIP block",
-      "prefix-blocks": "Gemma block",
-      "action-expert-blocks": "Expert block",
+      "vision-blocks": "SigLIP",
+      "prefix-blocks": "Gemma",
+      "action-expert-blocks": "Expert",
     };
     const label = aliases[scope.moduleId] || (module ? module.label : "Repeated block");
     return `${label} ×${module ? Atlas.format(module.module_repeat, 0) : "?"}`;
+  }
+
+  function paperScopeExecutionNote(scope) {
+    if (scope.moduleId !== "prefix-blocks") return null;
+    return {
+      label: "17 full + L18 cache tail",
+      description: "Optimized FlashRT / Realtime-VLA prefill: layer 18 still runs pre-attention RMSNorm, fused QKV, RoPE, and K/V cache write; its attention, output projection, and feed-forward tail are skipped. Fused QKV currently also produces an unused Q.",
+    };
   }
 
   function connectorPairKey(source, target) {
@@ -1496,6 +1594,10 @@
       return;
     }
     if (target.top >= source.bottom) {
+      if (Math.abs(source.x - target.x) < 1) {
+        appendConnectorPath(segment, `M ${source.x} ${source.bottom} V ${target.top}`, true);
+        return;
+      }
       const bendY = (source.bottom + target.top) / 2;
       appendConnectorPath(segment, `M ${source.x} ${source.bottom} V ${bendY} H ${target.x} V ${target.top}`, true);
       return;
@@ -1743,6 +1845,21 @@
         }, symbol),
         svgElement("title", {}, description),
       );
+    } else if (visual === "line-op" || visual === "control") {
+      group.append(
+        svgElement("rect", {
+          width: box.width,
+          height: box.height,
+          rx: box.height / 2,
+        }),
+        svgElement("text", {
+          x: box.width / 2,
+          y: box.height / 2 + 3.5,
+          class: "dag-node-label",
+          "text-anchor": "middle",
+        }, paperNodeAlias(node)),
+        svgElement("title", {}, description),
+      );
     } else if (visual === "storage") {
       group.append(
         svgElement("ellipse", { cx: box.width / 2, cy: 4, rx: box.width / 2, ry: 4 }),
@@ -1753,7 +1870,7 @@
           y: 14.5,
           class: "dag-node-label",
           "text-anchor": "middle",
-        }, "K/V"),
+        }, paperNodeAlias(node)),
         svgElement("title", {}, description),
       );
     } else if (visual === "read-port") {
@@ -1768,6 +1885,35 @@
           "text-anchor": "middle",
         }, PAPER_READ_PORT_NODE_IDS.get(node.id)),
         svgElement("title", {}, description),
+      );
+    } else if (visual === "logical-view") {
+      const labels = PAPER_LOGICAL_VIEW_NODE_IDS.get(node.id);
+      group.append(
+        svgElement("rect", {
+          width: box.width,
+          height: box.height,
+          rx: 7,
+        }),
+        svgElement("line", {
+          x1: box.width / 2,
+          y1: 2,
+          x2: box.width / 2,
+          y2: box.height - 2,
+          class: "dag-logical-view-divider",
+        }),
+        svgElement("text", {
+          x: box.width / 4,
+          y: box.height / 2 + 4,
+          class: "dag-node-label",
+          "text-anchor": "middle",
+        }, labels[0]),
+        svgElement("text", {
+          x: box.width * 0.75,
+          y: box.height / 2 + 4,
+          class: "dag-node-label",
+          "text-anchor": "middle",
+        }, labels[1]),
+        svgElement("title", {}, `${description} · logical view; a runtime may avoid a physical copy`),
       );
     } else {
       group.append(
@@ -1916,11 +2062,16 @@
         if (!bounds) return;
         const label = paperScopeLabel(scope);
         const badgeWidth = Math.min(bounds.width - 16, Math.max(84, label.length * 6.6 + 18));
+        const executionNote = paperScopeExecutionNote(scope);
+        const noteGap = 6;
+        const availableNoteWidth = bounds.width - 16 - badgeWidth - noteGap;
+        const showExecutionNote = Boolean(executionNote && availableNoteWidth >= 112);
+        const noteWidth = showExecutionNote ? availableNoteWidth : 0;
         const group = svgElement("g", {
           class: `dag-scope dag-scope--${scope.kind}`,
           "data-scope-kind": scope.kind,
           "data-module-id": scope.moduleId,
-          "data-header-bottom": bounds.contentTop,
+          "data-header-bottom": bounds.headerBottom,
           "data-content-top": bounds.contentTop,
         });
         group.append(
@@ -1946,6 +2097,26 @@
             class: "dag-scope-label",
           }, label),
         );
+        if (showExecutionNote) {
+          const noteX = bounds.x + 8 + badgeWidth + noteGap;
+          const note = svgElement("g", { class: "dag-scope-execution-note" });
+          note.append(
+            svgElement("rect", {
+              x: noteX,
+              y: bounds.y,
+              width: noteWidth,
+              height: bounds.headerHeight,
+              rx: 7,
+            }),
+            svgElement("text", {
+              x: noteX + noteWidth / 2,
+              y: bounds.y + 12.5,
+              "text-anchor": "middle",
+            }, executionNote.label),
+            svgElement("title", {}, executionNote.description),
+          );
+          group.appendChild(note);
+        }
         svg.appendChild(group);
       });
 
@@ -2156,6 +2327,91 @@
     return group;
   }
 
+  function diagramMatrixGrid(svg, options) {
+    const cellSize = 24;
+    const rows = 3;
+    const columns = 3;
+    const group = svgElement("g", {
+      class: "gemm-matrix",
+      "data-matrix-role": options.role,
+    });
+    group.append(
+      svgElement("text", {
+        x: options.x,
+        y: options.y - 18,
+        class: "gemm-matrix-label",
+      }, options.label),
+      svgElement("text", {
+        x: options.x + columns * cellSize,
+        y: options.y - 5,
+        class: "gemm-axis-label",
+        "text-anchor": "end",
+      }, options.columnAxis),
+      svgElement("text", {
+        x: options.x - 7,
+        y: options.y + rows * cellSize / 2,
+        class: "gemm-axis-label",
+        "text-anchor": "middle",
+        transform: `rotate(-90 ${options.x - 7} ${options.y + rows * cellSize / 2})`,
+      }, options.rowAxis),
+    );
+    for (let row = 0; row < rows; row += 1) {
+      for (let column = 0; column < columns; column += 1) {
+        const lane = options.lane(row, column);
+        const focus = options.focus(row, column);
+        const complete = options.complete ? options.complete(row, column) : false;
+        const classes = ["gemm-cell"];
+        if (lane) classes.push("is-lane");
+        if (focus) classes.push(options.written ? "is-written" : "is-focus");
+        if (complete) classes.push("is-complete");
+        group.appendChild(svgElement("rect", {
+          x: options.x + column * cellSize,
+          y: options.y + row * cellSize,
+          width: cellSize,
+          height: cellSize,
+          class: classes.join(" "),
+          "data-row-tile": row,
+          "data-column-tile": column,
+        }));
+        if (focus) {
+          group.appendChild(svgElement("text", {
+            x: options.x + (column + 0.5) * cellSize,
+            y: options.y + (row + 0.5) * cellSize + 3,
+            class: "gemm-cell-label",
+            "text-anchor": "middle",
+          }, options.focusLabel));
+        }
+      }
+    }
+    svg.appendChild(group);
+  }
+
+  function diagramKReduction(svg, activeK, written) {
+    const startX = 109;
+    const y = 226;
+    for (let k = 0; k < 3; k += 1) {
+      const classes = ["gemm-k-step"];
+      if (written || k < activeK) classes.push("is-complete");
+      if (!written && k === activeK) classes.push("is-active");
+      svg.append(
+        svgElement("rect", {
+          x: startX + k * 68,
+          y,
+          width: 54,
+          height: 20,
+          rx: 10,
+          class: classes.join(" "),
+        }),
+        svgElement("text", {
+          x: startX + k * 68 + 27,
+          y: y + 13.5,
+          class: "gemm-k-step-label",
+          "text-anchor": "middle",
+        }, `K tile ${k + 1}`),
+      );
+    }
+  }
+
   function animationControls(visualizer, frameCount, drawFrame) {
     const controls = Atlas.element("div", { className: "animation-controls" });
     const toggle = Atlas.element("button", { text: "Play" });
@@ -2234,35 +2490,86 @@
     visualizer.dataset.visualizerMode = "gemm";
     visualizer.append(
       Atlas.element("h3", { text: "GEMM tile microscope" }),
-      Atlas.element("p", { className: "visualizer-formula", text: "D = A B + C" }),
+      Atlas.element("p", { className: "visualizer-formula", text: "D = A @ B + C" }),
     );
     const labels = Atlas.element("div", { className: "microscope-dimensions" });
     labels.append(
       Atlas.element("span", { text: `M ${dimensions.M ?? "?"}` }),
       Atlas.element("span", { text: `N ${dimensions.N ?? "?"}` }),
       Atlas.element("span", { text: `K ${dimensions.K ?? "?"}` }),
-      Atlas.element("span", { text: "Illustrative tile 2 × 2" }),
+      Atlas.element("span", { text: "Schematic 3-way K partition" }),
     );
-    const canvas = microscopeCanvas("Tiled matrix multiplication accumulating one output tile");
+    const canvas = microscopeCanvas("A row tiles multiply B column tiles and reduce along K into one D output tile", 260);
     visualizer.append(labels, canvas);
-    animationControls(visualizer, 12, (frame) => {
+    animationControls(visualizer, 36, (frame) => {
       clearSvg(canvas);
       const outputTile = Math.floor(frame / 4);
       const phase = frame % 4;
       const kTile = Math.min(phase, 2);
-      diagramTile(canvas, 18, 58, 76, 70, `A(${outputTile},${kTile})`, phase < 3 ? "is-active" : "is-complete", "a-tile");
-      diagramTile(canvas, 120, 58, 76, 70, `B(${kTile},${outputTile})`, phase < 3 ? "is-active" : "is-complete", "b-tile");
-      canvas.appendChild(svgElement("text", { x: 106, y: 96, class: "microscope-symbol", "text-anchor": "middle" }, "×"));
-      diagramTile(canvas, 224, 58, 76, 70, phase < 3 ? `acc ${kTile + 1}/3` : "acc ready", phase < 3 ? "is-accumulating" : "is-complete", "accumulator-tile");
-      canvas.appendChild(svgElement("text", { x: 210, y: 96, class: "microscope-symbol", "text-anchor": "middle" }, "+="));
-      diagramTile(canvas, 328, 58, 76, 70, `D tile ${outputTile + 1}`, phase === 3 ? "is-written" : "", "output-tile");
-      canvas.appendChild(svgElement("text", { x: 314, y: 96, class: "microscope-symbol", "text-anchor": "middle" }, "→"));
-      canvas.appendChild(svgElement("text", { x: 18, y: 26, class: "microscope-phase" }, phase < 3
-        ? `Accumulate K tile ${kTile + 1} of 3 for output tile ${outputTile + 1}`
-        : `Write completed accumulator into output tile ${outputTile + 1}`));
+      const outputCoordinates = Array.from(
+        { length: 9 },
+        (_unused, index) => [Math.floor(index / 3), index % 3],
+      );
+      const [mTile, nTile] = outputCoordinates[outputTile];
+      const written = phase === 3;
+      const completedCoordinates = outputCoordinates.slice(0, outputTile);
+      canvas.append(
+        svgElement("text", { x: 14, y: 24, class: "microscope-phase" }, written
+          ? `Write D[${mTile},${nTile}] after the K reduction`
+          : `D[${mTile},${nTile}] uses A row ${mTile} @ B column ${nTile} · K tile ${kTile + 1}/3`),
+        svgElement("text", { x: 125, y: 103, class: "microscope-symbol", "text-anchor": "middle" }, "@"),
+        svgElement("text", { x: 276, y: 88, class: "gemm-flow-label", "text-anchor": "middle" }, "reduce K + C"),
+        svgElement("path", { d: "M 245 103 H 304", class: "gemm-flow-arrow" }),
+        svgElement("path", { d: "M 304 99 L 311 103 L 304 107 Z", class: "gemm-flow-arrow-head" }),
+      );
+      diagramMatrixGrid(canvas, {
+        x: 22,
+        y: 66,
+        label: "A  [M × K]",
+        rowAxis: "M tiles",
+        columnAxis: "K tiles →",
+        role: "a-matrix",
+        lane: (row) => row === mTile,
+        focus: (row, column) => !written && row === mTile && column === kTile,
+        focusLabel: "A",
+      });
+      diagramMatrixGrid(canvas, {
+        x: 154,
+        y: 66,
+        label: "B  [K × N]",
+        rowAxis: "K tiles",
+        columnAxis: "N tiles →",
+        role: "b-matrix",
+        lane: (_row, column) => column === nTile,
+        focus: (row, column) => !written && row === kTile && column === nTile,
+        focusLabel: "B",
+      });
+      diagramMatrixGrid(canvas, {
+        x: 326,
+        y: 66,
+        label: "D  [M × N]",
+        rowAxis: "M tiles",
+        columnAxis: "N tiles →",
+        role: "d-matrix",
+        lane: (row, column) => row === mTile && column === nTile,
+        focus: (row, column) => row === mTile && column === nTile,
+        complete: (row, column) => completedCoordinates.some(([m, n]) => m === row && n === column),
+        focusLabel: written ? "D" : `${kTile + 1}/3`,
+        written,
+      });
+      canvas.append(
+        svgElement("rect", { x: 55, y: 166, width: 310, height: 50, rx: 8, class: `gemm-accumulator${written ? " is-written" : ""}` }),
+        svgElement("text", { x: 210, y: 185, class: "gemm-accumulator-label", "text-anchor": "middle" }, written
+          ? `D[${mTile},${nTile}] = C[${mTile},${nTile}] +`
+          : `acc[${mTile},${nTile}] = C[${mTile},${nTile}] +`),
+        svgElement("text", { x: 210, y: 202, class: "gemm-accumulator-label", "text-anchor": "middle" }, written
+          ? `Σₖ A[${mTile},k] @ B[k,${nTile}]`
+          : `Σ(k=0..${kTile}) A[${mTile},k] @ B[k,${nTile}]`),
+      );
+      diagramKReduction(canvas, kTile, written);
       return phase < 3
-        ? `Output tile ${outputTile + 1}: accumulating K tile ${kTile + 1} of 3`
-        : `Output tile ${outputTile + 1}: write D tile`;
+        ? `D tile row ${mTile}, column ${nTile}: accumulate K tile ${kTile + 1} of 3`
+        : `Write D tile row ${mTile}, column ${nTile}`;
     });
     return visualizer;
   }

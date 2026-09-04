@@ -394,7 +394,7 @@ class ValidationTests(unittest.TestCase):
             definition["definition_id"]: definition
             for definition in graph["operator_definitions"]
         }
-        self.assertEqual(len(definitions), 16)
+        self.assertEqual(len(definitions), 17)
         self.assertEqual(definitions["slice"]["visualizer"], "basic")
         with self.subTest(visualizer="patch embedding"):
             self.assertEqual(
@@ -404,6 +404,31 @@ class ValidationTests(unittest.TestCase):
         with self.subTest(workload="unbounded denoise count"):
             twelve_step = materialize_model_graph(graph, {"N_DENOISE": 12})
             self.assertEqual(twelve_step["stages"][2]["stage_repeat"], 12)
+
+        suffix_template = next(
+            template for template in graph["block_templates"]
+            if template["template_id"] == "action-suffix-builder"
+        )
+        suffix_tensors = {
+            tensor["tensor_id"]: tensor
+            for tensor in suffix_template["tensors"]
+        }
+        suffix_operators = {
+            operator["operator_id"]: operator
+            for operator in suffix_template["operators"]
+        }
+        self.assertEqual(
+            suffix_tensors["denoise-timestep"]["producer"],
+            {
+                "node_kind": "operator",
+                "node_id": "denoise-time-schedule",
+                "port": "timestep",
+            },
+        )
+        self.assertEqual(
+            suffix_operators["time-embedding"]["inputs"],
+            [{"port": "timestep", "tensor_id": "denoise-timestep"}],
+        )
 
         prefix_template = next(
             template for template in graph["block_templates"]

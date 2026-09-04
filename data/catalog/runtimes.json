@@ -8,7 +8,14 @@
       "version_label": "public-upstream-audit",
       "public_commit": "054bea4d02ebc63f6a0c45991c6061b1e1caa46c",
       "backend": "pytorch-cuda",
-      "features": [],
+      "features": [
+        {
+          "feature_id": "pi0-prefix-final-block-cache-tail",
+          "status": "reported",
+          "evidence": "reported_external",
+          "source_id": "source-flashrt"
+        }
+      ],
       "model_support": [
         {"model_id": "pi0", "status": "measured", "evidence": "measured_local", "reason_code": "measured_matrix", "has_canonical_measurement": true, "source_id": "source-local-thor"},
         {"model_id": "pi05", "status": "measured", "evidence": "measured_local", "reason_code": "measured_matrix", "has_canonical_measurement": true, "source_id": "source-local-thor"}
@@ -85,7 +92,14 @@
       "version_label": "public-upstream-audit",
       "public_commit": "b86a942a073ea241f9bd6916a705f81906f4638b",
       "backend": "pytorch-cuda",
-      "features": [],
+      "features": [
+        {
+          "feature_id": "pi0-prefix-final-block-cache-tail",
+          "status": "reported",
+          "evidence": "reported_external",
+          "source_id": "source-realtime-vla"
+        }
+      ],
       "model_support": [
         {"model_id": "pi0", "status": "not_run", "evidence": "measured_local", "reason_code": "source_audit_only", "has_canonical_measurement": false, "source_id": "source-local-thor"}
       ],

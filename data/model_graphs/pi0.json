@@ -39,7 +39,7 @@
           "editable": true,
           "default": 48,
           "minimum": 0,
-          "maximum": 48,
+          "maximum": null,
           "expression": null
         },
         {
@@ -49,7 +49,7 @@
           "editable": true,
           "default": 50,
           "minimum": 1,
-          "maximum": 50,
+          "maximum": null,
           "expression": null
         },
         {
@@ -364,7 +364,7 @@
           "definition_id": "linear",
           "label": "Linear projection",
           "category": "linear",
-          "formula_display": "Y = X W",
+          "formula_display": "Y = X @ W",
           "visualizer": "gemm",
           "parameters": [
             "M",
@@ -497,7 +497,7 @@
           "definition_id": "attention-core",
           "label": "Attention core",
           "category": "attention",
-          "formula_display": "QK^T -> scale/mask -> softmax -> P V",
+          "formula_display": "Q @ K^T -> scale/mask -> softmax -> P @ V",
           "visualizer": "attention",
           "parameters": [],
           "input_ports": [
@@ -619,13 +619,28 @@
           "analysis": []
         },
         {
+          "definition_id": "denoise-time-schedule",
+          "label": "Denoise timestep schedule",
+          "category": "control",
+          "formula_display": "t_k = 1 - k/N_DENOISE, k = 0..N_DENOISE-1",
+          "visualizer": "basic",
+          "parameters": [],
+          "input_ports": [],
+          "output_ports": [
+            "timestep"
+          ],
+          "analysis": []
+        },
+        {
           "definition_id": "sinusoidal-time-embedding",
           "label": "Sinusoidal time embedding",
           "category": "embedding",
           "formula_display": "Y = sinusoidal_embedding(t)",
           "visualizer": "basic",
           "parameters": [],
-          "input_ports": [],
+          "input_ports": [
+            "timestep"
+          ],
           "output_ports": [
             "embedding"
           ],
@@ -3283,7 +3298,7 @@
           "operators": [
             {
               "operator_id": "extract-prefix-key",
-              "label": "Select cached prefix keys",
+              "label": "Read matched-layer prefix keys",
               "definition_id": "slice",
               "multiplicity": 1,
               "inputs": [
@@ -3302,7 +3317,7 @@
             },
             {
               "operator_id": "extract-prefix-value",
-              "label": "Select cached prefix values",
+              "label": "Read matched-layer prefix values",
               "definition_id": "slice",
               "multiplicity": 1,
               "inputs": [
@@ -3540,7 +3555,7 @@
             },
             {
               "operator_id": "key-concat",
-              "label": "Concatenate prefix and action keys",
+              "label": "Logical view of prefix and current-suffix keys",
               "definition_id": "concat",
               "multiplicity": 1,
               "inputs": [
@@ -3563,7 +3578,7 @@
             },
             {
               "operator_id": "value-concat",
-              "label": "Concatenate prefix and action values",
+              "label": "Logical view of prefix and current-suffix values",
               "definition_id": "concat",
               "multiplicity": 1,
               "inputs": [
@@ -5607,6 +5622,31 @@
               ]
             },
             {
+              "tensor_id": "denoise-timestep",
+              "label": "Current denoise timestep",
+              "semantic_role": "control",
+              "axes": [
+                {
+                  "axis": "batch",
+                  "expression": {
+                    "symbol": "B"
+                  }
+                }
+              ],
+              "producer": {
+                "node_kind": "operator",
+                "node_id": "denoise-time-schedule",
+                "port": "timestep"
+              },
+              "consumers": [
+                {
+                  "node_kind": "operator",
+                  "node_id": "time-embedding",
+                  "port": "timestep"
+                }
+              ]
+            },
+            {
               "tensor_id": "time-embedding",
               "label": "Timestep embedding",
               "semantic_role": "tokens",
@@ -5915,11 +5955,30 @@
               ]
             },
             {
+              "operator_id": "denoise-time-schedule",
+              "label": "Denoise timestep schedule",
+              "definition_id": "denoise-time-schedule",
+              "multiplicity": 1,
+              "inputs": [],
+              "outputs": [
+                {
+                  "port": "timestep",
+                  "tensor_id": "denoise-timestep"
+                }
+              ],
+              "bindings": []
+            },
+            {
               "operator_id": "time-embedding",
               "label": "Sinusoidal timestep embedding",
               "definition_id": "sinusoidal-time-embedding",
               "multiplicity": 1,
-              "inputs": [],
+              "inputs": [
+                {
+                  "port": "timestep",
+                  "tensor_id": "denoise-timestep"
+                }
+              ],
               "outputs": [
                 {
                   "port": "embedding",

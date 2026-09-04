@@ -604,6 +604,10 @@ body {
 }
 
 /* Pi0 logical workspace: one paper-style overview and one persistent microscope. */
+.atlas-shell:has(.logical-workspace) {
+  max-width: 112rem;
+}
+
 .workspace-identity-row {
   display: grid;
   grid-template-columns: minmax(18rem, 0.72fr) minmax(32rem, 1.45fr);
@@ -715,7 +719,7 @@ body {
 
 .logical-workspace {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) clamp(21.5rem, 24vw, 23rem);
+  grid-template-columns: minmax(0, 1fr) clamp(26rem, 30vw, 29rem);
   gap: 0;
   align-items: stretch;
   overflow: hidden;
@@ -857,6 +861,19 @@ body {
   letter-spacing: 0.025em;
 }
 
+.dag-scope-execution-note rect {
+  fill: #eef5f6;
+  stroke: #6a9290;
+  stroke-dasharray: 3 2;
+  stroke-width: 1;
+}
+
+.dag-scope-execution-note text {
+  fill: #315f66;
+  font-size: 8.6px;
+  font-weight: 750;
+}
+
 .dag-connector path {
   fill: none;
   stroke: #4f6f7e;
@@ -926,6 +943,40 @@ body {
   stroke: #9eb1bb;
   stroke-width: 1.2;
   transition: fill 140ms ease, stroke 140ms ease, stroke-width 140ms ease;
+}
+
+.dag-node--logical-view rect {
+  fill: #f4faf9;
+  stroke: #5b9691;
+}
+
+.dag-node--line-op rect {
+  fill: #f7f9fa;
+  stroke: #90a5ae;
+  stroke-dasharray: 3 2;
+}
+
+.dag-node--line-op .dag-node-label {
+  fill: #60757e;
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.dag-node--control rect {
+  fill: #eef7f5;
+  stroke: #4f918b;
+  stroke-dasharray: 3 2;
+}
+
+.dag-node--control .dag-node-label {
+  fill: #246f69;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.dag-logical-view-divider {
+  stroke: #87aaa7;
+  stroke-width: 1;
 }
 
 .dag-node--operator {
@@ -1013,29 +1064,66 @@ body {
   font-weight: 750;
 }
 
-.operator-detail {
-  position: sticky;
-  top: 0;
-  align-self: start;
+.logical-workspace .operator-detail {
+  position: static;
+  top: auto;
+  align-self: stretch;
   box-sizing: border-box;
-  max-height: 100vh;
+  max-height: none;
   margin: 0;
-  padding: 1rem;
-  overflow-y: auto;
+  padding: 1.3rem 1.4rem 1.7rem;
+  overflow: visible;
   border: 0;
   border-left: 1px solid #cbd7dc;
   background: #fff;
 }
 
+.operator-detail h2 {
+  margin: 0.2rem 0 0.6rem;
+  font-size: 1.45rem;
+  line-height: 1.2;
+}
+
+.operator-detail .detail-eyebrow {
+  font-size: 0.8rem;
+}
+
+.operator-detail .operator-formula {
+  margin: 0.55rem 0 1rem;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.operator-detail .tensor-group,
+.operator-detail .operator-analysis,
+.operator-detail .operator-visualizer {
+  margin-top: 1.35rem;
+}
+
+.operator-detail .tensor-group h3,
+.operator-detail .operator-analysis h3,
+.operator-detail .operator-visualizer h3 {
+  margin-bottom: 0.7rem;
+  font-size: 1rem;
+}
+
 .operator-detail .tensor-shape-row {
-  padding: 0.4rem 0;
-  border: 0;
-  border-bottom: 1px solid #e8edef;
-  border-radius: 0;
+  gap: 0.45rem;
+  margin: 0.55rem 0;
+  padding: 0.65rem;
+  border: 1px solid #e0e8eb;
+  border-radius: 0.55rem;
+  background: #fafcfd;
 }
 
 .operator-detail .tensor-shape-chip {
-  padding: 0.18rem 0.3rem;
+  padding: 0.28rem 0.42rem;
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+
+.operator-detail .tensor-port {
+  font-size: 0.82rem;
 }
 
 .operator-analysis .analysis-grid {
@@ -1043,7 +1131,7 @@ body {
 }
 
 .operator-analysis .analysis-fact {
-  padding: 0.55rem 0.65rem;
+  padding: 0.72rem 0.8rem;
   border: 0;
   border-left: 3px solid #9fc9c5;
   background: #f2f8f7;
@@ -1055,7 +1143,8 @@ body {
 
 .analysis-primary,
 .analysis-aggregate {
-  font-size: 0.76rem;
+  font-size: 0.83rem;
+  line-height: 1.45;
 }
 
 .analysis-aggregate {
@@ -1066,11 +1155,12 @@ body {
 .analysis-factors {
   color: var(--muted);
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 0.65rem;
+  font-size: 0.72rem;
+  line-height: 1.45;
 }
 
 .operator-visualizer.microscope {
-  padding: 0.7rem;
+  padding: 0.95rem;
   border: 0;
   border-radius: 0.7rem;
   background: #eef4f6;
@@ -1086,11 +1176,11 @@ body {
 
 .microscope-dimensions > span,
 .microscope-dimensions .model-summary-fact {
-  padding: 0.26rem 0.4rem;
+  padding: 0.34rem 0.48rem;
   border: 1px solid #c5d5db;
   border-radius: 999px;
   background: #fff;
-  font-size: 0.66rem;
+  font-size: 0.75rem;
 }
 
 .microscope-dimensions .model-summary-fact dt {
@@ -1098,7 +1188,7 @@ body {
 }
 
 .microscope-dimensions .model-summary-fact dd {
-  font-size: 0.66rem;
+  font-size: 0.75rem;
 }
 
 .microscope-canvas {
@@ -1143,6 +1233,118 @@ body {
   fill: var(--teal);
   stroke: #0c625d;
   stroke-width: 2;
+}
+
+.gemm-matrix-label {
+  fill: var(--navy);
+  font-size: 11px;
+  font-weight: 850;
+}
+
+.gemm-axis-label {
+  fill: #6b7f88;
+  font-size: 8.5px;
+  font-weight: 700;
+}
+
+.gemm-cell {
+  fill: #eef2f4;
+  stroke: #afbec4;
+  stroke-width: 0.7;
+}
+
+.gemm-cell.is-lane {
+  fill: #dcecea;
+  stroke: #75a39f;
+}
+
+.gemm-cell.is-focus {
+  fill: #89d0c9;
+  stroke: #08766f;
+  stroke-width: 2;
+}
+
+.gemm-cell.is-complete {
+  fill: #b9d7d4;
+  stroke: #568d88;
+}
+
+.gemm-cell.is-written {
+  fill: var(--teal);
+  stroke: #075f5a;
+  stroke-width: 2;
+}
+
+.gemm-cell-label {
+  fill: #173f4b;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 9px;
+  font-weight: 850;
+  pointer-events: none;
+}
+
+.gemm-cell.is-written + .gemm-cell-label {
+  fill: #fff;
+}
+
+.gemm-flow-arrow {
+  fill: none;
+  stroke: #557580;
+  stroke-width: 1.5;
+}
+
+.gemm-flow-arrow-head {
+  fill: #557580;
+  stroke: none;
+}
+
+.gemm-flow-label {
+  fill: #506d77;
+  font-size: 8.5px;
+  font-weight: 750;
+}
+
+.gemm-accumulator {
+  fill: #e6f1ef;
+  stroke: #6f9d99;
+  stroke-width: 1;
+}
+
+.gemm-accumulator.is-written {
+  fill: #d0e8e5;
+  stroke: var(--teal);
+  stroke-width: 1.5;
+}
+
+.gemm-accumulator-label {
+  fill: #315761;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.gemm-k-step-label {
+  fill: #315761;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 9px;
+  font-weight: 750;
+}
+
+.gemm-k-step {
+  fill: #eef2f4;
+  stroke: #a8b9c0;
+  stroke-width: 1;
+}
+
+.gemm-k-step.is-active {
+  fill: #8dd1ca;
+  stroke: #08766f;
+  stroke-width: 1.5;
+}
+
+.gemm-k-step.is-complete {
+  fill: #d1e5e2;
+  stroke: #6f9d99;
 }
 
 .conv-lattice-cell {
