@@ -8,12 +8,16 @@ from pathlib import Path
 from extractors.common import ImportContext, SourceFormatError, read_jsonl
 from extractors.flashrt import import_flashrt_shape
 from extractors.lerobot import import_lerobot_shape
+from extractors.vla_cpp import import_vla_cpp
 from tools.lib.jsonio import write_json_atomic
 
 
 def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Stage sanitized benchmark measurements")
-    parser.add_argument("--format", required=True, choices=("flashrt-shape", "lerobot-smolvla"))
+    parser.add_argument(
+        "--format", required=True,
+        choices=("flashrt-shape", "lerobot-smolvla", "vla-cpp"),
+    )
     parser.add_argument("--input", required=True, type=Path)
     parser.add_argument("--output", required=True, type=Path)
     parser.add_argument("--source-label", required=True)
@@ -30,8 +34,10 @@ def main(argv: Sequence[str] | None = None) -> int:
         records = read_jsonl(args.input, source_label=context.source_label)
         if args.format == "flashrt-shape":
             bundle = import_flashrt_shape(records, context)
-        else:
+        elif args.format == "lerobot-smolvla":
             bundle = import_lerobot_shape(records, context)
+        else:
+            bundle = import_vla_cpp(records, context)
         write_json_atomic(output, bundle)
     except (OSError, SourceFormatError, ValueError):
         print("import: rejected source or output", file=sys.stderr)
