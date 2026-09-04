@@ -41,6 +41,35 @@ class ValidationTests(unittest.TestCase):
             ["unknown_field"],
         )
 
+    def test_component_boundary_shapes_require_symbolic_equivalence(self):
+        graph = valid_model_graph_document()["records"][0]
+        batch = next(
+            symbol for symbol in graph["shape_symbols"]
+            if symbol["symbol"] == "B"
+        )
+        batch.update({"default": 2, "minimum": 2, "maximum": 2})
+        component = graph["block_templates"][0]["components"][0]
+        tokens = next(
+            binding for binding in component["bindings"]
+            if binding["symbol"] == "M"
+        )
+        tokens["expression"] = {"symbol": "B"}
+
+        self.assertIn(
+            "boundary_mismatch",
+            [problem.code for problem in graph_semantic_problems(graph)],
+        )
+
+    def test_component_ports_reject_duplicate_bindings(self):
+        graph = valid_model_graph_document()["records"][0]
+        component = graph["block_templates"][0]["components"][0]
+        component["inputs"].append({"port": "input", "tensor_id": "input"})
+
+        self.assertIn(
+            "duplicate",
+            [problem.code for problem in graph_semantic_problems(graph)],
+        )
+
     def test_model_graph_expression_and_internal_reference(self):
         document = valid_model_graph_document()
         graph = document["records"][0]

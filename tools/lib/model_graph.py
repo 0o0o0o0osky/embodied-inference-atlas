@@ -286,6 +286,29 @@ def _binding_map(bindings: object) -> dict[str, Mapping[str, object]]:
     }
 
 
+def _component_port_map(
+    bindings: object,
+    path: str,
+    problems: list[GraphProblem],
+) -> dict[str, Mapping[str, object]]:
+    result: dict[str, Mapping[str, object]] = {}
+    for index, binding in enumerate(_mapping_list(bindings)):
+        port = binding.get("port")
+        if not isinstance(port, str):
+            continue
+        if port in result:
+            problems.append(
+                GraphProblem(
+                    f"{path}[{index}].port",
+                    "duplicate",
+                    "component port binding must be unique",
+                )
+            )
+        else:
+            result[port] = binding
+    return result
+
+
 def _concrete_shape(
     tensor: Mapping[str, object] | None, environment: Mapping[str, Number]
 ) -> tuple[int, ...] | None:
@@ -301,6 +324,85 @@ def _concrete_shape(
     if any(value < 0 or int(value) != value for value in values):
         return None
     return tuple(int(value) for value in values)
+
+
+def _canonical_number(value: Number) -> tuple[str, Number]:
+    value = _finite_number(value, "expression")
+    if int(value) == value:
+        value = int(value)
+    return ("number", value)
+
+
+def _canonical_expression(
+    expression: object,
+    substitutions: Mapping[str, object] | None = None,
+) -> object:
+    if _is_number(expression):
+        return _canonical_number(expression)
+    if not isinstance(expression, Mapping):
+        raise ValueError("expression must be a finite number or expression object")
+    if set(expression) == {"symbol"}:
+        symbol = expression.get("symbol")
+        if not isinstance(symbol, str) or not symbol:
+            raise ValueError("symbol must be a non-empty string")
+        if substitutions is not None and symbol in substitutions:
+            return _canonical_expression(substitutions[symbol])
+        return ("symbol", symbol)
+    if set(expression) != {"op", "args"}:
+        raise ValueError("expression object must be a symbol or op/args pair")
+    operation = expression.get("op")
+    args = expression.get("args")
+    if not isinstance(operation, str) or operation not in _OPERATIONS:
+        raise ValueError("unknown expression operation")
+    if not isinstance(args, list):
+        raise ValueError("expression args must be an array")
+    arity, dispatch = _OPERATIONS[operation]
+    if arity is not None and len(args) < arity:
+        raise ValueError(f"{operation} requires at least {arity} arguments")
+    if operation in {"sub", "div", "ceil_div"} and len(args) != 2:
+        raise ValueError(f"{operation} requires exactly two arguments")
+    canonical_args = [
+        _canonical_expression(arg, substitutions) for arg in args
+    ]
+    if all(arg[0] == "number" for arg in canonical_args):
+        return _canonical_number(dispatch([arg[1] for arg in canonical_args]))
+    if operation in {"add", "mul"}:
+        flattened = []
+        for arg in canonical_args:
+            if arg[0] == operation:
+                flattened.extend(arg[1])
+            else:
+                flattened.append(arg)
+        numeric = [arg[1] for arg in flattened if arg[0] == "number"]
+        symbolic = [arg for arg in flattened if arg[0] != "number"]
+        identity = 0 if operation == "add" else 1
+        combined = dispatch(numeric) if numeric else identity
+        if operation == "mul" and combined == 0:
+            return _canonical_number(0)
+        if combined != identity or not symbolic:
+            symbolic.append(_canonical_number(combined))
+        symbolic.sort(key=repr)
+        if len(symbolic) == 1:
+            return symbolic[0]
+        return (operation, tuple(symbolic))
+    if operation in {"div", "ceil_div"} and canonical_args[1] == _canonical_number(1):
+        return canonical_args[0]
+    return (operation, tuple(canonical_args))
+
+
+def _symbolic_shape(
+    tensor: Mapping[str, object] | None,
+    substitutions: Mapping[str, object] | None = None,
+) -> tuple[object, ...] | None:
+    if tensor is None:
+        return None
+    try:
+        return tuple(
+            _canonical_expression(axis.get("expression"), substitutions)
+            for axis in _mapping_list(tensor.get("axes"))
+        )
+    except (ValueError, ZeroDivisionError):
+        return None
 
 
 def _validate_indexed_boundary(
@@ -592,13 +694,18 @@ def graph_semantic_problems(record: Mapping[str, object]) -> list[GraphProblem]:
             if component_template is None:
                 problems.append(GraphProblem(f"{component_path}.template_id", "broken_reference", "component template does not resolve"))
                 continue
-            component_bindings = _validate_bindings(
+            _validate_bindings(
                 component.get("bindings"),
                 component_template.get("parameters"),
                 template_environment,
                 f"{component_path}.bindings",
                 problems,
             )
+            binding_expressions = {
+                binding["symbol"]: binding.get("expression")
+                for binding in _mapping_list(component.get("bindings"))
+                if isinstance(binding.get("symbol"), str)
+            }
             component_tensors = {
                 item["tensor_id"]: item
                 for item in _mapping_list(component_template.get("tensors"))
@@ -608,7 +715,11 @@ def graph_semantic_problems(record: Mapping[str, object]) -> list[GraphProblem]:
                 ("inputs", component_template.get("input_ports")),
                 ("outputs", component_template.get("output_ports")),
             ):
-                actual = _binding_map(component.get(direction))
+                actual = _component_port_map(
+                    component.get(direction),
+                    f"{component_path}.{direction}",
+                    problems,
+                )
                 expected = _binding_map(ports)
                 if set(actual) != set(expected):
                     problems.append(GraphProblem(f"{component_path}.{direction}", "invalid_port", "component ports must match the template"))
@@ -620,10 +731,10 @@ def graph_semantic_problems(record: Mapping[str, object]) -> list[GraphProblem]:
                     component_port = expected.get(port)
                     if component_port is None:
                         continue
-                    block_shape = _concrete_shape(tensors[tensor_id], template_environment)
-                    component_shape = _concrete_shape(
+                    block_shape = _symbolic_shape(tensors[tensor_id])
+                    component_shape = _symbolic_shape(
                         component_tensors.get(component_port.get("tensor_id")),
-                        component_bindings,
+                        binding_expressions,
                     )
                     if block_shape is not None and component_shape is not None and block_shape != component_shape:
                         problems.append(GraphProblem(f"{component_path}.{direction}[{port}]", "boundary_mismatch", "component boundary tensor shapes must match"))
