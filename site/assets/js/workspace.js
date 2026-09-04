@@ -118,11 +118,6 @@
     ],
     "action-flow-decoder": [
       { slots: [
-        null,
-        null,
-        "action-flow-decoder/action-suffix-builder/denoise-time-schedule",
-      ] },
-      { slots: [
         "action-flow-decoder/action-suffix-builder/state-projection",
         "action-flow-decoder/action-suffix-builder/action-projection",
         "action-flow-decoder/action-suffix-builder/time-embedding",
@@ -155,6 +150,7 @@
         lanes: Object.freeze({
           "input/state": 0,
           "input/initial-noise": 1,
+          "control/action-flow-loop/timestep": 2,
         }),
       }),
       loop: Object.freeze({
@@ -193,7 +189,6 @@
     "down-projection": "Down",
     "state-projection": "State",
     "action-projection": "Action",
-    "denoise-time-schedule": "tₖ",
     "time-embedding": "Sin/Cos",
     "action-time-concat": "concat",
     "time-mlp-in": "MLP in",
@@ -216,6 +211,7 @@
     "input/state": "State input",
     "input/initial-noise": "Noise x₀",
     "loop/action-flow-loop": "xₖ",
+    "control/action-flow-loop/timestep": "tₖ",
     "output/prefix-stack-output": "Prefix out",
     "output/final-action-state": "Actions",
   });
@@ -308,7 +304,7 @@
       ["input/initial-noise", "loop/action-flow-loop"],
     ] },
     { id: "action-loop-local", kind: "chain", pairs: [["loop/action-flow-loop", "action-flow-decoder/action-suffix-builder/action-projection"]] },
-    { id: "action-time-schedule", kind: "chain", pairs: [["action-flow-decoder/action-suffix-builder/denoise-time-schedule", "action-flow-decoder/action-suffix-builder/time-embedding"]] },
+    { id: "action-time-control", kind: "chain", pairs: [["control/action-flow-loop/timestep", "action-flow-decoder/action-suffix-builder/time-embedding"]] },
     { id: "action-loop-euler", kind: "rail", side: "right", railInset: 26, sourceOffset: -5, targetOffset: -7, pairs: [["loop/action-flow-loop", "action-flow-decoder/velocity-euler-update/euler-update"]] },
     { id: "action-loop-output", kind: "rail", side: "right", railInset: 14, sourceOffset: 5, pairs: [["loop/action-flow-loop", "output/final-action-state"]] },
     { id: "action-time-input", kind: "branch-in", pairs: [
@@ -1086,12 +1082,17 @@
       const stage = state.materialized.stages.find(
         (item) => item.loop_carried && item.loop_carried.loop_id === endpoint.node_id,
       );
-      const id = `loop/${endpoint.node_id}`;
+      const control = stage && (stage.loop_carried.iteration_controls || []).find(
+        (item) => item.port === endpoint.port,
+      );
+      const id = control
+        ? `control/${endpoint.node_id}/${endpoint.port}`
+        : `loop/${endpoint.node_id}`;
       addNode({
         id,
-        kind: "loop",
-        label: "Denoise state",
-        definitionId: "loop state",
+        kind: control ? "control" : "loop",
+        label: control ? endpoint.port : "Denoise state",
+        definitionId: control ? control.formula_display : "loop state",
         stageId: stage ? stage.stage_id : "action-flow-decoder",
         moduleId: null,
         componentId: null,
@@ -1192,7 +1193,6 @@
 
   const PAPER_COMPACT_DEFINITIONS = new Set([
     "concat",
-    "denoise-time-schedule",
     "euler-update",
     "gelu",
     "layer-norm",
@@ -1221,7 +1221,6 @@
     if (PAPER_READ_PORT_NODE_IDS.has(node.id)) return "read-port";
     if (PAPER_LOGICAL_VIEW_NODE_IDS.has(node.id)) return "logical-view";
     if (node.definitionId === "reshape" || node.definitionId === "concat") return "line-op";
-    if (node.definitionId === "denoise-time-schedule") return "control";
     if (PAPER_INLINE_DEFINITIONS.has(node.definitionId)) {
       return "inline";
     }
@@ -1372,13 +1371,15 @@
       };
       const inputs = stageNodes.filter((node) => node.kind === "input");
       const loops = stageNodes.filter((node) => node.kind === "loop");
+      const controls = stageNodes.filter((node) => node.kind === "control");
+      const inputBoundaryNodes = [...inputs, ...controls];
       const boundaryLayout = PI0_PAPER_BOUNDARY_LAYOUT[stage.stage_id] || {};
       placePaperBoundaryRow(
         positions,
         model.nodes,
         stageLayout,
-        inputs,
-        loops.length ? 116 : 76,
+        inputBoundaryNodes,
+        loops.length || controls.length ? 116 : 76,
         "input",
         boundaryLayout.input,
       );
@@ -1393,7 +1394,7 @@
       );
 
       const rows = PI0_PAPER_LAYOUT[stage.stage_id] || [];
-      const firstRowY = loops.length ? 214 : 120;
+      const firstRowY = loops.length || controls.length ? 214 : 120;
       const rowStep = 48;
       const moduleGap = 20;
       let rowY = firstRowY;
@@ -2053,6 +2054,7 @@
       svg.appendChild(group);
     });
 
+    const scopeHeaders = [];
     [...model.scopes]
       .filter((scope) => scope.kind === "denoise" || scope.kind === "transformer")
       .sort((left, right) => (left.kind === "denoise" ? -1 : right.kind === "denoise" ? 1 : 0))
@@ -2074,15 +2076,22 @@
           "data-header-bottom": bounds.headerBottom,
           "data-content-top": bounds.contentTop,
         });
-        group.append(
-          svgElement("rect", {
-            x: bounds.x,
-            y: bounds.y,
-            width: bounds.width,
-            height: bounds.height,
-            rx: 14,
-            class: "dag-scope-frame",
-          }),
+        group.appendChild(svgElement("rect", {
+          x: bounds.x,
+          y: bounds.y,
+          width: bounds.width,
+          height: bounds.height,
+          rx: 14,
+          class: "dag-scope-frame",
+        }));
+        svg.appendChild(group);
+
+        const header = svgElement("g", {
+          class: `dag-scope-header dag-scope--${scope.kind}`,
+          "data-scope-kind": scope.kind,
+          "data-module-id": scope.moduleId,
+        });
+        header.append(
           svgElement("rect", {
             x: bounds.x + 8,
             y: bounds.y,
@@ -2115,12 +2124,13 @@
             }, executionNote.label),
             svgElement("title", {}, executionNote.description),
           );
-          group.appendChild(note);
+          header.appendChild(note);
         }
-        svg.appendChild(group);
+        scopeHeaders.push(header);
       });
 
     connectors.resolved.forEach((descriptor) => renderPaperConnector(svg, descriptor, layout, model));
+    scopeHeaders.forEach((header) => svg.appendChild(header));
     [...model.nodes.values()].forEach((node) => {
       const box = layout.positions.get(node.id);
       if (box) renderDagNode(svg, node, box);

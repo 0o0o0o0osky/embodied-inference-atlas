@@ -619,19 +619,6 @@
           "analysis": []
         },
         {
-          "definition_id": "denoise-time-schedule",
-          "label": "Denoise timestep schedule",
-          "category": "control",
-          "formula_display": "t_k = 1 - k/N_DENOISE, k = 0..N_DENOISE-1",
-          "visualizer": "basic",
-          "parameters": [],
-          "input_ports": [],
-          "output_ports": [
-            "timestep"
-          ],
-          "analysis": []
-        },
-        {
           "definition_id": "sinusoidal-time-embedding",
           "label": "Sinusoidal time embedding",
           "category": "embedding",
@@ -5480,6 +5467,10 @@
             {
               "port": "action_state",
               "tensor_id": "actions"
+            },
+            {
+              "port": "timestep",
+              "tensor_id": "denoise-timestep"
             }
           ],
           "output_ports": [
@@ -5633,11 +5624,7 @@
                   }
                 }
               ],
-              "producer": {
-                "node_kind": "operator",
-                "node_id": "denoise-time-schedule",
-                "port": "timestep"
-              },
+              "producer": null,
               "consumers": [
                 {
                   "node_kind": "operator",
@@ -5953,20 +5940,6 @@
                   }
                 }
               ]
-            },
-            {
-              "operator_id": "denoise-time-schedule",
-              "label": "Denoise timestep schedule",
-              "definition_id": "denoise-time-schedule",
-              "multiplicity": 1,
-              "inputs": [],
-              "outputs": [
-                {
-                  "port": "timestep",
-                  "tensor_id": "denoise-timestep"
-                }
-              ],
-              "bindings": []
             },
             {
               "operator_id": "time-embedding",
@@ -6971,6 +6944,31 @@
           ]
         },
         {
+          "tensor_id": "denoise-timestep",
+          "label": "Current denoise timestep",
+          "semantic_role": "control",
+          "axes": [
+            {
+              "axis": "batch",
+              "expression": {
+                "symbol": "B"
+              }
+            }
+          ],
+          "producer": {
+            "node_kind": "loop",
+            "node_id": "action-flow-loop",
+            "port": "timestep"
+          },
+          "consumers": [
+            {
+              "node_kind": "module",
+              "node_id": "action-suffix-builder",
+              "port": "timestep"
+            }
+          ]
+        },
+        {
           "tensor_id": "vision-patch-tokens",
           "label": "Vision patch tokens",
           "semantic_role": "tokens",
@@ -7813,7 +7811,14 @@
             "initial_tensor_id": "initial-noise",
             "iteration_input_tensor_id": "action-state",
             "iteration_output_tensor_id": "updated-action-state",
-            "final_tensor_id": "final-action-state"
+            "final_tensor_id": "final-action-state",
+            "iteration_controls": [
+              {
+                "tensor_id": "denoise-timestep",
+                "port": "timestep",
+                "formula_display": "t_k = 1 - k/N_DENOISE, k = 0..N_DENOISE-1"
+              }
+            ]
           },
           "modules": [
             {
@@ -7861,6 +7866,10 @@
                 {
                   "port": "action_state",
                   "tensor_id": "action-state"
+                },
+                {
+                  "port": "timestep",
+                  "tensor_id": "denoise-timestep"
                 }
               ],
               "outputs": [

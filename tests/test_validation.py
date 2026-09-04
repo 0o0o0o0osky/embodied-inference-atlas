@@ -394,7 +394,7 @@ class ValidationTests(unittest.TestCase):
             definition["definition_id"]: definition
             for definition in graph["operator_definitions"]
         }
-        self.assertEqual(len(definitions), 17)
+        self.assertEqual(len(definitions), 16)
         self.assertEqual(definitions["slice"]["visualizer"], "basic")
         with self.subTest(visualizer="patch embedding"):
             self.assertEqual(
@@ -417,17 +417,47 @@ class ValidationTests(unittest.TestCase):
             operator["operator_id"]: operator
             for operator in suffix_template["operators"]
         }
+        self.assertIn(
+            {"port": "timestep", "tensor_id": "denoise-timestep"},
+            suffix_template["input_ports"],
+        )
+        self.assertIsNone(suffix_tensors["denoise-timestep"]["producer"])
+        self.assertNotIn("denoise-time-schedule", suffix_operators)
         self.assertEqual(
-            suffix_tensors["denoise-timestep"]["producer"],
+            suffix_operators["time-embedding"]["inputs"],
+            [{"port": "timestep", "tensor_id": "denoise-timestep"}],
+        )
+        timestep_tensor = next(
+            tensor for tensor in graph["graph_tensors"]
+            if tensor["tensor_id"] == "denoise-timestep"
+        )
+        self.assertEqual(
+            timestep_tensor["producer"],
             {
-                "node_kind": "operator",
-                "node_id": "denoise-time-schedule",
+                "node_kind": "loop",
+                "node_id": "action-flow-loop",
                 "port": "timestep",
             },
         )
         self.assertEqual(
-            suffix_operators["time-embedding"]["inputs"],
-            [{"port": "timestep", "tensor_id": "denoise-timestep"}],
+            timestep_tensor["consumers"],
+            [{
+                "node_kind": "module",
+                "node_id": "action-suffix-builder",
+                "port": "timestep",
+            }],
+        )
+        action_stage = next(
+            stage for stage in graph["stages"]
+            if stage["stage_id"] == "action-flow-decoder"
+        )
+        self.assertEqual(
+            action_stage["loop_carried"]["iteration_controls"],
+            [{
+                "tensor_id": "denoise-timestep",
+                "port": "timestep",
+                "formula_display": "t_k = 1 - k/N_DENOISE, k = 0..N_DENOISE-1",
+            }],
         )
 
         prefix_template = next(

@@ -1098,6 +1098,75 @@ def graph_semantic_problems(record: Mapping[str, object]) -> list[GraphProblem]:
             loop_endpoints.setdefault(final, {})["producer"] = (loop_id, "final")
             loop_inputs.add(iteration_input)
             loop_outputs.add(iteration_output)
+        controls = loop.get("iteration_controls", [])
+        if not isinstance(controls, list):
+            problems.append(
+                GraphProblem(
+                    f"$.stages[{stage_id}].loop_carried.iteration_controls",
+                    "invalid_loop",
+                    "iteration_controls must be an array",
+                )
+            )
+            controls = []
+        control_tensors: set[str] = set()
+        control_ports: set[str] = set()
+        state_tensors = {initial, iteration_input, iteration_output, final}
+        reserved_ports = {"initial", "iteration_input", "iteration_output", "final"}
+        for control_index, control in enumerate(controls):
+            control_path = (
+                f"$.stages[{stage_id}].loop_carried."
+                f"iteration_controls[{control_index}]"
+            )
+            if not isinstance(control, Mapping):
+                problems.append(
+                    GraphProblem(
+                        control_path,
+                        "invalid_loop",
+                        "iteration control must be an object",
+                    )
+                )
+                continue
+            tensor_id = control.get("tensor_id")
+            port = control.get("port")
+            valid = True
+            if tensor_id not in graph_tensors:
+                problems.append(
+                    GraphProblem(
+                        f"{control_path}.tensor_id",
+                        "broken_reference",
+                        "iteration control tensor does not resolve",
+                    )
+                )
+                valid = False
+            elif tensor_id in state_tensors or tensor_id in control_tensors:
+                problems.append(
+                    GraphProblem(
+                        f"{control_path}.tensor_id",
+                        "invalid_loop",
+                        "iteration control tensor must be unique",
+                    )
+                )
+                valid = False
+            invalid_port = (
+                not isinstance(port, str)
+                or not port
+                or port in reserved_ports
+                or port in control_ports
+            )
+            if invalid_port:
+                problems.append(
+                    GraphProblem(
+                        f"{control_path}.port",
+                        "invalid_loop",
+                        "iteration control port must be unique",
+                    )
+                )
+                valid = False
+            if not valid:
+                continue
+            control_tensors.add(tensor_id)
+            control_ports.add(port)
+            loop_endpoints.setdefault(tensor_id, {})["producer"] = (loop_id, port)
     _validate_ports_and_endpoints(
         collections["graph_tensors"], modules, "module", loop_inputs,
         loop_outputs | repeat_carried_outputs,
