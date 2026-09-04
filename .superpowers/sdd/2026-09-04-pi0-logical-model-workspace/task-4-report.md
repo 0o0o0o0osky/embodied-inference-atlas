@@ -16,6 +16,8 @@ Post-review connector legibility correction: `e83d172fd8e30fecd45dcf094f25364525
 
 Post-review inline-junction correction: `ff4d00d5dbf91f9978caa1b54b8b30f0f5d81061`
 
+Post-review cache/concat semantics correction: `8c37bb25c78e34c6527e4c43f9007553c87f1105`
+
 The topology has no cumulative repeat badges. It resolves the Vision `×27`, Prefix `×18`, Action expert `×18`, and outer `Denoise loop ×N_DENOISE` labels from the materialized modules/stage; no atomic node is labelled `×180`.
 
 ## Implementation notes
@@ -186,6 +188,12 @@ The same disposable offline geometry check reported zero unrelated-node intersec
 ## Inline Add and Mul junctions
 
 All six residual additions and both gated elementwise multiplications now render as 20-by-20 inline junctions with `+` or `×`, rather than labelled operator boxes. They remain canonical operators with full title/ARIA metadata, mouse and keyboard selection, and complete inspector detail. A disposable DOM check confirmed all eight junctions and all 67 selectable operators; the geometry check remained at zero unrelated-node intersections, duplicate arrow endpoints, cross-connector collinear overlaps, and invalid connectors. No persistent test or unit-suite run was added.
+
+## Cache and concat flow semantics
+
+The logical prefix `cache-output` now renders as a compact K/V storage cylinder, while the two cached-prefix slices render as K and V read ports. The five ordinary concatenations render as inline `∥` junctions. These remain selectable canonical logical operators with full title, ARIA, hash-selection, and inspector behavior; this visual treatment does not claim that they are independent runtime kernels. `select-action-rows` remains an ordinary operator box.
+
+One disposable DOM assertion outside the repository was observed failing against the prior box rendering and passing after the correction. A single disposable geometry check then reported 67/67 operators, zero invalid connectors, zero unrelated-node intersections, zero duplicate arrow endpoints, zero cross-connector collinear overlaps, and at least 10 units of row/mini-chain clearance. Cache and read-port contours meet their connector anchors with zero gap. JavaScript syntax, deterministic offline build, source/generated equality, and diff checks passed. No persistent test or unit suite was added or run.
 
 ## Files changed
 
