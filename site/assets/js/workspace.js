@@ -104,11 +104,17 @@
     return { slots: [targetId], alignTo: sourceId };
   }
 
+  function paperOffsetRows(rows, offsetY) {
+    return rows.map((row) => ({ ...row, offsetY }));
+  }
+
   const PI0_PAPER_LAYOUT = Object.freeze({
     "vision-encoder": [
       { slots: ["vision-encoder/image-patch-embedding/patch-project"] },
-      ...paperAttentionRows("vision-encoder/vision-blocks/self-attention"),
-      ...paperVitGeluMlpRows("vision-encoder/vision-blocks/feed-forward"),
+      ...paperOffsetRows([
+        ...paperAttentionRows("vision-encoder/vision-blocks/self-attention"),
+        ...paperVitGeluMlpRows("vision-encoder/vision-blocks/feed-forward"),
+      ], 16),
       { gapBefore: true, slots: ["vision-encoder/vision-final-normalization/normalize"] },
       { slots: ["vision-encoder/vision-projector/project"] },
     ],
@@ -1300,6 +1306,7 @@
   }
 
   function placePaperRow(positions, nodes, stageLayout, row, centerY, rowIndex) {
+    const effectiveCenterY = centerY + (row.offsetY || 0);
     const slotWidth = stageLayout.contentWidth / row.slots.length;
     row.slots.forEach((slot, slotIndex) => {
       const nodeIds = paperSlotIds(slot);
@@ -1332,7 +1339,7 @@
         if (!node || !size) return;
         positions.set(nodeId, {
           x,
-          y: centerY - size.height / 2,
+          y: effectiveCenterY - size.height / 2,
           width: size.width,
           height: size.height,
           compact: size.compact,
