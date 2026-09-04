@@ -8,15 +8,19 @@ Implementation commit: `1e3e96e19ffc3101ef058e4b2e787847cceed20b`
 
 Post-review paper-layout correction: `dd04f150e97fafa7a26f15b2870da7c3f1ad4333`
 
+Post-review clarity correction: `0753a31dfc8a344f971c832d5fd9fb236cd8bca9`
+
 The topology has no cumulative repeat badges. It resolves the Vision `×27`, Prefix `×18`, Action expert `×18`, and outer `Denoise loop ×N_DENOISE` labels from the materialized modules/stage; no atomic node is labelled `×180`.
 
 ## Implementation notes
 
 - Replaced the four array-ordered navigation strips with one deterministic native SVG figure under `#model-overview` and `#block-dag`, alongside the persistent `#operator-detail` inspector. At desktop width the inspector uses `clamp(21.5rem, 24vw, 23rem)`; it stacks below the figure at `80rem` before the paper diagram becomes illegible.
-- Added a hand-authored `PI0_PAPER_LAYOUT` containing only canonical operator keys and row/lane slots. All names, matrix/output shapes, repeat counts, node metadata, and dataflow still resolve from the materialized graph. The current map places all 67 declared operators, and any future unplaced operator receives a visible fallback region.
-- Preserved recursive tensor endpoint resolution through graph, module, block, and component boundaries. Local paths come from those resolved producer/consumer edges. The only cross-column connector groups are projected Vision tokens into Prefix and collected Prefix K/V into Action; Euler feedback remains a separate dashed rail. All edge paths are deliberately unlabeled.
-- Rendered component regions inside folded Transformer scopes. Q/K/V, gate/up, suffix state versus action/time, and cached K/V are compact horizontal branches inside vertical column trunks. Long residual dependencies and denoise state use side rails; repeated layers are expressed by nested frames instead of unrolling or repeat-carry arrows.
-- Kept all three stage bands visible. Operator clicks update only selection styling, hash/breadcrumb, and the inspector; they do not hide or replace any stage.
+- Added a hand-authored `PI0_PAPER_LAYOUT` containing only canonical operator keys and row/mini-chain slots. It places all 67 declared operators, with a visible fallback region for any future unplaced operator. Overview boxes now show only short display aliases; canonical labels, formulas, and complete symbolic/concrete tensor shapes remain in each SVG title/ARIA description and the inspector.
+- Preserved recursive tensor endpoint resolution through graph, module, block, and component boundaries as the truth index. The overview renders exactly 40 hand-authored `PI0_PAPER_CONNECTORS` groups rather than iterating the 97 internal model edges. Every direct pair in those groups is checked against the materialized producer/consumer edges before rendering; a missing pair suppresses that group and produces both a visible SVG warning and a console error.
+- Curated orthogonal buses cover main trunks, Q/K/V and RoPE branches, gate/up/GELU/Mul branches, residual rails, prefix cache handoff and action K/V joins, exactly two cross-column handoffs, and Euler feedback. All connector paths are deliberately unlabeled.
+- Q/K/V, gate/up, suffix state versus action/time, and cached K/V remain compact horizontal branches inside vertical column trunks. Vision uses 10 effective rows, Prefix 12, and Action 16; compact mini-chains reduce Action from the earlier 24-row layout without padding the shorter stages.
+- Only the repeated SigLIP, Gemma, expert, and denoise scopes render. Each rounded frame has a dedicated 18-unit header badge above a reserved content boundary, eliminating label/node collisions; component/module scope labels were removed.
+- Kept all three stage bands visible. Operator clicks update only selection styling, hash/breadcrumb, and the inspector; they do not hide or replace any stage. Incident connector groups become strongly teal, unrelated groups de-emphasize, and adjacent operator endpoints receive a subtle related state without rebuilding topology.
 - Replaced decorative visualizers with controllable SVG microscopes for GEMM, attention, and convolution. Each supplies Play/Pause, Step, Reset, and speed controls; selection cancels the prior timer, and reduced-motion sessions start paused. Basic operators retain a static semantic flow.
 - The GEMM and attention microscopes remain unchanged after review. The rebuilt Conv microscope derives the exact patch lattice from `H/P` and `W/P` (currently `16×16`), highlights one true `P×P×C` non-overlapping patch, keeps a fixed `[P²C × D]` weight panel, and lights the matching output-token cell. Step advances row-major by stride `P` and reports patch index, row/column, pixel ranges, and token. It is explicitly labelled illustrative math rather than a runtime tile, with a static honest fallback for inconsistent dimensions.
 - Analytical metrics show both the per-atomic-invocation value and aggregate logical value, plus separate stage, layer, and intrinsic factors.
@@ -124,6 +128,30 @@ That single smoke confirmed:
 - 256 input patch cells and 256 output token cells for the current `224/14 = 16` lattice, a fixed symbolic `[P²C × D]` / concrete `[588 × 1152]` weight panel, and the illustrative/runtime disclaimer;
 - one Step transition from row 1 / column 1 / token 1 to row 1 / column 2 / pixel x range `14–27` / token 2.
 
+## Final clarity correction verification
+
+The alias/connector/scope/compaction correction changed only browser source and generated assets. It did not change canonical data, Python validation/build logic, or tests, so the unit suite was deliberately not rerun and no test was added or edited. The final source state was checked with:
+
+```text
+node --check web/js/workspace.js
+python3 -m tools.build
+python3 -m tools.build --check
+git diff --check
+```
+
+- JavaScript syntax: exit code `0`; no output.
+- Site build: exit code `0`; `built 7 page(s)`.
+- Deterministic build check: exit code `0`; `built 7 page(s) for check`.
+- Diff check: exit code `0`; no output, recorded after this report update.
+
+One narrow, network-free DOM/geometry smoke executed the generated page and browser assets with reduced motion enabled. It passed with:
+
+```text
+PASS operators=67/67 connectors=40/97 rows=10/12/16 cross=2 feedback=1 selected=2+38 scopes=Denoise ×10,SigLIP block ×27,Gemma block ×18,Expert block ×18
+```
+
+That smoke confirmed 67/67 selectable operators, exactly one visible short alias per operator, no overview shape line, no edge text or `textPath`, 40 curated groups validated against 97 truth edges with zero missing pairs, two cross-column groups, one Euler feedback group, and valid orthogonal path coordinates. It also confirmed the 10/12/16 effective-row targets, four repeat-only scope frames with non-overlapping reserved headers, no `×180`, and initialized selected/incident/muted/related classes.
+
 ## Files changed
 
 Source, data, and existing tests:
@@ -155,9 +183,11 @@ The post-review correction itself changed only:
 - `site/assets/styles.css`
 - this report
 
+The final clarity correction changed only the same browser source/generated asset pairs plus this report; it did not touch schema, data, Python, or tests.
+
 ## Honest visual limitations
 
 - The environment has no inspectable GUI browser or installed browser-automation engine. Generated DOM, coordinates, responsive structure, and interaction state were exercised offline, but final font rendering, sticky-inspector feel, and color perception still require visual review.
-- The complete 67-operator figure is intentionally tall. It fits the normal desktop width without horizontal panning; narrower layouts stack the inspector below, while the page continues vertically.
+- The complete 67-operator figure fits the normal desktop width without horizontal panning. The compact 10/12/16-row columns still use vertical page space; narrower layouts stack the inspector below the figure.
 - Edges are intentionally unlabeled to keep the paper overview legible. Tensor names and full symbolic/concrete shapes remain in node titles and the inspector rather than on paths.
 - The microscopes are explicitly illustrative mathematical views, not runtime scheduling, profiling, precision, performance, or roofline claims.
