@@ -1,8 +1,42 @@
 (function () {
   "use strict";
 
-  const pageData = JSON.parse(document.getElementById("page-data").textContent);
+  const pageData = Atlas.readPageData();
+  const cardsTarget = document.getElementById("model-cards");
   const coverageTarget = document.getElementById("coverage");
+
+  function modelField(label, value) {
+    const row = Atlas.element("div", { className: "model-card-field" });
+    row.append(
+      Atlas.element("dt", { text: label }),
+      Atlas.element("dd", { text: Array.isArray(value) ? value.join(", ") : value }),
+    );
+    return row;
+  }
+
+  function renderModelCards() {
+    Atlas.clear(cardsTarget);
+    pageData.models.forEach((model) => {
+      const card = Atlas.element("a", { className: "model-card" });
+      card.href = `models/${encodeURIComponent(model.model_id)}.html`;
+      const status = model.detail_kind === "logical_workspace"
+        ? "Structured logical graph"
+        : "Legacy module summary";
+      const statusClass = model.detail_kind === "logical_workspace" ? "model-status-structured" : "model-status-legacy";
+      const details = Atlas.element("dl", { className: "model-card-details" });
+      details.append(
+        modelField("Type", model.model_type),
+        modelField("Inputs", model.input_modalities),
+        modelField("Outputs", model.output_modalities),
+      );
+      card.append(
+        Atlas.element("h3", { text: model.display_name }),
+        details,
+        Atlas.element("span", { className: `state-chip model-status ${statusClass}`, text: status }),
+      );
+      cardsTarget.appendChild(card);
+    });
+  }
 
   function matchesFilters(row, selected) {
     return Object.entries(selected).every(([key, value]) => !value || String(row[key]) === value);
@@ -51,6 +85,7 @@
   }
 
   document.querySelectorAll("[data-filter]").forEach((node) => node.addEventListener("change", applyFilters));
+  renderModelCards();
   applyFilters();
   Atlas.renderProfilerCoverage(document.getElementById("profiler-coverage"), pageData.profiler_coverage);
 }());

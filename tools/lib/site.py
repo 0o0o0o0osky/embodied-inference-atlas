@@ -15,6 +15,7 @@ from string import Template
 from tools.lib.contracts import Issue, load_manifest
 from tools.lib.comparison import assign_group_ids, ratio_eligibility
 from tools.lib.jsonio import load_json
+from tools.lib.model_graph import materialize_model_graph
 from tools.lib.privacy import scan_site_tree
 from tools.validate import format_issue, validate_repository
 
@@ -117,7 +118,8 @@ def render_foundation_pages(
             root_prefix="",
             content=_page_content(
                 "Embodied Inference Atlas",
-                "Coverage across models, runtimes, systems, and evidence classes.",
+                "Review model structure first, then use coverage to inspect available runtime and evidence records.",
+                '<section class="panel"><h2>Models</h2><p class="summary-line">Choose a model workspace; coverage remains available below.</p><div id="model-cards"></div></section>' +
                 _filters_content(view["coverage_filters"]) +
                 '<section class="panel"><h2>Coverage matrix</h2><div id="coverage"></div></section>' +
                 '<section class="panel"><h2>Profiler coverage</h2><div id="profiler-coverage"></div></section>',
@@ -184,20 +186,31 @@ def render_foundation_pages(
     for model in view["models"]:
         model_id = str(model["model_id"])
         model_view = view["model_pages"][model_id]
+        has_model_graph = "model_graph" in model_view
+        if has_model_graph:
+            lede = "Inspect Pi0's logical stages, folded blocks, reusable components, and atomic operators."
+            body = _logical_workspace_content()
+            page_script = '<script src="../assets/js/workspace.js" defer></script>'
+        else:
+            lede = "Architecture flow, applicable workloads, and comparison-safe latency curves."
+            body = (
+                '<section class="panel"><h2>Module flow</h2><div id="architecture-chart" class="chart chart-tall"></div><div id="architecture-table"></div></section>'
+                '<section class="panel"><h2>Workloads and latency</h2><div id="workload-table"></div></section>'
+                '<section class="panel"><h2>Latency curves</h2><div id="latency-curves" class="chart-grid"></div></section>'
+            )
+            page_script = '<script src="../assets/js/model.js" defer></script>'
         pages[f"models/{model_id}.html"] = render_template(
             template,
             title=f"{model['display_name']} — Embodied Inference Atlas",
             root_prefix="../",
             content=_page_content(
                 str(model["display_name"]),
-                "Architecture flow, applicable workloads, and comparison-safe latency curves.",
-                '<section class="panel"><h2>Module flow</h2><div id="architecture-chart" class="chart chart-tall"></div><div id="architecture-table"></div></section>'
-                '<section class="panel"><h2>Workloads and latency</h2><div id="workload-table"></div></section>'
-                '<section class="panel"><h2>Latency curves</h2><div id="latency-curves" class="chart-grid"></div></section>',
+                lede,
+                body,
                 "../",
             ),
             page_data=model_view,
-            page_script='<script src="../assets/js/model.js" defer></script>',
+            page_script=page_script,
         )
     return pages
 
@@ -214,6 +227,7 @@ def _build_view_models(
     stages = datasets.get("stages", [])
     operators = datasets.get("operators", [])
     rooflines = datasets.get("rooflines", [])
+    model_graph_by_id = _by_id(datasets.get("model_graphs", []), "model_id")
 
     model_by_id = _by_id(models, "model_id")
     runtime_by_id = _by_id(runtimes, "runtime_id")
@@ -308,7 +322,7 @@ def _build_view_models(
     for model in models:
         model_id = str(model["model_id"])
         model_runs = [row for row in joined_runs if row["model_id"] == model_id]
-        model_pages[model_id] = {
+        model_page = {
             "model": model,
             "architecture": architectures.get(
                 model_id,
@@ -317,9 +331,26 @@ def _build_view_models(
             "measurements": model_runs,
             "latency_curves": _latency_curves(runs, joined_runs, model_id),
         }
+        model_graph = model_graph_by_id.get(model_id)
+        if model_graph is not None:
+            model_page["model_graph"] = model_graph
+            model_page["default_materialization"] = materialize_model_graph(model_graph)
+        model_pages[model_id] = model_page
+
+    model_cards = [
+        {
+            **model,
+            "detail_kind": (
+                "logical_workspace"
+                if str(model["model_id"]) in model_graph_by_id
+                else "legacy_summary"
+            ),
+        }
+        for model in models
+    ]
 
     return {
-        "models": models,
+        "models": model_cards,
         "runtimes": runtimes,
         "coverage": coverage,
         "coverage_filters": _coverage_filters(coverage),
@@ -864,10 +895,30 @@ def _nested(row: Mapping[str, object], parent: str, child: str) -> object:
     return value.get(child) if isinstance(value, Mapping) else None
 
 
+def _logical_workspace_content() -> str:
+    return (
+        '<section id="model-summary" class="panel model-summary"></section>'
+        '<section class="panel workload-panel"><h2>Logical workload</h2>'
+        '<div id="workload-controls" class="workload-controls"></div></section>'
+        '<nav id="graph-breadcrumb" class="graph-breadcrumb" aria-label="Logical graph selection"></nav>'
+        '<div id="logical-workspace" class="logical-workspace">'
+        '<section class="panel graph-browser" aria-label="Pi0 logical graph">'
+        '<h2>Model pipeline</h2><div id="stage-flow" class="pipeline stage-flow"></div>'
+        '<h3>Blocks and modules</h3><div id="module-flow" class="pipeline module-flow"></div>'
+        '<div id="component-section"><h3>Components</h3>'
+        '<div id="component-flow" class="pipeline component-flow"></div></div>'
+        '<h3>Atomic operators</h3><div id="operator-flow" class="pipeline operator-flow"></div>'
+        '</section>'
+        '<aside id="operator-detail" class="panel operator-detail" aria-live="polite"></aside>'
+        '</div>'
+        '<p id="phase-scope-note" class="scope-note">Structure-only review: runtime, hardware, precision, profiler, and roofline overlays are outside this slice.</p>'
+    )
+
+
 def _page_content(title: str, lede: str, body: str, root_prefix: str) -> str:
     return (
         '<header class="page-header">'
-        f'<nav class="atlas-nav" aria-label="Primary"><a href="{root_prefix}index.html">Coverage</a>'
+        f'<nav class="atlas-nav" aria-label="Primary"><a href="{root_prefix}index.html">Models</a>'
         f'<a href="{root_prefix}performance.html">Performance</a>'
         f'<a href="{root_prefix}operators.html">Operators</a>'
         f'<a href="{root_prefix}rooflines.html">Rooflines</a></nav>'
