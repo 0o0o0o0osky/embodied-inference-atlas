@@ -41,19 +41,15 @@
         "vision-encoder/vision-blocks/self-attention/value-projection",
       ] },
       { slots: ["vision-encoder/vision-blocks/self-attention/attention"] },
-      { slots: [[
-        "vision-encoder/vision-blocks/self-attention/output-projection",
-        "vision-encoder/vision-blocks/self-attention/attention-residual",
-      ]] },
+      { slots: ["vision-encoder/vision-blocks/self-attention/output-projection"] },
+      { slots: ["vision-encoder/vision-blocks/self-attention/attention-residual"] },
       { gapBefore: true, slots: ["vision-encoder/vision-blocks/feed-forward/mlp-norm"] },
       { slots: [[
         "vision-encoder/vision-blocks/feed-forward/mlp-up-projection",
         "vision-encoder/vision-blocks/feed-forward/mlp-gelu",
       ]] },
-      { slots: [[
-        "vision-encoder/vision-blocks/feed-forward/mlp-down-projection",
-        "vision-encoder/vision-blocks/feed-forward/mlp-residual",
-      ]] },
+      { slots: ["vision-encoder/vision-blocks/feed-forward/mlp-down-projection"] },
+      { slots: ["vision-encoder/vision-blocks/feed-forward/mlp-residual"] },
       { gapBefore: true, slots: ["vision-encoder/vision-final-normalization/normalize"] },
       { slots: ["vision-encoder/vision-projector/project"] },
     ],
@@ -75,24 +71,18 @@
         null,
       ] },
       { slots: ["prefix-encoder/prefix-blocks/self-attention/attention"] },
-      { slots: [[
-        "prefix-encoder/prefix-blocks/self-attention/output-projection",
-        "prefix-encoder/prefix-blocks/self-attention/attention-residual",
-      ]] },
+      { slots: ["prefix-encoder/prefix-blocks/self-attention/output-projection"] },
+      { slots: ["prefix-encoder/prefix-blocks/self-attention/attention-residual"] },
       { slots: [null, "prefix-encoder/prefix-blocks/self-attention/cache-output"] },
       { gapBefore: true, slots: ["prefix-encoder/prefix-blocks/feed-forward/mlp-norm"] },
       { slots: [
         "prefix-encoder/prefix-blocks/feed-forward/gate-projection",
         "prefix-encoder/prefix-blocks/feed-forward/up-projection",
       ] },
-      { slots: [[
-        "prefix-encoder/prefix-blocks/feed-forward/gate-gelu",
-        "prefix-encoder/prefix-blocks/feed-forward/gate-product",
-      ]] },
-      { slots: [[
-        "prefix-encoder/prefix-blocks/feed-forward/down-projection",
-        "prefix-encoder/prefix-blocks/feed-forward/mlp-residual",
-      ]] },
+      { slots: ["prefix-encoder/prefix-blocks/feed-forward/gate-gelu"] },
+      { slots: ["prefix-encoder/prefix-blocks/feed-forward/gate-product"] },
+      { slots: ["prefix-encoder/prefix-blocks/feed-forward/down-projection"] },
+      { slots: ["prefix-encoder/prefix-blocks/feed-forward/mlp-residual"] },
     ],
     "action-flow-decoder": [
       { slots: [
@@ -127,23 +117,17 @@
         "action-flow-decoder/action-expert-blocks/self-attention/value-concat",
       ] },
       { slots: ["action-flow-decoder/action-expert-blocks/self-attention/attention"] },
-      { slots: [[
-        "action-flow-decoder/action-expert-blocks/self-attention/output-projection",
-        "action-flow-decoder/action-expert-blocks/self-attention/attention-residual",
-      ]] },
+      { slots: ["action-flow-decoder/action-expert-blocks/self-attention/output-projection"] },
+      { slots: ["action-flow-decoder/action-expert-blocks/self-attention/attention-residual"] },
       { gapBefore: true, slots: ["action-flow-decoder/action-expert-blocks/feed-forward/mlp-norm"] },
       { slots: [
         "action-flow-decoder/action-expert-blocks/feed-forward/gate-projection",
         "action-flow-decoder/action-expert-blocks/feed-forward/up-projection",
       ] },
-      { slots: [[
-        "action-flow-decoder/action-expert-blocks/feed-forward/gate-gelu",
-        "action-flow-decoder/action-expert-blocks/feed-forward/gate-product",
-      ]] },
-      { slots: [[
-        "action-flow-decoder/action-expert-blocks/feed-forward/down-projection",
-        "action-flow-decoder/action-expert-blocks/feed-forward/mlp-residual",
-      ]] },
+      { slots: ["action-flow-decoder/action-expert-blocks/feed-forward/gate-gelu"] },
+      { slots: ["action-flow-decoder/action-expert-blocks/feed-forward/gate-product"] },
+      { slots: ["action-flow-decoder/action-expert-blocks/feed-forward/down-projection"] },
+      { slots: ["action-flow-decoder/action-expert-blocks/feed-forward/mlp-residual"] },
       { gapBefore: true, slots: [[
         "action-flow-decoder/velocity-euler-update/final-norm",
         "action-flow-decoder/velocity-euler-update/select-action-rows",
@@ -210,10 +194,8 @@
 
   const PI0_PAPER_CONNECTORS = Object.freeze([
     { id: "vision-input", kind: "chain", pairs: [["input/images", "vision-encoder/image-patch-embedding/patch-project"]] },
-    { id: "vision-patch-residual", kind: "residual", pairs: [
-      ["vision-encoder/image-patch-embedding/patch-project", "vision-encoder/vision-blocks/self-attention/attention-norm"],
-      ["vision-encoder/image-patch-embedding/patch-project", "vision-encoder/vision-blocks/self-attention/attention-residual"],
-    ] },
+    { id: "vision-block-entry", kind: "chain", pairs: [["vision-encoder/image-patch-embedding/patch-project", "vision-encoder/vision-blocks/self-attention/attention-norm"]] },
+    { id: "vision-patch-residual", kind: "residual", pairs: [["vision-encoder/image-patch-embedding/patch-project", "vision-encoder/vision-blocks/self-attention/attention-residual"]] },
     { id: "vision-qkv", kind: "branch-out", pairs: [
       ["vision-encoder/vision-blocks/self-attention/attention-norm", "vision-encoder/vision-blocks/self-attention/query-projection"],
       ["vision-encoder/vision-blocks/self-attention/attention-norm", "vision-encoder/vision-blocks/self-attention/key-projection"],
@@ -228,10 +210,8 @@
       ["vision-encoder/vision-blocks/self-attention/attention", "vision-encoder/vision-blocks/self-attention/output-projection"],
       ["vision-encoder/vision-blocks/self-attention/output-projection", "vision-encoder/vision-blocks/self-attention/attention-residual"],
     ] },
-    { id: "vision-ffn-residual", kind: "residual", pairs: [
-      ["vision-encoder/vision-blocks/self-attention/attention-residual", "vision-encoder/vision-blocks/feed-forward/mlp-norm"],
-      ["vision-encoder/vision-blocks/self-attention/attention-residual", "vision-encoder/vision-blocks/feed-forward/mlp-residual"],
-    ] },
+    { id: "vision-ffn-entry", kind: "chain", pairs: [["vision-encoder/vision-blocks/self-attention/attention-residual", "vision-encoder/vision-blocks/feed-forward/mlp-norm"]] },
+    { id: "vision-ffn-residual", kind: "residual", pairs: [["vision-encoder/vision-blocks/self-attention/attention-residual", "vision-encoder/vision-blocks/feed-forward/mlp-residual"]] },
     { id: "vision-ffn-exit", kind: "chain", pairs: [
       ["vision-encoder/vision-blocks/feed-forward/mlp-norm", "vision-encoder/vision-blocks/feed-forward/mlp-up-projection"],
       ["vision-encoder/vision-blocks/feed-forward/mlp-up-projection", "vision-encoder/vision-blocks/feed-forward/mlp-gelu"],
@@ -246,10 +226,8 @@
       ["prefix-encoder/prompt-prefix-builder/flatten-views", "prefix-encoder/prompt-prefix-builder/build-prefix"],
       ["prefix-encoder/prompt-prefix-builder/embed-prompt", "prefix-encoder/prompt-prefix-builder/build-prefix"],
     ] },
-    { id: "prefix-block-residual", kind: "residual", pairs: [
-      ["prefix-encoder/prompt-prefix-builder/build-prefix", "prefix-encoder/prefix-blocks/self-attention/attention-norm"],
-      ["prefix-encoder/prompt-prefix-builder/build-prefix", "prefix-encoder/prefix-blocks/self-attention/attention-residual"],
-    ] },
+    { id: "prefix-block-entry", kind: "chain", pairs: [["prefix-encoder/prompt-prefix-builder/build-prefix", "prefix-encoder/prefix-blocks/self-attention/attention-norm"]] },
+    { id: "prefix-block-residual", kind: "residual", pairs: [["prefix-encoder/prompt-prefix-builder/build-prefix", "prefix-encoder/prefix-blocks/self-attention/attention-residual"]] },
     { id: "prefix-qkv", kind: "branch-out", pairs: [
       ["prefix-encoder/prefix-blocks/self-attention/attention-norm", "prefix-encoder/prefix-blocks/self-attention/query-projection"],
       ["prefix-encoder/prefix-blocks/self-attention/attention-norm", "prefix-encoder/prefix-blocks/self-attention/key-projection"],
@@ -264,7 +242,7 @@
       ["prefix-encoder/prefix-blocks/self-attention/key-rope", "prefix-encoder/prefix-blocks/self-attention/attention"],
       ["prefix-encoder/prefix-blocks/self-attention/value-projection", "prefix-encoder/prefix-blocks/self-attention/attention"],
     ] },
-    { id: "prefix-cache", kind: "cache", pairs: [
+    { id: "prefix-cache", kind: "cache", route: "right-to-top", pairs: [
       ["prefix-encoder/prefix-blocks/self-attention/key-rope", "prefix-encoder/prefix-blocks/self-attention/cache-output"],
       ["prefix-encoder/prefix-blocks/self-attention/value-projection", "prefix-encoder/prefix-blocks/self-attention/cache-output"],
     ] },
@@ -272,10 +250,8 @@
       ["prefix-encoder/prefix-blocks/self-attention/attention", "prefix-encoder/prefix-blocks/self-attention/output-projection"],
       ["prefix-encoder/prefix-blocks/self-attention/output-projection", "prefix-encoder/prefix-blocks/self-attention/attention-residual"],
     ] },
-    { id: "prefix-ffn-residual", kind: "residual", pairs: [
-      ["prefix-encoder/prefix-blocks/self-attention/attention-residual", "prefix-encoder/prefix-blocks/feed-forward/mlp-norm"],
-      ["prefix-encoder/prefix-blocks/self-attention/attention-residual", "prefix-encoder/prefix-blocks/feed-forward/mlp-residual"],
-    ] },
+    { id: "prefix-ffn-entry", kind: "chain", pairs: [["prefix-encoder/prefix-blocks/self-attention/attention-residual", "prefix-encoder/prefix-blocks/feed-forward/mlp-norm"]] },
+    { id: "prefix-ffn-residual", kind: "residual", pairs: [["prefix-encoder/prefix-blocks/self-attention/attention-residual", "prefix-encoder/prefix-blocks/feed-forward/mlp-residual"]] },
     { id: "prefix-gate-up", kind: "branch-out", pairs: [
       ["prefix-encoder/prefix-blocks/feed-forward/mlp-norm", "prefix-encoder/prefix-blocks/feed-forward/gate-projection"],
       ["prefix-encoder/prefix-blocks/feed-forward/mlp-norm", "prefix-encoder/prefix-blocks/feed-forward/up-projection"],
@@ -294,11 +270,9 @@
       ["input/state", "action-flow-decoder/action-suffix-builder/state-projection"],
       ["input/initial-noise", "loop/action-flow-loop"],
     ] },
-    { id: "action-loop-fanout", kind: "branch-out", pairs: [
-      ["loop/action-flow-loop", "action-flow-decoder/action-suffix-builder/action-projection"],
-      ["loop/action-flow-loop", "action-flow-decoder/velocity-euler-update/euler-update"],
-      ["loop/action-flow-loop", "output/final-action-state"],
-    ] },
+    { id: "action-loop-local", kind: "chain", pairs: [["loop/action-flow-loop", "action-flow-decoder/action-suffix-builder/action-projection"]] },
+    { id: "action-loop-euler", kind: "rail", side: "right", railInset: 26, sourceOffset: -5, targetOffset: -7, pairs: [["loop/action-flow-loop", "action-flow-decoder/velocity-euler-update/euler-update"]] },
+    { id: "action-loop-output", kind: "rail", side: "right", railInset: 14, sourceOffset: 5, pairs: [["loop/action-flow-loop", "output/final-action-state"]] },
     { id: "action-time-input", kind: "branch-in", pairs: [
       ["action-flow-decoder/action-suffix-builder/action-projection", "action-flow-decoder/action-suffix-builder/action-time-concat"],
       ["action-flow-decoder/action-suffix-builder/time-embedding", "action-flow-decoder/action-suffix-builder/action-time-concat"],
@@ -308,14 +282,12 @@
       ["action-flow-decoder/action-suffix-builder/time-mlp-in", "action-flow-decoder/action-suffix-builder/time-mlp-silu"],
       ["action-flow-decoder/action-suffix-builder/time-mlp-silu", "action-flow-decoder/action-suffix-builder/time-mlp-out"],
     ] },
-    { id: "action-suffix", kind: "branch-in", pairs: [
+    { id: "action-suffix", kind: "branch-in", route: "top-bus", pairs: [
       ["action-flow-decoder/action-suffix-builder/state-projection", "action-flow-decoder/action-suffix-builder/suffix-concat"],
       ["action-flow-decoder/action-suffix-builder/time-mlp-out", "action-flow-decoder/action-suffix-builder/suffix-concat"],
     ] },
-    { id: "action-block-residual", kind: "residual", pairs: [
-      ["action-flow-decoder/action-suffix-builder/suffix-concat", "action-flow-decoder/action-expert-blocks/self-attention/attention-norm"],
-      ["action-flow-decoder/action-suffix-builder/suffix-concat", "action-flow-decoder/action-expert-blocks/self-attention/attention-residual"],
-    ] },
+    { id: "action-block-entry", kind: "chain", pairs: [["action-flow-decoder/action-suffix-builder/suffix-concat", "action-flow-decoder/action-expert-blocks/self-attention/attention-norm"]] },
+    { id: "action-block-residual", kind: "residual", pairs: [["action-flow-decoder/action-suffix-builder/suffix-concat", "action-flow-decoder/action-expert-blocks/self-attention/attention-residual"]] },
     { id: "prefix-kv-action", kind: "cross", pairs: [
       ["prefix-encoder/prefix-blocks/self-attention/cache-output", "action-flow-decoder/action-expert-blocks/self-attention/extract-prefix-key"],
       ["prefix-encoder/prefix-blocks/self-attention/cache-output", "action-flow-decoder/action-expert-blocks/self-attention/extract-prefix-value"],
@@ -329,16 +301,12 @@
       ["action-flow-decoder/action-expert-blocks/self-attention/query-projection", "action-flow-decoder/action-expert-blocks/self-attention/query-rope"],
       ["action-flow-decoder/action-expert-blocks/self-attention/key-projection", "action-flow-decoder/action-expert-blocks/self-attention/key-rope"],
     ] },
-    { id: "action-key-cache", kind: "cache", pairs: [
-      ["action-flow-decoder/action-expert-blocks/self-attention/extract-prefix-key", "action-flow-decoder/action-expert-blocks/self-attention/key-concat"],
-      ["action-flow-decoder/action-expert-blocks/self-attention/key-rope", "action-flow-decoder/action-expert-blocks/self-attention/key-concat"],
-    ] },
-    { id: "action-value-cache", kind: "cache", pairs: [
-      ["action-flow-decoder/action-expert-blocks/self-attention/extract-prefix-value", "action-flow-decoder/action-expert-blocks/self-attention/value-concat"],
-      ["action-flow-decoder/action-expert-blocks/self-attention/value-projection", "action-flow-decoder/action-expert-blocks/self-attention/value-concat"],
-    ] },
-    { id: "action-attn-input", kind: "branch-in", pairs: [
-      ["action-flow-decoder/action-expert-blocks/self-attention/query-rope", "action-flow-decoder/action-expert-blocks/self-attention/attention"],
+    { id: "action-key-cache", kind: "rail", side: "left", railInset: 22, pairs: [["action-flow-decoder/action-expert-blocks/self-attention/extract-prefix-key", "action-flow-decoder/action-expert-blocks/self-attention/key-concat"]] },
+    { id: "action-key-local", kind: "chain", pairs: [["action-flow-decoder/action-expert-blocks/self-attention/key-rope", "action-flow-decoder/action-expert-blocks/self-attention/key-concat"]] },
+    { id: "action-value-cache", kind: "rail", side: "right", railInset: 22, pairs: [["action-flow-decoder/action-expert-blocks/self-attention/extract-prefix-value", "action-flow-decoder/action-expert-blocks/self-attention/value-concat"]] },
+    { id: "action-value-local", kind: "chain", pairs: [["action-flow-decoder/action-expert-blocks/self-attention/value-projection", "action-flow-decoder/action-expert-blocks/self-attention/value-concat"]] },
+    { id: "action-query-attn", kind: "rail", side: "left", railInset: 32, pairs: [["action-flow-decoder/action-expert-blocks/self-attention/query-rope", "action-flow-decoder/action-expert-blocks/self-attention/attention"]] },
+    { id: "action-attn-input", kind: "branch-in", route: "top-bus", pairs: [
       ["action-flow-decoder/action-expert-blocks/self-attention/key-concat", "action-flow-decoder/action-expert-blocks/self-attention/attention"],
       ["action-flow-decoder/action-expert-blocks/self-attention/value-concat", "action-flow-decoder/action-expert-blocks/self-attention/attention"],
     ] },
@@ -346,10 +314,8 @@
       ["action-flow-decoder/action-expert-blocks/self-attention/attention", "action-flow-decoder/action-expert-blocks/self-attention/output-projection"],
       ["action-flow-decoder/action-expert-blocks/self-attention/output-projection", "action-flow-decoder/action-expert-blocks/self-attention/attention-residual"],
     ] },
-    { id: "action-ffn-residual", kind: "residual", pairs: [
-      ["action-flow-decoder/action-expert-blocks/self-attention/attention-residual", "action-flow-decoder/action-expert-blocks/feed-forward/mlp-norm"],
-      ["action-flow-decoder/action-expert-blocks/self-attention/attention-residual", "action-flow-decoder/action-expert-blocks/feed-forward/mlp-residual"],
-    ] },
+    { id: "action-ffn-entry", kind: "chain", pairs: [["action-flow-decoder/action-expert-blocks/self-attention/attention-residual", "action-flow-decoder/action-expert-blocks/feed-forward/mlp-norm"]] },
+    { id: "action-ffn-residual", kind: "residual", pairs: [["action-flow-decoder/action-expert-blocks/self-attention/attention-residual", "action-flow-decoder/action-expert-blocks/feed-forward/mlp-residual"]] },
     { id: "action-gate-up", kind: "branch-out", pairs: [
       ["action-flow-decoder/action-expert-blocks/feed-forward/mlp-norm", "action-flow-decoder/action-expert-blocks/feed-forward/gate-projection"],
       ["action-flow-decoder/action-expert-blocks/feed-forward/mlp-norm", "action-flow-decoder/action-expert-blocks/feed-forward/up-projection"],
@@ -369,7 +335,7 @@
       ["action-flow-decoder/velocity-euler-update/select-action-rows", "action-flow-decoder/velocity-euler-update/velocity-projection"],
       ["action-flow-decoder/velocity-euler-update/velocity-projection", "action-flow-decoder/velocity-euler-update/euler-update"],
     ] },
-    { id: "euler-feedback", kind: "feedback", pairs: [["action-flow-decoder/velocity-euler-update/euler-update", "loop/action-flow-loop"]] },
+    { id: "euler-feedback", kind: "feedback", railOffset: 6, sourceOffset: 7, pairs: [["action-flow-decoder/velocity-euler-update/euler-update", "loop/action-flow-loop"]] },
   ]);
 
   class ExpressionError extends Error {
@@ -771,13 +737,13 @@
   function updateDagSelection() {
     const selectedKey = operatorKey(state.selection);
     const adjacent = new Set();
-    targets.dag.querySelectorAll(".dag-connector").forEach((connector) => {
+    targets.dag.querySelectorAll(".dag-connector-segment").forEach((connector) => {
       const sources = (connector.getAttribute("data-source-ids") || "").split(" ").filter(Boolean);
       const targets = (connector.getAttribute("data-target-ids") || "").split(" ").filter(Boolean);
       const incident = Boolean(selectedKey) && (sources.includes(selectedKey) || targets.includes(selectedKey));
       connector.classList.toggle("is-incident", incident);
       connector.classList.toggle("is-muted", Boolean(selectedKey) && !incident);
-      if (incident) {
+      if (incident && connector.classList.contains("dag-connector-pair")) {
         sources.concat(targets).forEach((nodeId) => {
           if (nodeId !== selectedKey) adjacent.add(nodeId);
         });
@@ -1477,24 +1443,42 @@
     group.appendChild(svgElement("path", attributes));
   }
 
-  function renderConnectorPair(group, sourceBox, targetBox) {
+  function paperConnectorSegment(group, sourceIds, targetIds, kind) {
+    const segment = svgElement("g", {
+      class: `dag-connector-segment dag-connector-${kind}`,
+      "data-source-ids": sourceIds.join(" "),
+      "data-target-ids": targetIds.join(" "),
+    });
+    group.appendChild(segment);
+    return segment;
+  }
+
+  function paperPairSegment(group, sourceId, targetId) {
+    return paperConnectorSegment(group, [sourceId], [targetId], "pair");
+  }
+
+  function renderConnectorPair(group, sourceId, targetId, layout) {
+    const sourceBox = layout.positions.get(sourceId);
+    const targetBox = layout.positions.get(targetId);
+    if (!sourceBox || !targetBox) return;
+    const segment = paperPairSegment(group, sourceId, targetId);
     const source = paperBoxAnchor(sourceBox);
     const target = paperBoxAnchor(targetBox);
     if (Math.abs(source.y - target.y) < 3) {
-      if (source.x < target.x) appendConnectorPath(group, `M ${source.right} ${source.y} H ${target.left}`, true);
-      else appendConnectorPath(group, `M ${source.left} ${source.y} H ${target.right}`, true);
+      if (source.x < target.x) appendConnectorPath(segment, `M ${source.right} ${source.y} H ${target.left}`, true);
+      else appendConnectorPath(segment, `M ${source.left} ${source.y} H ${target.right}`, true);
       return;
     }
     if (target.top >= source.bottom) {
-      const bendY = source.bottom + Math.max(5, (target.top - source.bottom) / 2);
-      appendConnectorPath(group, `M ${source.x} ${source.bottom} V ${bendY} H ${target.x} V ${target.top}`, true);
+      const bendY = (source.bottom + target.top) / 2;
+      appendConnectorPath(segment, `M ${source.x} ${source.bottom} V ${bendY} H ${target.x} V ${target.top}`, true);
       return;
     }
     const railX = Math.max(source.right, target.right) + 10;
-    appendConnectorPath(group, `M ${source.right} ${source.y} H ${railX} V ${target.y} H ${target.right}`, true);
+    appendConnectorPath(segment, `M ${source.right} ${source.y} H ${railX} V ${target.y} H ${target.right}`, true);
   }
 
-  function renderBranchOut(group, descriptor, layout, model) {
+  function renderBranchOut(group, descriptor, layout) {
     const bySource = new Map();
     descriptor.pairs.forEach(([source, target]) => {
       if (!bySource.has(source)) bySource.set(source, []);
@@ -1505,46 +1489,34 @@
       const targetBoxes = targetIds.map((id) => layout.positions.get(id));
       if (!sourceBox || targetBoxes.some((box) => !box)) return;
       if (targetBoxes.length === 1) {
-        renderConnectorPair(group, sourceBox, targetBoxes[0]);
+        renderConnectorPair(group, sourceId, targetIds[0], layout);
         return;
       }
       const source = paperBoxAnchor(sourceBox);
       const targets = targetBoxes.map(paperBoxAnchor);
-      const longRail = Math.max(...targets.map((target) => target.y)) - Math.min(...targets.map((target) => target.y)) > 76
-        || targets.some((target) => target.top <= source.bottom);
-      if (longRail) {
-        const stage = paperStageForNode(layout, model, sourceId);
-        const railX = stage ? stage.x + stage.width - 13 : Math.max(...targets.map((target) => target.right)) + 12;
-        appendConnectorPath(
-          group,
-          `M ${source.right} ${source.y} H ${railX} V ${Math.max(...targets.map((target) => target.y))}`,
-          false,
-        );
-        targets.forEach((target) => appendConnectorPath(group, `M ${railX} ${target.y} H ${target.right}`, true));
-        return;
-      }
-      const busY = source.bottom + Math.max(5, (Math.min(...targets.map((target) => target.top)) - source.bottom) / 2);
+      const busY = (source.bottom + Math.min(...targets.map((target) => target.top))) / 2;
       const minimumX = Math.min(...targets.map((target) => target.x));
       const maximumX = Math.max(...targets.map((target) => target.x));
-      appendConnectorPath(group, `M ${source.x} ${source.bottom} V ${busY} M ${minimumX} ${busY} H ${maximumX}`, false);
-      targets.forEach((target) => appendConnectorPath(group, `M ${target.x} ${busY} V ${target.top}`, true));
+      const shared = paperConnectorSegment(group, [sourceId], targetIds, "shared");
+      appendConnectorPath(shared, `M ${source.x} ${source.bottom} V ${busY} M ${minimumX} ${busY} H ${maximumX}`, false);
+      targets.forEach((target, index) => {
+        const pair = paperPairSegment(group, sourceId, targetIds[index]);
+        appendConnectorPath(pair, `M ${target.x} ${busY} V ${target.top}`, true);
+      });
     });
   }
 
-  function renderSideFanIn(group, sourceBoxes, targetBox, stage, side) {
+  function renderRightToTopFanIn(group, sourceIds, targetId, sourceBoxes, targetBox, stage) {
     const sources = sourceBoxes.map(paperBoxAnchor);
     const target = paperBoxAnchor(targetBox);
-    const railX = side === "left" ? stage.x + 13 : stage.x + stage.width - 13;
-    const sourceYs = sources.map((source) => source.y);
-    const startY = Math.min(...sourceYs, target.y);
-    const endY = Math.max(...sourceYs, target.y);
-    appendConnectorPath(group, `M ${railX} ${startY} V ${endY}`, false);
-    sources.forEach((source) => {
-      const sourceX = side === "left" ? source.left : source.right;
-      appendConnectorPath(group, `M ${sourceX} ${source.y} H ${railX}`, false);
+    const railX = stage.x + stage.width - 13;
+    const busY = target.top - 7;
+    sources.forEach((source, index) => {
+      const pair = paperPairSegment(group, sourceIds[index], targetId);
+      appendConnectorPath(pair, `M ${source.right} ${source.y} H ${railX}`, false);
     });
-    const targetX = side === "left" ? target.left : target.right;
-    appendConnectorPath(group, `M ${railX} ${target.y} H ${targetX}`, true);
+    const shared = paperConnectorSegment(group, sourceIds, [targetId], "shared");
+    appendConnectorPath(shared, `M ${railX} ${Math.min(...sources.map((source) => source.y))} V ${busY} H ${target.x} V ${target.top}`, true);
   }
 
   function renderBranchIn(group, descriptor, layout, model) {
@@ -1558,24 +1530,25 @@
       const sourceBoxes = sourceIds.map((id) => layout.positions.get(id));
       if (!targetBox || sourceBoxes.some((box) => !box)) return;
       if (sourceBoxes.length === 1) {
-        renderConnectorPair(group, sourceBoxes[0], targetBox);
+        renderConnectorPair(group, sourceIds[0], targetId, layout);
         return;
       }
       const target = paperBoxAnchor(targetBox);
       const sources = sourceBoxes.map(paperBoxAnchor);
       const stage = paperStageForNode(layout, model, targetId);
-      const spread = Math.max(...sources.map((source) => source.y)) - Math.min(...sources.map((source) => source.y));
-      if (descriptor.kind === "cache" || spread > 76) {
-        const side = target.x < stage.x + stage.width / 2 ? "left" : "right";
-        renderSideFanIn(group, sourceBoxes, targetBox, stage, side);
+      if (descriptor.route === "right-to-top") {
+        renderRightToTopFanIn(group, sourceIds, targetId, sourceBoxes, targetBox, stage);
         return;
       }
-      const busY = target.top - Math.max(5, (target.top - Math.max(...sources.map((source) => source.bottom))) / 2);
+      const busY = (target.top + Math.max(...sources.map((source) => source.bottom))) / 2;
       const minimumX = Math.min(...sources.map((source) => source.x), target.x);
       const maximumX = Math.max(...sources.map((source) => source.x), target.x);
-      sources.forEach((source) => appendConnectorPath(group, `M ${source.x} ${source.bottom} V ${busY}`, false));
-      appendConnectorPath(group, `M ${minimumX} ${busY} H ${maximumX}`, false);
-      appendConnectorPath(group, `M ${target.x} ${busY} V ${target.top}`, true);
+      sources.forEach((source, index) => {
+        const pair = paperPairSegment(group, sourceIds[index], targetId);
+        appendConnectorPath(pair, `M ${source.x} ${source.bottom} V ${busY}`, false);
+      });
+      const shared = paperConnectorSegment(group, sourceIds, [targetId], "shared");
+      appendConnectorPath(shared, `M ${minimumX} ${busY} H ${maximumX} M ${target.x} ${busY} V ${target.top}`, true);
     });
   }
 
@@ -1593,19 +1566,19 @@
       const source = paperBoxAnchor(sourceBox);
       const targets = targetBoxes.map(paperBoxAnchor);
       const railX = stage.x + 13;
-      appendConnectorPath(group, `M ${source.left} ${source.y} H ${railX} V ${Math.max(...targets.map((target) => target.y))}`, false);
-      targets.forEach((target) => appendConnectorPath(group, `M ${railX} ${target.y} H ${target.left}`, true));
+      targets.forEach((target, index) => {
+        const pair = paperPairSegment(group, sourceId, targetIds[index]);
+        const sourceX = source.x - Math.min(12, sourceBox.width / 4);
+        const turnY = source.bottom + 6;
+        appendConnectorPath(pair, `M ${sourceX} ${source.bottom} V ${turnY} H ${railX} V ${target.y} H ${target.left}`, true);
+      });
     });
   }
 
   function renderCrossConnector(group, descriptor, layout, model) {
     const sourceIds = [...new Set(descriptor.pairs.map(([source]) => source))];
     if (sourceIds.length !== 1) {
-      descriptor.pairs.forEach(([sourceId, targetId]) => renderConnectorPair(
-        group,
-        layout.positions.get(sourceId),
-        layout.positions.get(targetId),
-      ));
+      descriptor.pairs.forEach(([sourceId, targetId]) => renderConnectorPair(group, sourceId, targetId, layout));
       return;
     }
     const sourceId = sourceIds[0];
@@ -1619,12 +1592,38 @@
     const targets = targetBoxes.map(paperBoxAnchor);
     const gapX = (sourceStage.x + sourceStage.width + targetStage.x) / 2;
     if (targets.length === 1) {
-      appendConnectorPath(group, `M ${source.right} ${source.y} H ${gapX} V ${targets[0].y} H ${targets[0].left}`, true);
+      const pair = paperPairSegment(group, sourceId, targetIds[0]);
+      appendConnectorPath(pair, `M ${source.right} ${source.y} H ${gapX} V ${targets[0].y} H ${targets[0].left}`, true);
       return;
     }
     const busY = Math.min(...targets.map((target) => target.top)) - 7;
-    appendConnectorPath(group, `M ${source.right} ${source.y} H ${gapX} V ${busY} H ${Math.max(...targets.map((target) => target.x))}`, false);
-    targets.forEach((target) => appendConnectorPath(group, `M ${target.x} ${busY} V ${target.top}`, true));
+    const shared = paperConnectorSegment(group, [sourceId], targetIds, "shared");
+    appendConnectorPath(shared, `M ${source.right} ${source.y} H ${gapX} V ${busY} H ${Math.max(...targets.map((target) => target.x))}`, false);
+    targets.forEach((target, index) => {
+      const pair = paperPairSegment(group, sourceId, targetIds[index]);
+      appendConnectorPath(pair, `M ${target.x} ${busY} V ${target.top}`, true);
+    });
+  }
+
+  function renderRail(group, descriptor, layout, model) {
+    descriptor.pairs.forEach(([sourceId, targetId]) => {
+      const sourceBox = layout.positions.get(sourceId);
+      const targetBox = layout.positions.get(targetId);
+      const stage = paperStageForNode(layout, model, sourceId);
+      if (!sourceBox || !targetBox || !stage) return;
+      const source = paperBoxAnchor(sourceBox);
+      const target = paperBoxAnchor(targetBox);
+      const inset = descriptor.railInset || 18;
+      const railX = descriptor.side === "left"
+        ? stage.x + inset
+        : stage.x + stage.width - inset;
+      const sourceX = descriptor.side === "left" ? source.left : source.right;
+      const targetX = descriptor.side === "left" ? target.left : target.right;
+      const sourceY = source.y + (descriptor.sourceOffset || 0);
+      const targetY = target.y + (descriptor.targetOffset || 0);
+      const pair = paperPairSegment(group, sourceId, targetId);
+      appendConnectorPath(pair, `M ${sourceX} ${sourceY} H ${railX} V ${targetY} H ${targetX}`, true);
+    });
   }
 
   function renderFeedback(group, descriptor, layout, model) {
@@ -1635,8 +1634,10 @@
       if (!sourceBox || !targetBox || !stage) return;
       const source = paperBoxAnchor(sourceBox);
       const target = paperBoxAnchor(targetBox);
-      const railX = stage.x + stage.width - 6;
-      appendConnectorPath(group, `M ${source.right} ${source.y} H ${railX} V ${target.y} H ${target.right}`, true);
+      const railX = stage.x + stage.width + (descriptor.railOffset || 6);
+      const sourceY = source.y + (descriptor.sourceOffset || 0);
+      const pair = paperPairSegment(group, sourceId, targetId);
+      appendConnectorPath(pair, `M ${source.right} ${sourceY} H ${railX} V ${target.y} H ${target.right}`, true);
     });
   }
 
@@ -1652,16 +1653,13 @@
       "data-target-ids": targetIds.join(" "),
       "data-pair-count": descriptor.pairs.length,
     });
-    if (descriptor.kind === "branch-out") renderBranchOut(group, descriptor, layout, model);
+    if (descriptor.kind === "branch-out") renderBranchOut(group, descriptor, layout);
     else if (descriptor.kind === "branch-in" || descriptor.kind === "cache") renderBranchIn(group, descriptor, layout, model);
     else if (descriptor.kind === "residual") renderResidual(group, descriptor, layout, model);
     else if (descriptor.kind === "cross") renderCrossConnector(group, descriptor, layout, model);
+    else if (descriptor.kind === "rail") renderRail(group, descriptor, layout, model);
     else if (descriptor.kind === "feedback") renderFeedback(group, descriptor, layout, model);
-    else descriptor.pairs.forEach(([sourceId, targetId]) => renderConnectorPair(
-      group,
-      layout.positions.get(sourceId),
-      layout.positions.get(targetId),
-    ));
+    else descriptor.pairs.forEach(([sourceId, targetId]) => renderConnectorPair(group, sourceId, targetId, layout));
     svg.appendChild(group);
   }
 

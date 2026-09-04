@@ -889,11 +889,11 @@ body {
   stroke-dasharray: 3 3;
 }
 
-.dag-connector.is-muted path {
+.dag-connector-segment.is-muted path {
   opacity: 0.12;
 }
 
-.dag-connector.is-incident path {
+.dag-connector-segment.is-incident path {
   stroke: #087f78;
   stroke-width: 2.5;
   opacity: 1;
