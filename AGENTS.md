@@ -7,4 +7,5 @@ This repository stores sanitized inference evidence and generated offline report
 - Importers write `.local/staging`; only `tools/promote.py --apply` writes canonical `data/`.
 - Preserve missing values and evidence type. Never convert missing profiler metrics to zero.
 - Only compare records through the declared single-axis comparison policy.
-- Before committing run `python3 -m unittest`, `python3 -m tools.validate --all`, and `python3 -m tools.build --check`.
+- Local commands: `python3 -m unittest`, `python3 -m tools.validate --all`, `python3 -m tools.build`, and `python3 -m tools.build --check`.
+- Open the generated report at `site/index.html`; commit deterministic `site/` output when a task requires a release snapshot.

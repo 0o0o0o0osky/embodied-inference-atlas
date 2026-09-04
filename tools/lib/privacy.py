@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import ipaddress
 import json
 import os
@@ -47,6 +48,7 @@ _CREDENTIAL_QUERY_SUFFIXES = (
     "_accesskey", "_access_key", "_credential", "_password", "_secret",
     "_sig", "_signature", "_token",
 )
+_ECHARTS_SHA256 = "bf4a223524e40b77c304bec67e1222cf551f14880cf42c69dc046558e11c07b1"
 
 
 def scan_json(value: object, path: str = "$") -> list[Issue]:
@@ -125,6 +127,24 @@ def scan_release_tree(root: Path) -> list[Issue]:
             relative = path.relative_to(root)
             issues.extend(_scan_release_file(path, relative))
     return issues
+
+
+def scan_site_tree(root: Path) -> list[Issue]:
+    """Scan a generated site, allowing only the pinned ECharts ``::`` token."""
+    issues = scan_release_tree(root)
+    asset = root / "assets" / "vendor" / "echarts.min.js"
+    if not asset.is_file():
+        return issues
+    digest = hashlib.sha256(asset.read_bytes()).hexdigest()
+    if digest != _ECHARTS_SHA256:
+        return issues
+    return [
+        issue for issue in issues
+        if not (
+            issue.path == "$/assets/vendor/echarts.min.js"
+            and issue.code == "ip_address"
+        )
+    ]
 
 
 def scan_release_name(path: Path, *, symlink: bool = False) -> list[Issue]:

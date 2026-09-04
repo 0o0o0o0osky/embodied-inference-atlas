@@ -10,7 +10,12 @@ from pathlib import Path
 
 from tools.lib.contracts import Issue, load_manifest, validate_document
 from tools.lib.jsonio import load_json
-from tools.lib.privacy import scan_json, scan_release_name, scan_release_tree
+from tools.lib.privacy import (
+    scan_json,
+    scan_release_name,
+    scan_release_tree,
+    scan_site_tree,
+)
 
 
 def validate_repository(repo_root: Path) -> list[Issue]:
@@ -161,7 +166,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     issues = validate_repository(repo_root) if args.all else validate_staged(repo_root)
     site_root = repo_root / "site"
     if args.all and (site_root.exists() or site_root.is_symlink()):
-        issues.extend(scan_release_tree(site_root))
+        issues.extend(scan_site_tree(site_root))
     for issue in issues:
         print(format_issue(issue), file=sys.stderr)
     return 1 if issues else 0

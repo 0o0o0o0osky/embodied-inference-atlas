@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import hashlib
 import html
 import json
 import os
@@ -16,11 +15,8 @@ from string import Template
 from tools.lib.contracts import Issue, load_manifest
 from tools.lib.comparison import assign_group_ids, ratio_eligibility
 from tools.lib.jsonio import load_json
-from tools.lib.privacy import scan_release_tree
+from tools.lib.privacy import scan_site_tree
 from tools.validate import format_issue, validate_repository
-
-
-_ECHARTS_SHA256 = "bf4a223524e40b77c304bec67e1222cf551f14880cf42c69dc046558e11c07b1"
 
 
 @dataclass(frozen=True)
@@ -66,7 +62,7 @@ def build_site(repo_root: Path, output_dir: Path, check: bool = False) -> BuildR
     try:
         write_pages(candidate, pages)
         copy_static_assets(repo_root, candidate)
-        issues = _release_issues(candidate)
+        issues = scan_site_tree(candidate)
         if issues:
             raise BuildError(format_issues(issues))
         if not check:
@@ -866,24 +862,6 @@ def replace_tree(candidate: Path, output_dir: Path) -> None:
 
 def format_issues(issues: list[Issue]) -> str:
     return "\n".join(format_issue(issue) for issue in issues)
-
-
-def _release_issues(root: Path) -> list[Issue]:
-    """Scan the release, exempting only the pinned ECharts regex's ``::`` token."""
-    issues = scan_release_tree(root)
-    asset = root / "assets" / "vendor" / "echarts.min.js"
-    if not asset.is_file():
-        return issues
-    digest = hashlib.sha256(asset.read_bytes()).hexdigest()
-    if digest != _ECHARTS_SHA256:
-        return issues
-    return [
-        issue for issue in issues
-        if not (
-            issue.path == "$/assets/vendor/echarts.min.js"
-            and issue.code == "ip_address"
-        )
-    ]
 
 
 def _canonical_document_paths(data_root: Path, entry: Mapping[str, object]) -> list[Path]:
