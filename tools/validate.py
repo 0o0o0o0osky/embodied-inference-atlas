@@ -16,6 +16,7 @@ from tools.lib.privacy import (
     scan_release_tree,
     scan_site_tree,
 )
+from tools.lib.runtime_realization import runtime_realization_problems
 
 
 def validate_repository(repo_root: Path) -> list[Issue]:
@@ -79,6 +80,11 @@ def validate_references(datasets: Mapping[str, list[Mapping]]) -> list[Issue]:
         (record.get("model_id"), artifact.get("artifact_id"))
         for record in datasets.get("models", [])
         for artifact in _mapping_list(record.get("artifacts"))
+    }
+    model_graphs = {
+        record.get("model_graph_id"): record
+        for record in datasets.get("model_graphs", [])
+        if isinstance(record.get("model_graph_id"), str)
     }
 
     for index, record in enumerate(datasets.get("models", [])):
@@ -153,6 +159,100 @@ def validate_references(datasets: Mapping[str, list[Mapping]]) -> list[Issue]:
         _check(issues, f"{base}.operator_id", record.get("operator_id"), operators)
         _check(issues, f"{base}.device_id", record.get("device_id"), devices)
         _check(issues, f"{base}.source_id", record.get("source_id"), sources)
+    configurations = {
+        record.get("configuration_id"): record
+        for record in datasets.get("runs", [])
+        if isinstance(record.get("configuration_id"), str)
+    }
+    runtime_records = {
+        record.get("runtime_id"): record
+        for record in datasets.get("runtimes", [])
+        if isinstance(record.get("runtime_id"), str)
+    }
+    for index, record in enumerate(datasets.get("runtime_realizations", [])):
+        base = f"$.runtime_realizations[{index}]"
+        model_id = record.get("model_id")
+        graph_id = record.get("model_graph_id")
+        runtime_id = record.get("runtime_id")
+        _check(issues, f"{base}.model_id", model_id, models)
+        _check(issues, f"{base}.model_graph_id", graph_id, set(model_graphs))
+        _check(issues, f"{base}.runtime_id", runtime_id, runtimes)
+        _check_many(issues, f"{base}.device_ids", record.get("device_ids"), devices)
+        for artifact_index, artifact_id in enumerate(record.get("model_artifact_ids", [])):
+            if isinstance(artifact_id, str) and (model_id, artifact_id) not in artifacts:
+                issues.append(_broken(f"{base}.model_artifact_ids[{artifact_index}]"))
+        runtime = runtime_records.get(runtime_id)
+        if isinstance(runtime, Mapping) and record.get("runtime_revision") != runtime.get("public_commit"):
+            issues.append(
+                Issue(
+                    f"{base}.runtime_revision",
+                    "revision_mismatch",
+                    "realization revision must match the runtime catalog",
+                )
+            )
+        local_problems = runtime_realization_problems(
+            record, model_graphs.get(graph_id) if isinstance(graph_id, str) else None
+        )
+        issues.extend(
+            Issue(f"{base}{problem.path[1:]}", problem.code, problem.message)
+            for problem in local_problems
+        )
+        for evidence_index, evidence in enumerate(_mapping_list(record.get("evidence"))):
+            evidence_base = f"{base}.evidence[{evidence_index}]"
+            if evidence.get("source_id") is not None:
+                _check(issues, f"{evidence_base}.source_id", evidence.get("source_id"), sources)
+            if (
+                evidence.get("kind") == "source_code"
+                and isinstance(runtime, Mapping)
+                and evidence.get("revision") != runtime.get("public_commit")
+            ):
+                issues.append(
+                    Issue(
+                        f"{evidence_base}.revision",
+                        "revision_mismatch",
+                        "source evidence revision must match the runtime catalog",
+                    )
+                )
+            _check_many(issues, f"{evidence_base}.run_ids", evidence.get("run_ids"), runs)
+        if record.get("availability") == "measured":
+            artifact_ids = set(record.get("model_artifact_ids", []))
+            device_ids = set(record.get("device_ids", []))
+            precision_ids = {
+                precision.get("precision_path_id")
+                for precision in _mapping_list(record.get("precision_paths"))
+            }
+            configuration_ids = record.get("configuration_ids", [])
+            if not artifact_ids or not configuration_ids or not device_ids:
+                issues.append(
+                    Issue(
+                        base,
+                        "measured_applicability",
+                        "measured realizations require artifact, configuration, and device IDs",
+                    )
+                )
+            for configuration_index, configuration_id in enumerate(configuration_ids):
+                configuration = configurations.get(configuration_id)
+                configuration_path = f"{base}.configuration_ids[{configuration_index}]"
+                if configuration is None:
+                    issues.append(_broken(configuration_path))
+                    continue
+                precision = configuration.get("precision")
+                precision_id = precision.get("precision_id") if isinstance(precision, Mapping) else None
+                compatible = (
+                    configuration.get("model_id") == model_id
+                    and configuration.get("runtime_id") == runtime_id
+                    and configuration.get("model_artifact_id") in artifact_ids
+                    and configuration.get("device_id") in device_ids
+                    and precision_id in precision_ids
+                )
+                if not compatible:
+                    issues.append(
+                        Issue(
+                            configuration_path,
+                            "configuration_mismatch",
+                            "configuration does not match realization applicability",
+                        )
+                    )
     return issues
 
 

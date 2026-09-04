@@ -8,6 +8,7 @@ const DATASET_NAMES = [
   "model_graphs",
   "operators",
   "rooflines",
+  "runtime_realizations",
   "runs",
   "runtimes",
   "sources",

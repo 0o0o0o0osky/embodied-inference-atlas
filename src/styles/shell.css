@@ -360,7 +360,7 @@
 
 .context-bar label > span {
   color: #4f5d58;
-  font-size: 0.72rem;
+  font-size: 1rem;
   font-weight: 700;
 }
 
@@ -375,7 +375,7 @@
   color: var(--graphite);
   background: var(--white);
   font-family: var(--mono-face);
-  font-size: 0.76rem;
+  font-size: 1rem;
 }
 
 .workbench-tabs {

@@ -22,6 +22,20 @@ export interface RouteState {
 
 export type RoutePatch = Partial<RouteState>;
 
+export function logicalEntity(ref: string): string {
+  return `logical:${encodeURIComponent(ref)}`;
+}
+
+export function logicalRefFromEntity(entity: string | null): string | null {
+  if (!entity) return null;
+  if (!entity.startsWith("logical:")) return entity.startsWith("runtime-group:") ? null : entity;
+  try {
+    return decodeURIComponent(entity.slice("logical:".length));
+  } catch {
+    return null;
+  }
+}
+
 const ROUTE_FIELDS = [
   "model",
   "runtime",

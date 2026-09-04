@@ -1,6 +1,11 @@
 import { useMemo } from "react";
 
-import type { RoutePatch, RouteState } from "../../app/routes";
+import {
+  logicalEntity,
+  logicalRefFromEntity,
+  type RoutePatch,
+  type RouteState,
+} from "../../app/routes";
 import type { AtlasData, CanonicalRecord, ModelRecord } from "../../types/atlas";
 import { DerivedSymbols } from "./components/DerivedSymbols";
 import { GraphBreadcrumb } from "./components/GraphBreadcrumb";
@@ -87,7 +92,8 @@ function ResolvedModelGraph({
     [layout, profile.presentation, structuralDag],
   );
   const firstOperator = [...dag.nodes.values()].find((node) => node.kind === "operator");
-  const routedNode = route.entity ? dag.nodes.get(route.entity) : undefined;
+  const routedRef = logicalRefFromEntity(route.entity);
+  const routedNode = routedRef ? dag.nodes.get(routedRef) : undefined;
   const selectedNode = routedNode?.detail ? routedNode : firstOperator;
   const operator = selectedNode?.detail ?? null;
   const resolvedRef = operator?.ref ?? "";
@@ -156,7 +162,7 @@ function ResolvedModelGraph({
             presentation={profile.presentation}
             selectedRef={resolvedRef}
             relatedRefs={related}
-            onSelect={(ref) => navigate({ entity: ref }, true)}
+            onSelect={(ref) => navigate({ entity: logicalEntity(ref) }, true)}
             ariaLabel={profile.diagramLabel}
           />
         </section>

@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, type ReactNode } from "react";
 
 import type {
   ConnectorResolution,
@@ -21,6 +21,7 @@ interface LogicalDagSvgProps {
   relatedRefs: ReadonlySet<string>;
   onSelect: (ref: string) => void;
   ariaLabel: string;
+  overlay?: ReactNode;
 }
 
 function shortScopeLabel(moduleId: string | null, fallback: string) {
@@ -42,6 +43,19 @@ function nodeAlias(node: LogicalNode, presentation: GraphPresentation) {
 function nodeDescription(node: LogicalNode) {
   if (!node.detail) return `${node.label}. ${node.definitionId.replaceAll("-", " ")}.`;
   return `${node.label}. ${node.detail.definitionLabel}. ${node.detail.formula}`;
+}
+
+function layoutFingerprint(layout: LogicalLayout) {
+  const source = [...layout.nodeBoxes]
+    .sort(([first], [second]) => first.localeCompare(second))
+    .map(([ref, box]) => `${ref}@${box.x},${box.y},${box.width},${box.height}`)
+    .join("|");
+  let hash = 2166136261;
+  for (let index = 0; index < source.length; index += 1) {
+    hash ^= source.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  return `${layout.width}x${layout.height}:${layout.nodeBoxes.size}:${(hash >>> 0).toString(16)}`;
 }
 
 function ScopeBadge({ scope, box }: { scope: LogicalScope; box: ScopeBox }) {
@@ -138,6 +152,7 @@ export function LogicalDagSvg({
   relatedRefs,
   onSelect,
   ariaLabel,
+  overlay,
 }: LogicalDagSvgProps) {
   const selected = Boolean(selectedRef);
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -189,6 +204,8 @@ export function LogicalDagSvg({
         data-routed-truth-edge-count={connectors.coverage.routedEdgeIds.length}
         data-folded-truth-edge-count={connectors.coverage.foldedEdges.length}
         data-uncovered-truth-edge-count={connectors.coverage.uncoveredEdgeIds.length}
+        data-layout-fingerprint={layoutFingerprint(layout)}
+        data-viewport-contract="authored-scale-horizontal-pan"
       >
         <defs>
           <marker
@@ -294,6 +311,8 @@ export function LogicalDagSvg({
             </g>
           );
         })}
+
+        {overlay}
 
         {connectors.invalidHints.map((item, index) => (
           <text className="logical-warning" key={item.id} x={24} y={layout.height - 20 - index * 16}>

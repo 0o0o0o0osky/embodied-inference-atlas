@@ -23,7 +23,7 @@ export function ContextBar({ data, model, route, navigate }: ContextBarProps) {
         <select
           value={route.runtime ?? ""}
           onChange={(event) =>
-            navigate({ runtime: event.target.value || null })
+            navigate({ runtime: event.target.value || null, precision: null, entity: null })
           }
         >
           <option value="">Logical model only</option>
@@ -76,11 +76,11 @@ export function ContextBar({ data, model, route, navigate }: ContextBarProps) {
       </label>
 
       <label>
-        <span>Precision scenario</span>
+        <span>{route.tab === "runtime" ? "Actual runtime precision" : "Precision scenario"}</span>
         <input
           type="text"
           value={route.precision ?? ""}
-          placeholder="dense-bf16"
+          placeholder={route.tab === "runtime" ? "actual-precision-id" : "dense-bf16"}
           onChange={(event) =>
             navigate({ precision: event.target.value || null }, true)
           }

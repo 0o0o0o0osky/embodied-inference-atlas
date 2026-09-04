@@ -1,0 +1,151 @@
+{
+  "dataset": "runtime_realizations",
+  "record": {
+    "type": "object",
+    "required": [
+      "realization_id", "model_id", "model_graph_id", "runtime_id",
+      "runtime_revision", "availability", "availability_reason_code",
+      "mapping_level", "mapping_coverage", "model_artifact_ids",
+      "configuration_ids", "device_ids", "launch", "workload_applicability",
+      "precision_paths", "evidence", "execution_groups", "mappings"
+    ],
+    "additional_properties": false,
+    "properties": {
+      "realization_id": {"type": "string", "min_length": 1, "max_length": 120},
+      "model_id": {"type": "string", "min_length": 1, "max_length": 80},
+      "model_graph_id": {"type": "string", "min_length": 1, "max_length": 80},
+      "runtime_id": {"type": "string", "min_length": 1, "max_length": 80},
+      "runtime_revision": {"type": "string", "min_length": 1, "max_length": 80},
+      "availability": {"type": "string", "enum": ["measured", "source_audited", "unmeasured", "not_supported"]},
+      "availability_reason_code": {"type": "string", "min_length": 1, "max_length": 120},
+      "mapping_level": {"type": "string", "enum": ["custom_runtime", "ggml_graph", "pytorch_eager", "kernel_correlated", "none"]},
+      "mapping_coverage": {"type": "string", "enum": ["complete_at_level", "partial", "opaque", "none"]},
+      "model_artifact_ids": {"type": "array", "items": {"type": "string", "min_length": 1, "max_length": 120}},
+      "configuration_ids": {"type": "array", "items": {"type": "string", "min_length": 1, "max_length": 120}},
+      "device_ids": {"type": "array", "items": {"type": "string", "min_length": 1, "max_length": 80}},
+      "launch": {
+        "type": "object",
+        "required": ["submission_mode", "cuda_graph_state", "capture_scope", "evidence_ids"],
+        "additional_properties": false,
+        "properties": {
+          "submission_mode": {"type": "string", "enum": ["eager_dispatch", "cuda_graph_replay", "backend_graph_compute", "none"]},
+          "cuda_graph_state": {"type": "string", "enum": ["present", "absent", "unknown", "not_applicable"]},
+          "capture_scope": {"type": "string", "enum": ["stage_partitioned", "whole_prediction", "backend_managed", "none", "unknown"]},
+          "evidence_ids": {"type": "array", "items": {"type": "string", "min_length": 1, "max_length": 120}}
+        }
+      },
+      "workload_applicability": {
+        "type": "object",
+        "required": ["runtime_action_horizon", "runtime_internal_action_dimension", "public_action_horizon", "public_action_dimension", "denoise_steps", "missing_reason_code", "evidence_ids"],
+        "additional_properties": false,
+        "properties": {
+          "runtime_action_horizon": {"type": ["integer", "null"], "minimum": 1},
+          "runtime_internal_action_dimension": {"type": ["integer", "null"], "minimum": 1},
+          "public_action_horizon": {"type": ["integer", "null"], "minimum": 1},
+          "public_action_dimension": {"type": ["integer", "null"], "minimum": 1},
+          "denoise_steps": {"type": ["integer", "null"], "minimum": 1},
+          "missing_reason_code": {"type": ["string", "null"], "min_length": 1, "max_length": 120},
+          "evidence_ids": {"type": "array", "items": {"type": "string", "min_length": 1, "max_length": 120}}
+        }
+      },
+      "precision_paths": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["precision_path_id", "label", "weight_dtype", "activation_dtype", "accumulation_dtype", "output_dtype", "quant_scheme", "missing_fields", "missing_reason_code", "evidence_ids"],
+          "additional_properties": false,
+          "properties": {
+            "precision_path_id": {"type": "string", "min_length": 1, "max_length": 120},
+            "label": {"type": "string", "min_length": 1, "max_length": 160},
+            "weight_dtype": {"type": ["string", "null"], "min_length": 1, "max_length": 80},
+            "activation_dtype": {"type": ["string", "null"], "min_length": 1, "max_length": 80},
+            "accumulation_dtype": {"type": ["string", "null"], "min_length": 1, "max_length": 80},
+            "output_dtype": {"type": ["string", "null"], "min_length": 1, "max_length": 80},
+            "quant_scheme": {"type": "string", "min_length": 1, "max_length": 120},
+            "missing_fields": {"type": "array", "items": {"type": "string", "enum": ["weight_dtype", "activation_dtype", "accumulation_dtype", "output_dtype"]}},
+            "missing_reason_code": {"type": ["string", "null"], "min_length": 1, "max_length": 120},
+            "evidence_ids": {"type": "array", "items": {"type": "string", "min_length": 1, "max_length": 120}}
+          }
+        }
+      },
+      "evidence": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["evidence_id", "kind", "source_id", "revision", "locator", "run_ids", "observation_ids"],
+          "additional_properties": false,
+          "properties": {
+            "evidence_id": {"type": "string", "min_length": 1, "max_length": 120},
+            "kind": {"type": "string", "enum": ["source_code", "canonical_run", "catalog_status", "compiler_ir", "runtime_trace", "profiler_correlation"]},
+            "source_id": {"type": ["string", "null"], "min_length": 1, "max_length": 80},
+            "revision": {"type": ["string", "null"], "min_length": 1, "max_length": 80},
+            "locator": {"type": ["string", "null"], "min_length": 1, "max_length": 300},
+            "run_ids": {"type": "array", "items": {"type": "string", "min_length": 1, "max_length": 120}},
+            "observation_ids": {"type": "array", "items": {"type": "string", "min_length": 1, "max_length": 120}}
+          }
+        }
+      },
+      "execution_groups": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["execution_group_id", "label", "kind", "implementation", "precision_path_id", "repeat_selectors", "dependency_group_ids", "kernel_signature_ids", "kernel_resolution", "unmapped_reason_code", "evidence_ids"],
+          "additional_properties": false,
+          "properties": {
+            "execution_group_id": {"type": "string", "min_length": 1, "max_length": 120},
+            "label": {"type": "string", "min_length": 1, "max_length": 180},
+            "kind": {"type": "string", "enum": ["framework_op", "backend_op", "custom_op", "kernel_sequence", "opaque_region"]},
+            "implementation": {"type": ["string", "null"], "min_length": 1, "max_length": 240},
+            "precision_path_id": {"type": "string", "min_length": 1, "max_length": 120},
+            "repeat_selectors": {"type": "array", "items": {
+              "type": "object", "required": ["scope_ref", "selection", "indices"], "additional_properties": false,
+              "properties": {
+                "scope_ref": {"type": "string", "min_length": 1, "max_length": 180},
+                "selection": {"type": "string", "enum": ["all", "indices"]},
+                "indices": {"type": "array", "items": {"type": "integer", "minimum": 0}}
+              }
+            }},
+            "dependency_group_ids": {"type": "array", "items": {"type": "string", "min_length": 1, "max_length": 120}},
+            "kernel_signature_ids": {"type": "array", "items": {"type": "string", "min_length": 1, "max_length": 120}},
+            "kernel_resolution": {"type": "string", "enum": ["resolved", "partial", "not_collected"]},
+            "unmapped_reason_code": {"type": ["string", "null"], "min_length": 1, "max_length": 160},
+            "evidence_ids": {"type": "array", "items": {"type": "string", "min_length": 1, "max_length": 120}}
+          }
+        }
+      },
+      "mappings": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["mapping_id", "logical_targets", "execution_group_ids", "relation", "path", "certainty", "method", "confidence", "reason_code", "evidence_ids"],
+          "additional_properties": false,
+          "properties": {
+            "mapping_id": {"type": "string", "min_length": 1, "max_length": 120},
+            "logical_targets": {"type": "array", "items": {
+              "type": "object", "required": ["ref", "repeat_selectors"], "additional_properties": false,
+              "properties": {
+                "ref": {"type": "string", "min_length": 1, "max_length": 240},
+                "repeat_selectors": {"type": "array", "items": {
+                  "type": "object", "required": ["scope_ref", "selection", "indices"], "additional_properties": false,
+                  "properties": {
+                    "scope_ref": {"type": "string", "min_length": 1, "max_length": 180},
+                    "selection": {"type": "string", "enum": ["all", "indices"]},
+                    "indices": {"type": "array", "items": {"type": "integer", "minimum": 0}}
+                  }
+                }}
+              }
+            }},
+            "execution_group_ids": {"type": "array", "items": {"type": "string", "min_length": 1, "max_length": 120}},
+            "relation": {"type": "string", "enum": ["preserved", "fused", "split", "eliminated", "opaque"]},
+            "path": {"type": "string", "enum": ["primary", "fallback"]},
+            "certainty": {"type": "string", "enum": ["exact", "ambiguous"]},
+            "method": {"type": "string", "enum": ["source_audit", "compiler_ir", "runtime_trace", "profiler_correlation"]},
+            "confidence": {"type": "string", "enum": ["high", "medium", "low"]},
+            "reason_code": {"type": ["string", "null"], "min_length": 1, "max_length": 160},
+            "evidence_ids": {"type": "array", "items": {"type": "string", "min_length": 1, "max_length": 120}}
+          }
+        }
+      }
+    }
+  }
+}

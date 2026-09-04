@@ -38,6 +38,11 @@ _IPV6 = re.compile(
     re.IGNORECASE,
 )
 _HOST_LABEL = re.compile(r"[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?", re.IGNORECASE)
+_CPP_LOCATOR = re.compile(
+    r"^[a-z0-9_./-]+#[a-z_][a-z0-9_]*(?:::[a-z_][a-z0-9_]*)+$",
+    re.IGNORECASE,
+)
+_RUNTIME_MAPPING_PATH = re.compile(r"(?:^|\.)mappings\[\d+\]\.path$")
 _CREDENTIAL_QUERY_KEYS = {
     "access_token", "accesskey", "access_key", "accesskeyid", "access_key_id",
     "api_key", "apikey", "auth", "awsaccesskeyid", "aws_access_key_id",
@@ -57,7 +62,12 @@ def scan_json(value: object, path: str = "$") -> list[Issue]:
         for key, child in sorted(value.items(), key=lambda item: str(item[0])):
             key_text = str(key)
             child_path = f"{path}.{key_text}"
-            if key_text in FORBIDDEN_KEYS:
+            controlled_mapping_path = (
+                key_text == "path"
+                and child in {"primary", "fallback"}
+                and _RUNTIME_MAPPING_PATH.search(child_path) is not None
+            )
+            if key_text in FORBIDDEN_KEYS and not controlled_mapping_path:
                 issues.append(
                     Issue(
                         child_path,
@@ -79,7 +89,10 @@ def scan_json(value: object, path: str = "$") -> list[Issue]:
                 if not isinstance(child, (str, type(None))):
                     issues.extend(scan_json(child, child_path))
             else:
-                issues.extend(scan_json(child, child_path))
+                child_issues = scan_json(child, child_path)
+                if key_text == "locator" and isinstance(child, str) and _CPP_LOCATOR.fullmatch(child):
+                    child_issues = [issue for issue in child_issues if issue.code != "ip_address"]
+                issues.extend(child_issues)
     elif isinstance(value, (list, tuple)):
         for index, child in enumerate(value):
             issues.extend(scan_json(child, f"{path}[{index}]"))
