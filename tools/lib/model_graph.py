@@ -899,6 +899,76 @@ def graph_semantic_problems(record: Mapping[str, object]) -> list[GraphProblem]:
             module_repeat = _require_count(
                 module.get("repeat"), globals_, f"{module_path}.repeat", problems
             )
+            tail_repeat: Number = 0
+            required_tail = module.get("required_output_tail")
+            if required_tail is not None:
+                tail_path = f"{module_path}.required_output_tail"
+                if not isinstance(required_tail, Mapping):
+                    problems.append(
+                        GraphProblem(
+                            tail_path,
+                            "invalid_required_tail",
+                            "required output tail must be an object or null",
+                        )
+                    )
+                else:
+                    evaluated_tail_repeat = _require_count(
+                        required_tail.get("repeat"),
+                        globals_,
+                        f"{tail_path}.repeat",
+                        problems,
+                    )
+                    if evaluated_tail_repeat is not None:
+                        tail_repeat = evaluated_tail_repeat
+                        if tail_repeat < 1:
+                            problems.append(
+                                GraphProblem(
+                                    f"{tail_path}.repeat",
+                                    "invalid_required_tail",
+                                    "required output tail repeat must be positive",
+                                )
+                            )
+                    operator_refs = required_tail.get("operator_refs")
+                    actual_refs = (
+                        [value for value in operator_refs if isinstance(value, str) and value]
+                        if isinstance(operator_refs, list)
+                        else []
+                    )
+                    if (
+                        not isinstance(operator_refs, list)
+                        or len(actual_refs) != len(operator_refs)
+                        or len(actual_refs) != len(set(actual_refs))
+                    ):
+                        problems.append(
+                            GraphProblem(
+                                f"{tail_path}.operator_refs",
+                                "invalid_required_tail",
+                                "tail operator references must be unique non-empty strings",
+                            )
+                        )
+                    valid_refs = {
+                        operator["operator_id"]
+                        for operator in _mapping_list(template.get("operators"))
+                        if isinstance(operator.get("operator_id"), str)
+                    }
+                    for component in _mapping_list(template.get("components")):
+                        component_id = component.get("component_id")
+                        component_template = component_templates.get(component.get("template_id"))
+                        if not isinstance(component_id, str) or component_template is None:
+                            continue
+                        valid_refs.update(
+                            f"{component_id}/{operator['operator_id']}"
+                            for operator in _mapping_list(component_template.get("operators"))
+                            if isinstance(operator.get("operator_id"), str)
+                        )
+                    for operator_ref in sorted(set(actual_refs) - valid_refs):
+                        problems.append(
+                            GraphProblem(
+                                f"{tail_path}.operator_refs",
+                                "broken_reference",
+                                f"tail operator reference does not resolve: {operator_ref}",
+                            )
+                        )
             parameter_bindings = _validate_bindings(
                 module.get("bindings"),
                 template.get("parameters"),
@@ -1049,7 +1119,7 @@ def graph_semantic_problems(record: Mapping[str, object]) -> list[GraphProblem]:
                     template_tensors.get(template_binding.get("tensor_id")) if template_binding else None,
                     globals_,
                     binding_expressions,
-                    module_repeat,
+                    None if module_repeat is None else module_repeat + tail_repeat,
                     collected_path,
                     "invalid_collection",
                     problems,
@@ -1197,6 +1267,8 @@ def _materialize_atomic_template(
     key_prefix: str,
     definitions: Mapping[str, Mapping[str, object]],
     operators_by_id: dict[str, dict[str, object]],
+    tail_effective_repeat: int = 0,
+    tail_operator_ids: frozenset[str] = frozenset(),
 ) -> dict[str, object]:
     template_copy = dict(template)
     template_copy["tensors"] = _concrete_tensors(template.get("tensors"), environment)
@@ -1224,8 +1296,15 @@ def _materialize_atomic_template(
             analysis_by_metric[item["metric"]] = item["value"]
         operator_copy["analysis"] = analysis
         operator_copy["analysis_by_metric"] = analysis_by_metric
+        operator_tail_repeat = (
+            tail_effective_repeat
+            if operator.get("operator_id") in tail_operator_ids
+            else 0
+        )
+        operator_copy["tail_repeat"] = operator_tail_repeat
         operator_copy["effective_repeat"] = (
-            effective_repeat * operator_copy["multiplicity"]
+            (effective_repeat + operator_tail_repeat)
+            * operator_copy["multiplicity"]
         )
         materialized_operators.append(operator_copy)
         operators_by_id[f"{key_prefix}/{operator['operator_id']}"] = operator_copy
@@ -1271,7 +1350,37 @@ def materialize_model_graph(
                 f"module {module.get('module_id')} repeat",
             )
             effective_repeat = stage_repeat * module_repeat
-            module_copy.update({"bindings": parameter_bindings, "module_repeat": module_repeat, "effective_repeat": effective_repeat})
+            required_tail = module.get("required_output_tail")
+            tail_repeat = (
+                _non_negative_integer(
+                    evaluate_expression(required_tail.get("repeat"), globals_),
+                    f"module {module.get('module_id')} required output tail repeat",
+                )
+                if isinstance(required_tail, Mapping)
+                else 0
+            )
+            tail_effective_repeat = stage_repeat * tail_repeat
+            tail_operator_refs = frozenset(
+                value
+                for value in (
+                    required_tail.get("operator_refs", [])
+                    if isinstance(required_tail, Mapping)
+                    else []
+                )
+                if isinstance(value, str)
+            )
+            required_tail_copy = dict(required_tail) if isinstance(required_tail, Mapping) else None
+            if required_tail_copy is not None:
+                required_tail_copy.update({
+                    "repeat": tail_repeat,
+                    "effective_repeat": tail_effective_repeat,
+                })
+            module_copy.update({
+                "bindings": parameter_bindings,
+                "module_repeat": module_repeat,
+                "effective_repeat": effective_repeat,
+                "required_output_tail": required_tail_copy,
+            })
             module_copy["inputs"] = _materialized_ports(module.get("inputs"), graph_shapes)
             module_copy["outputs"] = _materialized_ports(module.get("outputs"), graph_shapes)
             module_copy["indexed_inputs"] = _materialized_indexed_boundaries(
@@ -1295,6 +1404,12 @@ def materialize_model_graph(
                     key_prefix,
                     definitions,
                     operators_by_id,
+                    tail_effective_repeat,
+                    frozenset(
+                        operator_ref
+                        for operator_ref in tail_operator_refs
+                        if "/" not in operator_ref
+                    ),
                 )
             else:
                 block_shapes = {
@@ -1324,6 +1439,16 @@ def materialize_model_graph(
                         f"{key_prefix}/{component['component_id']}",
                         definitions,
                         operators_by_id,
+                        tail_effective_repeat,
+                        frozenset(
+                            operator_ref.removeprefix(
+                                f"{component['component_id']}/"
+                            )
+                            for operator_ref in tail_operator_refs
+                            if operator_ref.startswith(
+                                f"{component['component_id']}/"
+                            )
+                        ),
                     )
                     materialized_components.append(component_copy)
                 template_copy["components"] = materialized_components

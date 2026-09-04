@@ -321,8 +321,22 @@ class ValidationTests(unittest.TestCase):
         self.assertEqual(materialized["bindings"]["S_SUFFIX"], 51)
         self.assertEqual(materialized["bindings"]["S_ATTENTION"], 839)
         self.assertEqual(materialized["named_repeats"]["vision-blocks"], 27)
-        self.assertEqual(materialized["named_repeats"]["prefix-blocks"], 18)
+        self.assertEqual(materialized["named_repeats"]["prefix-blocks"], 17)
         self.assertEqual(materialized["named_repeats"]["action-expert-blocks"], 180)
+        prefix_module = materialized["stages"][1]["modules"][1]
+        self.assertEqual(prefix_module["required_output_tail"]["repeat"], 1)
+        self.assertEqual(
+            materialized["operators_by_id"][
+                "prefix-encoder/prefix-blocks/self-attention/key-projection"
+            ]["effective_repeat"],
+            18,
+        )
+        self.assertEqual(
+            materialized["operators_by_id"][
+                "prefix-encoder/prefix-blocks/self-attention/attention"
+            ]["effective_repeat"],
+            17,
+        )
         self.assertEqual(materialized["graph_outputs"][0]["shape"], [1, 50, 32])
         vision_module = materialized["stages"][0]["modules"][1]
         self.assertEqual(

@@ -29,7 +29,7 @@
           "editable": true,
           "default": 3,
           "minimum": 1,
-          "maximum": 3,
+          "maximum": null,
           "expression": null
         },
         {
@@ -190,6 +190,16 @@
           "default": 18,
           "minimum": 18,
           "maximum": 18,
+          "expression": null
+        },
+        {
+          "symbol": "N_PREFIX_FULL_LAYERS",
+          "label": "Full prefix transformer layers",
+          "semantic": "prefix_full_layers",
+          "editable": false,
+          "default": 17,
+          "minimum": 17,
+          "maximum": 17,
           "expression": null
         },
         {
@@ -7651,7 +7661,7 @@
         {
           "stage_id": "prefix-encoder",
           "label": "Prefix Encoder",
-          "description": "Prefill-once multimodal prefix work: build view/prompt tokens and run 18 folded Gemma prefix blocks to produce per-layer logical K/V.",
+          "description": "Prefill-once multimodal prefix work: build view/prompt tokens, run 17 full Gemma blocks, then retain the layer-18 K/V-producing tail required by the cached decoder.",
           "repeat": 1,
           "loop_carried": null,
           "modules": [
@@ -7721,7 +7731,7 @@
               "label": "Gemma prefix blocks",
               "template_id": "gemma-prefix-block",
               "repeat": {
-                "symbol": "N_PREFIX_LAYERS"
+                "symbol": "N_PREFIX_FULL_LAYERS"
               },
               "bindings": [
                 {
@@ -7795,7 +7805,21 @@
                   "axis": "layer",
                   "index_source": "module_repeat_index"
                 }
-              ]
+              ],
+              "required_output_tail": {
+                "label": "L18 K/V tail",
+                "description": "Layer 18 runs pre-attention RMSNorm, Q/K/V projection, RoPE, and the K/V cache write; attention, output projection, and feed-forward do not run.",
+                "repeat": 1,
+                "operator_refs": [
+                  "self-attention/attention-norm",
+                  "self-attention/query-projection",
+                  "self-attention/key-projection",
+                  "self-attention/value-projection",
+                  "self-attention/query-rope",
+                  "self-attention/key-rope",
+                  "self-attention/cache-output"
+                ]
+              }
             }
           ]
         },
