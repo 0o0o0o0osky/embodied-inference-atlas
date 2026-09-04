@@ -170,7 +170,7 @@ def resolve_symbols(
             else:
                 if default is not None or item.get("editable") is True:
                     raise ValueError(f"derived symbol declaration is invalid: {symbol}")
-                references = _symbol_references(expression)
+                references = sorted(_symbol_references(expression))
                 value = evaluate_expression(expression, {name: resolve(name) for name in references})
             resolved[symbol] = value
             return value
@@ -370,9 +370,15 @@ def _validate_ports_and_endpoints(
                 actual_consumers.add((node_id, port))
             else:
                 problems.append(GraphProblem(f"{tensor_path}.consumers", "invalid_endpoint", "consumer endpoint does not resolve"))
-        if not actual_consumers and tensor_id not in valid_outputs:
+        optional_loop_consumer = bool(
+            loop_endpoints
+            and loop_endpoints.get(tensor_id, {}).get("optional_consumer")
+        )
+        if not actual_consumers and tensor_id not in valid_outputs and not optional_loop_consumer:
             problems.append(GraphProblem(f"{tensor_path}.consumers", "invalid_endpoint", "only declared outputs may have no consumers"))
-        if actual_consumers != expected_consumers[tensor_id]:
+        if actual_consumers != expected_consumers[tensor_id] and not (
+            not actual_consumers and optional_loop_consumer
+        ):
             problems.append(GraphProblem(f"{tensor_path}.consumers", "endpoint_mismatch", "consumers do not match node input bindings"))
 
 
@@ -474,7 +480,12 @@ def graph_semantic_problems(record: Mapping[str, object]) -> list[GraphProblem]:
                 port = indexed.get("port")
                 tensor_id = indexed.get("tensor_id")
                 axis = indexed.get("axis")
-                if port not in _binding_map(module.get("inputs")) or tensor_id not in graph_tensors:
+                module_inputs = _binding_map(module.get("inputs"))
+                if (
+                    port not in module_inputs
+                    or module_inputs[port].get("tensor_id") != tensor_id
+                    or tensor_id not in graph_tensors
+                ):
                     problems.append(GraphProblem(indexed_path, "broken_reference", "indexed input does not resolve"))
                 tensor = graph_tensors.get(tensor_id) if isinstance(tensor_id, str) else None
                 axes = {item.get("axis") for item in _mapping_list(tensor.get("axes"))} if tensor else set()
@@ -509,6 +520,7 @@ def graph_semantic_problems(record: Mapping[str, object]) -> list[GraphProblem]:
             loop_endpoints.setdefault(initial, {"consumers": set()})["consumers"].add((loop_id, "initial"))
             loop_endpoints.setdefault(iteration_input, {})["producer"] = (loop_id, "iteration_input")
             loop_endpoints.setdefault(iteration_output, {"consumers": set()})["consumers"].add((loop_id, "iteration_output"))
+            loop_endpoints[iteration_output]["optional_consumer"] = True
             loop_endpoints.setdefault(final, {})["producer"] = (loop_id, "final")
             loop_inputs.add(iteration_input)
             loop_outputs.add(iteration_output)

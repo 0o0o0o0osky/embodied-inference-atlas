@@ -5,7 +5,11 @@ from pathlib import Path
 from tests.helpers import valid_model_document, valid_model_graph_document, valid_run
 from tools.lib.comparison import assign_group_ids, ratio_eligibility
 from tools.lib.contracts import validate_document
-from tools.lib.model_graph import graph_semantic_problems, materialize_model_graph
+from tools.lib.model_graph import (
+    graph_semantic_problems,
+    materialize_model_graph,
+    resolve_symbols,
+)
 from tools.lib.privacy import scan_json, scan_release_tree
 from tools.validate import validate_references
 
@@ -46,6 +50,65 @@ class ValidationTests(unittest.TestCase):
             materialized["stages"][0]["modules"][0]["outputs"][0]["shape"],
             [1, 768, 8],
         )
+
+        module = graph["stages"][0]["modules"][0]
+        module["indexed_inputs"] = [{
+            "port": "input",
+            "tensor_id": "graph-output",
+            "axis": "tokens",
+            "index_source": "module_repeat_index",
+        }]
+        self.assertIn(
+            "broken_reference",
+            [problem.code for problem in graph_semantic_problems(graph)],
+        )
+        module["indexed_inputs"] = []
+
+        graph["stages"][0]["loop_carried"] = {
+            "loop_id": "loop",
+            "initial_tensor_id": "graph-input",
+            "iteration_input_tensor_id": "loop-input",
+            "iteration_output_tensor_id": "graph-output",
+            "final_tensor_id": "loop-final",
+        }
+        module["inputs"][0]["tensor_id"] = "loop-input"
+        graph["graph_tensors"][0]["consumers"] = [{
+            "node_kind": "loop", "node_id": "loop", "port": "initial",
+        }]
+        graph["graph_tensors"][1]["consumers"] = [{
+            "node_kind": "loop", "node_id": "loop", "port": "iteration_output",
+        }]
+        graph["graph_tensors"].extend([
+            {
+                "tensor_id": "loop-input", "label": "Loop input", "semantic_role": "input",
+                "axes": graph["graph_tensors"][0]["axes"],
+                "producer": {"node_kind": "loop", "node_id": "loop", "port": "iteration_input"},
+                "consumers": [{"node_kind": "module", "node_id": "module", "port": "input"}],
+            },
+            {
+                "tensor_id": "loop-final", "label": "Loop final", "semantic_role": "output",
+                "axes": graph["graph_tensors"][1]["axes"],
+                "producer": {"node_kind": "loop", "node_id": "loop", "port": "final"},
+                "consumers": [],
+            },
+        ])
+        graph["graph_outputs"] = ["loop-final"]
+        self.assertEqual(graph_semantic_problems(graph), [])
+        graph["graph_tensors"][1]["consumers"] = []
+        self.assertEqual(graph_semantic_problems(graph), [])
+        graph["graph_tensors"][1]["consumers"] = [{
+            "node_kind": "loop", "node_id": "loop", "port": "wrong",
+        }]
+        self.assertIn(
+            "invalid_endpoint",
+            [problem.code for problem in graph_semantic_problems(graph)],
+        )
+
+        with self.assertRaisesRegex(ValueError, "unknown symbol: a"):
+            resolve_symbols([{
+                "symbol": "derived", "editable": False, "default": None,
+                "expression": {"op": "add", "args": [{"symbol": "z"}, {"symbol": "a"}]},
+            }])
 
         graph["stages"][0]["modules"][0]["template_id"] = "missing-template"
         self.assertIn(
