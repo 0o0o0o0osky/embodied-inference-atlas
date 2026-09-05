@@ -1,4 +1,5 @@
 import type { OperatorAnimation } from "./useOperatorAnimation";
+import { useModelText } from "../presentation/ModelDisplay";
 
 export function AnimationControls({
   animation,
@@ -7,20 +8,21 @@ export function AnimationControls({
   animation: OperatorAnimation;
   status: string;
 }) {
+  const t = useModelText();
   return (
     <div className="operator-animation-controls">
       <button
         type="button"
         onClick={animation.toggle}
         disabled={animation.reducedMotion}
-        aria-label={animation.playing ? "Pause computation animation" : "Play computation animation"}
+        aria-label={t(animation.playing ? "Pause computation animation" : "Play computation animation")}
       >
-        {animation.playing ? "Pause" : "Play"}
+        {t(animation.playing ? "Pause" : "Play")}
       </button>
-      <button type="button" onClick={animation.step}>Step</button>
-      <button type="button" onClick={animation.reset}>Reset</button>
+      <button type="button" onClick={animation.step}>{t("Step")}</button>
+      <button type="button" onClick={animation.reset}>{t("Reset")}</button>
       <label>
-        <span>Speed</span>
+        <span>{t("Speed")}</span>
         <select
           value={animation.speed}
           onChange={(event) => animation.setSpeed(Number(event.target.value))}
@@ -31,7 +33,7 @@ export function AnimationControls({
         </select>
       </label>
       <p aria-live="polite">
-        {animation.reducedMotion ? "Timed playback disabled by reduced-motion preference. " : ""}
+        {animation.reducedMotion ? t("Timed playback disabled by reduced-motion preference. ") : ""}
         {status}
       </p>
     </div>

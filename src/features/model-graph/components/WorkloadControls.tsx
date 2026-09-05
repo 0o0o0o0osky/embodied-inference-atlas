@@ -11,7 +11,7 @@ interface WorkloadControlsProps {
 }
 
 const SCENARIO_LABELS: Record<string, string> = {
-  V: "相机视角", L_PROMPT: "提示词位置", T_ACTION: "动作 token", N_DENOISE: "去噪步数",
+  V: "相机视角", L_PROMPT: "提示词位置", T_ACTION: "动作词元", N_DENOISE: "去噪步数",
 };
 
 export function WorkloadControls({

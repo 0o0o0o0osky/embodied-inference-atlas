@@ -1,4 +1,4 @@
-import { useRef, type ReactNode } from "react";
+import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 
 import type {
   ConnectorResolution,
@@ -12,6 +12,7 @@ import type {
   ScopeBox,
 } from "../domain/types";
 import type { GraphViewport } from "../domain/focusViewport";
+import { useModelText, type ModelText } from "../presentation/ModelDisplay";
 
 interface LogicalDagSvgProps {
   dag: LogicalDag;
@@ -46,9 +47,9 @@ function nodeAlias(node: LogicalNode, presentation: GraphPresentation) {
   return presentation.aliases[node.ref] ?? node.operatorId ?? node.label;
 }
 
-function nodeDescription(node: LogicalNode) {
-  if (!node.detail) return `${node.label}. ${node.definitionId.replaceAll("-", " ")}.`;
-  return `${node.label}. ${node.detail.definitionLabel}. ${node.detail.formula}`;
+function nodeDescription(node: LogicalNode, t: ModelText) {
+  if (!node.detail) return t(node.label);
+  return `${t(node.label)}. ${t(node.detail.definitionLabel)}. ${node.detail.formula}`;
 }
 
 function layoutFingerprint(layout: LogicalLayout) {
@@ -65,9 +66,11 @@ function layoutFingerprint(layout: LogicalLayout) {
 }
 
 function ScopeBadge({ scope, box }: { scope: LogicalScope; box: ScopeBox }) {
-  const label = shortScopeLabel(scope.moduleId, scope.label);
-  const badgeWidth = Math.min(box.width - 16, Math.max(82, label.length * 6.1 + 18));
-  const tailLabel = scope.note?.split(":", 1)[0] ?? null;
+  const t = useModelText();
+  const label = scope.kind === "denoise" ? t("Denoise ×{count}", { count: scope.repeat }) : t(shortScopeLabel(scope.moduleId, scope.label));
+  const labelWidth = [...label].reduce((width, character) => width + (/[\u3400-\u9fff]/u.test(character) ? 9.5 : 6.1), 18);
+  const badgeWidth = Math.min(box.width - 16, Math.max(82, labelWidth));
+  const tailLabel = scope.note ? t(scope.note.split(":", 1)[0]!) : null;
   const tailWidth = tailLabel ? 94 : 0;
   return (
     <g className={`logical-scope logical-scope--${scope.kind}`}>
@@ -77,7 +80,7 @@ function ScopeBadge({ scope, box }: { scope: LogicalScope; box: ScopeBox }) {
         <g className="logical-tail-badge">
           <rect x={box.x + box.width - tailWidth - 8} y={box.y} width={tailWidth} height={box.headerHeight} rx={7} />
           <text x={box.x + box.width - tailWidth / 2 - 8} y={box.y + 12.5} textAnchor="middle">{tailLabel}</text>
-          <title>{scope.note}</title>
+          <title>{scope.note?.split(": ").map((part) => t(part)).join("：")}</title>
         </g>
       ) : null}
     </g>
@@ -93,8 +96,9 @@ function NodeShape({
   box: NodeBox;
   presentation: GraphPresentation;
 }) {
+  const t = useModelText();
   const visual = nodeVisual(node, presentation);
-  const label = nodeAlias(node, presentation);
+  const label = t(nodeAlias(node, presentation));
   if (visual === "inline") {
     const symbol = node.definitionId === "residual-add" ? "+" : "×";
     return (
@@ -165,11 +169,29 @@ export function LogicalDagSvg({
   toolbar,
   scenario,
 }: LogicalDagSvgProps) {
+  const t = useModelText();
+  const clipId = useId();
   const selected = mode === "focus" && Boolean(selectedRef);
   const activeViewport = viewport ?? { x: 0, y: 0, width: layout.width, height: layout.height, scopeId: null };
   const scale = Math.min(layout.width / activeViewport.width, layout.height / activeViewport.height);
-  const sceneTransform = `translate(${(layout.width - activeViewport.width * scale) / 2} ${(layout.height - activeViewport.height * scale) / 2}) scale(${scale}) translate(${-activeViewport.x} ${-activeViewport.y})`;
+  const frameX = (layout.width - activeViewport.width * scale) / 2;
+  const frameY = (layout.height - activeViewport.height * scale) / 2;
+  const sceneTransform = `translate(${frameX} ${frameY}) scale(${scale}) translate(${-activeViewport.x} ${-activeViewport.y})`;
   const canvasRef = useRef<HTMLDivElement>(null);
+  const [panBounds, setPanBounds] = useState({ left: false, right: false });
+  useEffect(() => {
+    if (!compactControls || !canvasRef.current) return;
+    const canvas = canvasRef.current;
+    const update = () => setPanBounds({
+      left: canvas.scrollLeft > 1,
+      right: canvas.scrollWidth - canvas.clientWidth - canvas.scrollLeft > 1,
+    });
+    const observer = new ResizeObserver(update);
+    observer.observe(canvas);
+    canvas.addEventListener("scroll", update);
+    update();
+    return () => { observer.disconnect(); canvas.removeEventListener("scroll", update); };
+  }, [compactControls, layout.width, mode]);
   const pan = (direction: -1 | 1) => {
     canvasRef.current?.scrollBy({ left: direction * 320, behavior: "auto" });
   };
@@ -190,12 +212,14 @@ export function LogicalDagSvg({
             : ""}
         </span>
         </> : <span className="graph-direction-hint">横向并行，纵向依赖</span>}
-        <button type="button" onClick={() => pan(-1)} aria-label={compactControls ? "向左平移模型图" : "Pan logical graph left"}>
+        {!compactControls || panBounds.left || panBounds.right ? <>
+        <button type="button" onClick={() => pan(-1)} disabled={compactControls && !panBounds.left} aria-label={compactControls ? "向左平移模型图" : "Pan logical graph left"}>
           {compactControls ? "←" : "← Pan left"}
         </button>
-        <button type="button" onClick={() => pan(1)} aria-label={compactControls ? "向右平移模型图" : "Pan logical graph right"}>
+        <button type="button" onClick={() => pan(1)} disabled={compactControls && !panBounds.right} aria-label={compactControls ? "向右平移模型图" : "Pan logical graph right"}>
           {compactControls ? "→" : "Pan right →"}
         </button>
+        </> : null}
       </div>
       {scenario}
       <div
@@ -226,6 +250,9 @@ export function LogicalDagSvg({
         data-viewport-contract="two-state-focus"
       >
         <defs>
+          <clipPath id={clipId}>
+            <rect x={frameX} y={frameY} width={activeViewport.width * scale} height={activeViewport.height * scale} />
+          </clipPath>
           <marker
             id="logical-arrow"
             markerWidth="7"
@@ -243,6 +270,7 @@ export function LogicalDagSvg({
             <path d="M 24 0 L 0 0 0 24" />
           </pattern>
         </defs>
+        <g clipPath={compactControls && selected ? `url(#${clipId})` : undefined}>
         <g
           className="logical-scene"
           transform={sceneTransform}
@@ -258,9 +286,9 @@ export function LogicalDagSvg({
               {String(index + 1).padStart(2, "0")}
             </text>
             <text className="logical-stage-label" x={stage.x + 54} y={stage.y + 31}>
-              {stage.label.split(/\s+/)[0]}
+              {t(stage.label).split(/\s+/)[0]}
             </text>
-            <title>{stage.label}. {stage.description}</title>
+            <title>{t(stage.label)}. {t(stage.description)}</title>
           </g>
         ))}
 
@@ -321,7 +349,7 @@ export function LogicalDagSvg({
               ].filter(Boolean).join(" ")}
               role={interactive ? "button" : undefined}
               tabIndex={interactive ? 0 : undefined}
-              aria-label={interactive ? `Inspect ${nodeDescription(node)}` : undefined}
+              aria-label={interactive ? t("Inspect {description}", { description: nodeDescription(node, t) }) : undefined}
               onClick={interactive ? () => onSelect(node.ref) : undefined}
               onKeyDown={interactive ? (event) => {
                 if (event.key === "Enter" || event.key === " ") {
@@ -330,7 +358,7 @@ export function LogicalDagSvg({
                 }
               } : undefined}
             >
-              <title>{nodeDescription(node)}</title>
+              <title>{nodeDescription(node, t)}</title>
               <NodeShape node={node} box={box} presentation={presentation} />
             </g>
           );
@@ -343,6 +371,7 @@ export function LogicalDagSvg({
             Unresolved authored route: {item.id}
           </text>
         ))}
+        </g>
         </g>
         </svg>
       </div>

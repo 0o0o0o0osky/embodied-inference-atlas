@@ -36,6 +36,10 @@ export function AtlasApp() {
   }, []);
 
   useEffect(() => {
+    if (route.model === "pi0" && route.tab === "logical") {
+      document.title = "Pi0 模型结构 — Atlas";
+      return;
+    }
     const view = route.model ? `${route.model} / ${route.tab}` : "Model register";
     document.title = `${view} — Embodied Inference Atlas`;
   }, [route.model, route.tab]);

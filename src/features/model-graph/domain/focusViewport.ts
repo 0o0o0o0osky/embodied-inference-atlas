@@ -51,6 +51,7 @@ export function resolveFocusViewport(
   dag: LogicalDag,
   layout: LogicalLayout,
   selectedRef: LogicalRef | null,
+  boundary: "canvas" | "stage" = "canvas",
 ): GraphViewport {
   if (!selectedRef) return overview(layout);
   const selectedNode = dag.nodes.get(selectedRef);
@@ -79,5 +80,15 @@ export function resolveFocusViewport(
       bottom: scopeBox.y + scopeBox.height,
     },
   );
-  return { ...fitToCanvas(bounds, layout), scopeId: scopeBox.scopeId };
+  const viewport = fitToCanvas(bounds, layout);
+  const stage = layout.stageBoxes.find((box) => box.stageId === selectedNode.stageId);
+  // Keep local context inside its stage gutter. Cross-stage dependencies retain
+  // the wider camera, and the authored scene/coordinates are never relaid out.
+  if (boundary === "stage" && stage && bounds.left >= stage.x && bounds.right <= stage.x + stage.width) {
+    const left = Math.max(0, stage.x - 8);
+    const right = Math.min(layout.width, stage.x + stage.width + 8);
+    viewport.width = Math.min(viewport.width, right - left);
+    viewport.x = Math.max(left, Math.min(right - viewport.width, viewport.x));
+  }
+  return { ...viewport, scopeId: scopeBox.scopeId };
 }

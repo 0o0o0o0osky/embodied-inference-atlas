@@ -1,6 +1,7 @@
 import type { OperatorDetail } from "../domain/types";
 import { AnimationControls } from "./AnimationControls";
 import { useOperatorAnimation } from "./useOperatorAnimation";
+import { useModelText } from "../presentation/ModelDisplay";
 
 const phases = [
   "Q @ Kᵀ score tile 1 of 3",
@@ -14,6 +15,7 @@ const phases = [
 ];
 
 export function AttentionVisualizer({ operator, resetKey }: { operator: OperatorDetail; resetKey: string }) {
+  const t = useModelText();
   const animation = useOperatorAnimation(phases.length, resetKey);
   const bindings = operator.scopeBindings;
   const queryLength = bindings.SQ ?? bindings.S ?? bindings.T;
@@ -22,23 +24,23 @@ export function AttentionVisualizer({ operator, resetKey }: { operator: Operator
   return (
     <section className="operator-visualizer attention-visualizer">
       <header>
-        <h3>Attention tile microscope</h3>
+        <h3>{t("Attention tile microscope")}</h3>
         <code>Q @ Kᵀ → softmax → P @ V</code>
       </header>
       <div className="visualizer-dimensions">
-        <span>Query {queryLength?.toLocaleString() ?? "?"}</span>
-        <span>Key/value {keyLength?.toLocaleString() ?? "?"}</span>
-        <span>Heads {bindings.H?.toLocaleString() ?? "?"}</span>
-        <span>Head width {bindings.HD?.toLocaleString() ?? "?"}</span>
+        <span>{t("Query")} {queryLength?.toLocaleString() ?? "?"}</span>
+        <span>{t("Key/value")} {keyLength?.toLocaleString() ?? "?"}</span>
+        <span>{t("Heads")} {bindings.H?.toLocaleString() ?? "?"}</span>
+        <span>{t("Head width")} {bindings.HD?.toLocaleString() ?? "?"}</span>
       </div>
-      <div className="attention-diagram" aria-label="Attention dependency sequence">
+      <div className="attention-diagram" aria-label={t("Attention dependency sequence")}>
         {["Q @ Kᵀ", "scale / mask", "softmax → P", "P @ V → O"].map((label, index) => (
           <span className={index < active ? "is-complete" : index === active ? "is-active" : ""} key={label}>
-            {label}
+            {t(label)}
           </span>
         ))}
       </div>
-      <AnimationControls animation={animation} status={`${phases[animation.frame]}.`} />
+      <AnimationControls animation={animation} status={t(phases[animation.frame]!)} />
     </section>
   );
 }

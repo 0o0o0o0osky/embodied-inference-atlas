@@ -1,6 +1,7 @@
 import type { OperatorDetail } from "../domain/types";
 import { AnimationControls } from "./AnimationControls";
 import { useOperatorAnimation } from "./useOperatorAnimation";
+import { useModelText } from "../presentation/ModelDisplay";
 
 function dimensions(operator: OperatorDetail) {
   const { M, N, K } = operator.bindings;
@@ -56,6 +57,7 @@ function Matrix({
 }
 
 export function GemmVisualizer({ operator, resetKey }: { operator: OperatorDetail; resetKey: string }) {
+  const t = useModelText();
   const animation = useOperatorAnimation(36, resetKey);
   const outputTile = Math.floor(animation.frame / 4);
   const phase = animation.frame % 4;
@@ -65,21 +67,21 @@ export function GemmVisualizer({ operator, resetKey }: { operator: OperatorDetai
   const written = phase === 3;
   const dims = dimensions(operator);
   const status = written
-    ? `Write D tile row ${row + 1}, column ${column + 1}.`
-    : `D tile row ${row + 1}, column ${column + 1}: accumulate K tile ${kTile + 1} of 3.`;
+    ? t("Write D tile row {row}, column {column}.", { row: row + 1, column: column + 1 })
+    : t("D tile row {row}, column {column}: accumulate K tile {tile} of 3.", { row: row + 1, column: column + 1, tile: kTile + 1 });
   return (
     <section className="operator-visualizer gemm-visualizer">
       <header>
-        <h3>GEMM tile microscope</h3>
+        <h3>{t("GEMM tile microscope")}</h3>
         <code>D = A @ B + C</code>
       </header>
       <div className="visualizer-dimensions">
         <span>M {dims.M?.toLocaleString() ?? "?"}</span>
         <span>N {dims.N?.toLocaleString() ?? "?"}</span>
         <span>K {dims.K?.toLocaleString() ?? "?"}</span>
-        <span>Schematic 3 × 3 output tiles</span>
+        <span>{t("Schematic 3 × 3 output tiles")}</span>
       </div>
-      <div className="gemm-diagram" aria-label="Three by three GEMM tile traversal">
+      <div className="gemm-diagram" aria-label={t("Three by three GEMM tile traversal")}>
         <Matrix name="A [M × K]" role="a-matrix" lane={(r) => r === row} focus={(r, c) => !written && r === row && c === kTile} />
         <b aria-hidden="true">@</b>
         <Matrix name="B [K × N]" role="b-matrix" lane={(_, c) => c === column} focus={(r, c) => !written && r === kTile && c === column} />
@@ -97,7 +99,7 @@ export function GemmVisualizer({ operator, resetKey }: { operator: OperatorDetai
       <div className="gemm-reduction">
         {[0, 1, 2].map((index) => (
           <span className={index < kTile || written ? "is-complete" : index === kTile ? "is-active" : ""} key={index}>
-            K tile {index + 1}
+            {t("K tile {index}", { index: index + 1 })}
           </span>
         ))}
       </div>

@@ -1,8 +1,10 @@
 import type { OperatorDetail } from "../domain/types";
 import { AnimationControls } from "./AnimationControls";
 import { useOperatorAnimation } from "./useOperatorAnimation";
+import { useModelText } from "../presentation/ModelDisplay";
 
 export function PatchVisualizer({ operator, resetKey }: { operator: OperatorDetail; resetKey: string }) {
+  const t = useModelText();
   const bindings = operator.scopeBindings;
   const height = bindings.H ?? 0;
   const width = bindings.W ?? 0;
@@ -15,24 +17,27 @@ export function PatchVisualizer({ operator, resetKey }: { operator: OperatorDeta
   const row = Math.floor(animation.frame / columns);
   const column = animation.frame % columns;
   const status = valid
-    ? `Patch ${animation.frame + 1}/${count}: row ${row + 1}, column ${column + 1}; pixels y ${row * patch}–${(row + 1) * patch - 1}, x ${column * patch}–${(column + 1) * patch - 1}.`
-    : "The declared image and patch dimensions do not form an exact lattice.";
+    ? t("Patch {index}/{count}: row {row}, column {column}; pixels y {y0}–{y1}, x {x0}–{x1}.", {
+      index: animation.frame + 1, count, row: row + 1, column: column + 1,
+      y0: row * patch, y1: (row + 1) * patch - 1, x0: column * patch, x1: (column + 1) * patch - 1,
+    })
+    : t("The declared image and patch dimensions do not form an exact lattice.");
   return (
     <section className="operator-visualizer patch-visualizer">
       <header>
-        <h3>Patch projection microscope</h3>
-        <code>patch · weight → token</code>
+        <h3>{t("Patch projection microscope")}</h3>
+        <code>{t("patch · weight → token")}</code>
       </header>
       <div className="visualizer-dimensions">
-        <span>Image {height} × {width}</span>
-        <span>Patch / stride {patch} × {patch}</span>
-        <span>Channels {bindings.C ?? "?"}</span>
-        <span>Tokens / view {bindings.T ?? "?"}</span>
+        <span>{t("Image")} {height} × {width}</span>
+        <span>{t("Patch / stride")} {patch} × {patch}</span>
+        <span>{t("Channels")} {bindings.C ?? "?"}</span>
+        <span>{t("Tokens / view")} {bindings.T ?? "?"}</span>
       </div>
       {valid ? (
         <div className="patch-diagram">
           <div>
-            <strong>Input patch lattice</strong>
+            <strong>{t("Input patch lattice")}</strong>
             <span className="patch-grid" style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}>
               {Array.from({ length: count }, (_, index) => (
                 <i className={index === animation.frame ? "is-active" : ""} key={index} />
@@ -43,7 +48,7 @@ export function PatchVisualizer({ operator, resetKey }: { operator: OperatorDeta
           <span className="patch-weight">P²C × D</span>
           <b aria-hidden="true">→</b>
           <div>
-            <strong>Output tokens</strong>
+            <strong>{t("Output tokens")}</strong>
             <span className="patch-grid" style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}>
               {Array.from({ length: count }, (_, index) => (
                 <i className={index < animation.frame ? "is-complete" : index === animation.frame ? "is-active" : ""} key={index} />
@@ -51,8 +56,8 @@ export function PatchVisualizer({ operator, resetKey }: { operator: OperatorDeta
             </span>
           </div>
         </div>
-      ) : <p className="visualizer-empty">Patch animation is unavailable for inconsistent dimensions.</p>}
-      <p className="visualizer-note">Illustrative mathematical traversal, not a runtime tile schedule.</p>
+      ) : <p className="visualizer-empty">{t("Patch animation is unavailable for inconsistent dimensions.")}</p>}
+      <p className="visualizer-note">{t("Illustrative mathematical traversal, not a runtime tile schedule.")}</p>
       <AnimationControls animation={animation} status={status} />
     </section>
   );

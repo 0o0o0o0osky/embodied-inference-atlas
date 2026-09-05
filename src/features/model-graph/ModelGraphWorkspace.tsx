@@ -18,6 +18,7 @@ import { encodeWorkload, workloadOverrides } from "./domain/workload";
 import { layoutLogicalDag } from "./layout/paperLayout";
 import { resolveConnectorHints } from "./layout/routeConnectors";
 import { resolvePresentationProfile } from "./presentation/registry";
+import { ModelDisplayProvider, useModelText } from "./presentation/ModelDisplay";
 
 interface ModelGraphWorkspaceProps {
   data: AtlasData;
@@ -48,6 +49,7 @@ export function ModelGraphWorkspace({
   }
 
   return (
+    <ModelDisplayProvider modelId={model.model_id}>
     <ResolvedModelGraph
       data={data}
       record={record}
@@ -55,6 +57,7 @@ export function ModelGraphWorkspace({
       route={route}
       navigate={navigate}
     />
+    </ModelDisplayProvider>
   );
 }
 
@@ -71,6 +74,7 @@ function ResolvedModelGraph({
   route: RouteState;
   navigate: (patch: RoutePatch, replace?: boolean) => void;
 }) {
+  const t = useModelText();
   const defaultGraph = useMemo(() => adaptV1ModelGraph(record), [record]);
   const overrides = useMemo(
     () => workloadOverrides(route.workload, defaultGraph.editableSymbols),
@@ -112,8 +116,8 @@ function ResolvedModelGraph({
   const resolvedRef = operator?.ref ?? "";
   const related = incidentNodeRefs(dag, resolvedRef);
   const viewport = useMemo(
-    () => resolveFocusViewport(dag, layout, operator?.ref ?? null),
-    [dag, layout, operator?.ref],
+    () => resolveFocusViewport(dag, layout, operator?.ref ?? null, model.model_id === "pi0" ? "stage" : "canvas"),
+    [dag, layout, model.model_id, operator?.ref],
   );
 
   const updateWorkload = (next: Record<string, number>) => {
@@ -176,7 +180,7 @@ function ResolvedModelGraph({
         "logical-workspace-grid",
         operator ? "is-focused" : "",
       ].filter(Boolean).join(" ")}>
-        <section className="logical-graph-panel" aria-label={profile.panelLabel}>
+        <section className="logical-graph-panel" aria-label={t(profile.panelLabel)}>
           <LogicalDagSvg
             dag={dag}
             layout={layout}
@@ -187,7 +191,7 @@ function ResolvedModelGraph({
             mode={operator ? "focus" : "overview"}
             viewport={viewport}
             onSelect={(ref) => navigate({ entity: logicalEntity(ref) }, true)}
-            ariaLabel={profile.diagramLabel}
+            ariaLabel={t(profile.diagramLabel)}
             compactControls={isPi0}
             toolbar={isPi0 ? <>
               <h2 id="logical-graph-title">Pi0 <span>v{graph.version}</span></h2>
@@ -197,7 +201,7 @@ function ResolvedModelGraph({
               {workloadControls}
             </> : undefined}
             scenario={isPi0 ? <p className="graph-scenario-summary">
-              当前场景：{overrides.V} 个视角，{overrides.L_PROMPT} 个提示词位置，{overrides.T_ACTION} 个动作 token，{overrides.N_DENOISE} 步去噪。
+              当前场景：{overrides.V} 个视角，{overrides.L_PROMPT} 个提示词位置，{overrides.T_ACTION} 个动作词元，{overrides.N_DENOISE} 步去噪。
             </p> : undefined}
           />
         </section>
