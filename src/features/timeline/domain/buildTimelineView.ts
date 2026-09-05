@@ -9,6 +9,7 @@ import type {
   TimelineEvent,
   TimelineRecord,
   TimelineSummary,
+  TelemetryRecord,
 } from "../../profiler/domain/types";
 import { parseEntityKey } from "../../workbench/entityKeys";
 
@@ -32,6 +33,7 @@ export interface TimelineViewModel {
   separateReplayRun: RunRecord | null;
   separateReplayDeviceLabel: string | null;
   replayMetrics: readonly ProfilerMetric[];
+  replayTelemetry: readonly TelemetryRecord[];
   summariesByName: ReadonlyMap<string, TimelineSummary>;
   requestedCaptureUnavailable: boolean;
   unavailableReason: string;
@@ -146,6 +148,7 @@ export function buildTimelineView(
       separateReplayRun: null,
       separateReplayDeviceLabel: null,
       replayMetrics: [],
+      replayTelemetry: [],
       summariesByName: new Map(),
       requestedCaptureUnavailable: query.captureId !== null,
       unavailableReason: filters
@@ -217,6 +220,9 @@ export function buildTimelineView(
     separateReplayDeviceLabel,
     replayMetrics: separateReplay
       ? index.metricsBySubjectId.get(`kernel_observation:${separateReplay.observationId}`) ?? []
+      : [],
+    replayTelemetry: separateReplayCapture
+      ? evidence.telemetry.filter((item) => item.captureId === separateReplayCapture.captureId)
       : [],
     summariesByName: new Map(timeline.summaries.map((summary) => [summary.metricName, summary])),
     requestedCaptureUnavailable: query.captureId !== null && requested === null,

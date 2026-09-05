@@ -1,6 +1,6 @@
 import type { RoutePatch, RouteState } from "../../../app/routes";
 import { RouteLink } from "../../../components/RouteLink";
-import type { KernelLaunch, ProfilerMetric } from "../../profiler/domain/types";
+import type { KernelLaunch, ProfilerMetric, TelemetryRecord } from "../../profiler/domain/types";
 import { kernelEntity } from "../../workbench/entityKeys";
 import type { TimelineViewModel } from "../domain/buildTimelineView";
 
@@ -71,29 +71,56 @@ export function TimelineInspector({
             <div><dt>Independent run</dt><dd><code>{view.separateReplayRun.run_id}</code></dd></div>
             <div><dt>Device basis</dt><dd>{view.separateReplayDeviceLabel}<small>{view.separateReplayRun.device_id}</small></dd></div>
             <div><dt>Operating point</dt><dd>{humanize(view.separateReplayRun.operating_point.operating_point_id)}</dd></div>
+            <div><dt>Section mode</dt><dd>{humanize(view.separateReplayCapture.ncu?.sectionMode ?? "unknown")}</dd></div>
+            <div><dt>NCU sections</dt><dd>{formatDeclaredList(view.separateReplayCapture.ncu?.sections ?? null)}</dd></div>
+            <div><dt>Explicit metrics</dt><dd>{formatDeclaredList(view.separateReplayCapture.ncu?.explicitMetrics ?? null)}</dd></div>
+            <div><dt>Clock provenance</dt><dd>{view.separateReplayCapture.ncu
+              ? `${view.separateReplayCapture.ncu.clockControlRequest} · ${humanize(view.separateReplayCapture.ncu.origins.clockControlRequest ?? "unknown origin")} · ${view.separateReplayCapture.ncu.externalClockControl
+                ? `${humanize(view.separateReplayCapture.ncu.externalClockControl.controller)} ${humanize(view.separateReplayCapture.ncu.externalClockControl.state)} · ${humanize(view.separateReplayCapture.ncu.origins.externalClockControl ?? "unknown origin")}`
+                : "external clock unknown"}`
+              : "Unknown"}</dd></div>
           </dl>
           <p className="timeline-replay-independence">Same model/runtime/device only. Independent run and operating point; matched signature, not sample.</p>
           <dl className="timeline-metric-grid">
             <MetricValue label="SM throughput" metric={metric(metrics, "sm_throughput_pct_of_peak_sustained_elapsed")} />
-            <MetricValue label="Tensor active" metric={metric(metrics, "tensor_cycles_active_pct_of_peak_sustained_elapsed")} />
+            <MetricValue label="Tensor active" metric={preferredMetric(metrics, ["tensor_cycles_active_pct_of_peak_sustained_active", "tensor_cycles_active_pct_of_peak_sustained_elapsed"])} note="Active-cycle counter preferred; legacy elapsed-cycle counter remains visible" />
             <MetricValue label="Memory SOL" metric={metric(metrics, "memory_sol_pct_of_peak_sustained_elapsed")} />
+            <MetricValue label="Memory access throughput" metric={metric(metrics, "memory_access_throughput_pct_of_peak_sustained_elapsed")} />
+            <MetricValue label="L1TEX sector hit rate" metric={metric(metrics, "l1tex_sector_hit_rate_percent")} />
+            <MetricValue label="Memory request throughput" metric={metric(metrics, "memory_request_throughput_pct_of_peak_sustained_elapsed")} />
+            <MetricValue label="L2 sector hit rate" metric={metric(metrics, "l2_sector_hit_rate_percent")} />
+            <MetricValue label="Memory pipe throughput" metric={metric(metrics, "memory_pipes_throughput_pct_of_peak_sustained_elapsed")} />
             <MetricValue label="L1 throughput" metric={metric(metrics, "l1_throughput_pct_of_peak_sustained_active")} />
             <MetricValue label="L2 / LTS throughput" metric={metric(metrics, "l2_throughput_pct_of_peak_sustained_elapsed")} />
             <MetricValue label="L2 sysmem fill" metric={metric(metrics, "l2_sysmem_fill_pct_of_peak_sustained_elapsed")} note="Not LPDDR utilization" />
             <MetricValue label="Occupancy achieved" metric={metric(metrics, "achieved_occupancy_percent")} />
             <MetricValue label="Occupancy theoretical" metric={metric(metrics, "theoretical_occupancy_percent")} />
+            <MetricValue label="Issued warps / scheduler active cycle" metric={metric(metrics, "scheduler_issue_active_per_active_cycle")} />
+            <MetricValue label="One or more eligible" metric={metric(metrics, "scheduler_issue_active_pct_of_peak_sustained_active")} />
+            <MetricValue label="No eligible" metric={metric(metrics, "scheduler_issue_inst0_percent")} />
+            <MetricValue label="Active warps / active cycle" metric={metric(metrics, "scheduler_active_warps_per_active_cycle")} />
+            <MetricValue label="Eligible warps / active cycle" metric={metric(metrics, "scheduler_eligible_warps_per_active_cycle")} />
+            <MetricValue label="Maximum warps / active cycle" metric={metric(metrics, "scheduler_maximum_warps_per_active_cycle")} />
+            <MetricValue label="Active warps / peak sustained" metric={metric(metrics, "scheduler_warps_active_peak_sustained")} />
+            <MetricValue label="L2 sysmem fill sectors" metric={metric(metrics, "l2_sysmem_fill_sectors")} note="Do not add; not LPDDR traffic or utilization" />
+            <MetricValue label="L2 sysmem write sectors" metric={metric(metrics, "l2_sysmem_write_sectors")} note="Do not add; not LPDDR traffic or utilization" />
+            <MetricValue label="L2 sysmem lookup-miss sectors" metric={metric(metrics, "l2_sysmem_lookup_miss_sectors")} note="Do not add; not LPDDR traffic or utilization" />
+            <MetricValue label="Average warp latency / issued instruction" metric={metric(metrics, "average_warp_latency_cycles_per_issued_instruction")} />
+            <MetricValue label="Long scoreboard cycles / issued instruction" metric={metric(metrics, "long_scoreboard_cycles_per_issued_instruction")} />
+            <MetricValue label="Short scoreboard cycles / issued instruction" metric={metric(metrics, "short_scoreboard_cycles_per_issued_instruction")} />
           </dl>
+          {view.replayTelemetry.length ? <TelemetryLedger telemetry={view.replayTelemetry} /> : null}
           <LaunchLedger launch={replay.launch} />
           <dl className="timeline-missing-evidence">
             <MissingMetric label="DRAM / system-memory throughput" metrics={[metric(metrics, "system_memory_throughput_pct_of_ceiling")]} />
             <MissingMetric label="DRAM / system-memory bytes" metrics={[metric(metrics, "system_memory_bytes")]} />
-            <MissingMetric label="SchedulerStats" metrics={[metric(metrics, "scheduler_issue_active_percent")]} />
-            <MissingMetric label="Long scoreboard" metrics={[metric(metrics, "warp_stall_long_scoreboard_percent")]} />
-            <MissingMetric label="Short scoreboard" metrics={[metric(metrics, "warp_stall_short_scoreboard_percent")]} />
+            <MissingMetric label="SchedulerStats" metrics={[metric(metrics, "scheduler_issue_active_per_active_cycle"), metric(metrics, "scheduler_issue_active_percent")]} />
+            <MissingMetric label="Long scoreboard" metrics={[metric(metrics, "long_scoreboard_cycles_per_issued_instruction"), metric(metrics, "warp_stall_long_scoreboard_percent")]} />
+            <MissingMetric label="Short scoreboard" metrics={[metric(metrics, "short_scoreboard_cycles_per_issued_instruction"), metric(metrics, "warp_stall_short_scoreboard_percent")]} />
             <MissingMetric label="SourceCounters attribution" metrics={[metric(metrics, "source_counter_attribution")]} />
           </dl>
           <p className="timeline-diagnosis-boundary">
-            Missing whole-system traffic and scheduler/stall evidence prevents a compute-bound, memory-bound, LPDDR-saturation, or stall-cause diagnosis.
+            Whole-system traffic remains unavailable, so no LPDDR-saturation conclusion is supported. Scheduler and scoreboard counters, when present above, are diagnostic evidence rather than a standalone bottleneck verdict.
           </p>
           <details>
             <summary>Metric identity and provenance</summary>
@@ -117,6 +144,32 @@ export function TimelineInspector({
 
 function metric(metrics: readonly ProfilerMetric[], name: ProfilerMetric["metricName"]) {
   return metrics.find((item) => item.metricName === name) ?? null;
+}
+
+function preferredMetric(metrics: readonly ProfilerMetric[], names: readonly ProfilerMetric["metricName"][]) {
+  const candidates = names.flatMap((name) => metric(metrics, name) ?? []);
+  return candidates.find((item) => item.value !== null) ?? candidates[0] ?? null;
+}
+
+function formatDeclaredList(values: readonly string[] | null) {
+  if (values === null) return "Unknown";
+  return values.length ? values.join(" · ") : "None declared";
+}
+
+function TelemetryLedger({ telemetry }: { telemetry: readonly TelemetryRecord[] }) {
+  return (
+    <dl className="timeline-metric-grid">
+      {telemetry.map((item) => (
+        <div key={item.telemetryId}>
+          <dt>{humanize(item.metricName)}</dt>
+          <dd>{item.summary
+            ? `${item.summary.value.toLocaleString()} ${item.summary.unit}`
+            : `Missing · ${humanize(item.missingReason ?? "unknown")}`}</dd>
+          <small>{humanize(item.measurementSource ?? "unknown source")}</small>
+        </div>
+      ))}
+    </dl>
+  );
 }
 
 function MetricValue({ label, metric: item, note }: { label: string; metric: ProfilerMetric | null; note?: string }) {

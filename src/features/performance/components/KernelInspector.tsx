@@ -1,30 +1,48 @@
 import type { RoutePatch, RouteState } from "../../../app/routes";
 import { RouteLink } from "../../../components/RouteLink";
-import type { KernelLaunch, ProfilerMetric, ProfilerMetricName } from "../../profiler/domain/types";
+import type { KernelLaunch, ProfilerMetric, ProfilerMetricName, TelemetryRecord } from "../../profiler/domain/types";
 import { kernelEntity } from "../../workbench/entityKeys";
 import type { KernelRowsModel, KernelRow } from "../domain/buildKernelRows";
 import { formatDuration, formatMetric, humanize } from "./KernelTable";
 
-const DIAGNOSTIC_METRICS: readonly [string, ProfilerMetricName, string?][] = [
-  ["SM throughput", "sm_throughput_pct_of_peak_sustained_elapsed"],
-  ["Tensor active", "tensor_cycles_active_pct_of_peak_sustained_elapsed"],
-  ["Tensor path", "tensor_path_fp4_fp6_fp8_to_fp32_dense_pct_of_peak_elapsed"],
-  ["Memory SOL", "memory_sol_pct_of_peak_sustained_elapsed"],
-  ["L1 throughput", "l1_throughput_pct_of_peak_sustained_active"],
-  ["L2 / LTS throughput", "l2_throughput_pct_of_peak_sustained_elapsed"],
-  ["L2 sysmem-fill", "l2_sysmem_fill_pct_of_peak_sustained_elapsed", "L2 fill source; not LPDDR utilization"],
-  ["Occupancy achieved", "achieved_occupancy_percent"],
-  ["Occupancy theoretical", "theoretical_occupancy_percent"],
-  ["GPC cycle rate", "gpc_cycle_rate_hz"],
-  ["SM cycle rate", "sm_cycle_rate_hz"],
+const DIAGNOSTIC_METRICS: readonly [string, readonly ProfilerMetricName[], string?][] = [
+  ["SM throughput", ["sm_throughput_pct_of_peak_sustained_elapsed"]],
+  ["Tensor active", ["tensor_cycles_active_pct_of_peak_sustained_active", "tensor_cycles_active_pct_of_peak_sustained_elapsed"], "Active-cycle counter preferred; legacy elapsed-cycle counter remains visible"],
+  ["Tensor path", ["tensor_path_fp4_fp6_fp8_to_fp32_dense_pct_of_peak_elapsed"]],
+  ["Memory SOL", ["memory_sol_pct_of_peak_sustained_elapsed"]],
+  ["Memory access throughput", ["memory_access_throughput_pct_of_peak_sustained_elapsed"]],
+  ["L1TEX sector hit rate", ["l1tex_sector_hit_rate_percent"]],
+  ["Memory request throughput", ["memory_request_throughput_pct_of_peak_sustained_elapsed"]],
+  ["L2 sector hit rate", ["l2_sector_hit_rate_percent"]],
+  ["Memory pipe throughput", ["memory_pipes_throughput_pct_of_peak_sustained_elapsed"]],
+  ["L1 throughput", ["l1_throughput_pct_of_peak_sustained_active"]],
+  ["L2 / LTS throughput", ["l2_throughput_pct_of_peak_sustained_elapsed"]],
+  ["L2 sysmem-fill", ["l2_sysmem_fill_pct_of_peak_sustained_elapsed"], "L2 fill source; not LPDDR utilization"],
+  ["Occupancy achieved", ["achieved_occupancy_percent"]],
+  ["Occupancy theoretical", ["theoretical_occupancy_percent"]],
+  ["GPC cycle rate", ["gpc_cycle_rate_hz"]],
+  ["SM cycle rate", ["sm_cycle_rate_hz"]],
+  ["Issued warps / scheduler active cycle", ["scheduler_issue_active_per_active_cycle"]],
+  ["One or more eligible", ["scheduler_issue_active_pct_of_peak_sustained_active"]],
+  ["No eligible", ["scheduler_issue_inst0_percent"]],
+  ["Active warps / active cycle", ["scheduler_active_warps_per_active_cycle"]],
+  ["Eligible warps / active cycle", ["scheduler_eligible_warps_per_active_cycle"]],
+  ["Maximum warps / active cycle", ["scheduler_maximum_warps_per_active_cycle"]],
+  ["Active warps / peak sustained", ["scheduler_warps_active_peak_sustained"]],
+  ["L2 sysmem fill sectors", ["l2_sysmem_fill_sectors"], "Do not add; not LPDDR traffic or utilization"],
+  ["L2 sysmem write sectors", ["l2_sysmem_write_sectors"], "Do not add; not LPDDR traffic or utilization"],
+  ["L2 sysmem lookup-miss sectors", ["l2_sysmem_lookup_miss_sectors"], "Do not add; not LPDDR traffic or utilization"],
+  ["Average warp latency / issued instruction", ["average_warp_latency_cycles_per_issued_instruction"]],
+  ["Long scoreboard cycles / issued instruction", ["long_scoreboard_cycles_per_issued_instruction"]],
+  ["Short scoreboard cycles / issued instruction", ["short_scoreboard_cycles_per_issued_instruction"]],
 ];
 
 const DIAGNOSIS_GAPS: readonly [string, readonly ProfilerMetricName[]][] = [
   ["DRAM / system-memory throughput", ["system_memory_throughput_pct_of_ceiling"]],
   ["DRAM / system-memory bytes", ["system_memory_bytes"]],
-  ["SchedulerStats", ["scheduler_issue_active_percent"]],
-  ["Long scoreboard", ["warp_stall_long_scoreboard_percent"]],
-  ["Short scoreboard", ["warp_stall_short_scoreboard_percent"]],
+  ["SchedulerStats", ["scheduler_issue_active_per_active_cycle", "scheduler_issue_active_percent"]],
+  ["Long scoreboard", ["long_scoreboard_cycles_per_issued_instruction", "warp_stall_long_scoreboard_percent"]],
+  ["Short scoreboard", ["short_scoreboard_cycles_per_issued_instruction", "warp_stall_short_scoreboard_percent"]],
   ["SourceCounters attribution", ["source_counter_attribution"]],
 ];
 
@@ -78,20 +96,37 @@ export function KernelInspector({ model, route, navigate }: {
       <section className="kernel-inspector-section">
         <div className="kernel-section-heading"><p>Named diagnostic metrics</p><h4>{isNcu ? "Replay counters" : "No replay counters on Nsys aggregate"}</h4></div>
         <dl className="kernel-diagnostic-grid">
-          {DIAGNOSTIC_METRICS.map(([label, name, note]) => (
-            <MetricLedger key={name} label={label} metric={row.metrics.get(name) ?? null} note={note} />
+          {DIAGNOSTIC_METRICS.map(([label, names, note]) => (
+            <MetricLedger key={label} label={label} metric={preferredMetric(row.metrics, names)} note={note} />
           ))}
         </dl>
       </section>
 
+      {row.capture.ncu ? (
+        <section className="kernel-inspector-section">
+          <div className="kernel-section-heading"><p>Capture contract</p><h4>Section and clock provenance</h4></div>
+          <dl className="kernel-gap-ledger">
+            <Ledger label="Section mode" value={humanize(row.capture.ncu.sectionMode ?? "unknown")} />
+            <Ledger label="Sections" value={formatDeclaredList(row.capture.ncu.sections)} />
+            <Ledger label="Explicit metrics" value={formatDeclaredList(row.capture.ncu.explicitMetrics)} />
+            <Ledger label="NCU clock request" value={`${row.capture.ncu.clockControlRequest} · ${humanize(row.capture.ncu.origins.clockControlRequest ?? "unknown origin")}`} />
+            <Ledger label="External clock control" value={row.capture.ncu.externalClockControl
+              ? `${humanize(row.capture.ncu.externalClockControl.controller)} ${humanize(row.capture.ncu.externalClockControl.state)} · ${humanize(row.capture.ncu.origins.externalClockControl ?? "unknown origin")}`
+              : "Unknown"} />
+          </dl>
+        </section>
+      ) : null}
+
+      {row.telemetry.length ? <TelemetryLedger telemetry={row.telemetry} /> : null}
+
       <section className="kernel-inspector-section kernel-missing-section">
-        <div className="kernel-section-heading"><p>Diagnosis boundary</p><h4>Evidence that is not present</h4></div>
+        <div className="kernel-section-heading"><p>Diagnosis boundary</p><h4>Required evidence and current availability</h4></div>
         <dl className="kernel-gap-ledger">
           {DIAGNOSIS_GAPS.map(([label, names]) => (
             <GapLedger key={label} label={label} metrics={names.map((name) => row.metrics.get(name) ?? null)} />
           ))}
         </dl>
-        <p>Absent system-memory traffic and scheduler/stall evidence prevents compute-bound, memory-bound, LPDDR-saturation, or stall-cause diagnosis. Memory SOL and L2 sysmem-fill are not substitutes.</p>
+        <p>Whole-system traffic remains unavailable, so no LPDDR-saturation conclusion is supported. Scheduler and scoreboard counters, when present above, are diagnostic evidence rather than a standalone bottleneck verdict.</p>
       </section>
 
       <section className="kernel-link-boundary">
@@ -130,7 +165,7 @@ export function KernelInspector({ model, route, navigate }: {
           <summary>Counter identity, section, basis, confidence, and capture origins</summary>
           <dl>
             {Object.entries(row.capture.ncu.origins).map(([field, origin]) => (
-              <div key={field}><dt>{humanize(field)}</dt><dd>{humanize(origin)}</dd></div>
+              <div key={field}><dt>{humanize(field)}</dt><dd>{humanize(origin ?? "unknown")}</dd></div>
             ))}
           </dl>
           <ul>
@@ -145,6 +180,36 @@ export function KernelInspector({ model, route, navigate }: {
         </details>
       ) : null}
     </aside>
+  );
+}
+
+function preferredMetric(
+  metrics: ReadonlyMap<ProfilerMetricName, ProfilerMetric>,
+  names: readonly ProfilerMetricName[],
+) {
+  const candidates = names.flatMap((name) => metrics.get(name) ?? []);
+  return candidates.find((metric) => metric.value !== null) ?? candidates[0] ?? null;
+}
+
+function formatDeclaredList(values: readonly string[] | null) {
+  if (values === null) return "Unknown";
+  return values.length ? values.join(" · ") : "None declared";
+}
+
+function TelemetryLedger({ telemetry }: { telemetry: readonly TelemetryRecord[] }) {
+  return (
+    <section className="kernel-inspector-section">
+      <div className="kernel-section-heading"><p>Capture telemetry</p><h4>Measurement source retained</h4></div>
+      <dl className="kernel-gap-ledger">
+        {telemetry.map((item) => (
+          <Ledger
+            key={item.telemetryId}
+            label={humanize(item.metricName)}
+            value={`${item.summary ? `${item.summary.value.toLocaleString()} ${item.summary.unit}` : `Missing · ${humanize(item.missingReason ?? "unknown")}`} · ${humanize(item.measurementSource ?? "unknown source")}`}
+          />
+        ))}
+      </dl>
+    </section>
   );
 }
 

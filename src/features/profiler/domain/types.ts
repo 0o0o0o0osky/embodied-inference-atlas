@@ -25,16 +25,23 @@ export interface NcuCaptureOrigins {
   clockControlRequest: string;
   warmupCount: string;
   backingStoreBytes: string;
-  gpuFrequencyNotFixed: string;
+  gpuFrequencyNotFixed: string | null;
+  disableExtraSuffixes: string | null;
+  externalClockControl: string | null;
 }
 
 export interface NcuCaptureDetails {
   replayMode: "kernel";
   replayPasses: number;
   cacheControlRequest: "all";
-  clockControlRequest: "base";
+  clockControlRequest: "base" | "none";
   warmupCount: number;
   backingStoreBytes: number | null;
+  disableExtraSuffixes: boolean | null;
+  sectionMode: "scheduler_stats_with_sysmem_sectors" | "warp_state_stats" | null;
+  sections: readonly string[] | null;
+  explicitMetrics: readonly string[] | null;
+  externalClockControl: { controller: string; state: string } | null;
   origins: NcuCaptureOrigins;
 }
 
@@ -188,7 +195,13 @@ export type ProfilerMetricName =
   | "kernel_duration"
   | "sm_throughput_pct_of_peak_sustained_elapsed"
   | "tensor_cycles_active_pct_of_peak_sustained_elapsed"
+  | "tensor_cycles_active_pct_of_peak_sustained_active"
   | "memory_sol_pct_of_peak_sustained_elapsed"
+  | "memory_access_throughput_pct_of_peak_sustained_elapsed"
+  | "l1tex_sector_hit_rate_percent"
+  | "memory_request_throughput_pct_of_peak_sustained_elapsed"
+  | "l2_sector_hit_rate_percent"
+  | "memory_pipes_throughput_pct_of_peak_sustained_elapsed"
   | "l1_throughput_pct_of_peak_sustained_active"
   | "l2_throughput_pct_of_peak_sustained_elapsed"
   | "l2_sysmem_fill_pct_of_peak_sustained_elapsed"
@@ -200,6 +213,19 @@ export type ProfilerMetricName =
   | "system_memory_throughput_pct_of_ceiling"
   | "system_memory_bytes"
   | "scheduler_issue_active_percent"
+  | "scheduler_issue_active_per_active_cycle"
+  | "scheduler_issue_active_pct_of_peak_sustained_active"
+  | "scheduler_issue_inst0_percent"
+  | "scheduler_active_warps_per_active_cycle"
+  | "scheduler_eligible_warps_per_active_cycle"
+  | "scheduler_maximum_warps_per_active_cycle"
+  | "scheduler_warps_active_peak_sustained"
+  | "l2_sysmem_fill_sectors"
+  | "l2_sysmem_write_sectors"
+  | "l2_sysmem_lookup_miss_sectors"
+  | "average_warp_latency_cycles_per_issued_instruction"
+  | "long_scoreboard_cycles_per_issued_instruction"
+  | "short_scoreboard_cycles_per_issued_instruction"
   | "warp_stall_long_scoreboard_percent"
   | "warp_stall_short_scoreboard_percent"
   | "source_counter_attribution";
@@ -219,7 +245,7 @@ export interface ProfilerMetric {
   basis: string;
   statistic: "single" | "sum" | "metadata_value";
   value: number | null;
-  unit: "ns" | "percent" | "byte" | "count" | "hz" | "MHz";
+  unit: "ns" | "percent" | "byte" | "count" | "hz" | "MHz" | "warp_per_cycle" | "warp" | "sector" | "cycles_per_instruction";
   confidence: "high" | "medium" | "low" | "unknown";
   missingReason: string | null;
 }
@@ -257,9 +283,10 @@ export interface TelemetryRecord {
   recordKind: "metadata_snapshot" | "sampled_series" | "sampled_summary";
   alignment: "same_capture_relative_time" | "same_run_unaligned" | "separate_run" | "metadata_only";
   window: { startNs: number; durationNs: number } | null;
-  metricName: "emc_target_environment_frequency" | "cpu_target_environment_frequency" | "observed_emc_frequency" | "throttle_status";
-  samples: readonly { offsetNs: number; value: number; unit: "MHz" | "percent" }[];
-  summary: { statistic: "metadata_value" | "mean" | "max"; value: number; unit: "MHz" | "percent"; sampleCount: number } | null;
+  metricName: "emc_target_environment_frequency" | "cpu_target_environment_frequency" | "observed_emc_frequency" | "observed_gpu_frequency" | "observed_junction_temperature" | "observed_gpu_power" | "throttle_status";
+  measurementSource: string | null;
+  samples: readonly { offsetNs: number; value: number; unit: "MHz" | "percent" | "celsius" | "watt" | "mW" }[];
+  summary: { statistic: "metadata_value" | "mean" | "max"; value: number; unit: "MHz" | "percent" | "celsius" | "watt" | "mW"; sampleCount: number } | null;
   evidenceSemantics: "profiler_target_environment_metadata" | "observed_samples";
   missingReason: string | null;
 }

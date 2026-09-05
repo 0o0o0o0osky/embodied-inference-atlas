@@ -7,6 +7,7 @@ import type {
   ProfilerCapture,
   ProfilerEvidence,
   ProfilerMetric,
+  TelemetryRecord,
 } from "../../profiler/domain/types";
 import { parseEntityKey } from "../../workbench/entityKeys";
 
@@ -16,6 +17,7 @@ export interface KernelRow {
   capture: ProfilerCapture;
   run: RunRecord;
   metrics: ReadonlyMap<ProfilerMetric["metricName"], ProfilerMetric>;
+  telemetry: readonly TelemetryRecord[];
   links: readonly OperatorKernelLink[];
 }
 
@@ -184,6 +186,7 @@ export function buildKernelRows(
       capture,
       run,
       metrics: metricMap(index.metricsBySubjectId.get(`kernel_observation:${observation.observationId}`) ?? []),
+      telemetry: model.telemetry.filter((item) => item.captureId === capture.captureId),
       links: index.linksByObservationId.get(observation.observationId) ?? [],
     }];
   });

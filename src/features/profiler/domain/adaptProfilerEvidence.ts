@@ -37,6 +37,18 @@ function nullableText(value: unknown, label: string): string | null {
   return value === null ? null : text(value, label);
 }
 
+function optionalText(value: unknown, label: string): string | null {
+  return value === null || value === undefined ? null : text(value, label);
+}
+
+function optionalBoolean(value: unknown, label: string): boolean | null {
+  return value === null || value === undefined ? null : booleanValue(value, label);
+}
+
+function optionalStrings(value: unknown, label: string): string[] | null {
+  return value === null || value === undefined ? null : strings(value, label);
+}
+
 function numberValue(value: unknown, label: string): number {
   if (typeof value !== "number" || !Number.isFinite(value)) {
     throw new Error(`${label} must be a finite number`);
@@ -89,6 +101,9 @@ function adaptCapture(raw: CanonicalRecord): ProfilerCapture {
   const rawNsys = raw.nsys === null ? null : record(raw.nsys, "profiler capture nsys");
   const rawNcu = raw.ncu === null ? null : record(raw.ncu, "profiler capture ncu");
   const origins = rawNcu ? record(rawNcu.origins, "profiler capture ncu.origins") : null;
+  const externalClock = rawNcu?.external_clock_control === null || rawNcu?.external_clock_control === undefined
+    ? null
+    : record(rawNcu.external_clock_control, "profiler capture ncu.external_clock_control");
   return {
     captureId: text(raw.capture_id, "capture_id"),
     runId: text(raw.run_id, "capture run_id"),
@@ -119,9 +134,17 @@ function adaptCapture(raw: CanonicalRecord): ProfilerCapture {
       replayMode: text(rawNcu.replay_mode, "capture ncu.replay_mode") as "kernel",
       replayPasses: integer(rawNcu.replay_passes, "capture ncu.replay_passes"),
       cacheControlRequest: text(rawNcu.cache_control_request, "capture ncu.cache_control_request") as "all",
-      clockControlRequest: text(rawNcu.clock_control_request, "capture ncu.clock_control_request") as "base",
+      clockControlRequest: text(rawNcu.clock_control_request, "capture ncu.clock_control_request") as "base" | "none",
       warmupCount: integer(rawNcu.warmup_count, "capture ncu.warmup_count"),
       backingStoreBytes: nullableInteger(rawNcu.backing_store_bytes, "capture ncu.backing_store_bytes"),
+      disableExtraSuffixes: optionalBoolean(rawNcu.disable_extra_suffixes, "capture ncu.disable_extra_suffixes"),
+      sectionMode: optionalText(rawNcu.section_mode, "capture ncu.section_mode") as NonNullable<ProfilerCapture["ncu"]>["sectionMode"],
+      sections: optionalStrings(rawNcu.sections, "capture ncu.sections"),
+      explicitMetrics: optionalStrings(rawNcu.explicit_metrics, "capture ncu.explicit_metrics"),
+      externalClockControl: externalClock ? {
+        controller: text(externalClock.controller, "capture ncu.external_clock_control.controller"),
+        state: text(externalClock.state, "capture ncu.external_clock_control.state"),
+      } : null,
       origins: {
         selectionPolicy: text(origins.selection_policy, "capture ncu.origins.selection_policy"),
         replayMode: text(origins.replay_mode, "capture ncu.origins.replay_mode"),
@@ -130,7 +153,9 @@ function adaptCapture(raw: CanonicalRecord): ProfilerCapture {
         clockControlRequest: text(origins.clock_control_request, "capture ncu.origins.clock_control_request"),
         warmupCount: text(origins.warmup_count, "capture ncu.origins.warmup_count"),
         backingStoreBytes: text(origins.backing_store_bytes, "capture ncu.origins.backing_store_bytes"),
-        gpuFrequencyNotFixed: text(origins.gpu_frequency_not_fixed, "capture ncu.origins.gpu_frequency_not_fixed"),
+        gpuFrequencyNotFixed: optionalText(origins.gpu_frequency_not_fixed, "capture ncu.origins.gpu_frequency_not_fixed"),
+        disableExtraSuffixes: optionalText(origins.disable_extra_suffixes, "capture ncu.origins.disable_extra_suffixes"),
+        externalClockControl: optionalText(origins.external_clock_control, "capture ncu.origins.external_clock_control"),
       },
     } : null,
     missing: missing(raw.missing, "capture missing"),
@@ -322,15 +347,16 @@ function adaptTelemetry(raw: CanonicalRecord): TelemetryRecord {
       durationNs: integer(window.duration_ns, "telemetry window.duration_ns"),
     } : null,
     metricName: text(raw.metric_name, "telemetry metric_name") as TelemetryRecord["metricName"],
+    measurementSource: optionalText(raw.measurement_source, "telemetry measurement_source"),
     samples: records(raw.samples, "telemetry samples").map((sample) => ({
       offsetNs: integer(sample.offset_ns, "telemetry sample offset_ns"),
       value: numberValue(sample.value, "telemetry sample value"),
-      unit: text(sample.unit, "telemetry sample unit") as "MHz" | "percent",
+      unit: text(sample.unit, "telemetry sample unit") as TelemetryRecord["samples"][number]["unit"],
     })),
     summary: summary ? {
       statistic: text(summary.statistic, "telemetry summary statistic") as "metadata_value" | "mean" | "max",
       value: numberValue(summary.value, "telemetry summary value"),
-      unit: text(summary.unit, "telemetry summary unit") as "MHz" | "percent",
+      unit: text(summary.unit, "telemetry summary unit") as NonNullable<TelemetryRecord["summary"]>["unit"],
       sampleCount: integer(summary.sample_count, "telemetry summary sample_count"),
     } : null,
     evidenceSemantics: text(raw.evidence_semantics, "telemetry evidence_semantics") as TelemetryRecord["evidenceSemantics"],
