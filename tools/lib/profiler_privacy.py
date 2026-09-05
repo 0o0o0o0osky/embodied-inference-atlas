@@ -60,7 +60,9 @@ _LOCAL_IDS = {
 }
 
 
-def scan_profiler_bundle(value: object) -> list[Issue]:
+def scan_profiler_bundle(
+    value: object, *, allow_partial_run_sequence: bool = False
+) -> list[Issue]:
     datasets = value.get("datasets") if isinstance(value, Mapping) else None
     if not isinstance(datasets, Mapping):
         datasets = value if isinstance(value, Mapping) else {}
@@ -95,12 +97,18 @@ def scan_profiler_bundle(value: object) -> list[Issue]:
                 f"{base}.comparison_context.platform.device_id",
             }),
         ))
-    issues.extend(_scan_generated_ids(datasets, run_records))
+    issues.extend(_scan_generated_ids(
+        datasets, run_records,
+        allow_partial_run_sequence=allow_partial_run_sequence,
+    ))
     return issues
 
 
 def _scan_generated_ids(
-    datasets: Mapping, run_records: list[tuple[int, Mapping]]
+    datasets: Mapping,
+    run_records: list[tuple[int, Mapping]],
+    *,
+    allow_partial_run_sequence: bool,
 ) -> list[Issue]:
     issues: list[Issue] = []
     signature_labels: dict[str, str] = {}
@@ -179,7 +187,11 @@ def _scan_generated_ids(
             issues.append(_generated_id(
                 f"$.datasets.runs[{index}].configuration_id"
             ))
-    _require_contiguous_ordinals(issues, run_ordinal_groups)
+    _require_contiguous_ordinals(
+        issues,
+        run_ordinal_groups,
+        allow_partial_start=allow_partial_run_sequence,
+    )
 
     primary_keys = {
         "profiler_captures": "capture_id",
@@ -236,10 +248,17 @@ def _scan_generated_ids(
                     if dataset == "profiler_captures"
                     else None
                 )
+                child_prefix = (
+                    f"{prefix}-{label}"
+                    if ordinal == "001"
+                    else f"{prefix}-{label}-{ordinal}"
+                )
                 invalid = (
                     expected is not None and value != expected
                     or expected is None
-                    and re.fullmatch(rf"{re.escape(prefix)}-{re.escape(label)}-\d{{3}}", value) is None
+                    and re.fullmatch(
+                        rf"{re.escape(child_prefix)}-\d{{3}}", value
+                    ) is None
                 )
                 if invalid:
                     issues.append(_generated_id(
@@ -340,11 +359,13 @@ def _trailing_ordinal(value: str) -> int:
 def _require_contiguous_ordinals(
     issues: list[Issue],
     groups: Mapping[object, list[tuple[str, int]]],
+    *,
+    allow_partial_start: bool = False,
 ) -> None:
     for records in groups.values():
-        if sorted(ordinal for _, ordinal in records) != list(
-            range(1, len(records) + 1)
-        ):
+        ordinals = sorted(ordinal for _, ordinal in records)
+        start = ordinals[0] if allow_partial_start and ordinals else 1
+        if ordinals != list(range(start, start + len(records))):
             issues.extend(_generated_id(path) for path, _ in records)
 
 

@@ -19,6 +19,20 @@ PROFILER_DATASETS = (
     "telemetry",
 )
 
+_TASK7_SCHEDULER_SECTIONS = (
+    "SpeedOfLight",
+    "ComputeWorkloadAnalysis",
+    "MemoryWorkloadAnalysis",
+    "LaunchStats",
+    "Occupancy",
+    "SchedulerStats",
+)
+_TASK7_SYSMEM_METRICS = (
+    "lts__d_sectors_fill_sysmem.sum",
+    "lts__t_sectors_aperture_sysmem_op_write.sum",
+    "lts__t_sectors_srcunit_tex_aperture_sysmem_lookup_miss.sum",
+)
+
 
 def profiler_semantic_issues(datasets: Mapping[str, list[Mapping]]) -> list[Issue]:
     issues: list[Issue] = []
@@ -111,18 +125,59 @@ def profiler_semantic_issues(datasets: Mapping[str, list[Mapping]]) -> list[Issu
             operating = run.get("operating_point")
             origins = ncu.get("origins")
             missing = capture.get("missing")
-            if (
-                not isinstance(origins, Mapping)
-                or origins.get("selection_policy") != "session_command"
-                or origins.get("gpu_frequency_not_fixed") != "collection_log_manual_audit"
-                or origins.get("warmup_count") != "harness_source_audit"
-                or origins.get("backing_store_bytes") != "unavailable"
-                or ncu.get("backing_store_bytes") is not None
-                or not isinstance(missing, Mapping)
-                or missing.get("ncu.backing_store_bytes") != "unavailable"
-                or not isinstance(warnings, list)
-                or "gpu_frequency_not_fixed" not in warnings
-            ):
+            warning_values = warnings if isinstance(warnings, list) else []
+            common_provenance_valid = (
+                isinstance(origins, Mapping)
+                and origins.get("selection_policy") == "session_command"
+                and origins.get("warmup_count") == "harness_source_audit"
+                and origins.get("backing_store_bytes") == "unavailable"
+                and ncu.get("backing_store_bytes") is None
+                and isinstance(missing, Mapping)
+                and missing.get("ncu.backing_store_bytes") == "unavailable"
+                and isinstance(warnings, list)
+            )
+            clock_control = ncu.get("clock_control_request")
+            if clock_control == "base":
+                clock_provenance_valid = (
+                    isinstance(origins, Mapping)
+                    and origins.get("gpu_frequency_not_fixed")
+                    == "collection_log_manual_audit"
+                    and "external_clock_control" not in origins
+                    and ncu.get("external_clock_control") is None
+                    and "gpu_frequency_not_fixed" in warning_values
+                    and ncu.get("section_mode") is None
+                    and ncu.get("sections") is None
+                    and ncu.get("explicit_metrics") is None
+                    and ncu.get("disable_extra_suffixes") is None
+                )
+            else:
+                mode = ncu.get("section_mode")
+                expected_sections = [*_TASK7_SCHEDULER_SECTIONS]
+                if mode == "scheduler_warp_stats_with_sysmem_sectors":
+                    expected_sections.append("WarpStateStats")
+                clock_provenance_valid = (
+                    clock_control == "none"
+                    and isinstance(origins, Mapping)
+                    and origins.get("external_clock_control")
+                    == "collection_wrapper_observed"
+                    and origins.get("disable_extra_suffixes") == "session_command"
+                    and "gpu_frequency_not_fixed" not in origins
+                    and ncu.get("external_clock_control") == {
+                        "controller": "jetson_clocks", "state": "locked",
+                    }
+                    and "gpu_frequency_not_fixed" not in warning_values
+                    and mode in {
+                        "scheduler_stats_with_sysmem_sectors",
+                        "scheduler_warp_stats_with_sysmem_sectors",
+                    }
+                    and ncu.get("sections") == expected_sections
+                    and ncu.get("explicit_metrics") == list(_TASK7_SYSMEM_METRICS)
+                    and ncu.get("disable_extra_suffixes") is True
+                    and isinstance(operating, Mapping)
+                    and operating.get("clock_policy") == "jetson_clocks_locked"
+                    and operating.get("throttle_status") == "unknown"
+                )
+            if not common_provenance_valid or not clock_provenance_valid:
                 issues.append(_issue(base, "ncu_provenance", "NCU collection fields require controlled evidence origins"))
             if (
                 isinstance(warnings, list)
@@ -577,6 +632,7 @@ def _telemetry_issues(
 ) -> list[Issue]:
     issues: list[Issue] = []
     fixed_metadata: dict[tuple[str, str], float] = {}
+    metrics_by_capture: dict[object, list[object]] = defaultdict(list)
     for index, telemetry in enumerate(datasets.get("telemetry", [])):
         base = f"$.telemetry[{index}]"
         capture = captures.get(telemetry.get("capture_id"))
@@ -588,6 +644,9 @@ def _telemetry_issues(
             issues.append(_broken(f"{base}.run_id"))
             continue
         _same_capture_context(issues, base, telemetry, capture)
+        metrics_by_capture[telemetry.get("capture_id")].append(
+            telemetry.get("metric_name")
+        )
         operating = run.get("operating_point")
         if not isinstance(operating, Mapping) or telemetry.get("operating_point_id") != operating.get("operating_point_id"):
             issues.append(_issue(f"{base}.operating_point_id", "telemetry_operating_point", "telemetry operating point must match its run"))
@@ -607,12 +666,34 @@ def _telemetry_issues(
         if telemetry.get("record_kind") == "metadata_snapshot" and telemetry.get("evidence_semantics") != "profiler_target_environment_metadata":
             issues.append(_issue(f"{base}.evidence_semantics", "metadata_semantics", "profiler target metadata is not an observed clock"))
         op_id = telemetry.get("operating_point_id")
-        if op_id != "unknown" and isinstance(summary, Mapping) and _is_number(summary.get("value")):
+        if (
+            telemetry.get("record_kind") == "metadata_snapshot"
+            and op_id != "unknown"
+            and isinstance(summary, Mapping)
+            and _is_number(summary.get("value"))
+        ):
             key = (str(op_id), str(telemetry.get("metric_name")))
             value = float(summary["value"])
             if key in fixed_metadata and fixed_metadata[key] != value:
                 issues.append(_issue(base, "operating_point_metadata_conflict", "differing metadata cannot share a fixed operating point"))
             fixed_metadata[key] = value
+    locked_metrics = {
+        "observed_gpu_frequency",
+        "observed_gpu_temperature",
+        "observed_gpu_power",
+        "throttle_status",
+    }
+    for capture_id, capture in captures.items():
+        ncu = capture.get("ncu")
+        if not isinstance(ncu, Mapping) or ncu.get("clock_control_request") != "none":
+            continue
+        names = metrics_by_capture.get(capture_id, [])
+        if len(names) != len(locked_metrics) or set(names) != locked_metrics:
+            issues.append(_issue(
+                f"$.profiler_captures[{capture_id}].ncu",
+                "locked_capture_telemetry",
+                "externally locked NCU captures require GPU clock, temperature, power, and throttle availability telemetry",
+            ))
     return issues
 
 

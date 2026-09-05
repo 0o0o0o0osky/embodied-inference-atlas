@@ -28,7 +28,7 @@ _POLICY_KEYS = {"policy_version", "signatures", "ncu", "nsys"}
 
 def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Stage one reviewed 3-Nsys/16-NCU profiler batch"
+        description="Stage one reviewed profiler batch or incremental NCU batch"
     )
     parser.add_argument("--job", required=True, type=Path)
     parser.add_argument("--output", required=True, type=Path)
@@ -50,15 +50,22 @@ def import_profiler_job(
     except ValueError as error:
         raise SourceFormatError("profiler-batch: invalid job manifest") from error
     inputs = job.get("inputs")
-    if not isinstance(inputs, list) or len(inputs) != 19:
-        raise SourceFormatError(f"{source_label}: expected 19 profiler inputs")
+    if not isinstance(inputs, list) or not inputs:
+        raise SourceFormatError(f"{source_label}: expected profiler inputs")
     if not all(isinstance(item, Mapping) and set(item) == _INPUT_KEYS for item in inputs):
         raise SourceFormatError(f"{source_label}: invalid profiler input")
     tools = [item.get("tool") for item in inputs]
-    if tools.count("nsys") != 3 or tools.count("ncu") != 16:
-        raise SourceFormatError(f"{source_label}: expected 3 Nsys and 16 NCU inputs")
+    legacy_batch = (
+        len(inputs) == 19
+        and tools.count("nsys") == 3
+        and tools.count("ncu") == 16
+    )
+    if not legacy_batch and set(tools) != {"ncu"}:
+        raise SourceFormatError(
+            f"{source_label}: incremental profiler inputs must be NCU reports"
+        )
     paths = [item.get("input") for item in inputs]
-    if not all(isinstance(path, str) for path in paths) or len(set(paths)) != 19:
+    if not all(isinstance(path, str) for path in paths) or len(set(paths)) != len(paths):
         raise SourceFormatError(f"{source_label}: invalid profiler input")
 
     datasets: dict[str, list[dict[str, object]]] = {
@@ -206,7 +213,7 @@ def _validate_bundle(bundle: Mapping[str, object], repo_root: Path) -> None:
         issues.extend(validate_document(dataset, document, repo_root))
     issues.extend(profiler_semantic_issues(datasets))
     issues.extend(scan_json(bundle))
-    issues.extend(scan_profiler_bundle(bundle))
+    issues.extend(scan_profiler_bundle(bundle, allow_partial_run_sequence=True))
     if issues:
         raise SourceFormatError("profiler-batch: rejected canonical boundary")
 

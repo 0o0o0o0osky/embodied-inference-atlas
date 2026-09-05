@@ -21,7 +21,7 @@
           "duration_ns": {"type": "integer", "minimum": 1}
         }
       },
-      "metric_name": {"type": "string", "enum": ["emc_target_environment_frequency", "cpu_target_environment_frequency", "observed_emc_frequency", "throttle_status"]},
+      "metric_name": {"type": "string", "enum": ["emc_target_environment_frequency", "cpu_target_environment_frequency", "observed_emc_frequency", "observed_gpu_frequency", "observed_gpu_temperature", "observed_gpu_power", "throttle_status"]},
       "samples": {
         "type": "array",
         "items": {
@@ -31,7 +31,7 @@
           "properties": {
             "offset_ns": {"type": "integer", "minimum": 0},
             "value": {"type": "number"},
-            "unit": {"type": "string", "enum": ["MHz", "percent"]}
+            "unit": {"type": "string", "enum": ["MHz", "percent", "celsius", "watt"]}
           }
         }
       },
@@ -42,12 +42,12 @@
         "properties": {
           "statistic": {"type": "string", "enum": ["metadata_value", "mean", "max"]},
           "value": {"type": "number"},
-          "unit": {"type": "string", "enum": ["MHz", "percent"]},
+          "unit": {"type": "string", "enum": ["MHz", "percent", "celsius", "watt"]},
           "sample_count": {"type": "integer", "minimum": 0}
         }
       },
       "evidence_semantics": {"type": "string", "enum": ["profiler_target_environment_metadata", "observed_samples"]},
-      "missing_reason": {"type": ["string", "null"], "enum": ["not_collected", "capture_not_aligned", null]}
+      "missing_reason": {"type": ["string", "null"], "enum": ["not_collected", "capture_not_aligned", "unavailable_from_tool", null]}
     }
   }
 }

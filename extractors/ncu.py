@@ -9,12 +9,16 @@ import subprocess
 from collections.abc import Mapping, Sequence
 from pathlib import Path
 
-from extractors.common import SourceFormatError, record_id
+from extractors.common import SourceFormatError
 from extractors.profiler_common import (
     DIRECT_METRIC_NAMES,
     EXPLICIT_MISSING_METRICS,
     METRIC_REGISTRY,
     ProfilerImportContext,
+    SCHEDULER_METRIC_NAMES,
+    SYSMEM_SECTOR_METRIC_NAMES,
+    WARP_STATE_METRIC_NAMES,
+    profiler_record_id,
     require_profiler_run,
 )
 
@@ -49,21 +53,66 @@ SECTION_READER_METRICS: tuple[str, ...] = (
     "sm__ops_path_tensor_op_utcqmma_src_fp4_fp6_fp8_dst_fp32_sparsity_off.avg.pct_of_peak_sustained_elapsed",
 )
 
+SCHEDULER_READER_METRICS: tuple[str, ...] = (
+    "smsp__issue_active.avg.per_cycle_active",
+    "smsp__issue_active.avg.pct_of_peak_sustained_active",
+    "smsp__issue_inst0.avg.pct_of_peak_sustained_active",
+    "smsp__warps_active.avg.per_cycle_active",
+    "smsp__warps_eligible.avg.per_cycle_active",
+    "smsp__maximum_warps_avg_per_active_cycle",
+    "smsp__warps_active.avg.peak_sustained",
+)
+
+SYSMEM_SECTOR_READER_METRICS: tuple[str, ...] = (
+    "lts__d_sectors_fill_sysmem.sum",
+    "lts__t_sectors_aperture_sysmem_op_write.sum",
+    "lts__t_sectors_srcunit_tex_aperture_sysmem_lookup_miss.sum",
+)
+
+WARP_STATE_READER_METRICS: tuple[str, ...] = (
+    "smsp__average_warp_latency_per_inst_issued.ratio",
+    "smsp__average_warps_issue_stalled_long_scoreboard_per_issue_active.ratio",
+    "smsp__average_warps_issue_stalled_short_scoreboard_per_issue_active.ratio",
+)
+
 _IDENTITY_COLUMNS = (
     "ID", "Process ID", "Process Name", "Host Name", "Kernel Name",
     "Context", "Stream", "Block Size", "Grid Size", "Device", "CC",
 )
-_SECTION_MODES = {"section_set", "custom_metric_set_12"}
+_LEGACY_SECTION_MODES = {"section_set", "custom_metric_set_12"}
+_LOCKED_SECTION_MODES = {
+    "scheduler_stats_with_sysmem_sectors",
+    "scheduler_warp_stats_with_sysmem_sectors",
+}
+_SECTION_MODES = _LEGACY_SECTION_MODES | _LOCKED_SECTION_MODES
 _WARNINGS = {"gpu_frequency_not_fixed", "work_id_unavailable"}
-_SECTION_SET = {
+_LEGACY_SECTION_SET = {
     "LaunchStats", "Occupancy", "SpeedOfLight", "MemoryWorkloadAnalysis",
     "SpeedOfLight_HierarchicalTensorRooflineChart",
 }
+_SCHEDULER_SECTION_ORDER = (
+    "SpeedOfLight",
+    "ComputeWorkloadAnalysis",
+    "MemoryWorkloadAnalysis",
+    "LaunchStats",
+    "Occupancy",
+    "SchedulerStats",
+)
+_SCHEDULER_SECTION_SET = set(_SCHEDULER_SECTION_ORDER)
 _CLI_DEFAULT_VERSION = "2025.3.0.0"
-_ORIGIN_KEYS = {
+_COMMON_ORIGIN_KEYS = {
     "selection_policy", "replay_mode", "replay_passes",
     "cache_control_request", "clock_control_request", "warmup_count",
-    "backing_store_bytes", "gpu_frequency_not_fixed",
+    "backing_store_bytes",
+}
+_LEGACY_ORIGIN_KEYS = _COMMON_ORIGIN_KEYS | {"gpu_frequency_not_fixed"}
+_LOCKED_ORIGIN_KEYS = _COMMON_ORIGIN_KEYS | {
+    "disable_extra_suffixes", "external_clock_control",
+}
+_TELEMETRY_UNITS = {
+    "observed_gpu_frequency": "MHz",
+    "observed_gpu_temperature": "celsius",
+    "observed_gpu_power": "watt",
 }
 
 
@@ -112,8 +161,8 @@ def parse_ncu_exports(
         ("Waves Per SM", "launch__waves_per_multiprocessor"),
         context,
     )
-    capture_id = record_id("capture", context, 1)
-    observation_id = record_id("kernel-observation", context, 1)
+    capture_id = profiler_record_id("capture", context, 1)
+    observation_id = profiler_record_id("kernel-observation", context, 1)
     run_id = run["run_id"]
     source_id = context.source_id
     selection_policy = facts["selection_policy"]
@@ -134,6 +183,29 @@ def parse_ncu_exports(
     }
     if backing_store_bytes is None:
         capture_missing["ncu.backing_store_bytes"] = "unavailable"
+    ncu_collection = {
+        "replay_mode": policy["replay_mode"],
+        "replay_passes": policy["replay_passes"],
+        "cache_control_request": policy["cache_control_request"],
+        "clock_control_request": policy["clock_control_request"],
+        "warmup_count": policy["warmup_count"],
+        "backing_store_bytes": backing_store_bytes,
+        "origins": copy.deepcopy(dict(policy["origins"])),
+    }
+    section_mode = str(policy["section_mode"])
+    if section_mode in _LOCKED_SECTION_MODES:
+        sections = [*_SCHEDULER_SECTION_ORDER]
+        if section_mode == "scheduler_warp_stats_with_sysmem_sectors":
+            sections.append("WarpStateStats")
+        ncu_collection.update({
+            "section_mode": section_mode,
+            "sections": sections,
+            "explicit_metrics": list(SYSMEM_SECTOR_READER_METRICS),
+            "disable_extra_suffixes": policy["disable_extra_suffixes"],
+            "external_clock_control": copy.deepcopy(
+                dict(policy["external_clock_control"])
+            ),
+        })
     capture = {
         "capture_id": capture_id,
         "run_id": run_id,
@@ -152,15 +224,7 @@ def parse_ncu_exports(
         },
         "warnings": list(policy["warnings"]),
         "nsys": None,
-        "ncu": {
-            "replay_mode": policy["replay_mode"],
-            "replay_passes": policy["replay_passes"],
-            "cache_control_request": policy["cache_control_request"],
-            "clock_control_request": policy["clock_control_request"],
-            "warmup_count": policy["warmup_count"],
-            "backing_store_bytes": backing_store_bytes,
-            "origins": copy.deepcopy(dict(policy["origins"])),
-        },
+        "ncu": ncu_collection,
         "missing": capture_missing,
     }
     quality = ["replayed_launch"] + [
@@ -205,21 +269,9 @@ def parse_ncu_exports(
     )
     operating_point = run["operating_point"]
     assert isinstance(operating_point, Mapping)
-    telemetry = {
-        "telemetry_id": record_id("telemetry", context, 1),
-        "run_id": run_id,
-        "capture_id": capture_id,
-        "source_id": source_id,
-        "operating_point_id": operating_point["operating_point_id"],
-        "record_kind": "sampled_series",
-        "alignment": "same_run_unaligned",
-        "window": None,
-        "metric_name": "throttle_status",
-        "samples": [],
-        "summary": None,
-        "evidence_semantics": "observed_samples",
-        "missing_reason": "not_collected",
-    }
+    telemetry = _telemetry(
+        capture_id, run_id, source_id, operating_point, context, policy
+    )
     return {
         "bundle_version": "1.0.0",
         "source_label": context.source_label,
@@ -231,7 +283,7 @@ def parse_ncu_exports(
             "kernel_observations": [observation],
             "profiler_metrics": metrics,
             "operator_kernel_links": [],
-            "telemetry": [telemetry],
+            "telemetry": telemetry,
         },
     }
 
@@ -279,31 +331,31 @@ def _validate_policy(context: ProfilerImportContext, policy: Mapping[str, object
     origins = policy.get("origins")
     expected_identity = policy.get("expected_result_identity")
     expected_geometry = policy.get("expected_geometry")
-    expected_policy_keys = {
+    common_policy_keys = {
         "policy_id", "section_mode", "replay_mode", "replay_passes",
         "cache_control_request", "clock_control_request", "warmup_count",
         "backing_store_bytes", "warnings", "origins",
         "expected_result_identity", "expected_geometry", "signature",
     }
-    valid = (
-        set(policy) == expected_policy_keys
-        and policy.get("policy_id") == context.signature_policy_id
+    section_mode = policy.get("section_mode")
+    clock_control = policy.get("clock_control_request")
+    warnings = policy.get("warnings")
+    common_valid = (
+        policy.get("policy_id") == context.signature_policy_id
         and policy.get("section_mode") in _SECTION_MODES
         and policy.get("replay_mode") == "kernel"
         and isinstance(policy.get("replay_passes"), int)
         and not isinstance(policy.get("replay_passes"), bool)
         and policy["replay_passes"] > 0
         and policy.get("cache_control_request") == "all"
-        and policy.get("clock_control_request") == "base"
         and isinstance(policy.get("warmup_count"), int)
         and not isinstance(policy.get("warmup_count"), bool)
         and policy["warmup_count"] >= 0
         and policy.get("backing_store_bytes") is None
-        and isinstance(policy.get("warnings"), list)
-        and set(policy["warnings"]).issubset(_WARNINGS)
-        and "gpu_frequency_not_fixed" in policy["warnings"]
+        and isinstance(warnings, list)
+        and len(warnings) == len(set(warnings))
+        and set(warnings).issubset(_WARNINGS)
         and isinstance(origins, Mapping)
-        and set(origins) == _ORIGIN_KEYS
         and origins.get("selection_policy") == "session_command"
         and origins.get("replay_mode") in {"session_command", "ncu_cli_default_2025_3"}
         and origins.get("replay_passes") == "collection_log_manual_audit"
@@ -311,7 +363,6 @@ def _validate_policy(context: ProfilerImportContext, policy: Mapping[str, object
         and origins.get("clock_control_request") in {"session_command", "ncu_cli_default_2025_3"}
         and origins.get("warmup_count") == "harness_source_audit"
         and origins.get("backing_store_bytes") == "unavailable"
-        and origins.get("gpu_frequency_not_fixed") == "collection_log_manual_audit"
         and isinstance(expected_identity, Mapping)
         and set(expected_identity) == set(_IDENTITY_COLUMNS)
         and all(isinstance(expected_identity[column], str) and expected_identity[column] for column in _IDENTITY_COLUMNS)
@@ -322,7 +373,33 @@ def _validate_policy(context: ProfilerImportContext, policy: Mapping[str, object
         and isinstance(signature, Mapping)
         and context.window_policy_id == "not-applicable"
     )
-    if not valid:
+    legacy_valid = (
+        common_valid
+        and set(policy) == common_policy_keys
+        and section_mode in _LEGACY_SECTION_MODES
+        and clock_control == "base"
+        and "gpu_frequency_not_fixed" in warnings
+        and set(origins) == _LEGACY_ORIGIN_KEYS
+        and origins.get("gpu_frequency_not_fixed") == "collection_log_manual_audit"
+    )
+    locked_valid = (
+        common_valid
+        and set(policy) == common_policy_keys | {
+            "disable_extra_suffixes", "external_clock_control", "telemetry",
+        }
+        and section_mode in _LOCKED_SECTION_MODES
+        and clock_control == "none"
+        and "gpu_frequency_not_fixed" not in warnings
+        and set(origins) == _LOCKED_ORIGIN_KEYS
+        and policy.get("disable_extra_suffixes") is True
+        and origins.get("disable_extra_suffixes") == "session_command"
+        and origins.get("external_clock_control") == "collection_wrapper_observed"
+        and policy.get("external_clock_control") == {
+            "controller": "jetson_clocks", "state": "locked",
+        }
+        and _valid_telemetry_policy(policy.get("telemetry"))
+    )
+    if not (legacy_valid or locked_valid):
         raise SourceFormatError(f"{context.source_label}: invalid NCU policy")
     expected_signature = {
         "kernel_signature_id", "label_sanitized", "function_family",
@@ -333,12 +410,46 @@ def _validate_policy(context: ProfilerImportContext, policy: Mapping[str, object
         raise SourceFormatError(f"{context.source_label}: invalid NCU policy")
 
 
+def _valid_telemetry_policy(value: object) -> bool:
+    if not isinstance(value, Mapping) or set(value) != {
+        *_TELEMETRY_UNITS, "throttle_status",
+    }:
+        return False
+    for name in _TELEMETRY_UNITS:
+        summary = value.get(name)
+        if (
+            not isinstance(summary, Mapping)
+            or set(summary) != {"statistic", "value", "sample_count"}
+            or summary.get("statistic") not in {"mean", "max"}
+            or not isinstance(summary.get("value"), (int, float))
+            or isinstance(summary.get("value"), bool)
+            or summary["value"] < 0
+            or summary["value"] != summary["value"]
+            or summary["value"] in {float("inf"), float("-inf")}
+            or not isinstance(summary.get("sample_count"), int)
+            or isinstance(summary.get("sample_count"), bool)
+            or summary["sample_count"] < 1
+        ):
+            return False
+    return value.get("throttle_status") == {
+        "missing_reason": "unavailable_from_tool"
+    }
+
+
 def _reader_metrics(section_mode: str) -> tuple[str, ...]:
-    return (
-        (*NCU_READER_METRICS, *SECTION_READER_METRICS)
-        if section_mode == "section_set"
-        else NCU_READER_METRICS
-    )
+    if section_mode == "section_set":
+        return (*NCU_READER_METRICS, *SECTION_READER_METRICS)
+    if section_mode in _LOCKED_SECTION_MODES:
+        metrics = (
+            *NCU_READER_METRICS,
+            SECTION_READER_METRICS[0],
+            *SCHEDULER_READER_METRICS,
+            *SYSMEM_SECTOR_READER_METRICS,
+        )
+        if section_mode == "scheduler_warp_stats_with_sysmem_sectors":
+            return (*metrics, *WARP_STATE_READER_METRICS)
+        return metrics
+    return NCU_READER_METRICS
 
 
 def _session_facts(
@@ -399,10 +510,36 @@ def _session_facts(
     )
     sections = _option_values(tokens, "--section")
     metric_sets = _option_values(tokens, "--metrics")
-    if set(sections) == _SECTION_SET and len(sections) == len(_SECTION_SET) and not metric_sets:
+    disable_extra_suffixes = tokens.count("--disable-extra-suffixes") == 1
+    explicit_metrics = (
+        [item.strip() for item in metric_sets[0].split(",")]
+        if len(metric_sets) == 1
+        else []
+    )
+    if (
+        set(sections) == _LEGACY_SECTION_SET
+        and len(sections) == len(_LEGACY_SECTION_SET)
+        and not metric_sets
+    ):
         section_mode = "section_set"
     elif len(metric_sets) == 1 and not sections:
         section_mode = "custom_metric_set_12"
+    elif (
+        set(sections) == _SCHEDULER_SECTION_SET
+        and len(sections) == len(_SCHEDULER_SECTION_SET)
+        and len(explicit_metrics) == len(SYSMEM_SECTOR_READER_METRICS)
+        and set(explicit_metrics) == set(SYSMEM_SECTOR_READER_METRICS)
+        and disable_extra_suffixes
+    ):
+        section_mode = "scheduler_stats_with_sysmem_sectors"
+    elif (
+        set(sections) == _SCHEDULER_SECTION_SET | {"WarpStateStats"}
+        and len(sections) == len(_SCHEDULER_SECTION_SET) + 1
+        and len(explicit_metrics) == len(SYSMEM_SECTOR_READER_METRICS)
+        and set(explicit_metrics) == set(SYSMEM_SECTOR_READER_METRICS)
+        and disable_extra_suffixes
+    ):
+        section_mode = "scheduler_warp_stats_with_sysmem_sectors"
     else:
         raise SourceFormatError(f"{context.source_label}: invalid NCU section selection")
     return {
@@ -413,6 +550,7 @@ def _session_facts(
         "replay_mode": replay_mode,
         "cache_control_request": cache_control,
         "clock_control_request": clock_control,
+        "disable_extra_suffixes": disable_extra_suffixes,
         "origins": {
             "selection_policy": "session_command",
             "replay_mode": replay_origin,
@@ -480,6 +618,11 @@ def _verify_collection_facts(
         if policy[field] != facts[field] or origins[field] != fact_origins[field]:
             raise SourceFormatError(f"{context.source_label}: NCU collection metadata mismatch")
     if policy["section_mode"] != facts["section_mode"]:
+        raise SourceFormatError(f"{context.source_label}: NCU collection metadata mismatch")
+    if (
+        policy["section_mode"] in _LOCKED_SECTION_MODES
+        and policy["disable_extra_suffixes"] != facts["disable_extra_suffixes"]
+    ):
         raise SourceFormatError(f"{context.source_label}: NCU collection metadata mismatch")
 
 
@@ -630,6 +773,14 @@ def _metrics(
             "sm_cycle_rate_hz",
             "tensor_path_fp4_fp6_fp8_to_fp32_dense_pct_of_peak_elapsed",
         ))
+    elif section_mode in _LOCKED_SECTION_MODES:
+        metric_names.extend((
+            "gpc_cycle_rate_hz",
+            *SCHEDULER_METRIC_NAMES,
+            *SYSMEM_SECTOR_METRIC_NAMES,
+        ))
+        if section_mode == "scheduler_warp_stats_with_sysmem_sectors":
+            metric_names.extend(WARP_STATE_METRIC_NAMES)
     for metric_name in metric_names:
         spec = METRIC_REGISTRY[metric_name]
         raw_counter = spec["raw_counter_name"]
@@ -640,10 +791,10 @@ def _metrics(
             else spec["sections"][0]
         )
         value: float | int = values[raw_counter]
-        if metric_name == "kernel_duration":
+        if metric_name == "kernel_duration" or spec["unit"] == "sector":
             value = _integer(value, context, "raw", 1)
         metrics.append({
-            "metric_id": record_id("metric", context, len(metrics) + 1),
+            "metric_id": profiler_record_id("metric", context, len(metrics) + 1),
             "capture_id": capture_id,
             "run_id": run_id,
             "source_id": source_id,
@@ -658,10 +809,22 @@ def _metrics(
             "confidence": "medium",
             "missing_reason": None,
         })
-    for metric_name, missing_reason in EXPLICIT_MISSING_METRICS:
+    missing_metrics = EXPLICIT_MISSING_METRICS
+    if section_mode in _LOCKED_SECTION_MODES:
+        missing_metrics = (
+            ("system_memory_throughput_pct_of_ceiling", "counter_absent_from_report"),
+            ("system_memory_bytes", "counter_absent_from_report"),
+            ("source_counter_attribution", "section_not_collected"),
+        )
+        if section_mode == "scheduler_stats_with_sysmem_sectors":
+            missing_metrics = (
+                *missing_metrics,
+                *((name, "section_not_collected") for name in WARP_STATE_METRIC_NAMES),
+            )
+    for metric_name, missing_reason in missing_metrics:
         spec = METRIC_REGISTRY[metric_name]
         metrics.append({
-            "metric_id": record_id("metric", context, len(metrics) + 1),
+            "metric_id": profiler_record_id("metric", context, len(metrics) + 1),
             "capture_id": capture_id,
             "run_id": run_id,
             "source_id": source_id,
@@ -677,3 +840,77 @@ def _metrics(
             "missing_reason": missing_reason,
         })
     return metrics
+
+
+def _telemetry(
+    capture_id: str,
+    run_id: str,
+    source_id: str,
+    operating_point: Mapping[str, object],
+    context: ProfilerImportContext,
+    policy: Mapping[str, object],
+) -> list[dict[str, object]]:
+    policy_telemetry = policy.get("telemetry")
+    if not isinstance(policy_telemetry, Mapping):
+        return [{
+            "telemetry_id": profiler_record_id("telemetry", context, 1),
+            "run_id": run_id,
+            "capture_id": capture_id,
+            "source_id": source_id,
+            "operating_point_id": operating_point["operating_point_id"],
+            "record_kind": "sampled_series",
+            "alignment": "same_run_unaligned",
+            "window": None,
+            "metric_name": "throttle_status",
+            "samples": [],
+            "summary": None,
+            "evidence_semantics": "observed_samples",
+            "missing_reason": "not_collected",
+        }]
+
+    records: list[dict[str, object]] = []
+    for metric_name, unit in _TELEMETRY_UNITS.items():
+        summary = policy_telemetry[metric_name]
+        assert isinstance(summary, Mapping)
+        records.append({
+            "telemetry_id": profiler_record_id(
+                "telemetry", context, len(records) + 1
+            ),
+            "run_id": run_id,
+            "capture_id": capture_id,
+            "source_id": source_id,
+            "operating_point_id": operating_point["operating_point_id"],
+            "record_kind": "sampled_summary",
+            "alignment": "same_run_unaligned",
+            "window": None,
+            "metric_name": metric_name,
+            "samples": [],
+            "summary": {
+                "statistic": summary["statistic"],
+                "value": summary["value"],
+                "unit": unit,
+                "sample_count": summary["sample_count"],
+            },
+            "evidence_semantics": "observed_samples",
+            "missing_reason": None,
+        })
+    throttle = policy_telemetry["throttle_status"]
+    assert isinstance(throttle, Mapping)
+    records.append({
+        "telemetry_id": profiler_record_id(
+            "telemetry", context, len(records) + 1
+        ),
+        "run_id": run_id,
+        "capture_id": capture_id,
+        "source_id": source_id,
+        "operating_point_id": operating_point["operating_point_id"],
+        "record_kind": "sampled_series",
+        "alignment": "same_run_unaligned",
+        "window": None,
+        "metric_name": "throttle_status",
+        "samples": [],
+        "summary": None,
+        "evidence_semantics": "observed_samples",
+        "missing_reason": throttle["missing_reason"],
+    })
+    return records
