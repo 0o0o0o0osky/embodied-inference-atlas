@@ -28,14 +28,19 @@ function TensorGroup({ title, ports }: { title: string; ports: readonly Material
 export function OperatorInspector({
   operator,
   resetKey,
+  onClose,
 }: {
   operator: OperatorDetail;
   resetKey: string;
+  onClose: () => void;
 }) {
   return (
     <aside className="operator-inspector" aria-live="polite" aria-labelledby="operator-title">
       <header>
         <p>{operator.category.replaceAll("_", " ")} / {operator.definitionId}</p>
+        <button type="button" className="operator-inspector-close" onClick={onClose} aria-label="Close operator inspector">
+          Close focus
+        </button>
         <h2 id="operator-title">{operator.label}</h2>
         <code>{operator.formula}</code>
       </header>

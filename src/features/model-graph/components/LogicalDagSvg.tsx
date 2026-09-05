@@ -11,6 +11,7 @@ import type {
   NodeVisualKind,
   ScopeBox,
 } from "../domain/types";
+import type { GraphViewport } from "../domain/focusViewport";
 
 interface LogicalDagSvgProps {
   dag: LogicalDag;
@@ -19,6 +20,8 @@ interface LogicalDagSvgProps {
   presentation: GraphPresentation;
   selectedRef: string;
   relatedRefs: ReadonlySet<string>;
+  mode?: "overview" | "focus";
+  viewport?: GraphViewport;
   onSelect: (ref: string) => void;
   ariaLabel: string;
   overlay?: ReactNode;
@@ -150,11 +153,16 @@ export function LogicalDagSvg({
   presentation,
   selectedRef,
   relatedRefs,
+  mode = selectedRef ? "focus" : "overview",
+  viewport,
   onSelect,
   ariaLabel,
   overlay,
 }: LogicalDagSvgProps) {
-  const selected = Boolean(selectedRef);
+  const selected = mode === "focus" && Boolean(selectedRef);
+  const activeViewport = viewport ?? { x: 0, y: 0, width: layout.width, height: layout.height, scopeId: null };
+  const scale = Math.min(layout.width / activeViewport.width, layout.height / activeViewport.height);
+  const sceneTransform = `translate(${(layout.width - activeViewport.width * scale) / 2} ${(layout.height - activeViewport.height * scale) / 2}) scale(${scale}) translate(${-activeViewport.x} ${-activeViewport.y})`;
   const canvasRef = useRef<HTMLDivElement>(null);
   const pan = (direction: -1 | 1) => {
     canvasRef.current?.scrollBy({ left: direction * 320, behavior: "auto" });
@@ -205,7 +213,7 @@ export function LogicalDagSvg({
         data-folded-truth-edge-count={connectors.coverage.foldedEdges.length}
         data-uncovered-truth-edge-count={connectors.coverage.uncoveredEdgeIds.length}
         data-layout-fingerprint={layoutFingerprint(layout)}
-        data-viewport-contract="authored-scale-horizontal-pan"
+        data-viewport-contract="two-state-focus"
       >
         <defs>
           <marker
@@ -225,6 +233,12 @@ export function LogicalDagSvg({
             <path d="M 24 0 L 0 0 0 24" />
           </pattern>
         </defs>
+        <g
+          className="logical-scene"
+          transform={sceneTransform}
+          data-viewport-mode={mode}
+          data-focus-scope={activeViewport.scopeId ?? undefined}
+        >
         <rect className="logical-paper-grid" width={layout.width} height={layout.height} />
 
         {layout.stageBoxes.map((stage, index) => (
@@ -319,6 +333,7 @@ export function LogicalDagSvg({
             Unresolved authored route: {item.id}
           </text>
         ))}
+        </g>
         </svg>
       </div>
     </div>

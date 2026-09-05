@@ -12,6 +12,7 @@ import { OperatorInspector } from "./components/OperatorInspector";
 import { WorkloadControls } from "./components/WorkloadControls";
 import { adaptLogicalDag, incidentNodeRefs } from "./domain/adaptLogicalDag";
 import { adaptV1ModelGraph, isV1ModelGraphRecord } from "./domain/adaptV1ModelGraph";
+import { resolveFocusViewport } from "./domain/focusViewport";
 import { encodeWorkload, workloadOverrides } from "./domain/workload";
 import { layoutLogicalDag } from "./layout/paperLayout";
 import { resolveConnectorHints } from "./layout/routeConnectors";
@@ -92,7 +93,6 @@ function ResolvedModelGraph({
     () => resolveConnectorHints(structuralDag, profile.presentation, layout),
     [layout, profile.presentation, structuralDag],
   );
-  const firstOperator = [...dag.nodes.values()].find((node) => node.kind === "operator");
   const parsedEntity = parseEntityKey(route.entity);
   const routedRef = logicalRefFromEntity(route.entity) ?? (parsedEntity?.kind === "runtime-group"
     ? (() => {
@@ -106,10 +106,14 @@ function ResolvedModelGraph({
       })()
     : null);
   const routedNode = routedRef ? dag.nodes.get(routedRef) : undefined;
-  const selectedNode = routedNode?.detail ? routedNode : firstOperator;
+  const selectedNode = routedNode?.kind === "operator" && routedNode.detail ? routedNode : null;
   const operator = selectedNode?.detail ?? null;
   const resolvedRef = operator?.ref ?? "";
   const related = incidentNodeRefs(dag, resolvedRef);
+  const viewport = useMemo(
+    () => resolveFocusViewport(dag, layout, operator?.ref ?? null),
+    [dag, layout, operator?.ref],
+  );
 
   const updateWorkload = (next: Record<string, number>) => {
     navigate(
@@ -117,10 +121,6 @@ function ResolvedModelGraph({
       true,
     );
   };
-
-  if (!operator) {
-    return <section className="logical-unavailable"><h2>No atomic operator was materialized.</h2></section>;
-  }
 
   return (
     <section className="model-graph-workspace" aria-labelledby="logical-graph-title">
@@ -148,7 +148,7 @@ function ResolvedModelGraph({
         {profile.workloadNote}
       </p>
 
-      <GraphBreadcrumb modelLabel={model.display_name} graph={graph} operator={operator} />
+      {operator ? <GraphBreadcrumb modelLabel={model.display_name} graph={graph} operator={operator} /> : null}
 
       {layout.diagnostics.length || connectors.invalidHints.length || connectors.coverage.uncoveredEdgeIds.length ? (
         <div className="graph-diagnostics" role="status">
@@ -164,7 +164,7 @@ function ResolvedModelGraph({
 
       <div className={[
         "logical-workspace-grid",
-        layout.stageBoxes.length > 3 ? "logical-workspace-grid--wide" : "",
+        layout.stageBoxes.length > 3 || !operator ? "logical-workspace-grid--wide" : "",
       ].filter(Boolean).join(" ")}>
         <section className="logical-graph-panel" aria-label={profile.panelLabel}>
           <LogicalDagSvg
@@ -174,14 +174,19 @@ function ResolvedModelGraph({
             presentation={profile.presentation}
             selectedRef={resolvedRef}
             relatedRefs={related}
+            mode={operator ? "focus" : "overview"}
+            viewport={viewport}
             onSelect={(ref) => navigate({ entity: logicalEntity(ref) }, true)}
             ariaLabel={profile.diagramLabel}
           />
         </section>
-        <OperatorInspector
-          operator={operator}
-          resetKey={`${operator.ref}|${route.workload ?? "defaults"}`}
-        />
+        {operator ? (
+          <OperatorInspector
+            operator={operator}
+            resetKey={`${operator.ref}|${route.workload ?? "defaults"}`}
+            onClose={() => navigate({ entity: null }, true)}
+          />
+        ) : null}
       </div>
     </section>
   );

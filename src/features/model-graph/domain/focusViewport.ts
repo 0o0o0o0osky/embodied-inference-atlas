@@ -1,0 +1,82 @@
+import type { LogicalDag, LogicalLayout, LogicalRef, ScopeBox } from "./types";
+
+export interface GraphViewport {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  scopeId: string | null;
+}
+
+const FOCUS_PADDING = 48;
+
+function overview(layout: LogicalLayout): GraphViewport {
+  return { x: 0, y: 0, width: layout.width, height: layout.height, scopeId: null };
+}
+
+function smallestScope(dag: LogicalDag, layout: LogicalLayout, ref: LogicalRef): ScopeBox | null {
+  const scopeBoxes = new Map(layout.scopeBoxes.map((box) => [box.scopeId, box]));
+  return dag.scopes
+    .filter((scope) => scope.nodeRefs.includes(ref))
+    .map((scope) => scopeBoxes.get(scope.id))
+    .filter((box): box is ScopeBox => Boolean(box))
+    .sort((first, second) => first.width * first.height - second.width * second.height)[0] ?? null;
+}
+
+function fitToCanvas(
+  bounds: { left: number; top: number; right: number; bottom: number },
+  layout: LogicalLayout,
+) {
+  const aspectRatio = layout.width / layout.height;
+  let width = Math.min(layout.width, bounds.right - bounds.left + FOCUS_PADDING * 2);
+  let height = Math.min(layout.height, bounds.bottom - bounds.top + FOCUS_PADDING * 2);
+
+  if (width / height < aspectRatio) width = Math.min(layout.width, height * aspectRatio);
+  else height = Math.min(layout.height, width / aspectRatio);
+
+  if (width === layout.width) height = layout.height;
+  if (height === layout.height) width = layout.width;
+
+  const centerX = (bounds.left + bounds.right) / 2;
+  const centerY = (bounds.top + bounds.bottom) / 2;
+  return {
+    x: Math.max(0, Math.min(layout.width - width, centerX - width / 2)),
+    y: Math.max(0, Math.min(layout.height - height, centerY - height / 2)),
+    width,
+    height,
+  };
+}
+
+export function resolveFocusViewport(
+  dag: LogicalDag,
+  layout: LogicalLayout,
+  selectedRef: LogicalRef | null,
+): GraphViewport {
+  const selectedNode = selectedRef ? dag.nodes.get(selectedRef) : null;
+  if (!selectedNode || selectedNode.kind !== "operator") return overview(layout);
+
+  const scopeBox = smallestScope(dag, layout, selectedRef);
+  if (!scopeBox) return overview(layout);
+
+  const contextRefs = dag.edges
+    .filter((edge) => edge.source === selectedRef || edge.target === selectedRef)
+    .flatMap((edge) => [edge.source, edge.target]);
+  const contextBoxes = contextRefs
+    .map((ref) => layout.nodeBoxes.get(ref))
+    .filter((box): box is NonNullable<typeof box> => Boolean(box));
+  const bounds = contextBoxes.reduce(
+    (current, box) => ({
+      left: Math.min(current.left, box.x),
+      top: Math.min(current.top, box.y),
+      right: Math.max(current.right, box.x + box.width),
+      bottom: Math.max(current.bottom, box.y + box.height),
+    }),
+    {
+      left: scopeBox.x,
+      top: scopeBox.y,
+      right: scopeBox.x + scopeBox.width,
+      bottom: scopeBox.y + scopeBox.height,
+    },
+  );
+  return { ...fitToCanvas(bounds, layout), scopeId: scopeBox.scopeId };
+}
