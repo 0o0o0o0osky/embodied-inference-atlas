@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 
 import { type RoutePatch, type RouteState } from "../../app/routes";
+import { RouteLink } from "../../components/RouteLink";
 import { adaptRuntimeRealization, isRuntimeRealizationRecord } from "../runtime/domain/adaptRuntimeRealization";
 import { indexRuntimeRealization } from "../runtime/domain/indexRuntimeRealization";
 import { logicalEntity, logicalRefFromEntity, parseEntityKey } from "../workbench/entityKeys";
@@ -164,7 +165,7 @@ function ResolvedModelGraph({
 
       <div className={[
         "logical-workspace-grid",
-        layout.stageBoxes.length > 3 || !operator ? "logical-workspace-grid--wide" : "",
+        operator ? "is-focused" : "",
       ].filter(Boolean).join(" ")}>
         <section className="logical-graph-panel" aria-label={profile.panelLabel}>
           <LogicalDagSvg
@@ -185,6 +186,14 @@ function ResolvedModelGraph({
             operator={operator}
             resetKey={`${operator.ref}|${route.workload ?? "defaults"}`}
             onClose={() => navigate({ entity: null }, true)}
+            evidenceLinks={{
+              roofline: <RouteLink route={route} navigate={navigate} patch={{
+                tab: "roofline-kernels", rooflineLevel: "atomic", basis: null, entity: logicalEntity(operator.ref),
+              }}>查看分析 Roofline</RouteLink>,
+              kernel: <RouteLink route={route} navigate={navigate} patch={{
+                tab: "roofline-kernels", rooflineLevel: "kernel", basis: null, entity: logicalEntity(operator.ref),
+              }}>查看实测 Kernel 证据</RouteLink>,
+            }}
           />
         ) : null}
       </div>

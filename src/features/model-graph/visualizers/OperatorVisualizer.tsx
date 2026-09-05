@@ -12,13 +12,13 @@ export function OperatorVisualizer({
   resetKey: string;
 }) {
   if (operator.visualizer === "gemm") {
-    return <GemmVisualizer operator={operator} resetKey={resetKey} />;
+    return <GemmVisualizer key={resetKey} operator={operator} resetKey={resetKey} />;
   }
   if (operator.visualizer === "attention") {
-    return <AttentionVisualizer operator={operator} resetKey={resetKey} />;
+    return <AttentionVisualizer key={resetKey} operator={operator} resetKey={resetKey} />;
   }
   if (operator.visualizer === "conv") {
-    return <PatchVisualizer operator={operator} resetKey={resetKey} />;
+    return <PatchVisualizer key={resetKey} operator={operator} resetKey={resetKey} />;
   }
-  return <SemanticVisualizer operator={operator} resetKey={resetKey} />;
+  return <SemanticVisualizer key={resetKey} operator={operator} resetKey={resetKey} />;
 }
