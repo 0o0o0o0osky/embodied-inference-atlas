@@ -7,6 +7,7 @@ import { adaptRuntimeRealization, isRuntimeRealizationRecord } from "../../runti
 import { indexRuntimeRealization } from "../../runtime/domain/indexRuntimeRealization";
 import { resolveRuntimeCandidates, type RuntimeCandidate } from "../../runtime/domain/resolveRuntimeRealization";
 import type { RuntimeRealizationRecord } from "../../runtime/domain/types";
+import { createModelCapabilityRegistry } from "../../workbench/modelCapabilities";
 import {
   kernelEntity,
   legacyComponentEntity,
@@ -37,8 +38,6 @@ export interface RooflineViewProps {
   route: RouteState;
   navigate: (patch: RoutePatch, replace?: boolean) => void;
 }
-
-const CORE_MODELS = new Set(["pi0", "pi05", "smolvla"]);
 
 function isAnalyticalWorkload(encoded: string | null) {
   return encoded?.split(",").some((part) => /^(?:v|p|a|n|V|L_PROMPT|T_ACTION|N_DENOISE)=/.test(part.trim())) ?? false;
@@ -123,30 +122,40 @@ function sparseObservedRunIds(data: AtlasData) {
 }
 
 export function RooflineView(props: RooflineViewProps) {
-  if (!CORE_MODELS.has(props.model.model_id)) {
-    return <section className="roofline-empty"><p>Roofline unavailable</p><h2>No canonical model materializer</h2><span>{props.model.model_id} is outside the three core Task 5 models.</span></section>;
+  const capabilities = useMemo(() => createModelCapabilityRegistry(props.data), [props.data]);
+  const modelCapabilities = capabilities.get(props.model.model_id);
+  if (!modelCapabilities?.roofline.available || !modelCapabilities.roofline.defaultScenarioId) {
+    return <section className="roofline-empty"><p>Roofline unavailable</p><h2>No canonical model materializer</h2><span>{modelCapabilities?.roofline.reason ?? `No capability record was derived for ${props.model.model_id}.`}</span></section>;
   }
-  return <CoreRooflineView {...props} />;
+  return <CoreRooflineView {...props} defaultScenarioId={modelCapabilities.roofline.defaultScenarioId} />;
 }
 
-function CoreRooflineView({ data, model, route, navigate }: RooflineViewProps) {
+function CoreRooflineView({
+  data,
+  model,
+  route,
+  navigate,
+  defaultScenarioId,
+}: RooflineViewProps & { defaultScenarioId: string }) {
   const canonical = useMemo(() => indexRoofline(data), [data]);
-  const modelId = model.model_id as "pi0" | "pi05" | "smolvla";
+  const modelId = model.model_id;
   const requestedBasis = route.basis ? canonical.basisById.get(route.basis) : null;
   const requestedScenario = requestedBasis ? canonical.scenarioById.get(requestedBasis.scenario_id) : null;
   const precisionPath = route.precision ?? requestedScenario?.precision_path.precision_path_id ?? "bf16_dense";
   const sourceScenario = canonical.scenarios.find((scenario) => scenario.model_id === modelId
     && scenario.origin === "default_precomputed"
     && scenario.precision_path.precision_path_id === precisionPath)
-    ?? canonical.scenarios.find((scenario) => scenario.model_id === modelId
-      && scenario.origin === "default_precomputed"
-      && scenario.precision_path.precision_path_id === "bf16_dense")!;
+    ?? canonical.scenarioById.get(defaultScenarioId)!;
   const graphRecord = data.datasets.model_graphs.find((record) => record.model_graph_id === sourceScenario.model_graph_id) ?? null;
   const workloadBounds = useMemo(() => promptBounds(graphRecord), [graphRecord]);
   const workload = parseInteractiveWorkload(route.workload, sourceScenario.workload, workloadBounds);
   const interactive = useMemo(() => {
     if (!isAnalyticalWorkload(route.workload)) return null;
-    const ceiling = canonical.ceilingById.get("thor-t5000-120w-1386mhz");
+    const scenarioBasis = canonical.bases.find((basis) =>
+      basis.scenario_id === sourceScenario.scenario_id &&
+      (basis.level === "atomic" || basis.level === "stage"),
+    );
+    const ceiling = scenarioBasis ? canonical.ceilingById.get(scenarioBasis.ceiling_id) : null;
     const realizationId = sourceScenario.precision_path.realization_ids[0];
     const realizationRecord = realizationId
       ? data.datasets.runtime_realizations.find((record) => record.realization_id === realizationId) ?? null

@@ -1,3 +1,5 @@
+import { useMemo } from "react";
+
 import { RouteLink } from "../../components/RouteLink";
 import type { RoutePatch, RouteState } from "../../app/routes";
 import type {
@@ -7,6 +9,7 @@ import type {
   ModelRecord,
 } from "../../types/atlas";
 import { modelSwitchPatch } from "../model-graph/domain/modelSwitch";
+import { createModelCapabilityRegistry, type ModelCapabilityRegistry } from "../workbench/modelCapabilities";
 
 interface ModelCatalogProps {
   data: AtlasData;
@@ -27,6 +30,7 @@ export function ModelCatalog({
   navigate,
   missingModelId,
 }: ModelCatalogProps) {
+  const capabilities = useMemo(() => createModelCapabilityRegistry(data), [data]);
   return (
     <main className="catalog-view">
       <section className="catalog-intro" aria-labelledby="catalog-title">
@@ -63,6 +67,7 @@ export function ModelCatalog({
               model={model}
               route={route}
               navigate={navigate}
+              capabilities={capabilities}
             />
           ))}
         </ol>
@@ -83,17 +88,19 @@ interface ModelRowProps {
   model: ModelRecord;
   route: RouteState;
   navigate: (patch: RoutePatch, replace?: boolean) => void;
+  capabilities: ModelCapabilityRegistry;
 }
 
-function ModelRow({ data, index, model, route, navigate }: ModelRowProps) {
+function ModelRow({ data, index, model, route, navigate, capabilities }: ModelRowProps) {
   const evidence = evidenceCounts(data, model.model_id);
   const runtimeCount = data.datasets.runtimes.filter((runtime) =>
     runtime.model_support.some((support) => support.model_id === model.model_id),
   ).length;
   const openPatch: RoutePatch = modelSwitchPatch(
-    data.datasets.model_graphs,
+    data,
     model.model_id,
-    route.entity,
+    route,
+    capabilities,
   );
 
   return (

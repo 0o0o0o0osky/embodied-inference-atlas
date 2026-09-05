@@ -93,7 +93,7 @@ export interface RooflineScenarioRecord {
   scenario_id: string;
   label: string;
   origin: ScenarioOrigin;
-  model_id: "pi0" | "pi05" | "smolvla";
+  model_id: string;
   model_graph_id: string | null;
   model_artifact_id: string;
   workload: RooflineWorkload;

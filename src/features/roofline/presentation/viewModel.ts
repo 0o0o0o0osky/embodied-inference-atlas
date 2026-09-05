@@ -18,7 +18,7 @@ import type {
 import type { RooflineIndex } from "../data/indexRoofline";
 
 export interface RooflineQuery {
-  modelId: "pi0" | "pi05" | "smolvla";
+  modelId: string;
   mode: "overview" | RooflineLevel;
   basisId: string | null;
   precisionPathId: string | null;
