@@ -109,13 +109,10 @@ export function Pi0RuntimeWorkspace({ data, model, record, route, navigate }: Pi
         onOpenDetails={() => navigate({ ...scopePatch, tab: "timeline", timelineCapture: nsys.active?.capture.captureId ?? null, entity: null })} />
       <Pi0KernelSection view={kernels} realization={activeRealization} dagOpen={dagOpen}
         onOpenDetails={() => navigate({ ...scopePatch, tab: "roofline-kernels", rooflineLevel: "kernel", entity: null, basis: null })}
-        onOpenDag={() => setDagOpen(true)} />
+        onOpenDag={() => setDagOpen((open) => !open)} />
       {dagOpen ? <section className="pi0-funnel-section" aria-labelledby="pi0-dag-title">
         <header className="pi0-funnel-heading">
           <h3 id="pi0-dag-title">完整实现图</h3>
-          <button type="button" className="pi0-funnel-detail" aria-expanded={true} aria-controls="pi0-implementation-dag" onClick={() => setDagOpen(false)}>
-            关闭完整实现图
-          </button>
         </header>
         <div id="pi0-implementation-dag">
           <Pi0ImplementationDagSection record={record} route={{ ...route, workload: normalizedWorkload }} activeRealization={activeRealization}
