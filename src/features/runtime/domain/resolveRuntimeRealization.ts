@@ -46,7 +46,8 @@ function matchesWorkload(
   encoded: string | null,
 ) {
   if (!encoded) return true;
-  if (encoded.startsWith("cfg-")) return record.configurationIds.includes(encoded);
+  if (record.configurationIds.includes(encoded)) return true;
+  if (/^(?:cfg|config)-/.test(encoded)) return false;
   const bindings = parsedBindings(encoded);
   if (!bindings) return false;
   const applicability = record.workloadApplicability;

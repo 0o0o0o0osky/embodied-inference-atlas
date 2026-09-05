@@ -6,13 +6,18 @@ import ceilingDocument from "../../../data/analysis/roofline_ceilings.json";
 import scenarioDocument from "../../../data/analysis/roofline_scenarios.json";
 import modelDocument from "../../../data/catalog/models.json";
 import runtimeDocument from "../../../data/catalog/runtimes.json";
+import runDocument from "../../../data/measurements/runs.json";
 import pi0GraphDocument from "../../../data/model_graphs/pi0.json";
 import pi05GraphDocument from "../../../data/model_graphs/pi05.json";
+import captureDocument from "../../../data/profiler/profiler_captures.json";
+import pi05RealizationDocument from "../../../data/runtime_realizations/pi05.json";
 import type { RouteState } from "../../app/routes";
 import type { AtlasData, AtlasDatasets, CanonicalRecord, ModelRecord } from "../../types/atlas";
 import { modelSwitchPatch } from "../model-graph/domain/modelSwitch";
 import { RooflineView } from "../roofline/components/RooflineView";
-import { logicalEntity } from "./entityKeys";
+import { materializeInteractiveRoofline } from "../roofline/data/materialize";
+import type { RooflineCeilingRecord, RooflineScenarioRecord } from "../roofline/domain/types";
+import { legacyComponentEntity, logicalEntity } from "./entityKeys";
 
 function atlas(overrides: Partial<AtlasDatasets>): AtlasData {
   return {
@@ -58,8 +63,15 @@ it("retains only target-model-compatible selections and discovers roofline suppo
       pi05GraphDocument.records[0],
     ] as unknown as CanonicalRecord[],
     runtimes: runtimeDocument.records as unknown as AtlasDatasets["runtimes"],
+    runs: runDocument.records as unknown as AtlasDatasets["runs"],
+    runtime_realizations: pi05RealizationDocument.records as unknown as CanonicalRecord[],
     roofline_scenarios: scenarioDocument.records as unknown as CanonicalRecord[],
     roofline_bases: basisDocument.records as unknown as CanonicalRecord[],
+    roofline_points: [{
+      point_id: "point-pi05-ordinary-atomic",
+      basis_id: "basis-pi05-bf16_dense-atomic-default",
+      entity: { kind: "atomic_operator" },
+    }],
   });
   expect(modelSwitchPatch(switchData, "pi05", currentRoute)).toEqual({
     model: "pi05",
@@ -72,6 +84,43 @@ it("retains only target-model-compatible selections and discovers roofline suppo
     timelineCapture: null,
     basis: null,
   });
+  expect(modelSwitchPatch(switchData, "pi05", {
+    ...currentRoute,
+    runtime: "flashrt",
+    workload: "V=3,L_PROMPT=48,T_ACTION=50,N_DENOISE=10",
+    precision: "fp8_w8a8",
+    runtimePrecision: "mixed-fp8-e4m3-fp16",
+    basis: "basis-pi05-bf16_dense-stage-default",
+  })).toMatchObject({
+    runtime: "flashrt",
+    hardware: "nvidia-jetson-agx-thor",
+    workload: null,
+    precision: "fp8_w8a8",
+    runtimePrecision: "mixed-fp8-e4m3-fp16",
+    basis: null,
+  });
+  expect(modelSwitchPatch(switchData, "pi05", {
+    ...currentRoute,
+    entity: legacyComponentEntity("point-pi05-ordinary-atomic"),
+  }).entity).toBeNull();
+
+  const pi0Data = atlas({
+    models: modelDocument.records as unknown as ModelRecord[],
+    model_graphs: [pi0GraphDocument.records[0]] as unknown as CanonicalRecord[],
+    runtimes: runtimeDocument.records as unknown as AtlasDatasets["runtimes"],
+    runs: runDocument.records as unknown as AtlasDatasets["runs"],
+    profiler_captures: captureDocument.records as unknown as CanonicalRecord[],
+    roofline_scenarios: scenarioDocument.records as unknown as CanonicalRecord[],
+    roofline_bases: basisDocument.records as unknown as CanonicalRecord[],
+  });
+  expect(modelSwitchPatch(pi0Data, "pi0", route({
+    model: "pi0",
+    timelineCapture: "capture-pi0-flashrt-ncu-encoder-large-gemm-001",
+  })).timelineCapture).toBeNull();
+  expect(modelSwitchPatch(pi0Data, "pi0", route({
+    model: "pi0",
+    workload: "config-pi0-flashrt-nsys-node-001",
+  })).workload).toBe("config-pi0-flashrt-nsys-node-001");
 
   const sourceModel = modelDocument.records.find((item) => item.model_id === "pi0")!;
   const sourceScenario = scenarioDocument.records.find((item) =>
@@ -116,4 +165,28 @@ it("retains only target-model-compatible selections and discovers roofline suppo
     />,
   );
   expect(markup).toContain("Roofline &amp; kernels");
+
+  const sourceCeiling = ceilingDocument.records.find((item) =>
+    item.ceiling_id === "thor-t5000-120w-1386mhz",
+  )!;
+  const selectedBandwidthId = "bw-future-selected";
+  const multiBandwidthCeiling = {
+    ...structuredClone(sourceCeiling),
+    bandwidth: [
+      { ...structuredClone(sourceCeiling.bandwidth[0]!), bandwidth_ceiling_id: "bw-decoy", byte_per_second: 1 },
+      { ...structuredClone(sourceCeiling.bandwidth[0]!), bandwidth_ceiling_id: selectedBandwidthId, byte_per_second: 273e9 },
+    ],
+  } as unknown as RooflineCeilingRecord;
+  const interactive = materializeInteractiveRoofline(
+    futureData.datasets.model_graphs[0]!,
+    futureScenario as unknown as RooflineScenarioRecord,
+    multiBandwidthCeiling,
+    { executedCameraViews: 3, executedPromptTokens: 48, actionHorizon: 50, denoiseSteps: 10 },
+    null,
+    selectedBandwidthId,
+  );
+  expect(interactive.bases.map((basis) => basis.bandwidth_ceiling_id)).toEqual([
+    selectedBandwidthId,
+    selectedBandwidthId,
+  ]);
 });

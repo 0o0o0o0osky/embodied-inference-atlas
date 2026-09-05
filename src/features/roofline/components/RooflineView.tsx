@@ -19,6 +19,7 @@ import {
   type CrossViewEntityKey,
 } from "../../workbench/entityKeys";
 import { createRooflineIndex, indexRoofline } from "../data/indexRoofline";
+import type { RooflineBasisRecord } from "../domain/types";
 import {
   materializeInteractiveRoofline,
   parseInteractiveWorkload,
@@ -121,6 +122,15 @@ function sparseObservedRunIds(data: AtlasData) {
   });
 }
 
+function basisContract(basis: RooflineBasisRecord) {
+  return [
+    basis.ceiling_id,
+    basis.bandwidth_ceiling_id,
+    basis.device_id,
+    basis.operating_point_id,
+  ].join("\u0000");
+}
+
 export function RooflineView(props: RooflineViewProps) {
   const capabilities = useMemo(() => createModelCapabilityRegistry(props.data), [props.data]);
   const modelCapabilities = capabilities.get(props.model.model_id);
@@ -151,22 +161,48 @@ function CoreRooflineView({
   const workload = parseInteractiveWorkload(route.workload, sourceScenario.workload, workloadBounds);
   const interactive = useMemo(() => {
     if (!isAnalyticalWorkload(route.workload)) return null;
-    const scenarioBasis = canonical.bases.find((basis) =>
-      basis.scenario_id === sourceScenario.scenario_id &&
-      (basis.level === "atomic" || basis.level === "stage"),
+    const scenarioBases = canonical.bases.filter((basis) =>
+      basis.scenario_id === sourceScenario.scenario_id
+      && (!route.hardware || basis.device_id === route.hardware),
     );
-    const ceiling = scenarioBasis ? canonical.ceilingById.get(scenarioBasis.ceiling_id) : null;
+    const requestedSourceBasis = requestedBasis?.scenario_id === sourceScenario.scenario_id
+      && (!route.hardware || requestedBasis.device_id === route.hardware)
+      ? requestedBasis
+      : null;
+    const contracts = new Set(scenarioBases.map(basisContract));
+    if (!requestedSourceBasis && contracts.size !== 1) return null;
+    const sourceContract = requestedSourceBasis
+      ? basisContract(requestedSourceBasis)
+      : [...contracts][0];
+    const stageBasis = scenarioBases.find((basis) =>
+      basis.level === "stage" && basisContract(basis) === sourceContract,
+    );
+    const atomicBasis = scenarioBases.find((basis) =>
+      basis.level === "atomic" && basisContract(basis) === sourceContract,
+    );
+    if (!stageBasis || !atomicBasis) return null;
+    const ceiling = canonical.ceilingById.get(atomicBasis.ceiling_id);
+    if (!ceiling?.bandwidth.some((candidate) =>
+      candidate.bandwidth_ceiling_id === atomicBasis.bandwidth_ceiling_id,
+    )) return null;
     const realizationId = sourceScenario.precision_path.realization_ids[0];
     const realizationRecord = realizationId
       ? data.datasets.runtime_realizations.find((record) => record.realization_id === realizationId) ?? null
       : null;
     if (!graphRecord || !ceiling) return null;
     try {
-      return materializeInteractiveRoofline(graphRecord, sourceScenario, ceiling, workload, realizationRecord);
+      return materializeInteractiveRoofline(
+        graphRecord,
+        sourceScenario,
+        ceiling,
+        workload,
+        realizationRecord,
+        atomicBasis.bandwidth_ceiling_id,
+      );
     } catch {
       return null;
     }
-  }, [canonical.ceilingById, data.datasets.runtime_realizations, graphRecord, route.workload, sourceScenario, workload]);
+  }, [canonical, data.datasets.runtime_realizations, graphRecord, requestedBasis, route.hardware, route.workload, sourceScenario, workload]);
   const index = useMemo(() => interactive
     ? createRooflineIndex(
       canonical.ceilings,

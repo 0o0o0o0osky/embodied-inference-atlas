@@ -369,6 +369,7 @@ export function materializeInteractiveRoofline(
   ceiling: RooflineCeilingRecord,
   workloadInput: InteractiveWorkload,
   realizationRecord: CanonicalRecord | null = null,
+  bandwidthCeilingId: string | null = null,
 ): InteractiveMaterialization {
   const graphContract = adaptV1ModelGraph(graphRecord);
   const promptContract = graphContract.editableSymbols.find((symbol) => symbol.symbol === "L_PROMPT");
@@ -411,8 +412,14 @@ export function materializeInteractiveRoofline(
       : { ...sourceScenario.precision_path, runtime_support: "unproven" },
     provenance,
   };
+  const selectedBandwidth = bandwidthCeilingId
+    ? ceiling.bandwidth.find((candidate) => candidate.bandwidth_ceiling_id === bandwidthCeilingId)
+    : ceiling.bandwidth[0];
+  if (!selectedBandwidth?.byte_per_second) {
+    throw new Error("interactive basis has no matching positive bandwidth ceiling");
+  }
   const bases = (["stage", "atomic"] as const).map((level): RooflineBasisRecord => ({
-    schema_version: "2.0.0", basis_id: `basis-${sourceScenario.model_id}-${sourceScenario.precision_path.precision_path_id}-${level}-interactive-${materializationId}`, label: `${scenario.label} · ${level === "stage" ? "Stage" : "Atomic"}`, level, scenario_id: scenarioId, precision_path_id: sourceScenario.precision_path.precision_path_id, ceiling_id: ceiling.ceiling_id, bandwidth_ceiling_id: ceiling.bandwidth[0]!.bandwidth_ceiling_id, device_id: ceiling.device_id, operating_point_id: ceiling.operating_point.operating_point_id, work_unit: level === "stage" ? "action_chunk" : "operator_invocation", time_basis: "analytical_roof", traffic_basis: "atomic_materialized", work_basis: runtimeMixed ? "runtime_executed_formula" : "logical_formula", aggregation: level === "stage" ? "dag_resource_and_critical_path" : "entity", runtime_overhead: "excluded", runtime_id: realization?.runtimeId ?? null, realization_id: realization?.realizationId ?? null, run_id: null, capture_id: null, comparison_mode: "same_coverage_only", provenance, missing: [{ field: "run_id", reason: "not_applicable", detail: "Interactive analytical basis has no observed run." }, { field: "capture_id", reason: "not_collected", detail: "No capture is bound to this interactive basis." }, ...(runtimeMixed ? [] : [{ field: "runtime_id", reason: "not_applicable" as const, detail: "Analytical what-if is runtime-independent." }, { field: "realization_id", reason: "not_applicable" as const, detail: "Analytical what-if has no realization." }])],
+    schema_version: "2.0.0", basis_id: `basis-${sourceScenario.model_id}-${sourceScenario.precision_path.precision_path_id}-${level}-interactive-${materializationId}`, label: `${scenario.label} · ${level === "stage" ? "Stage" : "Atomic"}`, level, scenario_id: scenarioId, precision_path_id: sourceScenario.precision_path.precision_path_id, ceiling_id: ceiling.ceiling_id, bandwidth_ceiling_id: selectedBandwidth.bandwidth_ceiling_id, device_id: ceiling.device_id, operating_point_id: ceiling.operating_point.operating_point_id, work_unit: level === "stage" ? "action_chunk" : "operator_invocation", time_basis: "analytical_roof", traffic_basis: "atomic_materialized", work_basis: runtimeMixed ? "runtime_executed_formula" : "logical_formula", aggregation: level === "stage" ? "dag_resource_and_critical_path" : "entity", runtime_overhead: "excluded", runtime_id: realization?.runtimeId ?? null, realization_id: realization?.realizationId ?? null, run_id: null, capture_id: null, comparison_mode: "same_coverage_only", provenance, missing: [{ field: "run_id", reason: "not_applicable", detail: "Interactive analytical basis has no observed run." }, { field: "capture_id", reason: "not_collected", detail: "No capture is bound to this interactive basis." }, ...(runtimeMixed ? [] : [{ field: "runtime_id", reason: "not_applicable" as const, detail: "Analytical what-if is runtime-independent." }, { field: "realization_id", reason: "not_applicable" as const, detail: "Analytical what-if has no realization." }])],
   }));
   const graph = adaptV1ModelGraph(graphRecord, { V: workload.executed_camera_views, L_PROMPT: workload.executed_prompt_tokens, T_ACTION: workload.action_horizon, N_DENOISE: workload.denoise_steps });
   if (graph.diagnostics.length) throw new Error(graph.diagnostics.join(" "));
@@ -433,8 +440,7 @@ export function materializeInteractiveRoofline(
       }));
   }
   const rates = computeRates(ceiling);
-  const bandwidth = ceiling.bandwidth[0]?.byte_per_second;
-  if (!bandwidth) throw new Error("interactive ceiling has no positive bandwidth");
+  const bandwidth = selectedBandwidth.byte_per_second;
   const atomic = [...graph.operatorsByRef.values()].flatMap((detail) => {
     if (detail.effectiveRepeat === null || detail.effectiveRepeat <= 0) return [];
     const segments = realization ? mappedSegments.get(detail.ref) ?? [] : [uniformSegment];

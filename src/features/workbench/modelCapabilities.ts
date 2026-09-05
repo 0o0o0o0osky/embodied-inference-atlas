@@ -7,6 +7,16 @@ import type { RooflineScenarioRecord } from "../roofline/domain/types";
 
 type PairKey = `${string}\u0000${string}`;
 
+export interface SelectionContext {
+  readonly runtimeId: string | null;
+  readonly hardwareIds: ReadonlySet<string>;
+  readonly precisionIds: ReadonlySet<string>;
+}
+
+export interface RooflineBasisCapability extends SelectionContext {
+  readonly level: "stage" | "atomic" | "fused" | "kernel";
+}
+
 export interface ModelCapabilities {
   readonly modelId: string;
   readonly modelGraphId: string | null;
@@ -19,12 +29,19 @@ export interface ModelCapabilities {
   readonly configurationIds: ReadonlySet<string>;
   readonly runIds: ReadonlySet<string>;
   readonly captureIds: ReadonlySet<string>;
+  readonly timelineCaptureIds: ReadonlySet<string>;
+  readonly runContexts: ReadonlyMap<string, SelectionContext>;
+  readonly captureContexts: ReadonlyMap<string, SelectionContext>;
   readonly timelineEvents: ReadonlySet<PairKey>;
+  readonly timelineEventContexts: ReadonlyMap<PairKey, SelectionContext>;
   readonly kernelObservations: ReadonlySet<PairKey>;
   readonly realizationGroups: ReadonlySet<PairKey>;
+  readonly realizationGroupContexts: ReadonlyMap<PairKey, SelectionContext>;
   readonly rooflinePrecisionIds: ReadonlySet<string>;
   readonly rooflineBasisIds: ReadonlySet<string>;
+  readonly rooflineBasisContexts: ReadonlyMap<string, RooflineBasisCapability>;
   readonly legacyPointIds: ReadonlySet<string>;
+  readonly legacyPointBasisIds: ReadonlyMap<string, string>;
   readonly roofline: {
     readonly available: boolean;
     readonly defaultScenarioId: string | null;
@@ -55,6 +72,10 @@ function addToMapSet(map: Map<string, Set<string>>, key: string, value: string) 
   map.set(key, values);
 }
 
+function singleton(value: string | null): ReadonlySet<string> {
+  return value ? new Set([value]) : new Set();
+}
+
 function modelIds(data: AtlasData): string[] {
   return [...new Set([
     ...data.datasets.models.map((model) => model.model_id),
@@ -78,6 +99,11 @@ export function createModelCapabilityRegistry(data: AtlasData): ModelCapabilityR
     const dag = graph ? adaptLogicalDag(graph) : null;
     const modelRuns = data.datasets.runs.filter((run) => run.model_id === modelId);
     const runIds = new Set(modelRuns.map((run) => run.run_id));
+    const runContexts = new Map(modelRuns.map((run) => [run.run_id, {
+      runtimeId: run.runtime_id,
+      hardwareIds: singleton(run.device_id),
+      precisionIds: singleton(run.precision.precision_id),
+    }] as const));
     const runtimeIds = new Set<string>();
     const runtimePrecisionIds = new Map<string, Set<string>>();
     const hardwareIds = new Set<string>();
@@ -99,6 +125,7 @@ export function createModelCapabilityRegistry(data: AtlasData): ModelCapabilityR
       .filter((record) => isRuntimeRealizationRecord(record, modelId))
       .map(adaptRuntimeRealization);
     const realizationGroups = new Set<PairKey>();
+    const realizationGroupContexts = new Map<PairKey, SelectionContext>();
     modelRealizations.forEach((realization) => {
       if (realization.availability !== "not_supported") {
         runtimeIds.add(realization.runtimeId);
@@ -108,9 +135,15 @@ export function createModelCapabilityRegistry(data: AtlasData): ModelCapabilityR
           addToMapSet(runtimePrecisionIds, realization.runtimeId, precision.precisionPathId),
         );
       }
-      realization.executionGroups.forEach((group) =>
-        realizationGroups.add(pair(realization.realizationId, group.executionGroupId)),
-      );
+      realization.executionGroups.forEach((group) => {
+        const key = pair(realization.realizationId, group.executionGroupId);
+        realizationGroups.add(key);
+        realizationGroupContexts.set(key, {
+          runtimeId: realization.runtimeId,
+          hardwareIds: new Set(realization.deviceIds),
+          precisionIds: new Set(realization.precisionPaths.map((precision) => precision.precisionPathId)),
+        });
+      });
     });
 
     const modelScenarios = scenarios.filter((scenario) => scenario.model_id === modelId);
@@ -121,9 +154,20 @@ export function createModelCapabilityRegistry(data: AtlasData): ModelCapabilityR
       return scenarioId !== null && scenarioIds.has(scenarioId);
     });
     const rooflineBasisIds = new Set(modelBases.flatMap((basis) => text(basis, "basis_id") ?? []));
+    const rooflineBasisContexts = new Map<string, RooflineBasisCapability>();
     modelBases.forEach((basis) => {
+      const basisId = text(basis, "basis_id");
       const deviceId = text(basis, "device_id");
       if (deviceId) hardwareIds.add(deviceId);
+      const level = text(basis, "level");
+      if (basisId && (level === "stage" || level === "atomic" || level === "fused" || level === "kernel")) {
+        rooflineBasisContexts.set(basisId, {
+          runtimeId: text(basis, "runtime_id"),
+          hardwareIds: singleton(deviceId),
+          precisionIds: singleton(text(basis, "precision_path_id")),
+          level,
+        });
+      }
     });
     const graphId = graphRecord ? text(graphRecord, "model_graph_id") : null;
     const defaultScenarios = modelScenarios.filter((scenario) =>
@@ -138,18 +182,31 @@ export function createModelCapabilityRegistry(data: AtlasData): ModelCapabilityR
     const rooflineAvailable = graph !== null && defaultScenario !== null && defaultHasBasis;
 
     const modelCaptureIds = new Set<string>();
+    const captureContexts = new Map<string, SelectionContext>();
     capturesById.forEach((capture, captureId) => {
       const runId = text(capture, "run_id");
-      if (runId && runIds.has(runId)) modelCaptureIds.add(captureId);
+      const context = runId ? runContexts.get(runId) : null;
+      if (context) {
+        modelCaptureIds.add(captureId);
+        captureContexts.set(captureId, context);
+      }
     });
     const timelineEvents = new Set<PairKey>();
+    const timelineEventContexts = new Map<PairKey, SelectionContext>();
+    const timelineCaptureIds = new Set<string>();
     data.datasets.timelines.forEach((timeline) => {
       const timelineId = text(timeline, "timeline_id");
       const captureId = text(timeline, "capture_id");
       if (!timelineId || !captureId || !modelCaptureIds.has(captureId)) return;
+      timelineCaptureIds.add(captureId);
       childRecords(timeline, "events").forEach((event) => {
         const eventId = text(event, "event_id");
-        if (eventId) timelineEvents.add(pair(timelineId, eventId));
+        if (eventId) {
+          const key = pair(timelineId, eventId);
+          timelineEvents.add(key);
+          const context = captureContexts.get(captureId);
+          if (context) timelineEventContexts.set(key, context);
+        }
       });
     });
     const kernelObservations = new Set<PairKey>();
@@ -160,11 +217,18 @@ export function createModelCapabilityRegistry(data: AtlasData): ModelCapabilityR
         kernelObservations.add(pair(captureId, observationId));
       }
     });
-    const legacyPointIds = new Set(data.datasets.roofline_points.flatMap((point) => {
+    const legacyPointBasisIds = new Map<string, string>();
+    data.datasets.roofline_points.forEach((point) => {
       const basisId = text(point, "basis_id");
       const pointId = text(point, "point_id");
-      return basisId && pointId && rooflineBasisIds.has(basisId) ? [pointId] : [];
-    }));
+      const entity = point.entity;
+      const legacy = typeof entity === "object" && entity !== null && !Array.isArray(entity)
+        && (entity as CanonicalRecord).kind === "legacy_component";
+      if (basisId && pointId && legacy && rooflineBasisIds.has(basisId)) {
+        legacyPointBasisIds.set(pointId, basisId);
+      }
+    });
+    const legacyPointIds = new Set(legacyPointBasisIds.keys());
 
     const capabilities: ModelCapabilities = {
       modelId,
@@ -178,12 +242,19 @@ export function createModelCapabilityRegistry(data: AtlasData): ModelCapabilityR
       configurationIds,
       runIds,
       captureIds: modelCaptureIds,
+      timelineCaptureIds,
+      runContexts,
+      captureContexts,
       timelineEvents,
+      timelineEventContexts,
       kernelObservations,
       realizationGroups,
+      realizationGroupContexts,
       rooflinePrecisionIds,
       rooflineBasisIds,
+      rooflineBasisContexts,
       legacyPointIds,
+      legacyPointBasisIds,
       roofline: {
         available: rooflineAvailable,
         defaultScenarioId: defaultScenario?.scenario_id ?? null,
@@ -205,7 +276,7 @@ export function modelWorkloadIsCompatible(
   encoded: string | null,
 ): boolean {
   if (!encoded) return true;
-  if (encoded.startsWith("cfg-")) return capabilities.configurationIds.has(encoded);
+  if (capabilities.configurationIds.has(encoded)) return true;
   const aliases = new Map<string, string>([
     ["v", "V"], ["p", "L_PROMPT"], ["a", "T_ACTION"], ["n", "N_DENOISE"],
   ]);
