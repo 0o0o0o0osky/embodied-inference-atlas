@@ -30,3 +30,25 @@ it("keeps the zoom anchor fixed, clamps manual zoom, and resets panning to the a
   expect(camera.updateManualCamera(automatic, { type: "zoom", percent: 50, anchor: { x: 1000, y: 1000 } }, frame))
     .toEqual({ zoom: 50, x: 350, y: 175 });
 });
+
+it("reports overview-relative zoom and pans automatic focus within the full transformed content", () => {
+  const frame = { x: 100, y: 50, width: 600, height: 300 };
+  const content = { x: -100, y: -50, width: 1000, height: 500 };
+  const automatic = { zoom: 100, x: 0, y: 0 };
+  const panned = camera.updateManualCamera(automatic, { type: "pan", x: 40, y: -20 }, frame, content);
+  expect(panned).toEqual({ zoom: 100, x: 40, y: -20 });
+  expect(camera.effectiveCameraZoom(100, 2.4557377)).toBe(246);
+  expect(camera.effectiveCameraZoom(100, 1)).toBe(100);
+  expect(camera.effectiveCameraZoom(120, 2.4557377)).toBe(295);
+  expect(camera.getCameraPanRanges(100, frame, frame))
+    .toEqual({ x: { min: 0, max: 0 }, y: { min: 0, max: 0 } });
+  expect(camera.updateManualCamera(automatic, { type: "pan", x: 40, y: -20 }, frame, frame))
+    .toEqual(automatic);
+  expect(camera.getCameraPanRanges(100, frame, content))
+    .toEqual({ x: { min: -200, max: 200 }, y: { min: -100, max: 100 } });
+  expect(camera.updateManualCamera(automatic, { type: "pan", x: 1000, y: 1000 }, frame, content))
+    .toEqual({ zoom: 100, x: 200, y: 100 });
+  expect(camera.updateManualCamera(automatic, { type: "pan", x: -1000, y: -1000 }, frame, content))
+    .toEqual({ zoom: 100, x: -200, y: -100 });
+  expect(camera.updateManualCamera(panned, { type: "reset" }, frame, content)).toEqual(automatic);
+});

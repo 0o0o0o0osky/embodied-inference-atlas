@@ -19,35 +19,49 @@ export type ManualCameraAction =
   | { type: "pan"; x: number; y: number }
   | { type: "reset" };
 
+type CameraBounds = Pick<GraphViewport, "x" | "y" | "width" | "height">;
+
+export function effectiveCameraZoom(relativePercent: number, automaticScale: number): number {
+  return Math.round(relativePercent * automaticScale);
+}
+
+export function getCameraPanRanges(relativePercent: number, frame: CameraBounds, content: CameraBounds) {
+  const ratio = relativePercent / 100;
+  const axisRange = (frameStart: number, frameSize: number, contentStart: number, contentSize: number) => {
+    const first = frameStart - contentStart * ratio;
+    const last = frameStart + frameSize - (contentStart + contentSize) * ratio;
+    // Large content covers the frame; smaller content stays inside the frame.
+    return { min: Math.min(first, last), max: Math.max(first, last) };
+  };
+  return {
+    x: axisRange(frame.x, frame.width, content.x, content.width),
+    y: axisRange(frame.y, frame.height, content.y, content.height),
+  };
+}
+
 // Coordinates are in the outer SVG frame; the authored layout stays untouched.
 export function updateManualCamera(
   camera: ManualCamera,
   action: ManualCameraAction,
-  frame: Pick<GraphViewport, "x" | "y" | "width" | "height">,
+  frame: CameraBounds,
+  content: CameraBounds = frame,
 ): ManualCamera {
   if (action.type === "reset") return { zoom: 100, x: 0, y: 0 };
   const zoom = action.type === "zoom"
     ? Math.max(50, Math.min(250, Math.round(action.percent / 10) * 10))
     : camera.zoom;
-  if (zoom === 100) return { zoom: 100, x: 0, y: 0 };
   const ratio = zoom / camera.zoom;
   const x = action.type === "zoom"
     ? action.anchor.x - (action.anchor.x - camera.x) * ratio
-    : camera.x + (zoom > 100 ? action.x : 0);
+    : camera.x + action.x;
   const y = action.type === "zoom"
     ? action.anchor.y - (action.anchor.y - camera.y) * ratio
-    : camera.y + (zoom > 100 ? action.y : 0);
-  // Above 100%, the scaled frame must cover the original frame. Below 100%,
-  // it must stay inside it. At a boundary, containment takes priority over anchoring.
-  const clampOffset = (offset: number, start: number, size: number) => {
-    const first = start * (1 - zoom / 100);
-    const last = (start + size) * (1 - zoom / 100);
-    return Math.max(Math.min(first, last), Math.min(Math.max(first, last), offset));
-  };
+    : camera.y + action.y;
+  const ranges = getCameraPanRanges(zoom, frame, content);
   return {
     zoom,
-    x: clampOffset(x, frame.x, frame.width),
-    y: clampOffset(y, frame.y, frame.height),
+    x: Math.max(ranges.x.min, Math.min(ranges.x.max, x)),
+    y: Math.max(ranges.y.min, Math.min(ranges.y.max, y)),
   };
 }
 
