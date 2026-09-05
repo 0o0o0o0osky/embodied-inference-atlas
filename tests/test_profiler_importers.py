@@ -16,6 +16,43 @@ ROOT = Path(__file__).resolve().parents[1]
 FIXTURE = Path(__file__).parent / "fixtures" / "profiler-ncu-sanitization.json"
 
 
+def _raw_with_metrics(payload, metrics):
+    rows = list(csv.reader(io.StringIO(payload)))
+    rows[0].extend(metrics)
+    rows[1].extend(unit for unit, _ in metrics.values())
+    rows[2].extend(value for _, value in metrics.values())
+    output = io.StringIO()
+    csv.writer(output, lineterminator="\n").writerows(rows)
+    return output.getvalue()
+
+
+def _task7_session(payload, sections, metrics=()):
+    section_flags = " ".join(f"--section {name}" for name in sections)
+    metric_flags = f" --metrics {','.join(metrics)}" if metrics else ""
+    return payload.replace(
+        "--clock-control base --metrics gpu__time_duration.sum",
+        f"--clock-control none {section_flags}{metric_flags} "
+        "--disable-extra-suffixes",
+    )
+
+
+def _raw_without_metric(payload, metric):
+    rows = list(csv.reader(io.StringIO(payload)))
+    column = rows[0].index(metric)
+    for row in rows:
+        row.pop(column)
+    output = io.StringIO()
+    csv.writer(output, lineterminator="\n").writerows(rows)
+    return output.getvalue()
+
+
+def _canonical_record(relative_path, key, value):
+    records = json.loads((ROOT / relative_path).read_text(encoding="utf-8"))[
+        "records"
+    ]
+    return next(record for record in records if record[key] == value)
+
+
 class ProfilerImporterTests(unittest.TestCase):
     def test_ncu_fixture_strips_local_identity_and_preserves_missing(self):
         try:
@@ -187,7 +224,21 @@ class ProfilerImporterTests(unittest.TestCase):
             self.assertIsNone(metrics[metric_name]["value"])
             self.assertEqual(metrics[metric_name]["missing_reason"], reason)
 
-        second_run = copy.deepcopy(run)
+        canonical_run = _canonical_record(
+            "data/measurements/runs.json",
+            "run_id",
+            f"run-{safe_label}-001",
+        )
+        canonical_signature = _canonical_record(
+            "data/profiler/kernel_signatures.json",
+            "kernel_signature_id",
+            "kernel-signature-pi0-encoder-large-gemm",
+        )
+        signature_policy = copy.deepcopy(canonical_signature)
+        signature_policy.pop("model_id")
+        signature_policy.pop("runtime_id")
+
+        second_run = copy.deepcopy(canonical_run)
         second_run["run_id"] = f"run-{safe_label}-002"
         second_run["configuration_id"] = f"config-{safe_label}-002"
         second_run["operating_point"] = {
@@ -199,9 +250,15 @@ class ProfilerImporterTests(unittest.TestCase):
         second_run["comparison_context"]["platform"][
             "operating_point_id"
         ] = "thor-120w-jetson-clocks"
+        for field in (
+            "operating_point.clock_policy",
+            "operating_point.power_mode",
+            "operating_point.throttle_status",
+        ):
+            second_run["missing"].pop(field)
         second_context = ProfilerImportContext(
             source_label=safe_label,
-            source_id="source-test",
+            source_id="source-local-thor",
             system_id="thor-unit-01",
             run=second_run,
             capture_label="fixture-ncu-locked",
@@ -210,7 +267,7 @@ class ProfilerImporterTests(unittest.TestCase):
         )
         locked_policy = copy.deepcopy(policy)
         locked_policy.update({
-            "section_mode": "scheduler_warp_stats_with_sysmem_sectors",
+            "section_mode": "scheduler_stats_with_sysmem_sectors",
             "clock_control_request": "none",
             "disable_extra_suffixes": True,
             "warnings": [],
@@ -220,38 +277,48 @@ class ProfilerImporterTests(unittest.TestCase):
             },
             "telemetry": {
                 "observed_gpu_frequency": {
-                    "statistic": "mean", "value": 1386.0, "sample_count": 2,
+                    "statistic": "mean", "value": 1386.0,
+                    "unit": "MHz", "sample_count": 1,
+                    "origin": "ncu_gpc_cycle_rate",
                 },
-                "observed_gpu_temperature": {
-                    "statistic": "max", "value": 47.5, "sample_count": 2,
+                "observed_emc_frequency": {
+                    "missing_reason": "unavailable_from_tool",
+                    "origin": "jetson_clocks_show",
+                },
+                "observed_junction_temperature": {
+                    "statistic": "max", "value": 47.5,
+                    "unit": "celsius", "sample_count": 2,
+                    "origin": "tegrastats_tj",
                 },
                 "observed_gpu_power": {
-                    "statistic": "mean", "value": 61.25, "sample_count": 2,
+                    "statistic": "mean", "value": 61250,
+                    "unit": "mW", "sample_count": 2,
+                    "origin": "tegrastats_vdd_gpu",
                 },
-                "throttle_status": {"missing_reason": "unavailable_from_tool"},
+                "throttle_status": {
+                    "missing_reason": "unavailable_from_tool",
+                    "origin": "clock_event_audit",
+                },
             },
         })
+        locked_policy["signature"] = signature_policy
         locked_policy["origins"].pop("gpu_frequency_not_fixed")
         locked_policy["origins"][
             "external_clock_control"
         ] = "collection_wrapper_observed"
         locked_policy["origins"]["disable_extra_suffixes"] = "session_command"
 
-        sections = (
+        scheduler_sections = (
             "SpeedOfLight", "ComputeWorkloadAnalysis", "MemoryWorkloadAnalysis",
-            "LaunchStats", "Occupancy", "SchedulerStats", "WarpStateStats",
+            "LaunchStats", "Occupancy", "SchedulerStats",
         )
         sysmem_counters = (
             "lts__d_sectors_fill_sysmem.sum",
             "lts__t_sectors_aperture_sysmem_op_write.sum",
             "lts__t_sectors_srcunit_tex_aperture_sysmem_lookup_miss.sum",
         )
-        section_flags = " ".join(f"--section {name}" for name in sections)
-        locked_session = fixture["session_csv"].replace(
-            "--clock-control base --metrics gpu__time_duration.sum",
-            "--clock-control none "
-            f"{section_flags} --metrics {','.join(sysmem_counters)} "
-            "--disable-extra-suffixes",
+        locked_session = _task7_session(
+            fixture["session_csv"], scheduler_sections, sysmem_counters
         )
         added_raw = {
             "gpc__cycles_elapsed.avg.per_second": ("hz", "1386000000"),
@@ -259,35 +326,20 @@ class ProfilerImporterTests(unittest.TestCase):
                 "instruction/cycle", "0.55",
             ),
             "smsp__issue_active.avg.pct_of_peak_sustained_active": ("%", "55"),
-            "smsp__issue_inst0.avg.pct_of_peak_sustained_active": ("%", "30"),
             "smsp__warps_active.avg.per_cycle_active": ("warp", "8"),
-            "smsp__warps_eligible.avg.per_cycle_active": ("warp", "1.5"),
+            "smsp__warps_eligible.avg.per_cycle_active": ("warp", "0.5"),
             "smsp__maximum_warps_avg_per_active_cycle": ("warp", "48"),
             "smsp__warps_active.avg.peak_sustained": ("warp", "48"),
             sysmem_counters[0]: ("sector", "1000"),
             sysmem_counters[1]: ("sector", "250"),
             sysmem_counters[2]: ("sector", "75"),
-            "smsp__average_warp_latency_per_inst_issued.ratio": (
-                "cycle/instruction", "20",
-            ),
-            "smsp__average_warps_issue_stalled_long_scoreboard_per_issue_active.ratio": (
-                "cycle/instruction", "8",
-            ),
-            "smsp__average_warps_issue_stalled_short_scoreboard_per_issue_active.ratio": (
-                "cycle/instruction", "2",
-            ),
         }
-        raw_rows = list(csv.reader(io.StringIO(fixture["raw_csv"])))
-        raw_rows[0].extend(added_raw)
-        raw_rows[1].extend(unit for unit, _ in added_raw.values())
-        raw_rows[2].extend(value for _, value in added_raw.values())
-        raw_output = io.StringIO()
-        csv.writer(raw_output, lineterminator="\n").writerows(raw_rows)
+        locked_raw = _raw_with_metrics(fixture["raw_csv"], added_raw)
 
         second_bundle = parse_ncu_exports(
             locked_session,
             fixture["details_csv"],
-            raw_output.getvalue(),
+            locked_raw,
             second_context,
             locked_policy,
         )
@@ -296,9 +348,13 @@ class ProfilerImporterTests(unittest.TestCase):
         self.assertEqual(second_capture["capture_id"], f"capture-{safe_label}-002")
         self.assertEqual(
             second_observation["observation_id"],
-            f"kernel-observation-{safe_label}-002-001",
+            f"kernel-observation-{safe_label}_r002_001",
         )
         self.assertEqual(second_capture["ncu"]["clock_control_request"], "none")
+        self.assertEqual(second_capture["ncu"]["sections"], list(scheduler_sections))
+        self.assertEqual(
+            second_capture["ncu"]["explicit_metrics"], list(sysmem_counters)
+        )
         self.assertTrue(second_capture["ncu"]["disable_extra_suffixes"])
         self.assertEqual(
             second_capture["ncu"]["external_clock_control"],
@@ -325,74 +381,227 @@ class ProfilerImporterTests(unittest.TestCase):
         )
         self.assertEqual(
             second_metrics["scheduler_eligible_warps_per_active_cycle"]["value"],
-            1.5,
+            0.5,
         )
-        warp_metric_names = {
-            "average_warp_latency_cycles_per_issued_instruction",
-            "long_scoreboard_cycles_per_issued_instruction",
-            "short_scoreboard_cycles_per_issued_instruction",
-        }
+        self.assertIsNone(second_metrics["scheduler_issue_inst0_percent"]["value"])
         self.assertEqual(
-            {
-                name for name, metric in second_metrics.items()
-                if metric["unit"] == "cycles_per_instruction"
-            },
-            warp_metric_names,
+            second_metrics["scheduler_issue_inst0_percent"]["missing_reason"],
+            "counter_absent_from_report",
         )
-        self.assertTrue(all(
-            second_metrics[name]["section_name"] == "WarpStateStats"
-            for name in warp_metric_names
-        ))
-        self.assertNotIn("warp_stall_long_scoreboard_percent", second_metrics)
+        self.assertIsNone(
+            second_metrics[
+                "tensor_cycles_active_pct_of_peak_sustained_active"
+            ]["value"]
+        )
+        self.assertEqual(
+            second_metrics[
+                "tensor_cycles_active_pct_of_peak_sustained_active"
+            ]["section_name"],
+            "ComputeWorkloadAnalysis",
+        )
+        self.assertEqual(
+            second_metrics[
+                "tensor_cycles_active_pct_of_peak_sustained_active"
+            ]["raw_counter_name"],
+            "sm__pipe_tensor_cycles_active.avg.pct_of_peak_sustained_active",
+        )
+        self.assertNotIn(
+            "tensor_cycles_active_pct_of_peak_sustained_elapsed", second_metrics
+        )
 
         telemetry = {
             item["metric_name"]: item
             for item in second_bundle["datasets"]["telemetry"]
         }
+        self.assertEqual(len(telemetry), 5)
         self.assertEqual(telemetry["observed_gpu_frequency"]["summary"]["unit"], "MHz")
-        self.assertEqual(telemetry["observed_gpu_temperature"]["summary"]["unit"], "celsius")
-        self.assertEqual(telemetry["observed_gpu_power"]["summary"]["unit"], "watt")
+        self.assertEqual(
+            telemetry["observed_emc_frequency"]["missing_reason"],
+            "unavailable_from_tool",
+        )
+        self.assertEqual(
+            telemetry["observed_junction_temperature"]["measurement_source"],
+            "tegrastats_tj",
+        )
+        self.assertEqual(
+            telemetry["observed_junction_temperature"]["summary"]["unit"],
+            "celsius",
+        )
+        self.assertEqual(telemetry["observed_gpu_power"]["summary"]["unit"], "mW")
         self.assertEqual(
             telemetry["throttle_status"]["missing_reason"],
             "unavailable_from_tool",
         )
 
-        combined = copy.deepcopy(bundle)
-        for dataset, records in second_bundle["datasets"].items():
-            if dataset == "kernel_signatures":
-                continue
-            combined["datasets"][dataset].extend(copy.deepcopy(records))
-        self.assertEqual(scan_profiler_bundle(combined), [])
-        self.assertEqual(profiler_semantic_issues(combined["datasets"]), [])
+        with self.assertRaises(SourceFormatError):
+            parse_ncu_exports(
+                locked_session.replace("ncu --import", "ncu --set full --import"),
+                fixture["details_csv"], locked_raw, second_context, locked_policy,
+            )
+        missing_sysmem = _raw_without_metric(locked_raw, sysmem_counters[0])
+        with self.assertRaises(SourceFormatError):
+            parse_ncu_exports(
+                locked_session, fixture["details_csv"], missing_sysmem,
+                second_context, locked_policy,
+            )
+        unknown_power_run = copy.deepcopy(second_run)
+        unknown_power_run["operating_point"]["power_mode"] = "unknown"
+        unknown_power_context = ProfilerImportContext(
+            source_label=safe_label,
+            source_id="source-local-thor",
+            system_id="thor-unit-01",
+            run=unknown_power_run,
+            capture_label="fixture-ncu-locked",
+            signature_policy_id="fixture-signatures-v1",
+            window_policy_id="not-applicable",
+        )
+        with self.assertRaises(SourceFormatError):
+            parse_ncu_exports(
+                locked_session, fixture["details_csv"], locked_raw,
+                unknown_power_context, locked_policy,
+            )
+
+        third_run = copy.deepcopy(second_run)
+        third_run["run_id"] = f"run-{safe_label}-003"
+        third_run["configuration_id"] = f"config-{safe_label}-003"
+        third_context = ProfilerImportContext(
+            source_label=safe_label,
+            source_id="source-local-thor",
+            system_id="thor-unit-01",
+            run=third_run,
+            capture_label="fixture-ncu-warp",
+            signature_policy_id="fixture-signatures-v1",
+            window_policy_id="not-applicable",
+        )
+        warp_policy = copy.deepcopy(locked_policy)
+        warp_policy["section_mode"] = "warp_state_stats"
+        warp_policy["warp_trigger"] = {
+            "scheduler_capture_id": f"capture-{safe_label}-002",
+            "scheduler_observation_id": (
+                f"kernel-observation-{safe_label}_r002_001"
+            ),
+            "origin": "reviewed_scheduler_evidence",
+            "criteria": [
+                {
+                    "metric_name": "scheduler_issue_active_per_active_cycle",
+                    "operator": "lt",
+                    "threshold": 0.6,
+                    "observed_value": 0.55,
+                },
+                {
+                    "metric_name": "scheduler_active_warps_per_active_cycle",
+                    "operator": "gte",
+                    "threshold": 1.0,
+                    "observed_value": 8.0,
+                },
+                {
+                    "metric_name": "scheduler_eligible_warps_per_active_cycle",
+                    "operator": "lt",
+                    "threshold": 1.0,
+                    "observed_value": 0.5,
+                },
+            ],
+            "launch_occupancy_review": {
+                "conclusion": (
+                    "launch_and_occupancy_do_not_explain_issue_gap"
+                ),
+                "basis": "manual_review_of_same_capture_evidence",
+                "evidence_fields": [
+                    "kernel_observation.launch",
+                    "theoretical_occupancy_percent",
+                    "achieved_occupancy_percent",
+                ],
+            },
+        }
+        warp_sections = ("SpeedOfLight", "LaunchStats", "WarpStateStats")
+        warp_session = _task7_session(fixture["session_csv"], warp_sections)
+        warp_raw = _raw_with_metrics(fixture["raw_csv"], {
+            "gpc__cycles_elapsed.avg.per_second": ("hz", "1386000000"),
+            "smsp__average_warp_latency_per_inst_issued.ratio": (
+                "cycle/instruction", "20",
+            ),
+            "smsp__average_warps_issue_stalled_long_scoreboard_per_issue_active.ratio": (
+                "cycle/instruction", "8",
+            ),
+        })
+        warp_bundle = parse_ncu_exports(
+            warp_session, fixture["details_csv"], warp_raw,
+            third_context, warp_policy,
+        )
+        warp_capture = warp_bundle["datasets"]["profiler_captures"][0]
+        self.assertEqual(warp_capture["ncu"]["sections"], list(warp_sections))
+        self.assertEqual(warp_capture["ncu"]["explicit_metrics"], [])
+        warp_metrics = {
+            metric["metric_name"]: metric
+            for metric in warp_bundle["datasets"]["profiler_metrics"]
+        }
+        self.assertNotIn("l2_sysmem_fill_sectors", warp_metrics)
+        self.assertEqual(
+            warp_metrics[
+                "long_scoreboard_cycles_per_issued_instruction"
+            ]["unit"],
+            "cycles_per_instruction",
+        )
+        self.assertEqual(
+            warp_metrics[
+                "short_scoreboard_cycles_per_issued_instruction"
+            ]["missing_reason"],
+            "counter_absent_from_report",
+        )
+        missing_review_policy = copy.deepcopy(warp_policy)
+        missing_review_policy["warp_trigger"].pop("launch_occupancy_review")
+        with self.assertRaises(SourceFormatError):
+            parse_ncu_exports(
+                warp_session, fixture["details_csv"], warp_raw,
+                third_context, missing_review_policy,
+            )
 
         job_policy = copy.deepcopy(locked_policy)
         job_policy.pop("signature")
         job_policy["signature_id"] = "encoder-large-gemm"
+        warp_job_policy = copy.deepcopy(warp_policy)
+        warp_job_policy.pop("signature")
+        warp_job_policy["signature_id"] = "encoder-large-gemm"
         incremental_job = {
             "job_version": "1.0.0",
             "source_label": "task-7-incremental-ncu",
             "policy_file": "/ignored/by-library-call.json",
-            "inputs": [{
-                "input": "/ignored/second.ncu-rep",
-                "source_label": safe_label,
-                "source_id": "source-test",
-                "system_id": "thor-unit-01",
-                "capture_label": "fixture-ncu-locked",
-                "signature_policy_id": "fixture-signatures-v1",
-                "window_policy_id": "not-applicable",
-                "tool": "ncu",
-                "policy_key": "locked",
-                "run": second_run,
-            }],
+            "inputs": [
+                {
+                    "input": "/ignored/second.ncu-rep",
+                    "source_label": safe_label,
+                    "source_id": "source-local-thor",
+                    "system_id": "thor-unit-01",
+                    "capture_label": "fixture-ncu-locked",
+                    "signature_policy_id": "fixture-signatures-v1",
+                    "window_policy_id": "not-applicable",
+                    "tool": "ncu",
+                    "policy_key": "scheduler",
+                    "run": second_run,
+                },
+                {
+                    "input": "/ignored/third.ncu-rep",
+                    "source_label": safe_label,
+                    "source_id": "source-local-thor",
+                    "system_id": "thor-unit-01",
+                    "capture_label": "fixture-ncu-warp",
+                    "signature_policy_id": "fixture-signatures-v1",
+                    "window_policy_id": "not-applicable",
+                    "tool": "ncu",
+                    "policy_key": "warp",
+                    "run": third_run,
+                },
+            ],
         }
         incremental_policy = {
             "policy_version": "1.0.0",
-            "signatures": {"encoder-large-gemm": policy["signature"]},
-            "ncu": {"locked": job_policy},
+            "signatures": {"encoder-large-gemm": signature_policy},
+            "ncu": {"scheduler": job_policy, "warp": warp_job_policy},
             "nsys": {},
         }
         with patch(
-            "extractors.profiler.import_ncu_report", return_value=second_bundle
+            "extractors.profiler.import_ncu_report",
+            side_effect=[second_bundle, warp_bundle],
         ):
             incremental = import_profiler_job(
                 incremental_job, incremental_policy, ROOT
@@ -400,6 +609,89 @@ class ProfilerImporterTests(unittest.TestCase):
         self.assertEqual(
             incremental["datasets"]["runs"][0]["run_id"],
             f"run-{safe_label}-002",
+        )
+        promotion = plan_promotion(incremental, ROOT)
+        self.assertEqual(promotion.updates, 0)
+        self.assertNotIn(
+            "kernel_signatures", {change.dataset for change in promotion.changes}
+        )
+        self.assertEqual(
+            promotion.additions,
+            sum(
+                len(records)
+                for dataset, records in incremental["datasets"].items()
+                if dataset != "kernel_signatures"
+            ),
+        )
+
+        skipped_ordinal = json.loads(
+            json.dumps(second_bundle)
+            .replace(f"-{safe_label}-002", f"-{safe_label}-003")
+            .replace(f"-{safe_label}_r002_", f"-{safe_label}_r003_")
+        )
+        with self.assertRaises(PromotionError) as ordinal_error:
+            plan_promotion(skipped_ordinal, ROOT)
+        self.assertIn(
+            "profiler_generated_id",
+            {issue.code for issue in ordinal_error.exception.issues},
+        )
+
+        signature_drift = copy.deepcopy(incremental)
+        signature_drift["datasets"]["kernel_signatures"][0][
+            "classification_method"
+        ] = "manual"
+        with self.assertRaises(PromotionError) as drift_error:
+            plan_promotion(signature_drift, ROOT)
+        self.assertIn(
+            "profiler_signature_drift",
+            {issue.code for issue in drift_error.exception.issues},
+        )
+
+        for dataset, record in (
+            ("runs", canonical_run),
+            (
+                "kernel_observations",
+                _canonical_record(
+                    "data/profiler/kernel_observations.json",
+                    "observation_id",
+                    f"kernel-observation-{safe_label}-001",
+                ),
+            ),
+        ):
+            reused = copy.deepcopy(incremental)
+            reused["datasets"][dataset].append(record)
+            with self.assertRaises(PromotionError) as reuse_error:
+                plan_promotion(reused, ROOT)
+            self.assertIn(
+                "profiler_evidence_overwrite",
+                {issue.code for issue in reuse_error.exception.issues},
+            )
+
+        reversed_job = copy.deepcopy(incremental_job)
+        reversed_job["inputs"].reverse()
+        with self.assertRaises(SourceFormatError):
+            import_profiler_job(reversed_job, incremental_policy, ROOT)
+
+        duplicate_warp_job = copy.deepcopy(incremental_job)
+        extra_warp = copy.deepcopy(duplicate_warp_job["inputs"][-1])
+        extra_warp["input"] = "/ignored/fourth.ncu-rep"
+        extra_warp["run"]["run_id"] = f"run-{safe_label}-004"
+        extra_warp["run"]["configuration_id"] = f"config-{safe_label}-004"
+        duplicate_warp_job["inputs"].append(extra_warp)
+        with self.assertRaises(SourceFormatError):
+            import_profiler_job(duplicate_warp_job, incremental_policy, ROOT)
+
+        ambiguous_ids = copy.deepcopy(second_bundle)
+        ambiguous_ids["datasets"]["kernel_observations"][0][
+            "observation_id"
+        ] = f"kernel-observation-{safe_label}-002-001"
+        self.assertIn(
+            "profiler_generated_id",
+            {
+                issue.code for issue in scan_profiler_bundle(
+                    ambiguous_ids, allow_partial_run_sequence=True
+                )
+            },
         )
 
         payload = json.dumps(bundle, sort_keys=True)

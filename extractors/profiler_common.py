@@ -48,7 +48,73 @@ def profiler_record_id(
         return record_id(kind, context, index)
     if index < 1:
         raise ValueError("record index must be positive")
-    return f"{kind}-{context.source_label}-{run_ordinal}-{index:03d}"
+    # Source labels are restricted to lowercase letters, digits, and hyphens.
+    # The underscore namespace therefore makes the run/child boundary
+    # unambiguous and prevents collisions with a longer legal source label.
+    return f"{kind}-{context.source_label}_r{run_ordinal}_{index:03d}"
+
+
+WARP_TRIGGER_CRITERIA = (
+    ("scheduler_issue_active_per_active_cycle", "lt", 0.6),
+    ("scheduler_active_warps_per_active_cycle", "gte", 1.0),
+    ("scheduler_eligible_warps_per_active_cycle", "lt", 1.0),
+)
+WARP_LAUNCH_OCCUPANCY_REVIEW = {
+    "conclusion": "launch_and_occupancy_do_not_explain_issue_gap",
+    "basis": "manual_review_of_same_capture_evidence",
+    "evidence_fields": [
+        "kernel_observation.launch",
+        "theoretical_occupancy_percent",
+        "achieved_occupancy_percent",
+    ],
+}
+
+
+def valid_warp_trigger(value: object) -> bool:
+    if not isinstance(value, Mapping) or set(value) != {
+        "scheduler_capture_id", "scheduler_observation_id", "origin",
+        "criteria", "launch_occupancy_review",
+    }:
+        return False
+    if (
+        not isinstance(value.get("scheduler_capture_id"), str)
+        or not isinstance(value.get("scheduler_observation_id"), str)
+        or value.get("origin") != "reviewed_scheduler_evidence"
+    ):
+        return False
+    criteria = value.get("criteria")
+    if not isinstance(criteria, list) or len(criteria) != len(WARP_TRIGGER_CRITERIA):
+        return False
+    for criterion, (name, operator, threshold) in zip(
+        criteria, WARP_TRIGGER_CRITERIA
+    ):
+        if (
+            not isinstance(criterion, Mapping)
+            or set(criterion) != {
+                "metric_name", "operator", "threshold", "observed_value",
+            }
+            or criterion.get("metric_name") != name
+            or criterion.get("operator") != operator
+            or criterion.get("threshold") != threshold
+            or not _nonnegative_number(criterion.get("observed_value"))
+        ):
+            return False
+        observed = float(criterion["observed_value"])
+        if operator == "lt" and not observed < threshold:
+            return False
+        if operator == "gte" and not observed >= threshold:
+            return False
+    return value.get("launch_occupancy_review") == WARP_LAUNCH_OCCUPANCY_REVIEW
+
+
+def _nonnegative_number(value: object) -> bool:
+    return (
+        isinstance(value, (int, float))
+        and not isinstance(value, bool)
+        and value >= 0
+        and value == value
+        and value not in {float("inf"), float("-inf")}
+    )
 
 
 RAW_COUNTER_REGISTRY: dict[str, dict[str, str]] = {
@@ -57,6 +123,9 @@ RAW_COUNTER_REGISTRY: dict[str, dict[str, str]] = {
         "unit": "percent", "kind": "metric",
     },
     "sm__pipe_tensor_cycles_active.avg.pct_of_peak_sustained_elapsed": {
+        "unit": "percent", "kind": "metric",
+    },
+    "sm__pipe_tensor_cycles_active.avg.pct_of_peak_sustained_active": {
         "unit": "percent", "kind": "metric",
     },
     "gpu__compute_memory_throughput.avg.pct_of_peak_sustained_elapsed": {
@@ -156,6 +225,14 @@ METRIC_REGISTRY: dict[str, dict[str, object]] = {
             "SpeedOfLight_HierarchicalTensorRooflineChart",
             "custom_metric_set_12",
         ),
+    },
+    "tensor_cycles_active_pct_of_peak_sustained_active": {
+        "unit": "percent",
+        "basis": "per_profiled_launch",
+        "raw_counter_name": (
+            "sm__pipe_tensor_cycles_active.avg.pct_of_peak_sustained_active"
+        ),
+        "sections": ("ComputeWorkloadAnalysis",),
     },
     "memory_sol_pct_of_peak_sustained_elapsed": {
         "unit": "percent",
@@ -303,7 +380,28 @@ METRIC_REGISTRY: dict[str, dict[str, object]] = {
 }
 
 
-DIRECT_METRIC_NAMES = tuple(list(METRIC_REGISTRY)[:9])
+DIRECT_METRIC_NAMES = (
+    "kernel_duration",
+    "sm_throughput_pct_of_peak_sustained_elapsed",
+    "tensor_cycles_active_pct_of_peak_sustained_elapsed",
+    "memory_sol_pct_of_peak_sustained_elapsed",
+    "l1_throughput_pct_of_peak_sustained_active",
+    "l2_throughput_pct_of_peak_sustained_elapsed",
+    "l2_sysmem_fill_pct_of_peak_sustained_elapsed",
+    "theoretical_occupancy_percent",
+    "achieved_occupancy_percent",
+)
+SCHEDULER_DIRECT_METRIC_NAMES = (
+    "kernel_duration",
+    "sm_throughput_pct_of_peak_sustained_elapsed",
+    "tensor_cycles_active_pct_of_peak_sustained_active",
+    "memory_sol_pct_of_peak_sustained_elapsed",
+    "l1_throughput_pct_of_peak_sustained_active",
+    "l2_throughput_pct_of_peak_sustained_elapsed",
+    "l2_sysmem_fill_pct_of_peak_sustained_elapsed",
+    "theoretical_occupancy_percent",
+    "achieved_occupancy_percent",
+)
 SCHEDULER_METRIC_NAMES = (
     "scheduler_issue_active_per_active_cycle",
     "scheduler_issue_active_pct_of_peak_sustained_active",

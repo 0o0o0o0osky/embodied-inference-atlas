@@ -81,10 +81,17 @@ def plan_promotion(bundle: Mapping, repo_root: Path) -> PromotionPlan:
             current_records = current.get("records")
             current_keys = _record_keys(current_records, primary_key)
             assert isinstance(current_records, list)
+            current_by_key = {
+                record[primary_key]: record for record in current_records
+            }
             candidate = dict(current)
             candidate["records"] = _merge_records(current_records, copied, primary_key)
             additions += sum(record[primary_key] not in current_keys for record in copied)
-            updates += sum(record[primary_key] in current_keys for record in copied)
+            updates += sum(
+                record[primary_key] in current_keys
+                and current_by_key[record[primary_key]] != record
+                for record in copied
+            )
             _validate_candidate(dataset, candidate, repo_root)
             if _json_bytes(candidate) != (original or b""):
                 safe_before = _json_bytes(current) if original is not None else b""
@@ -188,6 +195,7 @@ def _validate_profiler_bundle(
     manifest: Mapping,
 ) -> None:
     combined: dict[str, list[Mapping]] = {}
+    current_sets: dict[str, list[Mapping]] = {}
     required = {
         "sources", "models", "runtimes", "devices", "systems",
         "runs", "end_to_end", "stages", "model_graphs",
@@ -213,6 +221,7 @@ def _validate_profiler_bundle(
                 records = document.get("records")
                 if isinstance(records, list):
                     current.extend(record for record in records if isinstance(record, Mapping))
+        current_sets[dataset] = current
         incoming = incoming_sets.get(dataset, [])
         primary_key = entry.get("primary_key")
         if isinstance(incoming, list) and isinstance(primary_key, str):
@@ -226,6 +235,58 @@ def _validate_profiler_bundle(
             combined[dataset] = list(merged.values())
         else:
             combined[dataset] = current
+
+    append_only_issues: list[Issue] = []
+    incoming_captures = incoming_sets.get("profiler_captures", [])
+    incoming_profiler_runs = {
+        capture.get("run_id") for capture in incoming_captures
+        if isinstance(capture, Mapping)
+        and isinstance(capture.get("run_id"), str)
+    } if isinstance(incoming_captures, list) else set()
+    for dataset in (*PROFILER_DATASETS, "runs"):
+        incoming = incoming_sets.get(dataset)
+        entry = manifest_entries.get(dataset)
+        if not isinstance(incoming, list) or not isinstance(entry, Mapping):
+            continue
+        primary_key = entry.get("primary_key")
+        if not isinstance(primary_key, str):
+            continue
+        current_by_key = {
+            record.get(primary_key): record
+            for record in current_sets.get(dataset, [])
+            if isinstance(record.get(primary_key), str)
+        }
+        for index, record in enumerate(incoming):
+            if not isinstance(record, Mapping):
+                continue
+            key = record.get(primary_key)
+            previous = current_by_key.get(key)
+            if previous is None:
+                continue
+            path = f"$.datasets.{dataset}[{index}].{primary_key}"
+            if dataset == "kernel_signatures":
+                if dict(previous) != dict(record):
+                    append_only_issues.append(Issue(
+                        path,
+                        "profiler_signature_drift",
+                        "an existing shared kernel signature must be structurally identical",
+                    ))
+                continue
+            profiler_evidence = (
+                dataset != "runs"
+                or record.get("capture_method") in {"ncu", "nsys"}
+                or record.get("run_id") in incoming_profiler_runs
+            )
+            if profiler_evidence:
+                append_only_issues.append(Issue(
+                    path,
+                    "profiler_evidence_overwrite",
+                    "profiler run and child IDs are append-only and cannot be reused",
+                ))
+    if append_only_issues:
+        raise PromotionError(
+            "profiler bundle violates append-only evidence", append_only_issues
+        )
 
     issues = scan_profiler_bundle({"datasets": combined})
     for dataset, incoming in incoming_sets.items():
@@ -304,7 +365,6 @@ def _plan_glob_dataset(
         key = record[primary_key]
         if key in existing_paths:
             path = existing_paths[key]
-            updates += 1
         else:
             if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]*", key):
                 raise PromotionError(f"primary key must be filesystem-safe: {primary_key}")
@@ -320,6 +380,14 @@ def _plan_glob_dataset(
         current_records = current.get("records")
         _record_keys(current_records, primary_key)
         assert isinstance(current_records, list)
+        current_by_key = {
+            record[primary_key]: record for record in current_records
+        }
+        updates += sum(
+            record[primary_key] in current_by_key
+            and current_by_key[record[primary_key]] != record
+            for record in grouped[path]
+        )
         candidate = dict(current)
         candidate["records"] = _merge_records(current_records, grouped[path], primary_key)
         _validate_candidate(dataset, candidate, repo_root)

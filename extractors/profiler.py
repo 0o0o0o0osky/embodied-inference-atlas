@@ -96,6 +96,10 @@ def import_profiler_job(
         or not all(isinstance(group, Mapping) for group in policy_groups.values())
     ):
         raise SourceFormatError(f"{source_label}: invalid policy manifest")
+    if not legacy_batch:
+        ncu_policies = policy_groups["ncu"]
+        assert isinstance(ncu_policies, Mapping)
+        _validate_incremental_ncu_inputs(inputs, ncu_policies, source_label)
 
     for item in inputs:
         safe_label = item.get("source_label")
@@ -166,6 +170,107 @@ def import_profiler_job(
     }
     _validate_bundle(bundle, repo_root)
     return bundle
+
+
+def _validate_incremental_ncu_inputs(
+    inputs: list[Mapping[str, object]],
+    ncu_policies: Mapping[object, object],
+    source_label: str,
+) -> None:
+    if len(inputs) > 4:
+        raise SourceFormatError(
+            f"{source_label}: incremental profiler input count exceeds the bounded capture"
+        )
+    modes: list[str] = []
+    policies: list[Mapping[str, object]] = []
+    for item in inputs:
+        local_policy = ncu_policies.get(item.get("policy_key"))
+        if not isinstance(local_policy, Mapping):
+            raise SourceFormatError(f"{source_label}: missing profiler policy")
+        mode = local_policy.get("section_mode")
+        if mode not in {"scheduler_stats_with_sysmem_sectors", "warp_state_stats"}:
+            raise SourceFormatError(
+                f"{source_label}: incremental NCU input must use an approved Task 7 mode"
+            )
+        modes.append(str(mode))
+        policies.append(local_policy)
+    scheduler_count = modes.count("scheduler_stats_with_sysmem_sectors")
+    warp_count = modes.count("warp_state_stats")
+    if scheduler_count < 1 or scheduler_count > 3 or warp_count > 1:
+        raise SourceFormatError(
+            f"{source_label}: invalid scheduler/warp input count"
+        )
+    if warp_count == 0:
+        return
+    if modes[-1] != "warp_state_stats" or any(
+        mode == "warp_state_stats" for mode in modes[:-1]
+    ):
+        raise SourceFormatError(
+            f"{source_label}: optional WarpStateStats input must be last"
+        )
+    warp_input = inputs[-1]
+    warp_policy = policies[-1]
+    trigger = warp_policy.get("warp_trigger")
+    if not isinstance(trigger, Mapping):
+        raise SourceFormatError(
+            f"{source_label}: WarpStateStats requires reviewed scheduler evidence"
+        )
+    referenced_index = None
+    for index, (item, policy) in enumerate(zip(inputs[:-1], policies[:-1])):
+        if (
+            policy.get("section_mode") == "scheduler_stats_with_sysmem_sectors"
+            and _expected_capture_id(item) == trigger.get("scheduler_capture_id")
+        ):
+            referenced_index = index
+            break
+    if referenced_index is None:
+        raise SourceFormatError(
+            f"{source_label}: WarpStateStats must follow its scheduler capture"
+        )
+    scheduler_input = inputs[referenced_index]
+    scheduler_policy = policies[referenced_index]
+    if (
+        scheduler_policy.get("signature_id") != warp_policy.get("signature_id")
+        or scheduler_input.get("source_label") != warp_input.get("source_label")
+        or not _next_run_ordinal(scheduler_input.get("run"), warp_input.get("run"))
+    ):
+        raise SourceFormatError(
+            f"{source_label}: WarpStateStats must use the next run of the same signature"
+        )
+
+
+def _expected_capture_id(item: Mapping[str, object]) -> str | None:
+    safe_label = item.get("source_label")
+    run = item.get("run")
+    run_id = run.get("run_id") if isinstance(run, Mapping) else None
+    if not isinstance(safe_label, str) or not isinstance(run_id, str):
+        return None
+    prefix = f"run-{safe_label}-"
+    if not run_id.startswith(prefix):
+        return None
+    ordinal = run_id.removeprefix(prefix)
+    if len(ordinal) != 3 or not ordinal.isdigit():
+        return None
+    return f"capture-{safe_label}-{ordinal}"
+
+
+def _next_run_ordinal(first: object, second: object) -> bool:
+    if not isinstance(first, Mapping) or not isinstance(second, Mapping):
+        return False
+    first_id = first.get("run_id")
+    second_id = second.get("run_id")
+    if not isinstance(first_id, str) or not isinstance(second_id, str):
+        return False
+    first_parts = first_id.rsplit("-", 1)
+    second_parts = second_id.rsplit("-", 1)
+    return (
+        len(first_parts) == 2
+        and len(second_parts) == 2
+        and first_parts[0] == second_parts[0]
+        and first_parts[1].isdigit()
+        and second_parts[1].isdigit()
+        and int(second_parts[1]) == int(first_parts[1]) + 1
+    )
 
 
 def _hydrate_policy(

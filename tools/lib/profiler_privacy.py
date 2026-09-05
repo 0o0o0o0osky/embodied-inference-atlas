@@ -45,14 +45,20 @@ _LOCAL_POSIX_PATH = re.compile(
 _SLUG = r"[a-z0-9]+(?:-[a-z0-9]+)*"
 _SLUG_ID = re.compile(rf"^{_SLUG}$")
 _RUN_ID = re.compile(rf"^run-({_SLUG})-(\d{{3}})$")
+_LEGACY_OR_SCOPED_CHILD = rf"(?:{_SLUG}-\d{{3}}|{_SLUG}_r\d{{3}}_\d{{3}})"
 _GLOBAL_IDS = {
     "capture_id": re.compile(rf"^capture-{_SLUG}-\d{{3}}$"),
-    "timeline_id": re.compile(rf"^timeline-{_SLUG}-\d{{3}}$"),
+    "timeline_id": re.compile(rf"^timeline-{_LEGACY_OR_SCOPED_CHILD}$"),
     "kernel_signature_id": re.compile(rf"^kernel-signature-{_SLUG}$"),
-    "observation_id": re.compile(rf"^kernel-observation-{_SLUG}-\d{{3}}$"),
-    "metric_id": re.compile(rf"^metric-{_SLUG}-\d{{3}}$"),
-    "link_id": re.compile(rf"^operator-kernel-link-{_SLUG}-\d{{3}}$"),
-    "telemetry_id": re.compile(rf"^telemetry-{_SLUG}-\d{{3}}$"),
+    "observation_id": re.compile(
+        rf"^kernel-observation-{_LEGACY_OR_SCOPED_CHILD}$"
+    ),
+    "metric_id": re.compile(rf"^metric-{_LEGACY_OR_SCOPED_CHILD}$"),
+    "link_id": re.compile(
+        rf"^operator-kernel-link-(?:{_SLUG}-\d{{3}}-\d{{3}}|"
+        rf"{_SLUG}_r\d{{3}}_\d{{3}}_\d{{3}})$"
+    ),
+    "telemetry_id": re.compile(rf"^telemetry-{_LEGACY_OR_SCOPED_CHILD}$"),
 }
 _LOCAL_IDS = {
     "lane_id": re.compile(r"^lane-\d{3}$"),
@@ -248,16 +254,20 @@ def _scan_generated_ids(
                     if dataset == "profiler_captures"
                     else None
                 )
-                child_prefix = (
-                    f"{prefix}-{label}"
-                    if ordinal == "001"
-                    else f"{prefix}-{label}-{ordinal}"
-                )
+                child_prefix = f"{prefix}-{label}"
                 invalid = (
                     expected is not None and value != expected
                     or expected is None
-                    and re.fullmatch(
-                        rf"{re.escape(child_prefix)}-\d{{3}}", value
+                    and (
+                        re.fullmatch(
+                            rf"{re.escape(child_prefix)}-\d{{3}}", value
+                        )
+                        if ordinal == "001"
+                        else re.fullmatch(
+                            rf"{re.escape(child_prefix)}_r"
+                            rf"{re.escape(ordinal)}_\d{{3}}",
+                            value,
+                        )
                     ) is None
                 )
                 if invalid:
@@ -282,7 +292,8 @@ def _scan_generated_ids(
                 if (
                     observation_suffix is None
                     or re.fullmatch(
-                        rf"operator-kernel-link-{re.escape(observation_suffix)}-\d{{3}}",
+                        rf"operator-kernel-link-{re.escape(observation_suffix)}"
+                        rf"{'_' if '_r' in observation_suffix else '-'}\d{{3}}",
                         value,
                     ) is None
                 ):
@@ -353,7 +364,7 @@ def _alphanumeric_identity(value: str) -> str:
 
 
 def _trailing_ordinal(value: str) -> int:
-    return int(value.rsplit("-", 1)[1])
+    return int(re.split(r"[-_]", value)[-1])
 
 
 def _require_contiguous_ordinals(

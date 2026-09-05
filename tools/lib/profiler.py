@@ -4,7 +4,7 @@ from collections import Counter, defaultdict
 from collections.abc import Mapping
 from dataclasses import dataclass
 
-from extractors.profiler_common import METRIC_REGISTRY
+from extractors.profiler_common import METRIC_REGISTRY, valid_warp_trigger
 from tools.lib.contracts import Issue
 from tools.lib.model_graph import materialize_model_graph
 
@@ -32,6 +32,14 @@ _TASK7_SYSMEM_METRICS = (
     "lts__t_sectors_aperture_sysmem_op_write.sum",
     "lts__t_sectors_srcunit_tex_aperture_sysmem_lookup_miss.sum",
 )
+_TASK7_WARP_SECTIONS = ("SpeedOfLight", "LaunchStats", "WarpStateStats")
+_TASK7_LOCKED_TELEMETRY = {
+    "observed_gpu_frequency": ("MHz", "ncu_gpc_cycle_rate"),
+    "observed_emc_frequency": ("MHz", "jetson_clocks_show"),
+    "observed_junction_temperature": ("celsius", "tegrastats_tj"),
+    "observed_gpu_power": ("mW", "tegrastats_vdd_gpu"),
+    "throttle_status": ("percent", "clock_event_audit"),
+}
 
 
 def profiler_semantic_issues(datasets: Mapping[str, list[Mapping]]) -> list[Issue]:
@@ -152,9 +160,15 @@ def profiler_semantic_issues(datasets: Mapping[str, list[Mapping]]) -> list[Issu
                 )
             else:
                 mode = ncu.get("section_mode")
-                expected_sections = [*_TASK7_SCHEDULER_SECTIONS]
-                if mode == "scheduler_warp_stats_with_sysmem_sectors":
-                    expected_sections.append("WarpStateStats")
+                scheduler_mode = mode == "scheduler_stats_with_sysmem_sectors"
+                warp_mode = mode == "warp_state_stats"
+                expected_sections = list(
+                    _TASK7_SCHEDULER_SECTIONS
+                    if scheduler_mode else _TASK7_WARP_SECTIONS
+                )
+                expected_metrics = (
+                    list(_TASK7_SYSMEM_METRICS) if scheduler_mode else []
+                )
                 clock_provenance_valid = (
                     clock_control == "none"
                     and isinstance(origins, Mapping)
@@ -166,14 +180,18 @@ def profiler_semantic_issues(datasets: Mapping[str, list[Mapping]]) -> list[Issu
                         "controller": "jetson_clocks", "state": "locked",
                     }
                     and "gpu_frequency_not_fixed" not in warning_values
-                    and mode in {
-                        "scheduler_stats_with_sysmem_sectors",
-                        "scheduler_warp_stats_with_sysmem_sectors",
-                    }
+                    and (scheduler_mode or warp_mode)
                     and ncu.get("sections") == expected_sections
-                    and ncu.get("explicit_metrics") == list(_TASK7_SYSMEM_METRICS)
+                    and ncu.get("explicit_metrics") == expected_metrics
+                    and (
+                        "warp_trigger" not in ncu
+                        if scheduler_mode else valid_warp_trigger(
+                            ncu.get("warp_trigger")
+                        )
+                    )
                     and ncu.get("disable_extra_suffixes") is True
                     and isinstance(operating, Mapping)
+                    and operating.get("power_mode") in {"120W", "120w-mode-1"}
                     and operating.get("clock_policy") == "jetson_clocks_locked"
                     and operating.get("throttle_status") == "unknown"
                 )
@@ -342,6 +360,7 @@ def profiler_semantic_issues(datasets: Mapping[str, list[Mapping]]) -> list[Issu
                     issues.append(_issue(f"{base}.launch.{field}", "launch_dimension", "launch dimensions must contain three positive integers"))
 
     metric_identities: set[tuple[object, ...]] = set()
+    profiler_metrics_by_capture: dict[object, dict[object, Mapping]] = defaultdict(dict)
     for index, metric in enumerate(datasets.get("profiler_metrics", [])):
         base = f"$.profiler_metrics[{index}]"
         capture = captures.get(metric.get("capture_id"))
@@ -349,6 +368,9 @@ def profiler_semantic_issues(datasets: Mapping[str, list[Mapping]]) -> list[Issu
             issues.append(_broken(f"{base}.capture_id"))
             continue
         _same_capture_context(issues, base, metric, capture)
+        profiler_metrics_by_capture[metric.get("capture_id")][
+            metric.get("metric_name")
+        ] = metric
         value = metric.get("value")
         reason = metric.get("missing_reason")
         if (_is_number(value)) == (reason is not None):
@@ -387,9 +409,191 @@ def profiler_semantic_issues(datasets: Mapping[str, list[Mapping]]) -> list[Issu
             issues.append(_issue(base, "duplicate_metric_identity", "metric identity must be unique per subject and basis"))
         metric_identities.add(identity)
 
+    issues.extend(_warp_trigger_issues(
+        datasets,
+        runs,
+        captures,
+        observations,
+        profiler_metrics_by_capture,
+    ))
     issues.extend(_link_issues(datasets, runs, captures, observations, signatures))
     issues.extend(_telemetry_issues(datasets, runs, captures))
     return issues
+
+
+def _warp_trigger_issues(
+    datasets: Mapping[str, list[Mapping]],
+    runs: Mapping[object, Mapping],
+    captures: Mapping[object, Mapping],
+    observations: Mapping[object, Mapping],
+    metrics_by_capture: Mapping[object, Mapping[object, Mapping]],
+) -> list[Issue]:
+    issues: list[Issue] = []
+    observations_by_capture: dict[object, list[Mapping]] = defaultdict(list)
+    for observation in observations.values():
+        observations_by_capture[observation.get("capture_id")].append(observation)
+
+    warp_counts: Counter[object] = Counter()
+    for capture_id, capture in captures.items():
+        ncu = capture.get("ncu")
+        if not isinstance(ncu, Mapping):
+            continue
+        mode = ncu.get("section_mode")
+        capture_metrics = metrics_by_capture.get(capture_id, {})
+        if mode == "scheduler_stats_with_sysmem_sectors":
+            sysmem = {
+                name: capture_metrics.get(name) for name in (
+                    "l2_sysmem_fill_sectors",
+                    "l2_sysmem_write_sectors",
+                    "l2_sysmem_lookup_miss_sectors",
+                )
+            }
+            if any(
+                not isinstance(metric, Mapping)
+                or not _is_number(metric.get("value"))
+                for metric in sysmem.values()
+            ):
+                issues.append(_issue(
+                    f"$.profiler_captures[{capture_id}].ncu.explicit_metrics",
+                    "scheduler_sysmem_stop_gate",
+                    "scheduler captures require three numeric sysmem sector counters",
+                ))
+            if any(
+                metric.get("section_name") not in {
+                    *_TASK7_SCHEDULER_SECTIONS,
+                    "explicit_sysmem_sector_metrics",
+                }
+                for metric in capture_metrics.values()
+            ):
+                issues.append(_issue(
+                    f"$.profiler_captures[{capture_id}].ncu.section_mode",
+                    "ncu_mode_scope",
+                    "scheduler captures cannot contain metrics outside their six sections and explicit sysmem counters",
+                ))
+            continue
+        if mode != "warp_state_stats":
+            continue
+
+        warp_observations = observations_by_capture.get(capture_id, [])
+        if len(warp_observations) != 1:
+            issues.append(_issue(
+                f"$.profiler_captures[{capture_id}]",
+                "warp_trigger_evidence",
+                "warp capture requires exactly one same-capture observation",
+            ))
+            continue
+        warp_observation = warp_observations[0]
+        signature_id = warp_observation.get("kernel_signature_id")
+        warp_counts[signature_id] += 1
+        allowed_warp_metrics = {
+            "kernel_duration",
+            "sm_throughput_pct_of_peak_sustained_elapsed",
+            "gpc_cycle_rate_hz",
+            "average_warp_latency_cycles_per_issued_instruction",
+            "long_scoreboard_cycles_per_issued_instruction",
+            "short_scoreboard_cycles_per_issued_instruction",
+        }
+        if set(capture_metrics) - allowed_warp_metrics:
+            issues.append(_issue(
+                f"$.profiler_captures[{capture_id}].ncu.section_mode",
+                "ncu_mode_scope",
+                "warp captures cannot contain scheduler, compute, memory, occupancy, or sysmem metrics",
+            ))
+
+        trigger = ncu.get("warp_trigger")
+        if not valid_warp_trigger(trigger):
+            issues.append(_issue(
+                f"$.profiler_captures[{capture_id}].ncu.warp_trigger",
+                "warp_trigger_evidence",
+                "warp capture requires the approved compound scheduler review trigger",
+            ))
+            continue
+        assert isinstance(trigger, Mapping)
+        scheduler_capture = captures.get(trigger["scheduler_capture_id"])
+        scheduler_ncu = (
+            scheduler_capture.get("ncu")
+            if isinstance(scheduler_capture, Mapping) else None
+        )
+        scheduler_observation = observations.get(
+            trigger["scheduler_observation_id"]
+        )
+        valid_pair = (
+            isinstance(scheduler_capture, Mapping)
+            and isinstance(scheduler_ncu, Mapping)
+            and scheduler_ncu.get("section_mode")
+            == "scheduler_stats_with_sysmem_sectors"
+            and isinstance(scheduler_observation, Mapping)
+            and scheduler_observation.get("capture_id")
+            == trigger["scheduler_capture_id"]
+            and scheduler_observation.get("kernel_signature_id") == signature_id
+            and scheduler_capture.get("source_id") == capture.get("source_id")
+            and _next_capture_ordinal(
+                str(scheduler_capture.get("capture_id")), str(capture_id)
+            )
+        )
+        scheduler_run = (
+            runs.get(scheduler_capture.get("run_id"))
+            if isinstance(scheduler_capture, Mapping) else None
+        )
+        warp_run = runs.get(capture.get("run_id"))
+        valid_pair = valid_pair and (
+            isinstance(scheduler_run, Mapping)
+            and isinstance(warp_run, Mapping)
+            and scheduler_run.get("model_id") == warp_run.get("model_id")
+            and scheduler_run.get("runtime_id") == warp_run.get("runtime_id")
+        )
+        scheduler_metrics = metrics_by_capture.get(
+            trigger["scheduler_capture_id"], {}
+        )
+        for criterion in trigger["criteria"]:
+            assert isinstance(criterion, Mapping)
+            metric = scheduler_metrics.get(criterion["metric_name"])
+            valid_pair = valid_pair and (
+                isinstance(metric, Mapping)
+                and _is_number(metric.get("value"))
+                and float(metric["value"])
+                == float(criterion["observed_value"])
+            )
+        valid_pair = valid_pair and all(
+            isinstance(scheduler_metrics.get(name), Mapping)
+            and _is_number(scheduler_metrics[name].get("value"))
+            for name in (
+                "theoretical_occupancy_percent",
+                "achieved_occupancy_percent",
+            )
+        )
+        launch = (
+            scheduler_observation.get("launch")
+            if isinstance(scheduler_observation, Mapping) else None
+        )
+        valid_pair = valid_pair and isinstance(launch, Mapping)
+        if not valid_pair:
+            issues.append(_issue(
+                f"$.profiler_captures[{capture_id}].ncu.warp_trigger",
+                "warp_trigger_evidence",
+                "warp trigger must resolve to the immediately preceding same-signature scheduler evidence and its reviewed metric values",
+            ))
+    for signature_id, count in warp_counts.items():
+        if count > 1:
+            issues.append(_issue(
+                f"$.kernel_signatures[{signature_id}]",
+                "warp_capture_limit",
+                "each kernel signature permits at most one reviewed WarpStateStats supplement",
+            ))
+    return issues
+
+
+def _next_capture_ordinal(first: str, second: str) -> bool:
+    first_match = first.rsplit("-", 1)
+    second_match = second.rsplit("-", 1)
+    return (
+        len(first_match) == 2
+        and len(second_match) == 2
+        and first_match[0] == second_match[0]
+        and first_match[1].isdigit()
+        and second_match[1].isdigit()
+        and int(second_match[1]) == int(first_match[1]) + 1
+    )
 
 
 def _link_issues(
@@ -632,7 +836,12 @@ def _telemetry_issues(
 ) -> list[Issue]:
     issues: list[Issue] = []
     fixed_metadata: dict[tuple[str, str], float] = {}
-    metrics_by_capture: dict[object, list[object]] = defaultdict(list)
+    telemetry_by_capture: dict[object, list[Mapping]] = defaultdict(list)
+    gpc_by_capture = {
+        metric.get("capture_id"): metric
+        for metric in datasets.get("profiler_metrics", [])
+        if metric.get("metric_name") == "gpc_cycle_rate_hz"
+    }
     for index, telemetry in enumerate(datasets.get("telemetry", [])):
         base = f"$.telemetry[{index}]"
         capture = captures.get(telemetry.get("capture_id"))
@@ -644,9 +853,7 @@ def _telemetry_issues(
             issues.append(_broken(f"{base}.run_id"))
             continue
         _same_capture_context(issues, base, telemetry, capture)
-        metrics_by_capture[telemetry.get("capture_id")].append(
-            telemetry.get("metric_name")
-        )
+        telemetry_by_capture[telemetry.get("capture_id")].append(telemetry)
         operating = run.get("operating_point")
         if not isinstance(operating, Mapping) or telemetry.get("operating_point_id") != operating.get("operating_point_id"):
             issues.append(_issue(f"{base}.operating_point_id", "telemetry_operating_point", "telemetry operating point must match its run"))
@@ -677,22 +884,60 @@ def _telemetry_issues(
             if key in fixed_metadata and fixed_metadata[key] != value:
                 issues.append(_issue(base, "operating_point_metadata_conflict", "differing metadata cannot share a fixed operating point"))
             fixed_metadata[key] = value
-    locked_metrics = {
-        "observed_gpu_frequency",
-        "observed_gpu_temperature",
-        "observed_gpu_power",
-        "throttle_status",
-    }
     for capture_id, capture in captures.items():
         ncu = capture.get("ncu")
         if not isinstance(ncu, Mapping) or ncu.get("clock_control_request") != "none":
             continue
-        names = metrics_by_capture.get(capture_id, [])
-        if len(names) != len(locked_metrics) or set(names) != locked_metrics:
+        records = telemetry_by_capture.get(capture_id, [])
+        by_name = {record.get("metric_name"): record for record in records}
+        valid = (
+            len(records) == len(_TASK7_LOCKED_TELEMETRY)
+            and set(by_name) == set(_TASK7_LOCKED_TELEMETRY)
+        )
+        for name, (unit, source) in _TASK7_LOCKED_TELEMETRY.items():
+            record = by_name.get(name)
+            if not isinstance(record, Mapping):
+                valid = False
+                continue
+            summary = record.get("summary")
+            unavailable = record.get("missing_reason") == "unavailable_from_tool"
+            numeric = (
+                isinstance(summary, Mapping)
+                and _is_number(summary.get("value"))
+                and summary.get("unit") == unit
+                and record.get("missing_reason") is None
+                and record.get("record_kind") == "sampled_summary"
+            )
+            valid = valid and (
+                (numeric or unavailable)
+                and record.get("measurement_source") == source
+                and record.get("evidence_semantics") == "observed_samples"
+                and (
+                    not unavailable
+                    or record.get("record_kind") == "sampled_series"
+                    and summary is None
+                )
+            )
+            if name == "observed_gpu_frequency":
+                gpc_metric = gpc_by_capture.get(capture_id)
+                gpc_value = (
+                    gpc_metric.get("value")
+                    if isinstance(gpc_metric, Mapping) else None
+                )
+                valid = valid and (
+                    unavailable and gpc_value is None
+                    or numeric
+                    and _is_number(gpc_value)
+                    and abs(
+                        float(summary["value"]) * 1_000_000
+                        - float(gpc_value)
+                    ) <= 1.0
+                )
+        if not valid:
             issues.append(_issue(
                 f"$.profiler_captures[{capture_id}].ncu",
                 "locked_capture_telemetry",
-                "externally locked NCU captures require GPU clock, temperature, power, and throttle availability telemetry",
+                "externally locked NCU captures require observed GPU/EMC clocks, junction temperature, VDD_GPU power, and throttle availability with explicit provenance",
             ))
     return issues
 

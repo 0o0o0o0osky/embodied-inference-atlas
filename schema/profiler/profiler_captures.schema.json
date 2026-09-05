@@ -55,7 +55,7 @@
           "warmup_count": {"type": "integer", "minimum": 0},
           "backing_store_bytes": {"type": ["integer", "null"], "minimum": 0},
           "disable_extra_suffixes": {"type": "boolean"},
-          "section_mode": {"type": "string", "enum": ["scheduler_stats_with_sysmem_sectors", "scheduler_warp_stats_with_sysmem_sectors"]},
+          "section_mode": {"type": "string", "enum": ["scheduler_stats_with_sysmem_sectors", "warp_state_stats"]},
           "sections": {
             "type": "array",
             "items": {"type": "string", "enum": ["SpeedOfLight", "ComputeWorkloadAnalysis", "MemoryWorkloadAnalysis", "LaunchStats", "Occupancy", "SchedulerStats", "WarpStateStats"]}
@@ -71,6 +71,47 @@
             "properties": {
               "controller": {"type": "string", "enum": ["jetson_clocks"]},
               "state": {"type": "string", "enum": ["locked"]}
+            }
+          },
+          "warp_trigger": {
+            "type": "object",
+            "required": ["scheduler_capture_id", "scheduler_observation_id", "origin", "criteria", "launch_occupancy_review"],
+            "additional_properties": false,
+            "properties": {
+              "scheduler_capture_id": {"type": "string", "min_length": 1, "max_length": 120},
+              "scheduler_observation_id": {"type": "string", "min_length": 1, "max_length": 120},
+              "origin": {"type": "string", "enum": ["reviewed_scheduler_evidence"]},
+              "criteria": {
+                "type": "array",
+                "min_items": 3,
+                "max_items": 3,
+                "items": {
+                  "type": "object",
+                  "required": ["metric_name", "operator", "threshold", "observed_value"],
+                  "additional_properties": false,
+                  "properties": {
+                    "metric_name": {"type": "string", "enum": ["scheduler_issue_active_per_active_cycle", "scheduler_active_warps_per_active_cycle", "scheduler_eligible_warps_per_active_cycle"]},
+                    "operator": {"type": "string", "enum": ["lt", "gte"]},
+                    "threshold": {"type": "number", "minimum": 0},
+                    "observed_value": {"type": "number", "minimum": 0}
+                  }
+                }
+              },
+              "launch_occupancy_review": {
+                "type": "object",
+                "required": ["conclusion", "basis", "evidence_fields"],
+                "additional_properties": false,
+                "properties": {
+                  "conclusion": {"type": "string", "enum": ["launch_and_occupancy_do_not_explain_issue_gap"]},
+                  "basis": {"type": "string", "enum": ["manual_review_of_same_capture_evidence"]},
+                  "evidence_fields": {
+                    "type": "array",
+                    "min_items": 3,
+                    "max_items": 3,
+                    "items": {"type": "string", "enum": ["kernel_observation.launch", "theoretical_occupancy_percent", "achieved_occupancy_percent"]}
+                  }
+                }
+              }
             }
           },
           "origins": {
