@@ -114,23 +114,42 @@ it("keeps the selected measured slice in isolated contracts and profiler scopes"
     },
   } as unknown as AtlasData;
   const profiler = {
-    captures: [{
-      captureId: "capture-flashrt",
-      runId: "flashrt-profile",
-      sourceId: "source-local",
-      evidence: "measured_local",
-      tool: "nsys",
-      toolVersion: "fixture",
-      collectionScope: "prediction_window",
-      targetWindowLabel: "predict",
-      targetWindowCount: 1,
-      selectionPolicy: "explicit_invocation",
-      coverage: { population: "one_profiled_prediction", observedCount: 1, isCompleteForPopulation: true },
-      warnings: [],
-      nsys: null,
-      ncu: null,
-      missing: {},
-    }],
+    captures: [
+      {
+        captureId: "capture-flashrt-nsys",
+        runId: "flashrt-profile",
+        sourceId: "source-local",
+        evidence: "measured_local",
+        tool: "nsys",
+        toolVersion: "fixture",
+        collectionScope: "prediction_window",
+        targetWindowLabel: "predict",
+        targetWindowCount: 1,
+        selectionPolicy: "explicit_invocation",
+        coverage: { population: "one_profiled_prediction", observedCount: 1, isCompleteForPopulation: true },
+        warnings: [],
+        nsys: null,
+        ncu: null,
+        missing: {},
+      },
+      {
+        captureId: "capture-flashrt-ncu",
+        runId: "flashrt-profile",
+        sourceId: "source-local",
+        evidence: "measured_local",
+        tool: "ncu",
+        toolVersion: "fixture",
+        collectionScope: "representative_kernel_launch",
+        targetWindowLabel: null,
+        targetWindowCount: 1,
+        selectionPolicy: "explicit_invocation",
+        coverage: { population: "one_replayed_launch", observedCount: 1, isCompleteForPopulation: true },
+        warnings: [],
+        nsys: null,
+        ncu: null,
+        missing: {},
+      },
+    ],
     timelines: [], signatures: [], observations: [], metrics: [], links: [], telemetry: [],
   } satisfies ProfilerEvidence;
   const summaries: readonly RuntimeStackSummary[] = [
@@ -150,27 +169,42 @@ it("keeps the selected measured slice in isolated contracts and profiler scopes"
 
   expect(model.sliceOptions).toEqual({ cameraViews: [2], promptTokens: [22] });
   expect(model.contractGroups).toHaveLength(2);
-  expect(model.contractGroups.map((group) => group.rows.map((row) => ({
+  expect(model.contractGroups.map((group) => ({
+    id: group.id,
+    rows: group.rows.map((row) => ({
     runtimeId: row.runtimeId,
     precisionId: row.precisionId,
     latency: row.latency,
     p95: row.p95,
     profiler: row.profiler,
-  })))).toEqual([
-    [{
+    })),
+  }))).toEqual([
+    {
+      id: "10x32|images-and-prompt|action-chunk|predict|cold|thor-120w",
+      rows: [{
+        runtimeId: "vla-cpp",
+        precisionId: "q8_0",
+        latency: { statistic: "p50", value: 60, unit: "ms" },
+        p95: { statistic: "p95", value: null, unit: "ms" },
+        profiler: {
+          nsys: { state: "missing", captureCount: 0 },
+          ncu: { state: "missing", captureCount: 0 },
+        },
+      }],
+    },
+    {
+      id: "50x32|images-and-prompt|action-chunk|predict|cached|thor-120w",
+      rows: [{
       runtimeId: "flashrt",
       precisionId: "mixed-fp8",
       latency: { statistic: "mean", value: 40, unit: "ms" },
       p95: { statistic: "p95", value: 45, unit: "ms" },
-      profiler: { state: "available", captureCount: 1 },
-    }],
-    [{
-      runtimeId: "vla-cpp",
-      precisionId: "q8_0",
-      latency: { statistic: "p50", value: 60, unit: "ms" },
-      p95: { statistic: "p95", value: null, unit: "ms" },
-      profiler: { state: "missing", captureCount: 0 },
-    }],
+      profiler: {
+        nsys: { state: "available", captureCount: 1 },
+        ncu: { state: "available", captureCount: 1 },
+      },
+      }],
+    },
   ]);
   expect(model.unavailable).toEqual([{ runtimeId: "blocked", displayName: "Blocked", state: "未实测·受阻" }]);
 });

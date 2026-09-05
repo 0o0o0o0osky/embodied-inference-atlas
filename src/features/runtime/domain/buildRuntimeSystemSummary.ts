@@ -1,6 +1,6 @@
 import type { AtlasData, RunRecord } from "../../../types/atlas";
 import { buildEvidenceRows, type TimingValue } from "../../end-to-end/domain/buildEvidenceRows";
-import type { ProfilerEvidence } from "../../profiler/domain/types";
+import type { ProfilerEvidence, ProfilerTool } from "../../profiler/domain/types";
 import type { RuntimeStackState, RuntimeStackSummary } from "./resolveRuntimeRealization";
 
 export interface RuntimeSystemSlice {
@@ -26,6 +26,8 @@ export type ProfilerCoverage =
   | { state: "available"; captureCount: number }
   | { state: "missing"; captureCount: 0 };
 
+export type ProfilerCoverageByTool = Readonly<Record<ProfilerTool, ProfilerCoverage>>;
+
 export interface RuntimeSystemMeasuredRow {
   runtimeId: string;
   runtimeLabel: string;
@@ -34,7 +36,7 @@ export interface RuntimeSystemMeasuredRow {
   latency: TimingValue | null;
   p95: TimingValue | null;
   sampleCount: number | null;
-  profiler: ProfilerCoverage;
+  profiler: ProfilerCoverageByTool;
 }
 
 export interface RuntimeSystemContractGroup {
@@ -100,7 +102,7 @@ function contractId(contract: RuntimeSystemContract): string {
 
 function profilerCounts(profiler: ProfilerEvidence, data: AtlasData, modelId: string, hardwareId: string | null) {
   const runs = new Map(data.datasets.runs.map((run) => [run.run_id, run]));
-  const counts = new Map<string, number>();
+  const counts = new Map<string, Record<ProfilerTool, number>>();
   profiler.captures.forEach((capture) => {
     const run = runs.get(capture.runId);
     if (
@@ -110,7 +112,9 @@ function profilerCounts(profiler: ProfilerEvidence, data: AtlasData, modelId: st
       || (hardwareId !== null && run.device_id !== hardwareId)
     ) return;
     const key = `${run.runtime_id}\u0000${run.precision.precision_id}`;
-    counts.set(key, (counts.get(key) ?? 0) + 1);
+    const count = counts.get(key) ?? { nsys: 0, ncu: 0 };
+    count[capture.tool] += 1;
+    counts.set(key, count);
   });
   return counts;
 }
@@ -152,7 +156,7 @@ export function buildRuntimeSystemSummary({
     const id = contractId(contract);
     const group = groups.get(id) ?? { contract, rows: [] };
     const p95 = measurement.statistics.find((value) => value.statistic === "p95") ?? null;
-    const count = counts.get(`${run.runtime_id}\u0000${run.precision.precision_id}`) ?? 0;
+    const count = counts.get(`${run.runtime_id}\u0000${run.precision.precision_id}`) ?? { nsys: 0, ncu: 0 };
     group.rows.push({
       runtimeId: run.runtime_id,
       runtimeLabel: evidenceRow.runtimeLabel,
@@ -161,7 +165,10 @@ export function buildRuntimeSystemSummary({
       latency: evidenceRow.selected,
       p95,
       sampleCount: measurement.sampleCount,
-      profiler: count ? { state: "available", captureCount: count } : { state: "missing", captureCount: 0 },
+      profiler: {
+        nsys: count.nsys ? { state: "available", captureCount: count.nsys } : { state: "missing", captureCount: 0 },
+        ncu: count.ncu ? { state: "available", captureCount: count.ncu } : { state: "missing", captureCount: 0 },
+      },
     });
     groups.set(id, group);
   });
@@ -170,6 +177,7 @@ export function buildRuntimeSystemSummary({
     slice,
     sliceOptions: comparableSlices(data, modelId, hardwareId),
     contractGroups: [...groups.entries()]
+      .sort(([left], [right]) => left.localeCompare(right))
       .map(([id, group]) => ({
         id,
         contract: group.contract,
