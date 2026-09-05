@@ -1,4 +1,4 @@
-import type { RunRecord } from "../../../types/atlas";
+import type { RunRecord, RuntimeRecord } from "../../../types/atlas";
 import type { RuntimeRealizationRecord } from "./types";
 
 export interface RuntimeCandidate {
@@ -111,4 +111,96 @@ export function resolveRuntimeCandidates(
     };
     return [candidate];
   });
+}
+
+export type RuntimeStackState =
+  | "有实测配置"
+  | "仅理论分析"
+  | "尚未实测"
+  | "未实测·受阻"
+  | "不支持";
+
+export interface RuntimeStackSummary {
+  runtimeId: string;
+  displayName: string;
+  backend: string;
+  state: RuntimeStackState;
+  actualPrecisions: readonly { id: string; label: string }[];
+  mappingLevels: readonly RuntimeRealizationRecord["mappingLevel"][];
+  variantCount: number;
+  candidates: readonly RuntimeCandidate[];
+}
+
+interface RuntimeStackSummaryInput {
+  modelId: string;
+  modelGraphId: string;
+  hardwareId: string | null;
+  workload: string | null;
+  runtimes: readonly RuntimeRecord[];
+  realizations: readonly RuntimeRealizationRecord[];
+  runs: readonly RunRecord[];
+  canonicalConfigurationIds: ReadonlySet<string>;
+}
+
+const STATE_ORDER: Readonly<Record<RuntimeStackState, number>> = {
+  "有实测配置": 0,
+  "仅理论分析": 1,
+  "尚未实测": 2,
+  "未实测·受阻": 3,
+  "不支持": 4,
+};
+
+function unmeasuredState(runtime: RuntimeRecord, modelId: string): RuntimeStackState {
+  const statuses = new Set(runtime.model_support
+    .filter((support) => support.model_id === modelId)
+    .map((support) => support.status));
+  if (statuses.has("analytical")) return "仅理论分析";
+  if (statuses.has("not_supported")) return "不支持";
+  if (statuses.has("blocked")) return "未实测·受阻";
+  return "尚未实测";
+}
+
+export function buildRuntimeStackSummaries({
+  modelId,
+  modelGraphId,
+  hardwareId,
+  workload,
+  runtimes,
+  realizations,
+  runs,
+  canonicalConfigurationIds,
+}: RuntimeStackSummaryInput): readonly RuntimeStackSummary[] {
+  const seen = new Set<string>();
+  const summaries = runtimes.flatMap((runtime) => {
+    if (
+      seen.has(runtime.runtime_id)
+      || !runtime.model_support.some((support) => support.model_id === modelId)
+    ) return [];
+    seen.add(runtime.runtime_id);
+    const candidates = resolveRuntimeCandidates(realizations, runs, {
+      modelId,
+      modelGraphId,
+      runtimeId: runtime.runtime_id,
+      hardwareId,
+      workload,
+      precisionId: null,
+      canonicalConfigurationIds,
+    });
+    const actualPrecisions = [...new Map(candidates.map((candidate) => [
+      candidate.actualPrecisionId,
+      { id: candidate.actualPrecisionId, label: candidate.precisionLabel },
+    ])).values()];
+    const mappingLevels = [...new Set(candidates.map((candidate) => candidate.realization.mappingLevel))];
+    return [{
+      runtimeId: runtime.runtime_id,
+      displayName: runtime.display_name,
+      backend: runtime.backend,
+      state: candidates.length ? "有实测配置" as const : unmeasuredState(runtime, modelId),
+      actualPrecisions,
+      mappingLevels,
+      variantCount: candidates.length,
+      candidates,
+    }];
+  });
+  return summaries.sort((first, second) => STATE_ORDER[first.state] - STATE_ORDER[second.state]);
 }

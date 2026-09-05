@@ -9,6 +9,7 @@ import { adaptV1ModelGraph, isV1ModelGraphRecord } from "../model-graph/domain/a
 import { layoutLogicalDag } from "../model-graph/layout/paperLayout";
 import { resolveConnectorHints } from "../model-graph/layout/routeConnectors";
 import { resolvePresentationProfile } from "../model-graph/presentation/registry";
+import { ModelDisplayProvider } from "../model-graph/presentation/ModelDisplay";
 import { ExecutionGroupInspector } from "./components/ExecutionGroupInspector";
 import { MappingTable } from "./components/MappingTable";
 import { RuntimeOverlay } from "./components/RuntimeOverlay";
@@ -17,6 +18,7 @@ import { adaptRuntimeRealization, isRuntimeRealizationRecord } from "./domain/ad
 import { resolveRuntimeCandidates, type RuntimeCandidate } from "./domain/resolveRuntimeRealization";
 import { buildRuntimeOverlay } from "./overlay/buildRuntimeOverlay";
 import { logicalEntity, logicalRefFromEntity, runtimeGroupEntity } from "../workbench/entityKeys";
+import { Pi0RuntimeWorkspace } from "./Pi0RuntimeWorkspace";
 
 interface RuntimeViewProps {
   data: AtlasData;
@@ -65,6 +67,19 @@ export function RuntimeView({ data, model, route, navigate }: RuntimeViewProps) 
         <p>Runtime overlay unavailable</p>
         <h2>{model.display_name} has no canonical logical graph to anchor an overlay.</h2>
       </section>
+    );
+  }
+  if (model.model_id === "pi0") {
+    return (
+      <ModelDisplayProvider modelId={model.model_id}>
+        <Pi0RuntimeWorkspace
+          data={data}
+          model={model}
+          record={record}
+          route={route}
+          navigate={navigate}
+        />
+      </ModelDisplayProvider>
     );
   }
   return <ResolvedRuntimeView data={data} model={model} record={record} route={route} navigate={navigate} />;

@@ -20,6 +20,7 @@ interface LogicalDagSvgProps {
   connectors: ConnectorResolution;
   presentation: GraphPresentation;
   selectedRef: string;
+  focusRefs?: ReadonlySet<string>;
   relatedRefs: ReadonlySet<string>;
   mode?: "overview" | "focus";
   viewport?: GraphViewport;
@@ -160,6 +161,7 @@ export function LogicalDagSvg({
   connectors,
   presentation,
   selectedRef,
+  focusRefs,
   relatedRefs,
   mode = selectedRef ? "focus" : "overview",
   viewport,
@@ -173,7 +175,8 @@ export function LogicalDagSvg({
 }: LogicalDagSvgProps) {
   const t = useModelText();
   const clipId = useId();
-  const selected = mode === "focus" && Boolean(selectedRef);
+  const activeFocusRefs = focusRefs ?? new Set(selectedRef ? [selectedRef] : []);
+  const selected = mode === "focus" && activeFocusRefs.size > 0;
   const activeViewport = viewport ?? { x: 0, y: 0, width: layout.width, height: layout.height, scopeId: null };
   const scale = Math.min(layout.width / activeViewport.width, layout.height / activeViewport.height);
   const frameX = (layout.width - activeViewport.width * scale) / 2;
@@ -188,7 +191,7 @@ export function LogicalDagSvg({
   const sceneTransform = `translate(${frameX} ${frameY}) scale(${scale}) translate(${-activeViewport.x} ${-activeViewport.y})`;
   const canvasRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
-  const resetKey = `${cameraResetKey}|${selectedRef}|${mode}`;
+  const resetKey = `${cameraResetKey}|${[...activeFocusRefs].sort().join(",")}|${mode}`;
   const automaticCamera = { zoom: 100, x: 0, y: 0 };
   const [manualState, setManualState] = useState({ resetKey, camera: automaticCamera });
   const camera = manualState.resetKey === resetKey ? manualState.camera : automaticCamera;
@@ -396,8 +399,8 @@ export function LogicalDagSvg({
         <g className="logical-edges" aria-hidden="true">
           {connectors.connectors.flatMap((connector) =>
             connector.paths.map((path) => {
-              const incident =
-                path.sourceRefs.includes(selectedRef) || path.targetRefs.includes(selectedRef);
+              const incident = [...activeFocusRefs].some((ref) =>
+                path.sourceRefs.includes(ref) || path.targetRefs.includes(ref));
               return (
                 <path
                   key={path.id}
@@ -434,9 +437,9 @@ export function LogicalDagSvg({
                 "logical-node",
                 `logical-node--${node.kind}`,
                 `logical-node--${nodeVisual(node, presentation)}`,
-                node.ref === selectedRef ? "is-selected" : "",
+                activeFocusRefs.has(node.ref) ? "is-selected" : "",
                 relatedRefs.has(node.ref) ? "is-related" : "",
-                selected && node.ref !== selectedRef && !relatedRefs.has(node.ref) ? "is-muted" : "",
+                selected && !activeFocusRefs.has(node.ref) && !relatedRefs.has(node.ref) ? "is-muted" : "",
               ].filter(Boolean).join(" ")}
               role={interactive ? "button" : undefined}
               tabIndex={interactive ? 0 : undefined}

@@ -1,0 +1,106 @@
+import { useState } from "react";
+
+import type { LogicalDag } from "../../model-graph/domain/types";
+import { useModelText } from "../../model-graph/presentation/ModelDisplay";
+import { indexRuntimeRealization } from "../domain/indexRuntimeRealization";
+import type { RuntimeMapping, RuntimeRealizationRecord } from "../domain/types";
+import {
+  pi0GroupLabel,
+  pi0MappingCoverageLabel,
+  pi0MappingLevelLabel,
+  pi0PrecisionLabel,
+  pi0RelationLabel,
+  targetRepeatLabel,
+} from "./runtimePresentation";
+
+interface Pi0RuntimeMappingDisclosureProps {
+  dag: LogicalDag;
+  realization: RuntimeRealizationRecord;
+  onSelectGroup: (groupId: string) => void;
+}
+
+export function Pi0RuntimeMappingDisclosure({
+  dag,
+  realization,
+  onSelectGroup,
+}: Pi0RuntimeMappingDisclosureProps) {
+  const [open, setOpen] = useState(false);
+  const t = useModelText();
+  const index = indexRuntimeRealization(realization);
+  const mappedGroupIds = new Set(realization.mappings.flatMap((mapping) => mapping.executionGroupIds));
+  const rows: Array<{ mapping: RuntimeMapping | null; groupId: string | null }> = [
+    ...realization.mappings.flatMap((mapping) =>
+      (mapping.executionGroupIds.length ? mapping.executionGroupIds : [null])
+        .map((groupId) => ({ mapping, groupId })),
+    ),
+    ...realization.executionGroups
+      .filter((group) => !mappedGroupIds.has(group.executionGroupId))
+      .map((group) => ({ mapping: null, groupId: group.executionGroupId })),
+  ];
+
+  return (
+    <details
+      className="pi0-runtime-mapping-disclosure"
+      onToggle={(event) => setOpen(event.currentTarget.open)}
+    >
+      <summary>
+        映射详情（{rows.length} 项） · {pi0MappingCoverageLabel(realization.mappingCoverage)} / {pi0MappingLevelLabel(realization.mappingLevel)}
+      </summary>
+      {open ? (
+        <div className="pi0-runtime-table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>实现组</th>
+                <th>逻辑范围</th>
+                <th>关系</th>
+                <th>实际精度</th>
+                <th>证据状态</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map(({ mapping, groupId }) => {
+                const group = groupId ? index.groupById.get(groupId) : undefined;
+                const precision = group ? index.precisionById.get(group.precisionPathId) : undefined;
+                const logicalTargets = mapping?.logicalTargets.map((target) => {
+                  const label = t(dag.nodes.get(target.ref)?.label ?? target.ref);
+                  const repeat = targetRepeatLabel(target, dag)
+                    .replaceAll("denoise", "去噪")
+                    .replaceAll("layers", "层")
+                    .replaceAll("all", "全部");
+                  return repeat ? `${label}（${repeat}）` : label;
+                }) ?? [];
+                const evidenceState = mapping?.method === "source_audit"
+                  ? "源码审计 · Kernel 未关联"
+                  : mapping ? "非源码审计 · Kernel 未关联" : "源码审计 · 运行时额外工作";
+                return (
+                  <tr key={`${mapping?.mappingId ?? "unmapped"}/${groupId ?? "eliminated"}`}>
+                    <td>
+                      {group ? (
+                        <button type="button" onClick={() => onSelectGroup(group.executionGroupId)}>
+                          {pi0GroupLabel(group.label)}
+                        </button>
+                      ) : <strong>无执行组</strong>}
+                      <details>
+                        <summary>标识</summary>
+                        {group ? <code>{group.executionGroupId}</code> : null}
+                        {mapping ? <code>{mapping.mappingId}</code> : null}
+                      </details>
+                    </td>
+                    <td>{logicalTargets.length ? logicalTargets.join("、") : "无逻辑目标"}</td>
+                    <td>
+                      {mapping ? pi0RelationLabel(mapping.relation) : "运行时额外工作"}
+                      {mapping?.certainty === "ambiguous" ? <small>映射有歧义，不自动聚焦</small> : null}
+                    </td>
+                    <td>{precision ? pi0PrecisionLabel(precision.precisionPathId, precision.label) : "—"}</td>
+                    <td>{evidenceState}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      ) : null}
+    </details>
+  );
+}

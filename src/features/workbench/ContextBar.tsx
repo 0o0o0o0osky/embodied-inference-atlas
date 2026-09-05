@@ -34,30 +34,58 @@ export function ContextBar({ data, model, route, navigate, compact = false }: Co
   const showRuntimePrecision = route.tab === "runtime";
   const showRooflinePrecision = route.tab === "roofline-kernels";
   const precisionIds = [...new Set(scopedRuns
-    .filter((run) => (!route.runtime || run.runtime_id === route.runtime) && (!route.hardware || run.device_id === route.hardware))
+    .filter((run) => (
+      (!showRuntimePrecision || model.model_id !== "pi0" || run.evidence === "measured_local")
+      && (!route.runtime || run.runtime_id === route.runtime)
+      && (!route.hardware || run.device_id === route.hardware)
+    ))
     .map((run) => run.precision.precision_id))].sort();
   const rooflinePrecisionIds = rooflinePrecisions(data, model.model_id);
   const fieldCount = 2 + Number(showWorkload) + Number(showRuntimePrecision || showRooflinePrecision);
 
   if (compact) {
+    const compactRuntimePrecision = route.tab === "runtime";
+    const displayedRuntimePrecision = route.runtimePrecision
+      ?? (route.runtime && precisionIds.length === 1 ? precisionIds[0]! : "");
     return (
-      <div className="atlas-context" aria-label="模型分析场景">
+      <div className="atlas-context" aria-label={compactRuntimePrecision ? "推理栈实测场景" : "模型分析场景"}>
         <label>
           <span>硬件</span>
-          <select value={route.hardware ?? ""} onChange={(event) => navigate({ hardware: event.target.value || null, timelineCapture: null })}>
+          <select value={route.hardware ?? ""} onChange={(event) => navigate(compactRuntimePrecision
+            ? { hardware: event.target.value || null, runtimePrecision: null, timelineCapture: null, entity: null }
+            : { hardware: event.target.value || null, timelineCapture: null })}>
             <option value="">未选择</option>
             {route.hardware && !hardwareKnown ? <option value={route.hardware}>{route.hardware}</option> : null}
             {devices.map((device) => <option key={device.device_id} value={device.device_id}>{device.display_name}</option>)}
           </select>
         </label>
-        <label>
-          <span>理论精度</span>
-          <select value={route.precision ?? ""} onChange={(event) => navigate({ precision: event.target.value || null, basis: null }, true)}>
-            <option value="">场景默认</option>
-            {route.precision && !rooflinePrecisionIds.includes(route.precision) ? <option value={route.precision}>{precisionLabel(route.precision)}</option> : null}
-            {rooflinePrecisionIds.map((precisionId) => <option key={precisionId} value={precisionId}>{precisionLabel(precisionId)}</option>)}
-          </select>
-        </label>
+        {compactRuntimePrecision ? (
+          <label>
+            <span>实际精度</span>
+            <select
+              value={displayedRuntimePrecision}
+              disabled={!route.runtime}
+              onChange={(event) => navigate({ runtimePrecision: event.target.value || null, entity: null }, true)}
+            >
+              <option value="">{route.runtime ? "请选择实测配置" : "请先选择推理栈"}</option>
+              {route.runtimePrecision && !precisionIds.includes(route.runtimePrecision) ? (
+                <option value={route.runtimePrecision}>{runtimePrecisionLabel(route.runtimePrecision)}（当前范围外）</option>
+              ) : null}
+              {precisionIds.map((precisionId) => (
+                <option key={precisionId} value={precisionId}>{runtimePrecisionLabel(precisionId)}</option>
+              ))}
+            </select>
+          </label>
+        ) : (
+          <label>
+            <span>理论精度</span>
+            <select value={route.precision ?? ""} onChange={(event) => navigate({ precision: event.target.value || null, basis: null }, true)}>
+              <option value="">场景默认</option>
+              {route.precision && !rooflinePrecisionIds.includes(route.precision) ? <option value={route.precision}>{precisionLabel(route.precision)}</option> : null}
+              {rooflinePrecisionIds.map((precisionId) => <option key={precisionId} value={precisionId}>{precisionLabel(precisionId)}</option>)}
+            </select>
+          </label>
+        )}
       </div>
     );
   }
@@ -153,6 +181,14 @@ export function ContextBar({ data, model, route, navigate, compact = false }: Co
 
 function precisionLabel(precisionId: string): string {
   return precisionId.endsWith("_dense") ? precisionId.slice(0, -6).toUpperCase() : precisionId;
+}
+
+function runtimePrecisionLabel(precisionId: string): string {
+  return ({
+    "mixed-fp8-e4m3-fp16": "选择性 FP8 E4M3 / FP16",
+    "mixed-bf16-fp32": "BF16 / FP32 混合执行",
+    "q8_0-weight-only": "Q8_0 仅权重量化 / FP16 执行（非 INT8 计算）",
+  } as Readonly<Record<string, string>>)[precisionId] ?? precisionId;
 }
 
 function scopedEvidenceRunIds(data: AtlasData, tab: RouteState["tab"]): Set<string> | null {

@@ -40,6 +40,10 @@ export function AtlasApp() {
       document.title = "Pi0 模型结构 — Atlas";
       return;
     }
+    if (route.model === "pi0" && route.tab === "runtime") {
+      document.title = "Pi0 推理栈实现 — Atlas";
+      return;
+    }
     const view = route.model ? `${route.model} / ${route.tab}` : "Model register";
     document.title = `${view} — Embodied Inference Atlas`;
   }, [route.model, route.tab]);
@@ -68,7 +72,7 @@ export function AtlasApp() {
   );
 
   return (
-    <div className={`atlas-frame${route.model === "pi0" && route.tab === "logical" ? " atlas-frame--pi0" : ""}`}>
+    <div className={`atlas-frame${route.model === "pi0" && (route.tab === "logical" || route.tab === "runtime") ? " atlas-frame--pi0" : ""}`}>
       <AtlasHeader data={loadState.data} route={route} navigate={navigate} />
       {route.model && selectedModel ? (
         <Workbench
