@@ -1,13 +1,26 @@
 import type { RoutePatch, RouteState } from "../../../app/routes";
 import { RouteLink } from "../../../components/RouteLink";
-import type { KernelLaunch, ProfilerMetric, ProfilerMetricName, TelemetryRecord } from "../../profiler/domain/types";
+import type {
+  KernelLaunch,
+  NcuWarpTrigger,
+  NcuWarpTriggerCriterion,
+  ProfilerMetric,
+  ProfilerMetricName,
+  TelemetryRecord,
+} from "../../profiler/domain/types";
 import { kernelEntity } from "../../workbench/entityKeys";
-import type { KernelRowsModel, KernelRow } from "../domain/buildKernelRows";
-import { formatDuration, formatMetric, humanize } from "./KernelTable";
+import type { KernelRowsModel } from "../domain/buildKernelRows";
+import {
+  formatDuration,
+  formatMetric,
+  humanize,
+  preferredProfilerMetric,
+  TENSOR_ACTIVE_METRIC_NAMES,
+} from "./KernelTable";
 
 const DIAGNOSTIC_METRICS: readonly [string, readonly ProfilerMetricName[], string?][] = [
   ["SM throughput", ["sm_throughput_pct_of_peak_sustained_elapsed"]],
-  ["Tensor active", ["tensor_cycles_active_pct_of_peak_sustained_active", "tensor_cycles_active_pct_of_peak_sustained_elapsed"], "Active-cycle counter preferred; legacy elapsed-cycle counter remains visible"],
+  ["Tensor active", TENSOR_ACTIVE_METRIC_NAMES, "Active-cycle counter preferred; legacy elapsed-cycle counter remains visible"],
   ["Tensor path", ["tensor_path_fp4_fp6_fp8_to_fp32_dense_pct_of_peak_elapsed"]],
   ["Memory SOL", ["memory_sol_pct_of_peak_sustained_elapsed"]],
   ["Memory access throughput", ["memory_access_throughput_pct_of_peak_sustained_elapsed"]],
@@ -97,7 +110,7 @@ export function KernelInspector({ model, route, navigate }: {
         <div className="kernel-section-heading"><p>Named diagnostic metrics</p><h4>{isNcu ? "Replay counters" : "No replay counters on Nsys aggregate"}</h4></div>
         <dl className="kernel-diagnostic-grid">
           {DIAGNOSTIC_METRICS.map(([label, names, note]) => (
-            <MetricLedger key={label} label={label} metric={preferredMetric(row.metrics, names)} note={note} />
+            <MetricLedger key={label} label={label} metric={preferredProfilerMetric(row.metrics, names)} note={note} />
           ))}
         </dl>
       </section>
@@ -113,7 +126,14 @@ export function KernelInspector({ model, route, navigate }: {
             <Ledger label="External clock control" value={row.capture.ncu.externalClockControl
               ? `${humanize(row.capture.ncu.externalClockControl.controller)} ${humanize(row.capture.ncu.externalClockControl.state)} · ${humanize(row.capture.ncu.origins.externalClockControl ?? "unknown origin")}`
               : "Unknown"} />
+            {row.capture.ncu.warpTrigger ? <>
+              <Ledger label="Collection sequence" value="SchedulerStats first → one WarpStateStats supplemental replay" />
+              <Ledger label="Scheduler source" value={`${row.capture.ncu.warpTrigger.schedulerCaptureId} · ${row.capture.ncu.warpTrigger.schedulerObservationId} · ${humanize(row.capture.ncu.warpTrigger.origin)}`} />
+              <Ledger label="Observed gate" value={formatWarpTriggerCriteria(row.capture.ncu.warpTrigger.criteria)} />
+              <Ledger label="Launch / occupancy review" value={formatLaunchOccupancyReview(row.capture.ncu.warpTrigger.launchOccupancyReview)} />
+            </> : null}
           </dl>
+          {row.capture.ncu.warpTrigger ? <p>Stored collection gate only; no bottleneck conclusion is inferred.</p> : null}
         </section>
       ) : null}
 
@@ -183,17 +203,19 @@ export function KernelInspector({ model, route, navigate }: {
   );
 }
 
-function preferredMetric(
-  metrics: ReadonlyMap<ProfilerMetricName, ProfilerMetric>,
-  names: readonly ProfilerMetricName[],
-) {
-  const candidates = names.flatMap((name) => metrics.get(name) ?? []);
-  return candidates.find((metric) => metric.value !== null) ?? candidates[0] ?? null;
-}
-
 function formatDeclaredList(values: readonly string[] | null) {
   if (values === null) return "Unknown";
   return values.length ? values.join(" · ") : "None declared";
+}
+
+function formatWarpTriggerCriteria(criteria: readonly NcuWarpTriggerCriterion[]) {
+  return criteria.map((criterion) =>
+    `${humanize(criterion.metricName)} ${criterion.observedValue.toLocaleString()} ${criterion.operator === "lt" ? "<" : "≥"} ${criterion.threshold.toLocaleString()}`,
+  ).join(" · ");
+}
+
+function formatLaunchOccupancyReview(review: NcuWarpTrigger["launchOccupancyReview"]) {
+  return `${humanize(review.conclusion)} · ${humanize(review.basis)} · ${review.evidenceFields.map(humanize).join(" · ")}`;
 }
 
 function TelemetryLedger({ telemetry }: { telemetry: readonly TelemetryRecord[] }) {

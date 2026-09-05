@@ -1,6 +1,13 @@
 import type { RoutePatch, RouteState } from "../../../app/routes";
 import { RouteLink } from "../../../components/RouteLink";
-import type { KernelLaunch, ProfilerMetric, TelemetryRecord } from "../../profiler/domain/types";
+import type {
+  KernelLaunch,
+  NcuWarpTrigger,
+  NcuWarpTriggerCriterion,
+  ProfilerMetric,
+  TelemetryRecord,
+} from "../../profiler/domain/types";
+import { TENSOR_ACTIVE_METRIC_NAMES } from "../../performance/components/KernelTable";
 import { kernelEntity } from "../../workbench/entityKeys";
 import type { TimelineViewModel } from "../domain/buildTimelineView";
 
@@ -79,11 +86,20 @@ export function TimelineInspector({
                 ? `${humanize(view.separateReplayCapture.ncu.externalClockControl.controller)} ${humanize(view.separateReplayCapture.ncu.externalClockControl.state)} · ${humanize(view.separateReplayCapture.ncu.origins.externalClockControl ?? "unknown origin")}`
                 : "external clock unknown"}`
               : "Unknown"}</dd></div>
+            {view.separateReplayCapture.ncu?.warpTrigger ? <>
+              <div><dt>Collection sequence</dt><dd>SchedulerStats first → one WarpStateStats supplemental replay</dd></div>
+              <div><dt>Scheduler source</dt><dd>{view.separateReplayCapture.ncu.warpTrigger.schedulerCaptureId} · {view.separateReplayCapture.ncu.warpTrigger.schedulerObservationId} · {humanize(view.separateReplayCapture.ncu.warpTrigger.origin)}</dd></div>
+              <div><dt>Observed gate</dt><dd>{formatWarpTriggerCriteria(view.separateReplayCapture.ncu.warpTrigger.criteria)}</dd></div>
+              <div><dt>Launch / occupancy review</dt><dd>{formatLaunchOccupancyReview(view.separateReplayCapture.ncu.warpTrigger.launchOccupancyReview)}</dd></div>
+            </> : null}
           </dl>
+          {view.separateReplayCapture.ncu?.warpTrigger
+            ? <p>Stored collection gate only; no bottleneck conclusion is inferred.</p>
+            : null}
           <p className="timeline-replay-independence">Same model/runtime/device only. Independent run and operating point; matched signature, not sample.</p>
           <dl className="timeline-metric-grid">
             <MetricValue label="SM throughput" metric={metric(metrics, "sm_throughput_pct_of_peak_sustained_elapsed")} />
-            <MetricValue label="Tensor active" metric={preferredMetric(metrics, ["tensor_cycles_active_pct_of_peak_sustained_active", "tensor_cycles_active_pct_of_peak_sustained_elapsed"])} note="Active-cycle counter preferred; legacy elapsed-cycle counter remains visible" />
+            <MetricValue label="Tensor active" metric={preferredMetric(metrics, TENSOR_ACTIVE_METRIC_NAMES)} note="Active-cycle counter preferred; legacy elapsed-cycle counter remains visible" />
             <MetricValue label="Memory SOL" metric={metric(metrics, "memory_sol_pct_of_peak_sustained_elapsed")} />
             <MetricValue label="Memory access throughput" metric={metric(metrics, "memory_access_throughput_pct_of_peak_sustained_elapsed")} />
             <MetricValue label="L1TEX sector hit rate" metric={metric(metrics, "l1tex_sector_hit_rate_percent")} />
@@ -154,6 +170,16 @@ function preferredMetric(metrics: readonly ProfilerMetric[], names: readonly Pro
 function formatDeclaredList(values: readonly string[] | null) {
   if (values === null) return "Unknown";
   return values.length ? values.join(" · ") : "None declared";
+}
+
+function formatWarpTriggerCriteria(criteria: readonly NcuWarpTriggerCriterion[]) {
+  return criteria.map((criterion) =>
+    `${humanize(criterion.metricName)} ${criterion.observedValue.toLocaleString()} ${criterion.operator === "lt" ? "<" : "≥"} ${criterion.threshold.toLocaleString()}`,
+  ).join(" · ");
+}
+
+function formatLaunchOccupancyReview(review: NcuWarpTrigger["launchOccupancyReview"]) {
+  return `${humanize(review.conclusion)} · ${humanize(review.basis)} · ${review.evidenceFields.map(humanize).join(" · ")}`;
 }
 
 function TelemetryLedger({ telemetry }: { telemetry: readonly TelemetryRecord[] }) {

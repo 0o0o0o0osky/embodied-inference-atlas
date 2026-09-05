@@ -2,6 +2,7 @@ import type { AtlasData, CanonicalRecord } from "../../../types/atlas";
 import type {
   KernelObservation,
   KernelSignature,
+  NcuWarpTrigger,
   OperatorKernelLink,
   ProfilerCapture,
   ProfilerEvidence,
@@ -96,6 +97,61 @@ function missing(value: unknown, label: string): ProfilerMissing {
   );
 }
 
+function adaptWarpTrigger(value: unknown): NcuWarpTrigger | null {
+  if (value === null || value === undefined) return null;
+  const trigger = record(value, "profiler capture ncu.warp_trigger");
+  const review = record(
+    trigger.launch_occupancy_review,
+    "profiler capture ncu.warp_trigger.launch_occupancy_review",
+  );
+  return {
+    schedulerCaptureId: text(
+      trigger.scheduler_capture_id,
+      "profiler capture ncu.warp_trigger.scheduler_capture_id",
+    ),
+    schedulerObservationId: text(
+      trigger.scheduler_observation_id,
+      "profiler capture ncu.warp_trigger.scheduler_observation_id",
+    ),
+    origin: text(
+      trigger.origin,
+      "profiler capture ncu.warp_trigger.origin",
+    ) as NcuWarpTrigger["origin"],
+    criteria: records(trigger.criteria, "profiler capture ncu.warp_trigger.criteria").map((criterion) => ({
+      metricName: text(
+        criterion.metric_name,
+        "profiler capture ncu.warp_trigger.criteria.metric_name",
+      ) as NcuWarpTrigger["criteria"][number]["metricName"],
+      operator: text(
+        criterion.operator,
+        "profiler capture ncu.warp_trigger.criteria.operator",
+      ) as NcuWarpTrigger["criteria"][number]["operator"],
+      threshold: numberValue(
+        criterion.threshold,
+        "profiler capture ncu.warp_trigger.criteria.threshold",
+      ),
+      observedValue: numberValue(
+        criterion.observed_value,
+        "profiler capture ncu.warp_trigger.criteria.observed_value",
+      ),
+    })),
+    launchOccupancyReview: {
+      conclusion: text(
+        review.conclusion,
+        "profiler capture ncu.warp_trigger.launch_occupancy_review.conclusion",
+      ) as NcuWarpTrigger["launchOccupancyReview"]["conclusion"],
+      basis: text(
+        review.basis,
+        "profiler capture ncu.warp_trigger.launch_occupancy_review.basis",
+      ) as NcuWarpTrigger["launchOccupancyReview"]["basis"],
+      evidenceFields: strings(
+        review.evidence_fields,
+        "profiler capture ncu.warp_trigger.launch_occupancy_review.evidence_fields",
+      ) as NcuWarpTrigger["launchOccupancyReview"]["evidenceFields"],
+    },
+  };
+}
+
 function adaptCapture(raw: CanonicalRecord): ProfilerCapture {
   const coverage = record(raw.coverage, "profiler capture coverage");
   const rawNsys = raw.nsys === null ? null : record(raw.nsys, "profiler capture nsys");
@@ -145,6 +201,7 @@ function adaptCapture(raw: CanonicalRecord): ProfilerCapture {
         controller: text(externalClock.controller, "capture ncu.external_clock_control.controller"),
         state: text(externalClock.state, "capture ncu.external_clock_control.state"),
       } : null,
+      warpTrigger: adaptWarpTrigger(rawNcu.warp_trigger),
       origins: {
         selectionPolicy: text(origins.selection_policy, "capture ncu.origins.selection_policy"),
         replayMode: text(origins.replay_mode, "capture ncu.origins.replay_mode"),

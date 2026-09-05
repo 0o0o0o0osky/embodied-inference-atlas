@@ -30,6 +30,32 @@ export interface NcuCaptureOrigins {
   externalClockControl: string | null;
 }
 
+export interface NcuWarpTriggerCriterion {
+  metricName:
+    | "scheduler_issue_active_per_active_cycle"
+    | "scheduler_active_warps_per_active_cycle"
+    | "scheduler_eligible_warps_per_active_cycle";
+  operator: "lt" | "gte";
+  threshold: number;
+  observedValue: number;
+}
+
+export interface NcuWarpTrigger {
+  schedulerCaptureId: string;
+  schedulerObservationId: string;
+  origin: "reviewed_scheduler_evidence";
+  criteria: readonly NcuWarpTriggerCriterion[];
+  launchOccupancyReview: {
+    conclusion: "launch_and_occupancy_do_not_explain_issue_gap";
+    basis: "manual_review_of_same_capture_evidence";
+    evidenceFields: readonly (
+      | "kernel_observation.launch"
+      | "theoretical_occupancy_percent"
+      | "achieved_occupancy_percent"
+    )[];
+  };
+}
+
 export interface NcuCaptureDetails {
   replayMode: "kernel";
   replayPasses: number;
@@ -42,6 +68,7 @@ export interface NcuCaptureDetails {
   sections: readonly string[] | null;
   explicitMetrics: readonly string[] | null;
   externalClockControl: { controller: string; state: string } | null;
+  warpTrigger: NcuWarpTrigger | null;
   origins: NcuCaptureOrigins;
 }
 

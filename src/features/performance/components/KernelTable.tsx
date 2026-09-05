@@ -1,6 +1,19 @@
 import type { ProfilerMetric, ProfilerMetricName } from "../../profiler/domain/types";
 import type { KernelRow } from "../domain/buildKernelRows";
 
+export const TENSOR_ACTIVE_METRIC_NAMES = [
+  "tensor_cycles_active_pct_of_peak_sustained_active",
+  "tensor_cycles_active_pct_of_peak_sustained_elapsed",
+] as const satisfies readonly ProfilerMetricName[];
+
+export function preferredProfilerMetric(
+  metrics: ReadonlyMap<ProfilerMetricName, ProfilerMetric>,
+  names: readonly ProfilerMetricName[],
+) {
+  const candidates = names.flatMap((name) => metrics.get(name) ?? []);
+  return candidates.find((metric) => metric.value !== null) ?? candidates[0] ?? null;
+}
+
 export function KernelTable({
   rows,
   selectedObservationId,
@@ -67,7 +80,7 @@ export function KernelTable({
                         <small>{shape(row.observation.launch.block)} block</small>
                       </td>
                       <MetricCell metrics={row.metrics} name="sm_throughput_pct_of_peak_sustained_elapsed" />
-                      <MetricCell metrics={row.metrics} name="tensor_cycles_active_pct_of_peak_sustained_elapsed" />
+                      <MetricCell metrics={row.metrics} name={TENSOR_ACTIVE_METRIC_NAMES} />
                       <MetricCell metrics={row.metrics} name="memory_sol_pct_of_peak_sustained_elapsed" />
                       <MetricCell metrics={row.metrics} name="l1_throughput_pct_of_peak_sustained_active" />
                       <MetricCell metrics={row.metrics} name="l2_throughput_pct_of_peak_sustained_elapsed" />
@@ -90,10 +103,10 @@ export function KernelTable({
 
 function MetricCell({ metrics, name, note }: {
   metrics: ReadonlyMap<ProfilerMetricName, ProfilerMetric>;
-  name: ProfilerMetricName;
+  name: ProfilerMetricName | readonly ProfilerMetricName[];
   note?: string;
 }) {
-  const metric = metrics.get(name);
+  const metric = preferredProfilerMetric(metrics, typeof name === "string" ? [name] : name);
   return (
     <td className={metric?.value === null || !metric ? "kernel-missing-cell" : "kernel-mono"}>
       {metric?.value === null || !metric ? "Missing" : formatMetric(metric)}

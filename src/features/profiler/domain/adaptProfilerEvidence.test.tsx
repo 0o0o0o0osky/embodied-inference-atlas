@@ -9,7 +9,8 @@ import runDocument from "../../../../data/measurements/runs.json";
 import type { RouteState } from "../../../app/routes";
 import type { AtlasData, AtlasDatasets, CanonicalRecord } from "../../../types/atlas";
 import { KernelInspector } from "../../performance/components/KernelInspector";
-import type { KernelRowsModel } from "../../performance/domain/buildKernelRows";
+import { KernelTable } from "../../performance/components/KernelTable";
+import type { KernelRow, KernelRowsModel } from "../../performance/domain/buildKernelRows";
 import { TimelineInspector } from "../../timeline/components/TimelineInspector";
 import type { TimelineViewModel } from "../../timeline/domain/buildTimelineView";
 import { adaptProfilerEvidence } from "./adaptProfilerEvidence";
@@ -62,14 +63,25 @@ it("adapts and renders locked Task 7 NCU evidence while retaining legacy capture
       ...structuredClone(legacyCapture.ncu),
       clock_control_request: "none",
       disable_extra_suffixes: true,
-      section_mode: "scheduler_stats_with_sysmem_sectors",
-      sections: ["SpeedOfLight", "ComputeWorkloadAnalysis", "MemoryWorkloadAnalysis", "LaunchStats", "Occupancy", "SchedulerStats"],
-      explicit_metrics: [
-        "lts__d_sectors_fill_sysmem.sum",
-        "lts__t_sectors_aperture_sysmem_op_write.sum",
-        "lts__t_sectors_srcunit_tex_aperture_sysmem_lookup_miss.sum",
-      ],
+      section_mode: "warp_state_stats",
+      sections: ["SpeedOfLight", "ComputeWorkloadAnalysis", "MemoryWorkloadAnalysis", "LaunchStats", "Occupancy", "WarpStateStats"],
+      explicit_metrics: [],
       external_clock_control: { controller: "jetson_clocks", state: "locked" },
+      warp_trigger: {
+        scheduler_capture_id: "capture-task7-scheduler",
+        scheduler_observation_id: "kernel-observation-task7-scheduler",
+        origin: "reviewed_scheduler_evidence",
+        criteria: [
+          { metric_name: "scheduler_issue_active_per_active_cycle", operator: "lt", threshold: 0.6, observed_value: 0.55 },
+          { metric_name: "scheduler_active_warps_per_active_cycle", operator: "gte", threshold: 1, observed_value: 8 },
+          { metric_name: "scheduler_eligible_warps_per_active_cycle", operator: "lt", threshold: 1, observed_value: 0.5 },
+        ],
+        launch_occupancy_review: {
+          conclusion: "launch_and_occupancy_do_not_explain_issue_gap",
+          basis: "manual_review_of_same_capture_evidence",
+          evidence_fields: ["kernel_observation.launch", "theoretical_occupancy_percent", "achieved_occupancy_percent"],
+        },
+      },
       origins,
     },
   };
@@ -162,13 +174,28 @@ it("adapts and renders locked Task 7 NCU evidence while retaining legacy capture
   const legacy = adaptProfilerEvidence(atlas({
     profiler_captures: [legacyCapture] as unknown as CanonicalRecord[],
   })).captures[0]!;
-  expect(legacy.ncu).toMatchObject({ sectionMode: null, sections: null, explicitMetrics: null });
+  expect(legacy.ncu).toMatchObject({ sectionMode: null, sections: null, explicitMetrics: null, warpTrigger: null });
   expect(legacy.ncu?.origins.gpuFrequencyNotFixed).toBe("collection_log_manual_audit");
   expect(evidence.captures[0]?.ncu).toMatchObject({
     clockControlRequest: "none",
-    sectionMode: "scheduler_stats_with_sysmem_sectors",
-    sections: ["SpeedOfLight", "ComputeWorkloadAnalysis", "MemoryWorkloadAnalysis", "LaunchStats", "Occupancy", "SchedulerStats"],
+    sectionMode: "warp_state_stats",
+    sections: ["SpeedOfLight", "ComputeWorkloadAnalysis", "MemoryWorkloadAnalysis", "LaunchStats", "Occupancy", "WarpStateStats"],
     externalClockControl: { controller: "jetson_clocks", state: "locked" },
+    warpTrigger: {
+      schedulerCaptureId: "capture-task7-scheduler",
+      schedulerObservationId: "kernel-observation-task7-scheduler",
+      origin: "reviewed_scheduler_evidence",
+      criteria: [
+        { metricName: "scheduler_issue_active_per_active_cycle", operator: "lt", threshold: 0.6, observedValue: 0.55 },
+        { metricName: "scheduler_active_warps_per_active_cycle", operator: "gte", threshold: 1, observedValue: 8 },
+        { metricName: "scheduler_eligible_warps_per_active_cycle", operator: "lt", threshold: 1, observedValue: 0.5 },
+      ],
+      launchOccupancyReview: {
+        conclusion: "launch_and_occupancy_do_not_explain_issue_gap",
+        basis: "manual_review_of_same_capture_evidence",
+        evidenceFields: ["kernel_observation.launch", "theoretical_occupancy_percent", "achieved_occupancy_percent"],
+      },
+    },
     origins: { gpuFrequencyNotFixed: null },
   });
   expect(evidence.telemetry.map((item) => item.measurementSource)).toEqual([
@@ -196,8 +223,24 @@ it("adapts and renders locked Task 7 NCU evidence while retaining legacy capture
     route={route}
     navigate={() => undefined}
   />);
+  const tableMarkup = renderToStaticMarkup(<KernelTable
+    rows={[row as unknown as KernelRow]}
+    selectedObservationId={row.observation.observationId}
+    onSelect={() => undefined}
+  />);
   [kernelMarkup, timelineMarkup].forEach((markup) => {
-    expect(markup).toContain("scheduler stats with sysmem sectors");
+    expect(markup).toContain("warp state stats");
+    expect(markup).toContain("SchedulerStats first → one WarpStateStats supplemental replay");
+    expect(markup).toContain("capture-task7-scheduler");
+    expect(markup).toContain("kernel-observation-task7-scheduler");
+    expect(markup).toContain("reviewed scheduler evidence");
+    expect(markup).toContain("0.55 &lt; 0.6");
+    expect(markup).toContain("8 ≥ 1");
+    expect(markup).toContain("0.5 &lt; 1");
+    expect(markup).toContain("launch and occupancy do not explain issue gap");
+    expect(markup).toContain("manual review of same capture evidence");
+    expect(markup).toContain("kernel observation.launch");
+    expect(markup).toContain("Stored collection gate only; no bottleneck conclusion is inferred.");
     expect(markup).toContain("Issued warps / scheduler active cycle");
     expect(markup).toContain("One or more eligible");
     expect(markup).toContain("No eligible");
@@ -217,4 +260,5 @@ it("adapts and renders locked Task 7 NCU evidence while retaining legacy capture
     expect(markup).toContain("jetson clocks show current freq");
     expect(markup).toContain("unknown source");
   });
+  expect(tableMarkup).toContain(">72%<");
 });
