@@ -15,13 +15,16 @@ export function TimelineInspector({
   view,
   route,
   navigate,
+  locale = "en",
 }: {
   view: TimelineViewModel;
   route: RouteState;
   navigate: (patch: RoutePatch, replace?: boolean) => void;
+  locale?: "en" | "zh";
 }) {
   const active = view.active;
   if (!active) return null;
+  const zh = locale === "zh";
   const event = view.selectedEvent;
   const observation = view.selectedObservation;
   const replay = view.separateReplay;
@@ -30,37 +33,39 @@ export function TimelineInspector({
   return (
     <aside className="timeline-inspector" aria-labelledby="timeline-inspector-title">
       <header>
-        <p>Selected interval / capture-local</p>
-        <h3 id="timeline-inspector-title">{view.selectedSignature?.labelSanitized ?? event?.label.replaceAll("-", " ") ?? "No interval selected"}</h3>
+        <p>{zh ? "当前 capture 内的选中区间" : "Selected interval / capture-local"}</p>
+        <h3 id="timeline-inspector-title">{view.selectedSignature?.labelSanitized ?? event?.label.replaceAll("-", " ") ?? (zh ? "未选择区间" : "No interval selected")}</h3>
         <code>{active.capture.captureId}</code>
       </header>
 
       {event ? (
         <dl className="timeline-event-ledger">
-          <div><dt>Lane</dt><dd>{event.laneId}</dd></div>
-          <div><dt>Semantics</dt><dd>{humanize(event.evidenceSemantics)}</dd></div>
-          <div><dt>Start / end</dt><dd>{formatMs(event.startNs)} / {formatMs(event.startNs + event.durationNs)}</dd></div>
-          <div><dt>Interval duration</dt><dd>{formatDuration(event.durationNs)}</dd></div>
+          <div><dt>{zh ? "轨道" : "Lane"}</dt><dd>{event.laneId}</dd></div>
+          <div><dt>{zh ? "证据语义" : "Semantics"}</dt><dd>{humanize(event.evidenceSemantics)}</dd></div>
+          <div><dt>{zh ? "起止位置" : "Start / end"}</dt><dd>{formatMs(event.startNs)} / {formatMs(event.startNs + event.durationNs)}</dd></div>
+          <div><dt>{zh ? "持续时间" : "Interval duration"}</dt><dd>{formatDuration(event.durationNs)}</dd></div>
         </dl>
-      ) : <p className="timeline-inspector-empty">This capture has no selectable interval.</p>}
+      ) : <p className="timeline-inspector-empty">{zh ? "此 capture 没有可选择的区间。" : "This capture has no selectable interval."}</p>}
 
       {observation ? (
         <section className="timeline-aggregate">
           <div className="timeline-inspector-section-heading">
-            <div><p>Nsys aggregate / this capture</p><h4>{observation.calls.toLocaleString()} matching calls</h4></div>
+            <div><p>{zh ? "当前 capture 内的 Nsys 聚合" : "Nsys aggregate / this capture"}</p><h4>{observation.calls.toLocaleString()} {zh ? "次同签名调用" : "matching calls"}</h4></div>
             <strong>{formatDuration(observation.duration.valueNs)}</strong>
           </div>
           <p>
             {observation.durationShare
-              ? `${observation.durationShare.value.toFixed(2)}% of this capture's ${humanize(observation.durationShare.denominator)}.`
-              : "No duration share is defined on this observation."}
+              ? zh
+                ? `占此 capture 的 ${humanize(observation.durationShare.denominator)} 的 ${observation.durationShare.value.toFixed(2)}%。`
+                : `${observation.durationShare.value.toFixed(2)}% of this capture's ${humanize(observation.durationShare.denominator)}.`
+              : zh ? "此观测未定义时长占比。" : "No duration share is defined on this observation."}
           </p>
           <RouteLink
             route={route}
             patch={{ tab: "roofline-kernels", rooflineLevel: "overview", entity: kernelEntity(observation.captureId, observation.observationId) }}
             navigate={navigate}
           >
-            Open this capture-local row in kernel diagnostics
+            {zh ? "在 Kernel 诊断中查看当前 capture 聚合" : "Open this capture-local row in kernel diagnostics"}
           </RouteLink>
         </section>
       ) : null}

@@ -9,6 +9,7 @@ import "./styles/roofline.css";
 import "./styles/end-to-end.css";
 import "./styles/timeline.css";
 import "./styles/performance.css";
+import "./features/runtime/components/pi0PerformanceNavigation.css";
 
 const root = document.getElementById("root");
 

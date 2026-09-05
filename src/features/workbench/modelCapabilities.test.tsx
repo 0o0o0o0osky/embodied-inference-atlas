@@ -50,7 +50,7 @@ function atlas(overrides: Partial<AtlasDatasets>): AtlasData {
 function route(overrides: Partial<RouteState> = {}): RouteState {
   return {
     model: "pi0", tab: "roofline-kernels", runtime: null, hardware: null,
-    workload: null, precision: null, runtimePrecision: null, entity: null,
+    workload: null, precision: null, runtimePrecision: null, runtimeFacet: null, entity: null,
     timelineCapture: null, rooflineLevel: "overview", basis: null,
     ...overrides,
   };

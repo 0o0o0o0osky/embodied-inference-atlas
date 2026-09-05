@@ -34,7 +34,7 @@ function atlas(overrides: Partial<AtlasDatasets>): AtlasData {
 
 const route: RouteState = {
   model: "pi0", tab: "roofline-kernels", runtime: "flashrt", hardware: "nvidia-jetson-agx-thor",
-  workload: null, precision: null, runtimePrecision: null, entity: null,
+  workload: null, precision: null, runtimePrecision: null, runtimeFacet: null, entity: null,
   timelineCapture: null, rooflineLevel: "overview", basis: null,
 };
 

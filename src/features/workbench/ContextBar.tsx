@@ -53,16 +53,17 @@ export function ContextBar({ data, model, route, navigate, compact = false }: Co
   const fieldCount = 2 + Number(showWorkload) + Number(showRuntimePrecision || showRooflinePrecision);
 
   if (compact) {
-    const compactRuntimePrecision = route.tab === "runtime";
+    const runtimeComparison = route.tab === "runtime";
+    const compactRuntimePrecision = runtimeComparison && Boolean(route.runtime);
     const displayedRuntimePrecision = runtimeKnown
       ? route.runtimePrecision ?? (precisionIds.length === 1 ? precisionIds[0]! : "")
       : "";
     return (
-      <div className="atlas-context" aria-label={compactRuntimePrecision ? "推理栈实测场景" : "模型分析场景"}>
+      <div className="atlas-context" aria-label={runtimeComparison ? "推理性能场景" : "模型分析场景"}>
         <label>
           <span>硬件</span>
-          <select value={route.hardware ?? ""} onChange={(event) => navigate(compactRuntimePrecision
-            ? { hardware: event.target.value || null, runtimePrecision: null, timelineCapture: null, entity: null }
+          <select value={route.hardware ?? ""} onChange={(event) => navigate(runtimeComparison
+            ? { hardware: event.target.value || null, runtimePrecision: null, runtimeFacet: null, timelineCapture: null, entity: null }
             : { hardware: event.target.value || null, timelineCapture: null })}>
             <option value="">未选择</option>
             {route.hardware && !hardwareKnown ? <option value={route.hardware}>{route.hardware}</option> : null}
@@ -75,7 +76,7 @@ export function ContextBar({ data, model, route, navigate, compact = false }: Co
             <select
               value={displayedRuntimePrecision}
               disabled={!runtimeKnown}
-              onChange={(event) => navigate({ runtimePrecision: event.target.value || null, entity: null }, true)}
+              onChange={(event) => navigate({ runtimePrecision: event.target.value || null, runtimeFacet: null, entity: null }, true)}
             >
               <option value="">
                 {runtimeKnown ? "请选择实测配置" : route.runtime ? "不是可选推理栈" : "请先选择推理栈"}
@@ -88,7 +89,7 @@ export function ContextBar({ data, model, route, navigate, compact = false }: Co
               ))}
             </select>
           </label>
-        ) : (
+        ) : !runtimeComparison ? (
           <label>
             <span>理论精度</span>
             <select value={route.precision ?? ""} onChange={(event) => navigate({ precision: event.target.value || null, basis: null }, true)}>
@@ -97,7 +98,7 @@ export function ContextBar({ data, model, route, navigate, compact = false }: Co
               {rooflinePrecisionIds.map((precisionId) => <option key={precisionId} value={precisionId}>{precisionLabel(precisionId)}</option>)}
             </select>
           </label>
-        )}
+        ) : null}
       </div>
     );
   }
@@ -109,7 +110,7 @@ export function ContextBar({ data, model, route, navigate, compact = false }: Co
         <select
           value={route.runtime ?? ""}
           onChange={(event) =>
-            navigate({ runtime: event.target.value || null, runtimePrecision: null, timelineCapture: null, entity: null })
+            navigate({ runtime: event.target.value || null, runtimePrecision: null, runtimeFacet: null, timelineCapture: null, entity: null })
           }
         >
           <option value="">{route.tab === "logical" || route.tab === "runtime" ? "Logical model only" : "All evidence runtimes"}</option>
@@ -133,7 +134,7 @@ export function ContextBar({ data, model, route, navigate, compact = false }: Co
         <select
           value={route.hardware ?? ""}
           onChange={(event) =>
-            navigate({ hardware: event.target.value || null, timelineCapture: null, entity: null })
+            navigate({ hardware: event.target.value || null, runtimeFacet: null, timelineCapture: null, entity: null })
           }
         >
           <option value="">{route.tab === "roofline-kernels" ? "No runtime hardware filter" : "No hardware selected"}</option>
@@ -156,7 +157,7 @@ export function ContextBar({ data, model, route, navigate, compact = false }: Co
             value={route.workload ?? ""}
             placeholder="canonical-default"
             onChange={(event) =>
-              navigate({ workload: event.target.value || null }, true)
+              navigate({ workload: event.target.value || null, runtimeFacet: null }, true)
             }
           />
         </label>
@@ -168,7 +169,7 @@ export function ContextBar({ data, model, route, navigate, compact = false }: Co
           <select
             value={route.runtimePrecision ?? ""}
             disabled={!runtimeKnown}
-            onChange={(event) => navigate({ runtimePrecision: event.target.value || null, entity: null }, true)}
+            onChange={(event) => navigate({ runtimePrecision: event.target.value || null, runtimeFacet: null, entity: null }, true)}
           >
             <option value="">{runtimeKnown ? "Choose realized precision" : route.runtime ? "Runtime is not selectable" : "Choose a runtime first"}</option>
             {route.runtimePrecision && !precisionIds.includes(route.runtimePrecision) ? <option value={route.runtimePrecision}>{route.runtimePrecision} (outside active scope)</option> : null}

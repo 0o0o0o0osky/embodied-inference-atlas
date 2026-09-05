@@ -19,6 +19,7 @@ import { layoutLogicalDag } from "./layout/paperLayout";
 import { resolveConnectorHints } from "./layout/routeConnectors";
 import { resolvePresentationProfile } from "./presentation/registry";
 import { ModelDisplayProvider, useModelText } from "./presentation/ModelDisplay";
+import { pi0PerformanceNavigationPatch } from "../runtime/domain/pi0PerformanceNavigation";
 
 interface ModelGraphWorkspaceProps {
   data: AtlasData;
@@ -29,6 +30,20 @@ interface ModelGraphWorkspaceProps {
 
 function findGraph(records: CanonicalRecord[], modelId: string) {
   return records.find((record) => isV1ModelGraphRecord(record, modelId)) ?? null;
+}
+
+function resolveWorkloadBinding(data: AtlasData, route: RouteState) {
+  const run = data.datasets.runs.find((candidate) => candidate.configuration_id === route.workload
+    && candidate.model_id === route.model
+    && (!route.hardware || candidate.device_id === route.hardware));
+  const vla = run?.workload.vla;
+  if (!vla) return route.workload;
+  return [
+    ["V", vla.camera_views],
+    ["L_PROMPT", vla.executed_prompt_tokens],
+    ["T_ACTION", vla.action_chunk],
+    ["N_DENOISE", vla.denoise_steps],
+  ].filter(([, value]) => value !== null).map(([name, value]) => `${name}=${value}`).join(",");
 }
 
 export function ModelGraphWorkspace({
@@ -76,9 +91,13 @@ function ResolvedModelGraph({
 }) {
   const t = useModelText();
   const defaultGraph = useMemo(() => adaptV1ModelGraph(record), [record]);
+  const workloadBinding = useMemo(
+    () => model.model_id === "pi0" ? resolveWorkloadBinding(data, route) : route.workload,
+    [data, model.model_id, route],
+  );
   const overrides = useMemo(
-    () => workloadOverrides(route.workload, defaultGraph.editableSymbols),
-    [defaultGraph.editableSymbols, route.workload],
+    () => workloadOverrides(workloadBinding, defaultGraph.editableSymbols),
+    [defaultGraph.editableSymbols, workloadBinding],
   );
   const graph = useMemo(
     () => adaptV1ModelGraph(record, overrides),
@@ -196,9 +215,9 @@ function ResolvedModelGraph({
             cameraResetKey={`${model.model_id}|${route.workload ?? "defaults"}`}
             toolbar={isPi0 ? <>
               <h2 id="logical-graph-title">Pi0 <span>v{graph.version}</span></h2>
-              <span className="graph-view-current">理论模型</span>
-              <RouteLink route={route} navigate={navigate} patch={{ tab: "runtime" }}>推理栈实现</RouteLink>
-              <RouteLink route={route} navigate={navigate} patch={{ tab: "roofline-kernels", rooflineLevel: "overview", entity: null }}>理论总览</RouteLink>
+              <span className="graph-view-current">理论 DAG</span>
+              <RouteLink route={route} navigate={navigate} patch={pi0PerformanceNavigationPatch("comparison")}>性能对比</RouteLink>
+              <RouteLink route={route} navigate={navigate} patch={{ tab: "roofline-kernels", rooflineLevel: "overview", entity: null }}>理论 Roofline</RouteLink>
               {workloadControls}
             </> : undefined}
             scenario={isPi0 ? <p className="graph-scenario-summary">

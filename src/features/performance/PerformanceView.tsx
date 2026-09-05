@@ -6,10 +6,13 @@ import { adaptProfilerEvidence } from "../profiler/domain/adaptProfilerEvidence"
 import { indexProfilerEvidence } from "../profiler/domain/indexProfilerEvidence";
 import { RooflineView } from "../roofline/components/RooflineView";
 import { runtimeProfilerSlice, scopeRuntimeProfiler } from "../runtime/domain/scopeRuntimeProfiler";
+import { buildPi0PerformanceOverview } from "../runtime/domain/buildPi0PerformanceOverview";
 import { kernelEntity } from "../workbench/entityKeys";
 import { KernelInspector } from "./components/KernelInspector";
 import { KernelTable } from "./components/KernelTable";
+import { Pi0ProfilerEvidenceSection } from "./components/Pi0ProfilerEvidenceSection";
 import { buildKernelRows } from "./domain/buildKernelRows";
+import { Pi0PerformanceNavigation } from "../runtime/components/Pi0PerformanceNavigation";
 
 interface PerformanceViewProps {
   data: AtlasData;
@@ -20,7 +23,20 @@ interface PerformanceViewProps {
 
 export function PerformanceView({ data, model, route, navigate }: PerformanceViewProps) {
   const evidence = useMemo(() => adaptProfilerEvidence(data), [data]);
-  const slice = useMemo(() => runtimeProfilerSlice(data, route.workload), [data, route.workload]);
+  const performanceOverview = useMemo(() => model.model_id === "pi0"
+    ? buildPi0PerformanceOverview({ data, hardwareId: route.hardware })
+    : null, [data, model.model_id, route.hardware]);
+  const selectedFacet = useMemo(() => {
+    const matching = performanceOverview?.facets.filter((facet) => facet.runtimeId === route.runtime
+      && facet.precisionId === route.runtimePrecision) ?? [];
+    return matching.find((facet) => facet.id === route.runtimeFacet)
+      ?? (route.runtimeFacet === null && matching.length === 1 ? matching[0]! : null);
+  }, [performanceOverview, route.runtime, route.runtimeFacet, route.runtimePrecision]);
+  const slice = useMemo(() => runtimeProfilerSlice(
+    data,
+    route.workload,
+    selectedFacet?.comparisonContext ?? null,
+  ), [data, route.workload, selectedFacet]);
   const scope = useMemo(() => model.model_id === "pi0" ? scopeRuntimeProfiler(data, evidence, {
     modelId: model.model_id, runtimeId: route.runtime, hardwareId: route.hardware,
     precisionId: route.runtimePrecision, slice,
@@ -34,6 +50,29 @@ export function PerformanceView({ data, model, route, navigate }: PerformanceVie
     entity: route.entity,
   }), [scope, index, model.model_id, route.entity, route.hardware, route.runtime]);
   const inventory = view.inventory;
+
+  if (model.model_id === "pi0") {
+    return (
+      <div className="performance-workspace performance-workspace--pi0">
+        <Pi0PerformanceNavigation route={route} navigate={navigate} surface="kernel" />
+        <section className="pi0-funnel-section pi0-roofline-summary" aria-labelledby="pi0-roofline-title">
+          <header className="pi0-funnel-heading">
+            <div><h3 id="pi0-roofline-title">理论 Roofline</h3><p>先选分析层级，再看对应上限；理论、融合实现与实测 Kernel 不混算。</p></div>
+          </header>
+          <Pi0RooflineLevelNavigation route={route} navigate={navigate} />
+          {route.rooflineLevel === "overview" ? (
+            <p className="pi0-funnel-note">默认理论精度为 BF16。模型阶段、逻辑算子、融合算子和实测 Kernel 使用各自独立的证据口径，缺失不会补零。</p>
+          ) : (
+            <div className="pi0-roofline-active-level">
+              <RooflineView data={data} model={model} route={route} navigate={navigate} />
+            </div>
+          )}
+        </section>
+        <Pi0ProfilerEvidenceSection model={view} route={route} navigate={navigate} />
+      </div>
+    );
+  }
+
   return (
     <div className="performance-workspace">
       <RooflineView data={data} model={model} route={route} navigate={navigate} />
@@ -82,6 +121,35 @@ export function PerformanceView({ data, model, route, navigate }: PerformanceVie
         <KernelInspector model={view} route={route} navigate={navigate} />
       </section>
     </div>
+  );
+}
+
+const PI0_ROOFLINE_LEVELS: readonly {
+  id: RouteState["rooflineLevel"];
+  label: string;
+}[] = [
+  { id: "overview", label: "总览" },
+  { id: "stage", label: "模型阶段" },
+  { id: "atomic", label: "逻辑算子" },
+  { id: "fused", label: "融合算子" },
+  { id: "kernel", label: "实测 Kernel" },
+];
+
+function Pi0RooflineLevelNavigation({ route, navigate }: {
+  route: RouteState;
+  navigate: (patch: RoutePatch, replace?: boolean) => void;
+}) {
+  return (
+    <nav className="pi0-roofline-levels" aria-label="Roofline 分析层级">
+      {PI0_ROOFLINE_LEVELS.map((level) => (
+        <button
+          type="button"
+          key={level.id}
+          aria-current={route.rooflineLevel === level.id ? "page" : undefined}
+          onClick={() => navigate({ rooflineLevel: level.id, basis: null, entity: null })}
+        >{level.label}</button>
+      ))}
+    </nav>
   );
 }
 

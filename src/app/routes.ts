@@ -18,6 +18,7 @@ export interface RouteState {
   workload: string | null;
   precision: string | null;
   runtimePrecision: string | null;
+  runtimeFacet: string | null;
   entity: string | null;
   timelineCapture: string | null;
   rooflineLevel: "overview" | "stage" | "atomic" | "fused" | "kernel";
@@ -33,6 +34,7 @@ const ROUTE_FIELDS = [
   "workload",
   "precision",
   "runtimePrecision",
+  "runtimeFacet",
   "entity",
   "timelineCapture",
   "basis",
@@ -50,6 +52,7 @@ export function readRoute(search = window.location.search): RouteState {
     workload: readValue(params, "workload"),
     precision: readValue(params, "precision") ?? (isDefaultRoute ? "bf16_dense" : null),
     runtimePrecision: readValue(params, "runtimePrecision"),
+    runtimeFacet: readValue(params, "runtimeFacet"),
     entity: readValue(params, "entity"),
     timelineCapture: readValue(params, "timelineCapture"),
     rooflineLevel: readRooflineLevel(params.get("roofline-level")),

@@ -134,6 +134,8 @@ canonical `data/model_graphs/*.json` 不因展示编排而改写。Presentation 
 
 默认只显示一个总表，不显示逐-run大表。
 
+Pi0 第一批目标采样格固定 `prompt=48`、`denoise=10`，仅展开 `views={1,2,3}` 与 `action chunk={20,50}`，即每个推理栈/实际精度最多 6 个目标配置。运行时不支持的 action chunk 和尚未采集的精确配置显示为待测，不用历史 prompt、原生但不同的 chunk 或 analytical 数值补点。
+
 当前模型、硬件、工作负载和精度由顶栏/场景选择固定。总表一行对应一个推理栈在这一完整上下文中的结果：
 
 | 推理栈 | 端到端延时 | 理论下界 | 可比 gap | 实际精度 | 输出口径 | 状态 |

@@ -37,11 +37,11 @@ export function AtlasApp() {
 
   useEffect(() => {
     if (route.model === "pi0" && route.tab === "logical") {
-      document.title = "Pi0 模型结构 — Atlas";
+      document.title = "Pi0 理论 DAG — Atlas";
       return;
     }
     if (route.model === "pi0" && route.tab === "runtime") {
-      document.title = "Pi0 推理栈实现 — Atlas";
+      document.title = "Pi0 性能对比 — Atlas";
       return;
     }
     const view = route.model ? `${route.model} / ${route.tab}` : "Model register";
@@ -72,7 +72,7 @@ export function AtlasApp() {
   );
 
   return (
-    <div className={`atlas-frame${route.model === "pi0" && (route.tab === "logical" || route.tab === "runtime") ? " atlas-frame--pi0" : ""}`}>
+    <div className={`atlas-frame${route.model === "pi0" ? " atlas-frame--pi0" : ""}`}>
       <AtlasHeader data={loadState.data} route={route} navigate={navigate} />
       {route.model && selectedModel ? (
         <Workbench

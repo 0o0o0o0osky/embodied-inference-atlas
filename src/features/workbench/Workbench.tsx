@@ -16,7 +16,7 @@ interface WorkbenchProps {
 }
 
 export function Workbench({ data, model, route, navigate }: WorkbenchProps) {
-  const isPi0Workspace = model.model_id === "pi0" && (route.tab === "logical" || route.tab === "runtime");
+  const isPi0Workspace = model.model_id === "pi0";
   return (
     <main className={`workbench-view${isPi0Workspace ? " workbench-view--pi0" : ""}`}>
       {!isPi0Workspace ? <>
