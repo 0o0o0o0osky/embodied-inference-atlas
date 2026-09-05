@@ -194,7 +194,9 @@ export function LogicalDagSvg({
   }, [resetKey]);
   const changeCamera = (action: ManualCameraAction) => setManualState((previous) => ({
     resetKey,
-    camera: updateManualCamera(previous.resetKey === resetKey ? previous.camera : automaticCamera, action),
+    camera: updateManualCamera(previous.resetKey === resetKey ? previous.camera : automaticCamera, action, {
+      x: frameX, y: frameY, width: activeViewport.width * scale, height: activeViewport.height * scale,
+    }),
   }));
   const framePoint = (clientX: number, clientY: number) => {
     const matrix = svgRef.current?.getScreenCTM();
@@ -211,7 +213,7 @@ export function LogicalDagSvg({
     };
     svg.addEventListener("wheel", wheel, { passive: false });
     return () => svg.removeEventListener("wheel", wheel);
-  }, [compactControls, resetKey, camera.zoom]);
+  }, [compactControls, resetKey, camera.zoom, frameX, frameY, activeViewport.width, activeViewport.height, scale]);
   const stepZoom = (direction: -1 | 1) => {
     const canvas = canvasRef.current;
     const bounds = canvas?.getBoundingClientRect();
