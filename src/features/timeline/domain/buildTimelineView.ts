@@ -22,6 +22,15 @@ export interface TimelineCaptureOption {
   timelineRecordCount: number;
 }
 
+export interface TimelineWarpSupplement {
+  observation: KernelObservation;
+  capture: ProfilerCapture;
+  run: RunRecord;
+  deviceLabel: string;
+  metrics: readonly ProfilerMetric[];
+  telemetry: readonly TelemetryRecord[];
+}
+
 export interface TimelineViewModel {
   options: readonly TimelineCaptureOption[];
   active: TimelineCaptureOption | null;
@@ -34,6 +43,7 @@ export interface TimelineViewModel {
   separateReplayDeviceLabel: string | null;
   replayMetrics: readonly ProfilerMetric[];
   replayTelemetry: readonly TelemetryRecord[];
+  warpSupplement: TimelineWarpSupplement | null;
   summariesByName: ReadonlyMap<string, TimelineSummary>;
   requestedCaptureUnavailable: boolean;
   unavailableReason: string;
@@ -149,6 +159,7 @@ export function buildTimelineView(
       separateReplayDeviceLabel: null,
       replayMetrics: [],
       replayTelemetry: [],
+      warpSupplement: null,
       summariesByName: new Map(),
       requestedCaptureUnavailable: query.captureId !== null,
       unavailableReason: filters
@@ -184,7 +195,7 @@ export function buildTimelineView(
       && observation.observationKind.startsWith("nsys_"),
     ) ?? null;
   }
-  const replayCandidate = signatureId
+  const replayCandidates = signatureId
     ? (index.observationsBySignatureId.get(signatureId) ?? []).flatMap((observation) => {
       if (observation.observationKind !== "ncu_replayed_launch") return [];
       const capture = index.captureById.get(observation.captureId);
@@ -199,8 +210,25 @@ export function buildTimelineView(
         || run.device_id !== active.run.device_id
       ) return [];
       return [{ observation, capture, run }];
-    }).sort((left, right) => left.observation.observationId.localeCompare(right.observation.observationId))[0] ?? null
-    : null;
+    }).sort((left, right) => left.observation.observationId.localeCompare(right.observation.observationId))
+    : [];
+  const schedulerWarpPair = replayCandidates.flatMap((warp) => {
+    const trigger = warp.capture.ncu?.sectionMode === "warp_state_stats"
+      ? warp.capture.ncu.warpTrigger
+      : null;
+    if (!trigger) return [];
+    const scheduler = replayCandidates.find((candidate) =>
+      candidate.capture.ncu?.sectionMode === "scheduler_stats_with_sysmem_sectors"
+      && candidate.capture.captureId === trigger.schedulerCaptureId
+      && candidate.observation.observationId === trigger.schedulerObservationId,
+    );
+    return scheduler ? [{ scheduler, warp }] : [];
+  })[0] ?? null;
+  const replayCandidate = schedulerWarpPair?.scheduler
+    ?? replayCandidates.find((candidate) => candidate.capture.ncu?.sectionMode !== "warp_state_stats")
+    ?? replayCandidates[0]
+    ?? null;
+  const warpSupplementCandidate = schedulerWarpPair?.warp ?? null;
   const separateReplay = replayCandidate?.observation ?? null;
   const separateReplayCapture = replayCandidate?.capture ?? null;
   const separateReplayRun = replayCandidate?.run ?? null;
@@ -224,6 +252,15 @@ export function buildTimelineView(
     replayTelemetry: separateReplayCapture
       ? evidence.telemetry.filter((item) => item.captureId === separateReplayCapture.captureId)
       : [],
+    warpSupplement: warpSupplementCandidate ? {
+      observation: warpSupplementCandidate.observation,
+      capture: warpSupplementCandidate.capture,
+      run: warpSupplementCandidate.run,
+      deviceLabel: data.datasets.devices.find((device) => device.device_id === warpSupplementCandidate.run.device_id)?.display_name
+        ?? warpSupplementCandidate.run.device_id,
+      metrics: index.metricsBySubjectId.get(`kernel_observation:${warpSupplementCandidate.observation.observationId}`) ?? [],
+      telemetry: evidence.telemetry.filter((item) => item.captureId === warpSupplementCandidate.capture.captureId),
+    } : null,
     summariesByName: new Map(timeline.summaries.map((summary) => [summary.metricName, summary])),
     requestedCaptureUnavailable: query.captureId !== null && requested === null,
     unavailableReason: "",

@@ -9,7 +9,7 @@ import type {
 } from "../../profiler/domain/types";
 import { TENSOR_ACTIVE_METRIC_NAMES } from "../../performance/components/KernelTable";
 import { kernelEntity } from "../../workbench/entityKeys";
-import type { TimelineViewModel } from "../domain/buildTimelineView";
+import type { TimelineViewModel, TimelineWarpSupplement } from "../domain/buildTimelineView";
 
 export function TimelineInspector({
   view,
@@ -26,6 +26,7 @@ export function TimelineInspector({
   const observation = view.selectedObservation;
   const replay = view.separateReplay;
   const metrics = view.replayMetrics;
+  const warpMetrics = view.warpSupplement?.metrics ?? metrics;
   return (
     <aside className="timeline-inspector" aria-labelledby="timeline-inspector-title">
       <header>
@@ -67,7 +68,9 @@ export function TimelineInspector({
       {replay && view.separateReplayCapture && view.separateReplayRun ? (
         <section className="timeline-replay">
           <div className="timeline-replay-divider">
-            <p>Separate NCU replay · one profiled launch</p>
+            <p>{view.separateReplayCapture.ncu?.sectionMode === "scheduler_stats_with_sysmem_sectors"
+              ? "SchedulerStats NCU replay · one profiled launch"
+              : "Separate NCU replay · one profiled launch"}</p>
             <h4>{view.selectedSignature?.labelSanitized}</h4>
             <strong>matched signature, not matched sample</strong>
           </div>
@@ -121,18 +124,21 @@ export function TimelineInspector({
             <MetricValue label="L2 sysmem fill sectors" metric={metric(metrics, "l2_sysmem_fill_sectors")} note="Do not add; not LPDDR traffic or utilization" />
             <MetricValue label="L2 sysmem write sectors" metric={metric(metrics, "l2_sysmem_write_sectors")} note="Do not add; not LPDDR traffic or utilization" />
             <MetricValue label="L2 sysmem lookup-miss sectors" metric={metric(metrics, "l2_sysmem_lookup_miss_sectors")} note="Do not add; not LPDDR traffic or utilization" />
-            <MetricValue label="Average warp latency / issued instruction" metric={metric(metrics, "average_warp_latency_cycles_per_issued_instruction")} />
-            <MetricValue label="Long scoreboard cycles / issued instruction" metric={metric(metrics, "long_scoreboard_cycles_per_issued_instruction")} />
-            <MetricValue label="Short scoreboard cycles / issued instruction" metric={metric(metrics, "short_scoreboard_cycles_per_issued_instruction")} />
+            {!view.warpSupplement ? <>
+              <MetricValue label="Average warp latency / issued instruction" metric={metric(metrics, "average_warp_latency_cycles_per_issued_instruction")} />
+              <MetricValue label="Long scoreboard cycles / issued instruction" metric={metric(metrics, "long_scoreboard_cycles_per_issued_instruction")} />
+              <MetricValue label="Short scoreboard cycles / issued instruction" metric={metric(metrics, "short_scoreboard_cycles_per_issued_instruction")} />
+            </> : null}
           </dl>
           {view.replayTelemetry.length ? <TelemetryLedger telemetry={view.replayTelemetry} /> : null}
           <LaunchLedger launch={replay.launch} />
+          {view.warpSupplement ? <WarpSupplementLedger supplement={view.warpSupplement} /> : null}
           <dl className="timeline-missing-evidence">
             <MissingMetric label="DRAM / system-memory throughput" metrics={[metric(metrics, "system_memory_throughput_pct_of_ceiling")]} />
             <MissingMetric label="DRAM / system-memory bytes" metrics={[metric(metrics, "system_memory_bytes")]} />
             <MissingMetric label="SchedulerStats" metrics={[metric(metrics, "scheduler_issue_active_per_active_cycle"), metric(metrics, "scheduler_issue_active_percent")]} />
-            <MissingMetric label="Long scoreboard" metrics={[metric(metrics, "long_scoreboard_cycles_per_issued_instruction"), metric(metrics, "warp_stall_long_scoreboard_percent")]} />
-            <MissingMetric label="Short scoreboard" metrics={[metric(metrics, "short_scoreboard_cycles_per_issued_instruction"), metric(metrics, "warp_stall_short_scoreboard_percent")]} />
+            <MissingMetric label="Long scoreboard" metrics={[metric(warpMetrics, "long_scoreboard_cycles_per_issued_instruction"), metric(warpMetrics, "warp_stall_long_scoreboard_percent")]} />
+            <MissingMetric label="Short scoreboard" metrics={[metric(warpMetrics, "short_scoreboard_cycles_per_issued_instruction"), metric(warpMetrics, "warp_stall_short_scoreboard_percent")]} />
             <MissingMetric label="SourceCounters attribution" metrics={[metric(metrics, "source_counter_attribution")]} />
           </dl>
           <p className="timeline-diagnosis-boundary">
@@ -155,6 +161,48 @@ export function TimelineInspector({
         <p className="timeline-inspector-empty"><strong>No reviewed signature match.</strong> The interval remains unclassified and no NCU diagnostic replay is attached.</p>
       ) : null}
     </aside>
+  );
+}
+
+function WarpSupplementLedger({ supplement }: { supplement: TimelineWarpSupplement }) {
+  const trigger = supplement.capture.ncu?.warpTrigger;
+  if (!trigger) return null;
+  return (
+    <div className="timeline-replay-supplement">
+      <div className="timeline-replay-divider">
+        <p>WarpStateStats supplement · one separately profiled launch</p>
+        <h4>{supplement.capture.captureId}</h4>
+        <strong>supplemental replay, not an additive duration</strong>
+      </div>
+      <p className="timeline-replay-basis">
+        {formatDuration(supplement.observation.duration.valueNs)} single supplemental replay · reported separately; never added to the SchedulerStats replay
+      </p>
+      <dl className="timeline-replay-context">
+        <div><dt>Independent run</dt><dd><code>{supplement.run.run_id}</code></dd></div>
+        <div><dt>Device basis</dt><dd>{supplement.deviceLabel}<small>{supplement.run.device_id}</small></dd></div>
+        <div><dt>Operating point</dt><dd>{humanize(supplement.run.operating_point.operating_point_id)}</dd></div>
+        <div><dt>Section mode</dt><dd>{humanize(supplement.capture.ncu?.sectionMode ?? "unknown")}</dd></div>
+        <div><dt>NCU sections</dt><dd>{formatDeclaredList(supplement.capture.ncu?.sections ?? null)}</dd></div>
+        <div><dt>Explicit metrics</dt><dd>{formatDeclaredList(supplement.capture.ncu?.explicitMetrics ?? null)}</dd></div>
+        <div><dt>Clock provenance</dt><dd>{supplement.capture.ncu
+          ? `${supplement.capture.ncu.clockControlRequest} · ${humanize(supplement.capture.ncu.origins.clockControlRequest ?? "unknown origin")} · ${supplement.capture.ncu.externalClockControl
+            ? `${humanize(supplement.capture.ncu.externalClockControl.controller)} ${humanize(supplement.capture.ncu.externalClockControl.state)} · ${humanize(supplement.capture.ncu.origins.externalClockControl ?? "unknown origin")}`
+            : "external clock unknown"}`
+          : "Unknown"}</dd></div>
+        <div><dt>Collection sequence</dt><dd>SchedulerStats first → one WarpStateStats supplemental replay</dd></div>
+        <div><dt>Scheduler source</dt><dd>{trigger.schedulerCaptureId} · {trigger.schedulerObservationId} · {humanize(trigger.origin)}</dd></div>
+        <div><dt>Observed gate</dt><dd>{formatWarpTriggerCriteria(trigger.criteria)}</dd></div>
+        <div><dt>Launch / occupancy review</dt><dd>{formatLaunchOccupancyReview(trigger.launchOccupancyReview)}</dd></div>
+      </dl>
+      <p>Stored collection gate only; no bottleneck conclusion is inferred.</p>
+      <dl className="timeline-metric-grid">
+        <MetricValue label="Average warp latency / issued instruction" metric={metric(supplement.metrics, "average_warp_latency_cycles_per_issued_instruction")} />
+        <MetricValue label="Long scoreboard cycles / issued instruction" metric={metric(supplement.metrics, "long_scoreboard_cycles_per_issued_instruction")} />
+        <MetricValue label="Short scoreboard cycles / issued instruction" metric={metric(supplement.metrics, "short_scoreboard_cycles_per_issued_instruction")} />
+      </dl>
+      {supplement.telemetry.length ? <TelemetryLedger telemetry={supplement.telemetry} /> : null}
+      <LaunchLedger launch={supplement.observation.launch} />
+    </div>
   );
 }
 

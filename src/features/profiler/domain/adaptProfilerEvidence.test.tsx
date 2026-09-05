@@ -5,6 +5,7 @@ import captureDocument from "../../../../data/profiler/profiler_captures.json";
 import metricDocument from "../../../../data/profiler/profiler_metrics.json";
 import observationDocument from "../../../../data/profiler/kernel_observations.json";
 import signatureDocument from "../../../../data/profiler/kernel_signatures.json";
+import timelineDocument from "../../../../data/profiler/timelines.json";
 import runDocument from "../../../../data/measurements/runs.json";
 import type { RouteState } from "../../../app/routes";
 import type { AtlasData, AtlasDatasets, CanonicalRecord } from "../../../types/atlas";
@@ -12,8 +13,9 @@ import { KernelInspector } from "../../performance/components/KernelInspector";
 import { KernelTable } from "../../performance/components/KernelTable";
 import type { KernelRow, KernelRowsModel } from "../../performance/domain/buildKernelRows";
 import { TimelineInspector } from "../../timeline/components/TimelineInspector";
-import type { TimelineViewModel } from "../../timeline/domain/buildTimelineView";
+import { buildTimelineView } from "../../timeline/domain/buildTimelineView";
 import { adaptProfilerEvidence } from "./adaptProfilerEvidence";
+import { indexProfilerEvidence } from "./indexProfilerEvidence";
 
 function atlas(overrides: Partial<AtlasDatasets>): AtlasData {
   return {
@@ -40,13 +42,33 @@ it("adapts and renders locked Task 7 NCU evidence while retaining legacy capture
   const legacyCapture = captureDocument.records.find((record) =>
     record.capture_id === "capture-pi0-flashrt-ncu-encoder-large-gemm-001",
   )!;
-  const observation = observationDocument.records.find((record) =>
+  const schedulerObservation = structuredClone(observationDocument.records.find((record) =>
     record.capture_id === legacyCapture.capture_id,
-  )!;
+  )!);
+  schedulerObservation.duration.value_ns = 111_000;
   const signature = signatureDocument.records.find((record) =>
-    record.kernel_signature_id === observation.kernel_signature_id,
+    record.kernel_signature_id === schedulerObservation.kernel_signature_id,
   )!;
-  const run = runDocument.records.find((record) => record.run_id === legacyCapture.run_id)!;
+  const schedulerRun = runDocument.records.find((record) => record.run_id === legacyCapture.run_id)!;
+  const warpRun = { ...structuredClone(schedulerRun), run_id: "run-task7-warp" };
+  const warpObservation = {
+    ...structuredClone(schedulerObservation),
+    observation_id: "kernel-observation-task7-warp",
+    capture_id: "capture-task7-warp",
+    run_id: warpRun.run_id,
+    duration: { ...structuredClone(schedulerObservation.duration), value_ns: 222_000 },
+  };
+  const nsysObservation = observationDocument.records.find((record) =>
+    record.kernel_signature_id === signature.kernel_signature_id
+    && record.observation_kind === "nsys_window_aggregate",
+  )!;
+  const nsysCapture = captureDocument.records.find((record) =>
+    record.capture_id === nsysObservation.capture_id,
+  )!;
+  const nsysTimeline = timelineDocument.records.find((record) =>
+    record.capture_id === nsysCapture.capture_id,
+  )!;
+  const nsysRun = runDocument.records.find((record) => record.run_id === nsysCapture.run_id)!;
   const templateMetric = metricDocument.records.find((record) =>
     record.capture_id === legacyCapture.capture_id,
   )!;
@@ -56,20 +78,36 @@ it("adapts and renders locked Task 7 NCU evidence while retaining legacy capture
     disable_extra_suffixes: "session_command",
     external_clock_control: "collection_wrapper_observed",
   });
-  const capture = {
+  const schedulerCapture = {
     ...structuredClone(legacyCapture),
     warnings: [],
     ncu: {
       ...structuredClone(legacyCapture.ncu),
       clock_control_request: "none",
       disable_extra_suffixes: true,
+      section_mode: "scheduler_stats_with_sysmem_sectors",
+      sections: ["SpeedOfLight", "ComputeWorkloadAnalysis", "MemoryWorkloadAnalysis", "LaunchStats", "Occupancy", "SchedulerStats"],
+      explicit_metrics: [
+        "lts__d_sectors_fill_sysmem.sum",
+        "lts__t_sectors_aperture_sysmem_op_write.sum",
+        "lts__t_sectors_srcunit_tex_aperture_sysmem_lookup_miss.sum",
+      ],
+      external_clock_control: { controller: "jetson_clocks", state: "locked" },
+      origins,
+    },
+  };
+  const warpCapture = {
+    ...structuredClone(schedulerCapture),
+    capture_id: warpObservation.capture_id,
+    run_id: warpRun.run_id,
+    ncu: {
+      ...structuredClone(schedulerCapture.ncu),
       section_mode: "warp_state_stats",
       sections: ["SpeedOfLight", "ComputeWorkloadAnalysis", "MemoryWorkloadAnalysis", "LaunchStats", "Occupancy", "WarpStateStats"],
       explicit_metrics: [],
-      external_clock_control: { controller: "jetson_clocks", state: "locked" },
       warp_trigger: {
-        scheduler_capture_id: "capture-task7-scheduler",
-        scheduler_observation_id: "kernel-observation-task7-scheduler",
+        scheduler_capture_id: schedulerCapture.capture_id,
+        scheduler_observation_id: schedulerObservation.observation_id,
         origin: "reviewed_scheduler_evidence",
         criteria: [
           { metric_name: "scheduler_issue_active_per_active_cycle", operator: "lt", threshold: 0.6, observed_value: 0.55 },
@@ -82,7 +120,6 @@ it("adapts and renders locked Task 7 NCU evidence while retaining legacy capture
           evidence_fields: ["kernel_observation.launch", "theoretical_occupancy_percent", "achieved_occupancy_percent"],
         },
       },
-      origins,
     },
   };
   const metricFixtures = [
@@ -101,29 +138,38 @@ it("adapts and renders locked Task 7 NCU evidence while retaining legacy capture
     ["long_scoreboard_cycles_per_issued_instruction", "cycles_per_instruction", 8],
     ["short_scoreboard_cycles_per_issued_instruction", "cycles_per_instruction", null],
   ] as const;
-  const metrics = metricFixtures.map(([metricName, unit, value], index) => ({
-    ...structuredClone(templateMetric),
-    metric_id: `metric-task7-${index}`,
-    metric_name: metricName,
-    raw_counter_name: `raw-${index}`,
-    section_name: metricName === "tensor_cycles_active_pct_of_peak_sustained_active"
-      ? "ComputeWorkloadAnalysis"
-      : metricName.includes("scoreboard") || metricName.startsWith("average_warp_latency")
-        ? "WarpStateStats"
-        : metricName.startsWith("l2_sysmem_")
-          ? "explicit_sysmem_sector_metrics"
-          : "SchedulerStats",
-    value,
-    unit,
-    missing_reason: value === null ? "counter_absent_from_report" : null,
-  }));
+  const metrics = metricFixtures.map(([metricName, unit, value], index) => {
+    const isWarpMetric = metricName.includes("scoreboard") || metricName.startsWith("average_warp_latency");
+    const targetCapture = isWarpMetric ? warpCapture : schedulerCapture;
+    const targetObservation = isWarpMetric ? warpObservation : schedulerObservation;
+    const targetRun = isWarpMetric ? warpRun : schedulerRun;
+    return {
+      ...structuredClone(templateMetric),
+      metric_id: `metric-task7-${index}`,
+      capture_id: targetCapture.capture_id,
+      run_id: targetRun.run_id,
+      subject: { kind: "kernel_observation", id: targetObservation.observation_id },
+      metric_name: metricName,
+      raw_counter_name: `raw-${index}`,
+      section_name: metricName === "tensor_cycles_active_pct_of_peak_sustained_active"
+        ? "ComputeWorkloadAnalysis"
+        : isWarpMetric
+          ? "WarpStateStats"
+          : metricName.startsWith("l2_sysmem_")
+            ? "explicit_sysmem_sector_metrics"
+            : "SchedulerStats",
+      value,
+      unit,
+      missing_reason: value === null ? "counter_absent_from_report" : null,
+    };
+  });
   const telemetry = [
     {
       telemetry_id: "telemetry-task7-gpu",
-      run_id: run.run_id,
-      capture_id: capture.capture_id,
-      source_id: capture.source_id,
-      operating_point_id: run.operating_point.operating_point_id,
+      run_id: schedulerRun.run_id,
+      capture_id: schedulerCapture.capture_id,
+      source_id: schedulerCapture.source_id,
+      operating_point_id: schedulerRun.operating_point.operating_point_id,
       record_kind: "sampled_summary",
       alignment: "same_run_unaligned",
       window: null,
@@ -136,10 +182,10 @@ it("adapts and renders locked Task 7 NCU evidence while retaining legacy capture
     },
     {
       telemetry_id: "telemetry-task7-emc",
-      run_id: run.run_id,
-      capture_id: capture.capture_id,
-      source_id: capture.source_id,
-      operating_point_id: run.operating_point.operating_point_id,
+      run_id: schedulerRun.run_id,
+      capture_id: schedulerCapture.capture_id,
+      source_id: schedulerCapture.source_id,
+      operating_point_id: schedulerRun.operating_point.operating_point_id,
       record_kind: "sampled_series",
       alignment: "same_run_unaligned",
       window: null,
@@ -151,10 +197,10 @@ it("adapts and renders locked Task 7 NCU evidence while retaining legacy capture
     },
     {
       telemetry_id: "telemetry-task7-throttle",
-      run_id: run.run_id,
-      capture_id: capture.capture_id,
-      source_id: capture.source_id,
-      operating_point_id: run.operating_point.operating_point_id,
+      run_id: schedulerRun.run_id,
+      capture_id: schedulerCapture.capture_id,
+      source_id: schedulerCapture.source_id,
+      operating_point_id: schedulerRun.operating_point.operating_point_id,
       record_kind: "sampled_series",
       alignment: "same_run_unaligned",
       window: null,
@@ -164,26 +210,39 @@ it("adapts and renders locked Task 7 NCU evidence while retaining legacy capture
       missing_reason: "not_collected",
     },
   ];
-  const evidence = adaptProfilerEvidence(atlas({
-    profiler_captures: [capture] as unknown as CanonicalRecord[],
-    kernel_observations: [observation] as unknown as CanonicalRecord[],
+  const data = atlas({
+    profiler_captures: [nsysCapture, schedulerCapture, warpCapture] as unknown as CanonicalRecord[],
+    timelines: [nsysTimeline] as unknown as CanonicalRecord[],
+    kernel_observations: [nsysObservation, schedulerObservation, warpObservation] as unknown as CanonicalRecord[],
     kernel_signatures: [signature] as unknown as CanonicalRecord[],
     profiler_metrics: metrics as unknown as CanonicalRecord[],
     telemetry: telemetry as unknown as CanonicalRecord[],
-  }));
+    runs: [nsysRun, schedulerRun, warpRun] as unknown as AtlasDatasets["runs"],
+  });
+  const evidence = adaptProfilerEvidence(data);
   const legacy = adaptProfilerEvidence(atlas({
     profiler_captures: [legacyCapture] as unknown as CanonicalRecord[],
   })).captures[0]!;
   expect(legacy.ncu).toMatchObject({ sectionMode: null, sections: null, explicitMetrics: null, warpTrigger: null });
   expect(legacy.ncu?.origins.gpuFrequencyNotFixed).toBe("collection_log_manual_audit");
-  expect(evidence.captures[0]?.ncu).toMatchObject({
+  const adaptedSchedulerCapture = evidence.captures.find((item) => item.captureId === schedulerCapture.capture_id)!;
+  const adaptedWarpCapture = evidence.captures.find((item) => item.captureId === warpCapture.capture_id)!;
+  const adaptedSchedulerObservation = evidence.observations.find((item) => item.observationId === schedulerObservation.observation_id)!;
+  const adaptedWarpObservation = evidence.observations.find((item) => item.observationId === warpObservation.observation_id)!;
+  expect(adaptedSchedulerCapture.ncu).toMatchObject({
+    clockControlRequest: "none",
+    sectionMode: "scheduler_stats_with_sysmem_sectors",
+    warpTrigger: null,
+    origins: { gpuFrequencyNotFixed: null },
+  });
+  expect(adaptedWarpCapture.ncu).toMatchObject({
     clockControlRequest: "none",
     sectionMode: "warp_state_stats",
     sections: ["SpeedOfLight", "ComputeWorkloadAnalysis", "MemoryWorkloadAnalysis", "LaunchStats", "Occupancy", "WarpStateStats"],
     externalClockControl: { controller: "jetson_clocks", state: "locked" },
     warpTrigger: {
-      schedulerCaptureId: "capture-task7-scheduler",
-      schedulerObservationId: "kernel-observation-task7-scheduler",
+      schedulerCaptureId: schedulerCapture.capture_id,
+      schedulerObservationId: schedulerObservation.observation_id,
       origin: "reviewed_scheduler_evidence",
       criteria: [
         { metricName: "scheduler_issue_active_per_active_cycle", operator: "lt", threshold: 0.6, observedValue: 0.55 },
@@ -204,35 +263,48 @@ it("adapts and renders locked Task 7 NCU evidence while retaining legacy capture
     null,
   ]);
 
-  const row = {
-    observation: evidence.observations[0]!, signature: evidence.signatures[0]!, capture: evidence.captures[0]!, run,
-    metrics: new Map(evidence.metrics.map((item) => [item.metricName, item])), links: [], telemetry: evidence.telemetry,
+  const metricsFor = (observationId: string) => evidence.metrics.filter((item) => item.subject.id === observationId);
+  const warpRow = {
+    observation: adaptedWarpObservation, signature: evidence.signatures[0]!, capture: adaptedWarpCapture, run: warpRun,
+    metrics: new Map(metricsFor(adaptedWarpObservation.observationId).map((item) => [item.metricName, item])), links: [], telemetry: [],
+  };
+  const schedulerRow = {
+    observation: adaptedSchedulerObservation, signature: evidence.signatures[0]!, capture: adaptedSchedulerCapture, run: schedulerRun,
+    metrics: new Map(metricsFor(adaptedSchedulerObservation.observationId).map((item) => [item.metricName, item])), links: [], telemetry: evidence.telemetry,
   };
   const kernelMarkup = renderToStaticMarkup(<KernelInspector
-    model={{ selectedRow: row, relatedNsys: null, relatedNcu: null } as unknown as KernelRowsModel}
+    model={{ selectedRow: warpRow, relatedNsys: null, relatedNcu: null } as unknown as KernelRowsModel}
     route={route}
     navigate={() => undefined}
   />);
+  const timelineView = buildTimelineView(data, evidence, indexProfilerEvidence(evidence), {
+    modelId: "pi0",
+    runtimeId: "flashrt",
+    hardwareId: "nvidia-jetson-agx-thor",
+    captureId: nsysCapture.capture_id,
+    entity: null,
+  });
+  expect(timelineView.separateReplay?.observationId).toBe(schedulerObservation.observation_id);
+  expect(timelineView.separateReplay?.duration.valueNs).toBe(111_000);
+  expect(timelineView.replayMetrics.map((item) => item.metricName)).toContain("scheduler_issue_active_per_active_cycle");
+  expect(timelineView.warpSupplement?.observation.observationId).toBe(warpObservation.observation_id);
+  expect(timelineView.warpSupplement?.observation.duration.valueNs).toBe(222_000);
+  expect(timelineView.warpSupplement?.metrics.map((item) => item.metricName)).toContain("long_scoreboard_cycles_per_issued_instruction");
   const timelineMarkup = renderToStaticMarkup(<TimelineInspector
-    view={{
-      active: { capture: evidence.captures[0]!, run }, selectedEvent: null, selectedObservation: null,
-      selectedSignature: evidence.signatures[0]!, separateReplay: evidence.observations[0]!,
-      separateReplayCapture: evidence.captures[0]!, separateReplayRun: run,
-      separateReplayDeviceLabel: "Thor", replayMetrics: evidence.metrics, replayTelemetry: evidence.telemetry,
-    } as unknown as TimelineViewModel}
+    view={timelineView}
     route={route}
     navigate={() => undefined}
   />);
   const tableMarkup = renderToStaticMarkup(<KernelTable
-    rows={[row as unknown as KernelRow]}
-    selectedObservationId={row.observation.observationId}
+    rows={[schedulerRow as unknown as KernelRow]}
+    selectedObservationId={schedulerRow.observation.observationId}
     onSelect={() => undefined}
   />);
   [kernelMarkup, timelineMarkup].forEach((markup) => {
     expect(markup).toContain("warp state stats");
     expect(markup).toContain("SchedulerStats first → one WarpStateStats supplemental replay");
-    expect(markup).toContain("capture-task7-scheduler");
-    expect(markup).toContain("kernel-observation-task7-scheduler");
+    expect(markup).toContain(schedulerCapture.capture_id);
+    expect(markup).toContain(schedulerObservation.observation_id);
     expect(markup).toContain("reviewed scheduler evidence");
     expect(markup).toContain("0.55 &lt; 0.6");
     expect(markup).toContain("8 ≥ 1");
@@ -256,9 +328,12 @@ it("adapts and renders locked Task 7 NCU evidence while retaining legacy capture
     expect(markup).toContain("Long scoreboard cycles / issued instruction");
     expect(markup).toContain("Average warp latency / issued instruction");
     expect(markup).toContain("Short scoreboard cycles / issued instruction");
-    expect(markup).toContain("ncu gpc cycle rate");
-    expect(markup).toContain("jetson clocks show current freq");
-    expect(markup).toContain("unknown source");
   });
+  expect(timelineMarkup).toContain("ncu gpc cycle rate");
+  expect(timelineMarkup).toContain("jetson clocks show current freq");
+  expect(timelineMarkup).toContain("unknown source");
+  expect(timelineMarkup).toContain("111.000 µs");
+  expect(timelineMarkup).toContain("222.000 µs");
+  expect(timelineMarkup).toContain("reported separately; never added to the SchedulerStats replay");
   expect(tableMarkup).toContain(">72%<");
 });
