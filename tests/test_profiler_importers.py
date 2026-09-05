@@ -450,7 +450,7 @@ class ProfilerImporterTests(unittest.TestCase):
             "smsp__warps_eligible.avg.per_cycle_active": ("warp", "0.5"),
             SYSMEM[0]: ("sector", "1000"), SYSMEM[1]: ("sector", "250"), SYSMEM[2]: ("sector", "75")})
         for name in ("launch__block_size", "launch__grid_dim_x", "launch__grid_dim_y", "launch__grid_dim_z", "launch__grid_size"):
-            raw = _csv(raw, unit=(name, "thread/block" if name == "launch__block_size" else "block"))
+            raw = _csv(raw, unit=(name, ""))
         cases = {}
         for signature_id, selector in SELECTORS.items():
             candidate = copy.deepcopy(policy); candidate["signature"] = signature(signature_id)
@@ -488,6 +488,7 @@ class ProfilerImporterTests(unittest.TestCase):
             session.replace("--disable-extra-suffixes", "--disable-extra-suffixes --disable-extra-suffixes", 1)):
             reject(changed)
         reject(session, _csv(raw, unit=("gpc__cycles_elapsed.avg.per_second", "")))
+        reject(session, _csv(raw, unit=("launch__grid_dim_x", "block")))
         reject(session, _csv(raw, drop=SYSMEM[0]))
         metrics = {item["metric_name"]: item for item in bundle["datasets"]["profiler_metrics"]}
         self.assertEqual(metrics["scheduler_issue_active_per_active_cycle"]["unit"], "warp_per_cycle")
