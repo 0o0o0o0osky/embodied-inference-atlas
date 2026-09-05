@@ -162,12 +162,17 @@ describe("roofline analytical contracts", () => {
       key: "needle-singleton", label: "1 pt", width: 44, height: 26,
     }]);
 
-    expect(placeClusterCounts([
+    const [horizontalPlacement] = placeClusterCounts([
       { key: "source", count: 2, x: 50, y: 100, coreRadius: 1 },
       { key: "foreign", count: 1, x: 50, y: 95, coreRadius: 1 },
-    ], plotBox)).toMatchObject([{
+    ], plotBox);
+    expect(horizontalPlacement).toMatchObject({
       key: "source", x: 80, y: 100,
-    }]);
+    });
+    expect(horizontalPlacement?.leaderStartX).toBeCloseTo(51);
+    expect(horizontalPlacement?.leaderStartY).toBeCloseTo(100);
+    expect(horizontalPlacement?.leaderEndX).toBeCloseTo(67);
+    expect(horizontalPlacement?.leaderEndY).toBeCloseTo(100);
 
     expect(placeClusterCounts([
       { key: "dense-a", count: 1, x: 96, y: 100, coreRadius: 2.5, cellPolygon: [{ x: 95.5, y: 82 }, { x: 96.5, y: 82 }, { x: 96.5, y: 118 }, { x: 95.5, y: 118 }] },
