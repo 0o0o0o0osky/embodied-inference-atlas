@@ -69,7 +69,7 @@ describe("resolveFocusViewport", () => {
     expect(focus.y + focus.height).toBe(348);
   });
 
-  it("keeps Pi0 overview full-width and frames an operator scope with its direct context", () => {
+  it("keeps Pi0 stage focus at the canvas aspect ratio while framing direct context", () => {
     const dag = adaptLogicalDag(adaptV1ModelGraph(pi0GraphDocument.records[0] as CanonicalRecord));
     const layout = layoutLogicalDag(dag, pi0Presentation);
     const scope = dag.scopes
@@ -98,9 +98,10 @@ describe("resolveFocusViewport", () => {
       scopeId: null,
     });
 
-    const focus = resolveFocusViewport(dag, layout, selectedRef);
+    const focus = resolveFocusViewport(dag, layout, selectedRef, "stage");
 
     expect(focus.scopeId).toBe(scope.id);
+    expect(focus.width / focus.height).toBeCloseTo(layout.width / layout.height, 8);
     expect(focus.x).toBeLessThanOrEqual(scopeBox.x);
     expect(focus.y).toBeLessThanOrEqual(scopeBox.y);
     expect(focus.x + focus.width).toBeGreaterThanOrEqual(scopeBox.x + scopeBox.width);

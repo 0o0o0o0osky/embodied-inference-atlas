@@ -139,13 +139,14 @@ export function resolveFocusViewport(
   );
   const viewport = fitToCanvas(bounds, layout);
   const stage = layout.stageBoxes.find((box) => box.stageId === selectedNode.stageId);
-  // Keep local context inside its stage gutter. Cross-stage dependencies retain
-  // the wider camera, and the authored scene/coordinates are never relaid out.
+  // Keep the authored canvas aspect ratio so focused content fills the SVG.
+  // A stage is a centering preference, not a hard crop: narrow stage crops
+  // create letterboxing and unnecessarily restrict the manual camera.
   if (boundary === "stage" && stage && bounds.left >= stage.x && bounds.right <= stage.x + stage.width) {
-    const left = Math.max(0, stage.x - 8);
-    const right = Math.min(layout.width, stage.x + stage.width + 8);
-    viewport.width = Math.min(viewport.width, right - left);
-    viewport.x = Math.max(left, Math.min(right - viewport.width, viewport.x));
+    const minimumX = Math.max(0, bounds.right - viewport.width);
+    const maximumX = Math.min(layout.width - viewport.width, bounds.left);
+    const stageCenteredX = stage.x + stage.width / 2 - viewport.width / 2;
+    viewport.x = Math.max(minimumX, Math.min(maximumX, stageCenteredX));
   }
   return { ...viewport, scopeId: scopeBox.scopeId };
 }
