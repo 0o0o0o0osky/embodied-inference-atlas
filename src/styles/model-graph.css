@@ -248,7 +248,7 @@
 
 .logical-workspace-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 26rem;
+  grid-template-columns: minmax(0, 1fr) 30rem;
   align-items: start;
 }
 
@@ -964,7 +964,7 @@
   margin: 0 0 0.6rem;
 }
 
-@media (max-width: 94rem) {
+@media (max-width: 62rem) {
   .logical-workspace-grid {
     grid-template-columns: minmax(0, 1fr);
   }

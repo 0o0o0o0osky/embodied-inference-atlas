@@ -7,8 +7,68 @@ import { adaptV1ModelGraph } from "./adaptV1ModelGraph";
 import { resolveFocusViewport } from "./focusViewport";
 import { layoutLogicalDag } from "../layout/paperLayout";
 import { pi0Presentation } from "../presentation/pi0Presentation";
+import type { LogicalDag, LogicalLayout, LogicalNode } from "./types";
+
+function focusOperator(ref: string): LogicalNode {
+  return {
+    ref,
+    kind: "operator",
+    stageId: "stage",
+    moduleId: "module",
+    componentId: null,
+    operatorId: "operator",
+    definitionId: "linear",
+    label: "Operator",
+    visual: "box",
+    detail: null,
+  };
+}
 
 describe("resolveFocusViewport", () => {
+  it("adds fixed padding on unconstrained focus edges", () => {
+    const ref = "stage/module/operator";
+    const dag: LogicalDag = {
+      nodes: new Map([[ref, focusOperator(ref)]]),
+      edges: [],
+      scopes: [{
+        id: "stage/module",
+        kind: "module",
+        label: "Module",
+        stageId: "stage",
+        moduleId: "module",
+        nodeRefs: [ref],
+        repeat: 1,
+      }],
+      stages: [],
+      stageOrder: [],
+      diagnostics: [],
+    };
+    const layout: LogicalLayout = {
+      width: 1_000,
+      height: 500,
+      nodeBoxes: new Map([[ref, {
+        x: 400, y: 200, width: 200, height: 100, compact: false, inline: false, row: 0, lane: 0,
+      }]]),
+      stageBoxes: [],
+      scopeBoxes: [{
+        scopeId: "stage/module",
+        x: 400,
+        y: 200,
+        width: 200,
+        height: 100,
+        headerHeight: 20,
+        contentTop: 220,
+        headerBottom: 220,
+      }],
+      diagnostics: [],
+    };
+
+    const focus = resolveFocusViewport(dag, layout, ref);
+
+    expect(focus.y).toBe(152);
+    expect(focus.y + focus.height).toBe(348);
+  });
+
   it("keeps Pi0 overview full-width and frames an operator scope with its direct context", () => {
     const dag = adaptLogicalDag(adaptV1ModelGraph(pi0GraphDocument.records[0] as CanonicalRecord));
     const layout = layoutLogicalDag(dag, pi0Presentation);
