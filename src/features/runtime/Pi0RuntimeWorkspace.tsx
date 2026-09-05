@@ -15,6 +15,7 @@ import { Pi0NsysSection } from "./components/Pi0NsysSection";
 import { Pi0SystemMetricsSection } from "./components/Pi0SystemMetricsSection";
 import { adaptRuntimeRealization, isRuntimeRealizationRecord } from "./domain/adaptRuntimeRealization";
 import { buildRuntimeSystemSummary } from "./domain/buildRuntimeSystemSummary";
+import { scopeRuntimeProfiler } from "./domain/scopeRuntimeProfiler";
 import { buildRuntimeStackSummaries, resolveRuntimeCandidates } from "./domain/resolveRuntimeRealization";
 
 interface Pi0RuntimeWorkspaceProps {
@@ -66,36 +67,14 @@ export function Pi0RuntimeWorkspace({ data, model, record, route, navigate }: Pi
     hardwareId: route.hardware, workload, precisionId: route.runtimePrecision, canonicalConfigurationIds,
   }) : [], [canonicalConfigurationIds, data.datasets.runs, defaultGraph.graphId, model.model_id, realizations, route.hardware, route.runtime, route.runtimePrecision, workload]);
   const activeCandidate = candidates.length === 1 ? candidates[0]! : null;
-  // An absent precision resolves only when the runtime has exactly one actual precision.
-  const runtimePrecisions = useMemo(() => [...new Set(data.datasets.runs.filter((run) =>
-    run.model_id === model.model_id && run.runtime_id === route.runtime && run.device_id === route.hardware
-    && run.evidence === "measured_local").map((run) => run.precision.precision_id))], [data.datasets.runs, model.model_id, route.runtime, route.hardware]);
-  const actualPrecision = route.runtimePrecision ?? (runtimePrecisions.length === 1 ? runtimePrecisions[0]! : null);
-  const activeRealization = activeCandidate?.actualPrecisionId === actualPrecision ? activeCandidate.realization : null;
   const profiler = useMemo(() => adaptProfilerEvidence(data), [data]);
   const summary = useMemo(() => buildRuntimeSystemSummary({ data, profiler, summaries, modelId: model.model_id, hardwareId: route.hardware, slice }),
     [data, profiler, summaries, model.model_id, route.hardware, slice]);
-  // Null filters never become wildcard evidence. Missing workload fields allow
-  // partial matching; known differences exclude the capture.
-  const scopedData = useMemo(() => ({ ...data, datasets: { ...data.datasets,
-    runs: data.datasets.runs.filter((run) => Boolean(route.runtime && route.hardware && actualPrecision)
-      && run.model_id === model.model_id && run.runtime_id === route.runtime && run.device_id === route.hardware
-      && run.precision.precision_id === actualPrecision
-      && (run.workload.vla?.camera_views == null || run.workload.vla.camera_views === slice.cameraViews)
-      && (run.workload.vla?.executed_prompt_tokens == null || run.workload.vla.executed_prompt_tokens === slice.promptTokens)),
-  } }), [data, model.model_id, route.runtime, route.hardware, actualPrecision, slice]);
-  const scopedProfiler = useMemo(() => {
-    const runIds = new Set(scopedData.datasets.runs.map((run) => run.run_id));
-    const captures = profiler.captures.filter((capture) => runIds.has(capture.runId));
-    const captureIds = new Set(captures.map((capture) => capture.captureId));
-    return { ...profiler, captures,
-      timelines: profiler.timelines.filter((timeline) => captureIds.has(timeline.captureId)),
-      observations: profiler.observations.filter((item) => runIds.has(item.runId) && captureIds.has(item.captureId)),
-      metrics: profiler.metrics.filter((item) => runIds.has(item.runId)),
-      links: profiler.links.filter((item) => runIds.has(item.runId)),
-      telemetry: profiler.telemetry.filter((item) => captureIds.has(item.captureId)),
-    };
-  }, [scopedData, profiler]);
+  const { data: scopedData, evidence: scopedProfiler, actualPrecision } = useMemo(() => scopeRuntimeProfiler(data, profiler, {
+    modelId: model.model_id, runtimeId: route.runtime, hardwareId: route.hardware,
+    precisionId: route.runtimePrecision, slice,
+  }), [data, profiler, model.model_id, route.runtime, route.hardware, route.runtimePrecision, slice]);
+  const activeRealization = activeCandidate?.actualPrecisionId === actualPrecision ? activeCandidate.realization : null;
   const profilerIndex = useMemo(() => indexProfilerEvidence(scopedProfiler), [scopedProfiler]);
   const nsys = useMemo(() => {
     const captures = scopedProfiler.captures.filter((capture) => capture.tool === "nsys"
@@ -111,7 +90,7 @@ export function Pi0RuntimeWorkspace({ data, model, record, route, navigate }: Pi
   const kernels = useMemo(() => buildKernelRows(scopedData, scopedProfiler, profilerIndex, {
     modelId: model.model_id, runtimeId: route.runtime, hardwareId: route.hardware, entity: null,
   }), [scopedData, scopedProfiler, profilerIndex, model.model_id, route.runtime, route.hardware]);
-  const scopePatch = { workload, runtime: route.runtime, hardware: route.hardware, runtimePrecision: actualPrecision };
+  const scopePatch = { workload: `v=${slice.cameraViews},p=${slice.promptTokens}`, runtime: route.runtime, hardware: route.hardware, runtimePrecision: actualPrecision };
 
   return (
     <section className="model-graph-workspace pi0-workspace pi0-runtime-workspace" aria-labelledby="pi0-runtime-title">
@@ -123,7 +102,7 @@ export function Pi0RuntimeWorkspace({ data, model, record, route, navigate }: Pi
       </nav>
       <Pi0SystemMetricsSection summary={summary} selectedRuntimeId={route.runtime} selectedPrecisionId={actualPrecision}
         onSliceChange={(next) => navigate({ workload: `v=${next.cameraViews},p=${next.promptTokens}`, entity: null, timelineCapture: null })}
-        onSelectRow={(runtime, runtimePrecision) => navigate({ runtime, runtimePrecision, workload, entity: null, timelineCapture: null })} />
+        onSelectRow={(runtime, runtimePrecision) => navigate({ runtime, runtimePrecision, workload: `v=${slice.cameraViews},p=${slice.promptTokens}`, entity: null, timelineCapture: null })} />
       <Pi0NsysSection view={nsys}
         onCaptureChange={(timelineCapture) => navigate({ ...scopePatch, timelineCapture, entity: null })}
         onSelectEvent={(event) => nsys.active && navigate({ ...scopePatch, tab: "timeline", timelineCapture: nsys.active.capture.captureId, entity: timelineEventEntity(nsys.active.timeline.timelineId, event.eventId) })}

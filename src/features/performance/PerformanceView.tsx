@@ -5,6 +5,7 @@ import type { AtlasData, ModelRecord } from "../../types/atlas";
 import { adaptProfilerEvidence } from "../profiler/domain/adaptProfilerEvidence";
 import { indexProfilerEvidence } from "../profiler/domain/indexProfilerEvidence";
 import { RooflineView } from "../roofline/components/RooflineView";
+import { runtimeProfilerSlice, scopeRuntimeProfiler } from "../runtime/domain/scopeRuntimeProfiler";
 import { kernelEntity } from "../workbench/entityKeys";
 import { KernelInspector } from "./components/KernelInspector";
 import { KernelTable } from "./components/KernelTable";
@@ -19,13 +20,19 @@ interface PerformanceViewProps {
 
 export function PerformanceView({ data, model, route, navigate }: PerformanceViewProps) {
   const evidence = useMemo(() => adaptProfilerEvidence(data), [data]);
-  const index = useMemo(() => indexProfilerEvidence(evidence), [evidence]);
-  const view = useMemo(() => buildKernelRows(data, evidence, index, {
+  const slice = useMemo(() => runtimeProfilerSlice(data, route.workload), [data, route.workload]);
+  const scope = useMemo(() => model.model_id === "pi0" ? scopeRuntimeProfiler(data, evidence, {
+    modelId: model.model_id, runtimeId: route.runtime, hardwareId: route.hardware,
+    precisionId: route.runtimePrecision, slice,
+  }) : { data, evidence, actualPrecision: route.runtimePrecision },
+  [data, evidence, model.model_id, route.runtime, route.hardware, route.runtimePrecision, slice]);
+  const index = useMemo(() => indexProfilerEvidence(scope.evidence), [scope.evidence]);
+  const view = useMemo(() => buildKernelRows(scope.data, scope.evidence, index, {
     modelId: model.model_id,
     runtimeId: route.runtime,
     hardwareId: route.hardware,
     entity: route.entity,
-  }), [data, evidence, index, model.model_id, route.entity, route.hardware, route.runtime]);
+  }), [scope, index, model.model_id, route.entity, route.hardware, route.runtime]);
   const inventory = view.inventory;
   return (
     <div className="performance-workspace">
@@ -40,7 +47,7 @@ export function PerformanceView({ data, model, route, navigate }: PerformanceVie
           </div>
           <strong>
             {inventory.observations} capture-local observations / {inventory.ncuReplays} diagnostic NCU replays / {inventory.rooflineEligibleKernelPoints} roofline-eligible kernel points
-            <small>Active scope: {view.activeFilter}</small>
+            <small>Active scope: {view.activeFilter}{model.model_id === "pi0" ? ` / actual precision ${scope.actualPrecision ?? "not selected"} / V=${slice.cameraViews}, P=${slice.promptTokens}` : ""}</small>
           </strong>
         </header>
 
@@ -56,8 +63,8 @@ export function PerformanceView({ data, model, route, navigate }: PerformanceVie
         </dl>
 
         <section className="profiler-boundary-note" aria-label="Profiler interpretation boundary">
-          <strong>Diagnostic evidence exists even though the kernel roofline is empty.</strong>
-          <span>Whole-system traffic is absent, frequency is not fixed, and exact operator links are blocked by precision conflict. The 0-point roofline is not an absent-profiler state.</span>
+          <strong>{view.rows.length ? "Diagnostic evidence is separate from the analytical kernel roofline." : "No profiler observations match the selected execution scope."}</strong>
+          <span>{view.rows.length ? "Unknown capture workload fields allow only partial context matching, not a claim of the same execution. Missing traffic, clocks, or operator links remain missing evidence." : "Select a runtime, hardware, actual precision, and matching input slice. No profiler evidence is borrowed from another configuration."}</span>
         </section>
 
         {view.unclassified ? (
