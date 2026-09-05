@@ -23,6 +23,7 @@ import {
 } from "./components/runtimePresentation";
 import { adaptRuntimeRealization, isRuntimeRealizationRecord } from "./domain/adaptRuntimeRealization";
 import { indexRuntimeRealization } from "./domain/indexRuntimeRealization";
+import { isAnalyticalToolForModel } from "./domain/runtimeCatalog";
 import {
   buildRuntimeStackSummaries,
   resolveRuntimeCandidates,
@@ -43,7 +44,6 @@ interface Pi0RuntimeWorkspaceProps {
 
 function stateTone(state: RuntimeStackState) {
   if (state === "有实测配置") return "measured";
-  if (state === "仅理论分析") return "analytical";
   if (state === "未实测·受阻") return "blocked";
   if (state === "不支持") return "unsupported";
   return "unmeasured";
@@ -68,13 +68,14 @@ function submissionLabel(realization: RuntimeRealizationRecord) {
 function selectedMessage(
   summary: RuntimeStackSummary | null,
   selectedRuntimeName: string | null,
+  selectedAnalysisToolName: string | null,
   candidates: readonly RuntimeCandidate[],
   activeCandidate: RuntimeCandidate | null,
   route: RouteState,
 ) {
   if (!route.runtime) return "选择一个推理栈后，实测配置会叠加到下方固定逻辑图。";
+  if (selectedAnalysisToolName) return `${selectedAnalysisToolName} 是理论分析工具，请在“理论总览”中使用，不作为推理栈覆盖。`;
   if (!summary || !selectedRuntimeName) return "URL 中的推理栈不在当前 Pi0 快照内，因此不生成覆盖层。";
-  if (summary.state === "仅理论分析") return `${selectedRuntimeName} 只提供理论分析，不是可执行或实测推理栈。`;
   if (summary.state === "未实测·受阻") return `${selectedRuntimeName} 的记录在推理开始前受阻，没有可用实测配置。`;
   if (summary.state === "不支持") return `Pi0 不支持 ${selectedRuntimeName}；不会合成实现覆盖层。`;
   if (summary.state === "尚未实测") return `当前硬件没有 ${selectedRuntimeName} 的硬件绑定实测实现记录。`;
@@ -166,7 +167,19 @@ export function Pi0RuntimeWorkspace({
   const activeRealization = activeCandidate?.realization ?? null;
   const selectedSummary = summaries.find((summary) => summary.runtimeId === route.runtime) ?? null;
   const selectedRuntimeName = selectedSummary?.displayName ?? null;
-  const resolutionMessage = selectedMessage(selectedSummary, selectedRuntimeName, candidates, activeCandidate, route);
+  const selectedCatalogRuntime = data.datasets.runtimes.find((runtime) => runtime.runtime_id === route.runtime) ?? null;
+  const selectedAnalysisToolName = selectedCatalogRuntime
+    && isAnalyticalToolForModel(selectedCatalogRuntime, model.model_id)
+    ? selectedCatalogRuntime.display_name
+    : null;
+  const resolutionMessage = selectedMessage(
+    selectedSummary,
+    selectedRuntimeName,
+    selectedAnalysisToolName,
+    candidates,
+    activeCandidate,
+    route,
+  );
   const overlay = useMemo(
     () => activeRealization ? buildRuntimeOverlay(dag, layout, activeRealization, route.entity) : null,
     [activeRealization, dag, layout, route.entity],

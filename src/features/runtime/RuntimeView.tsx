@@ -15,6 +15,7 @@ import { MappingTable } from "./components/MappingTable";
 import { RuntimeOverlay } from "./components/RuntimeOverlay";
 import { humanizeRuntime } from "./components/runtimePresentation";
 import { adaptRuntimeRealization, isRuntimeRealizationRecord } from "./domain/adaptRuntimeRealization";
+import { isInferenceRuntimeForModel } from "./domain/runtimeCatalog";
 import { resolveRuntimeCandidates, type RuntimeCandidate } from "./domain/resolveRuntimeRealization";
 import { buildRuntimeOverlay } from "./overlay/buildRuntimeOverlay";
 import { logicalEntity, logicalRefFromEntity, runtimeGroupEntity } from "../workbench/entityKeys";
@@ -131,13 +132,15 @@ function ResolvedRuntimeView({ data, model, record, route, navigate }: RuntimeVi
   const logicalSelection = logicalRefFromEntity(route.entity);
   const selectedRef = logicalSelection && dag.nodes.has(logicalSelection) ? logicalSelection : "";
   const relatedRefs = overlay?.highlightedLogicalRefs ?? new Set<string>();
-  const selectedRuntime = data.datasets.runtimes.find((runtime) => runtime.runtime_id === route.runtime) ?? null;
+  const selectedRuntime = data.datasets.runtimes.find((runtime) =>
+    runtime.runtime_id === route.runtime && isInferenceRuntimeForModel(runtime, model.model_id),
+  ) ?? null;
   const selectedSupport = selectedRuntime ? supportSummary(selectedRuntime, model.model_id) : null;
   const unsupportedReasons = realizations
     .filter((realization) => realization.runtimeId === route.runtime && realization.availability === "not_supported")
     .map((realization) => realization.availabilityReasonCode);
   const runtimes = data.datasets.runtimes.filter((runtime) =>
-    runtime.model_support.some((support) => support.model_id === model.model_id),
+    isInferenceRuntimeForModel(runtime, model.model_id),
   );
   const selectGroup = (groupId: string) => {
     if (activeCandidate) navigate({ entity: runtimeGroupEntity(activeCandidate.realization.realizationId, groupId) }, true);

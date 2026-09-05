@@ -117,7 +117,7 @@ function measuredRun(
   } as unknown as RunRecord;
 }
 
-it("orders each stack once and treats only hardware-bound realizations as measured", () => {
+it("builds the executable runtime inventory for the selected hardware", () => {
   expect(buildRuntimeStackSummaries).toBeTypeOf("function");
   if (!buildRuntimeStackSummaries) return;
 
@@ -176,13 +176,6 @@ it("orders each stack once and treats only hardware-bound realizations as measur
       ],
       mappingLevels: ["ggml_graph"],
       variantCount: 2,
-    },
-    {
-      runtimeId: "vla-perf",
-      state: "仅理论分析",
-      actualPrecisions: [],
-      mappingLevels: [],
-      variantCount: 0,
     },
     {
       runtimeId: "catalog-only",

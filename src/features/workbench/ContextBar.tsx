@@ -1,5 +1,6 @@
 import type { RoutePatch, RouteState } from "../../app/routes";
 import type { AtlasData, ModelRecord } from "../../types/atlas";
+import { isInferenceRuntimeForModel } from "../runtime/domain/runtimeCatalog";
 
 interface ContextBarProps {
   data: AtlasData;
@@ -10,19 +11,26 @@ interface ContextBarProps {
 }
 
 export function ContextBar({ data, model, route, navigate, compact = false }: ContextBarProps) {
+  const runtimeById = new Map(data.datasets.runtimes.map((runtime) => [runtime.runtime_id, runtime]));
+  const isInferenceRuntimeId = (runtimeId: string) => {
+    const runtime = runtimeById.get(runtimeId);
+    return !runtime || isInferenceRuntimeForModel(runtime, model.model_id);
+  };
   const scopedRunIds = scopedEvidenceRunIds(data, route.tab);
   const scopedRuns = data.datasets.runs.filter((run) =>
     run.model_id === model.model_id
     && (!scopedRunIds || scopedRunIds.has(run.run_id)),
   );
-  const runtimeIds = new Set(scopedRuns.map((run) => run.runtime_id));
+  const runtimeIds = new Set(scopedRuns
+    .filter((run) => isInferenceRuntimeId(run.runtime_id))
+    .map((run) => run.runtime_id));
   const deviceIds = new Set(scopedRuns
-    .filter((run) => !route.runtime || run.runtime_id === route.runtime)
+    .filter((run) => isInferenceRuntimeId(run.runtime_id) && (!route.runtime || run.runtime_id === route.runtime))
     .map((run) => run.device_id));
   const evidenceFiltered = route.tab === "end-to-end" || route.tab === "timeline";
-  const runtimes = data.datasets.runtimes.filter((runtime) => evidenceFiltered
-    ? runtimeIds.has(runtime.runtime_id)
-    : runtime.model_support.some((support) => support.model_id === model.model_id));
+  const runtimes = data.datasets.runtimes.filter((runtime) =>
+    isInferenceRuntimeForModel(runtime, model.model_id)
+    && (evidenceFiltered ? runtimeIds.has(runtime.runtime_id) : true));
   const devices = data.datasets.devices.filter((device) => evidenceFiltered ? deviceIds.has(device.device_id) : true);
   const runtimeKnown = runtimes.some(
     (runtime) => runtime.runtime_id === route.runtime,
@@ -35,7 +43,8 @@ export function ContextBar({ data, model, route, navigate, compact = false }: Co
   const showRooflinePrecision = route.tab === "roofline-kernels";
   const precisionIds = [...new Set(scopedRuns
     .filter((run) => (
-      (!showRuntimePrecision || model.model_id !== "pi0" || run.evidence === "measured_local")
+      isInferenceRuntimeId(run.runtime_id)
+      && (!showRuntimePrecision || model.model_id !== "pi0" || run.evidence === "measured_local")
       && (!route.runtime || run.runtime_id === route.runtime)
       && (!route.hardware || run.device_id === route.hardware)
     ))
@@ -45,8 +54,9 @@ export function ContextBar({ data, model, route, navigate, compact = false }: Co
 
   if (compact) {
     const compactRuntimePrecision = route.tab === "runtime";
-    const displayedRuntimePrecision = route.runtimePrecision
-      ?? (route.runtime && precisionIds.length === 1 ? precisionIds[0]! : "");
+    const displayedRuntimePrecision = runtimeKnown
+      ? route.runtimePrecision ?? (precisionIds.length === 1 ? precisionIds[0]! : "")
+      : "";
     return (
       <div className="atlas-context" aria-label={compactRuntimePrecision ? "推理栈实测场景" : "模型分析场景"}>
         <label>
@@ -64,10 +74,12 @@ export function ContextBar({ data, model, route, navigate, compact = false }: Co
             <span>实际精度</span>
             <select
               value={displayedRuntimePrecision}
-              disabled={!route.runtime}
+              disabled={!runtimeKnown}
               onChange={(event) => navigate({ runtimePrecision: event.target.value || null, entity: null }, true)}
             >
-              <option value="">{route.runtime ? "请选择实测配置" : "请先选择推理栈"}</option>
+              <option value="">
+                {runtimeKnown ? "请选择实测配置" : route.runtime ? "不是可选推理栈" : "请先选择推理栈"}
+              </option>
               {route.runtimePrecision && !precisionIds.includes(route.runtimePrecision) ? (
                 <option value={route.runtimePrecision}>{runtimePrecisionLabel(route.runtimePrecision)}（当前范围外）</option>
               ) : null}
@@ -101,7 +113,7 @@ export function ContextBar({ data, model, route, navigate, compact = false }: Co
           }
         >
           <option value="">{route.tab === "logical" || route.tab === "runtime" ? "Logical model only" : "All evidence runtimes"}</option>
-          {route.runtime && !runtimeKnown ? (
+          {route.runtime && !runtimeKnown && !runtimeById.has(route.runtime) ? (
             <option value={route.runtime}>{route.runtime} (not in snapshot)</option>
           ) : null}
           {runtimes.map((runtime) => {
@@ -155,10 +167,10 @@ export function ContextBar({ data, model, route, navigate, compact = false }: Co
           <span>Actual runtime precision</span>
           <select
             value={route.runtimePrecision ?? ""}
-            disabled={!route.runtime}
+            disabled={!runtimeKnown}
             onChange={(event) => navigate({ runtimePrecision: event.target.value || null, entity: null }, true)}
           >
-            <option value="">{route.runtime ? "Choose realized precision" : "Choose a runtime first"}</option>
+            <option value="">{runtimeKnown ? "Choose realized precision" : route.runtime ? "Runtime is not selectable" : "Choose a runtime first"}</option>
             {route.runtimePrecision && !precisionIds.includes(route.runtimePrecision) ? <option value={route.runtimePrecision}>{route.runtimePrecision} (outside active scope)</option> : null}
             {precisionIds.map((precisionId) => <option key={precisionId} value={precisionId}>{precisionId}</option>)}
           </select>

@@ -1,4 +1,5 @@
 import type { RunRecord, RuntimeRecord } from "../../../types/atlas";
+import { isInferenceRuntimeForModel } from "./runtimeCatalog";
 import type { RuntimeRealizationRecord } from "./types";
 
 export interface RuntimeCandidate {
@@ -115,7 +116,6 @@ export function resolveRuntimeCandidates(
 
 export type RuntimeStackState =
   | "有实测配置"
-  | "仅理论分析"
   | "尚未实测"
   | "未实测·受阻"
   | "不支持";
@@ -144,17 +144,15 @@ interface RuntimeStackSummaryInput {
 
 const STATE_ORDER: Readonly<Record<RuntimeStackState, number>> = {
   "有实测配置": 0,
-  "仅理论分析": 1,
-  "尚未实测": 2,
-  "未实测·受阻": 3,
-  "不支持": 4,
+  "尚未实测": 1,
+  "未实测·受阻": 2,
+  "不支持": 3,
 };
 
 function unmeasuredState(runtime: RuntimeRecord, modelId: string): RuntimeStackState {
   const statuses = new Set(runtime.model_support
     .filter((support) => support.model_id === modelId)
     .map((support) => support.status));
-  if (statuses.has("analytical")) return "仅理论分析";
   if (statuses.has("not_supported")) return "不支持";
   if (statuses.has("blocked")) return "未实测·受阻";
   return "尚未实测";
@@ -174,7 +172,7 @@ export function buildRuntimeStackSummaries({
   const summaries = runtimes.flatMap((runtime) => {
     if (
       seen.has(runtime.runtime_id)
-      || !runtime.model_support.some((support) => support.model_id === modelId)
+      || !isInferenceRuntimeForModel(runtime, modelId)
     ) return [];
     seen.add(runtime.runtime_id);
     const candidates = resolveRuntimeCandidates(realizations, runs, {

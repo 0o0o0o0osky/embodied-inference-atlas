@@ -9,6 +9,7 @@ import type {
   ModelRecord,
 } from "../../types/atlas";
 import { modelSwitchPatch } from "../model-graph/domain/modelSwitch";
+import { isInferenceRuntimeForModel } from "../runtime/domain/runtimeCatalog";
 import { createModelCapabilityRegistry, type ModelCapabilityRegistry } from "../workbench/modelCapabilities";
 
 interface ModelCatalogProps {
@@ -94,7 +95,7 @@ interface ModelRowProps {
 function ModelRow({ data, index, model, route, navigate, capabilities }: ModelRowProps) {
   const evidence = evidenceCounts(data, model.model_id);
   const runtimeCount = data.datasets.runtimes.filter((runtime) =>
-    runtime.model_support.some((support) => support.model_id === model.model_id),
+    isInferenceRuntimeForModel(runtime, model.model_id),
   ).length;
   const openPatch: RoutePatch = modelSwitchPatch(
     data,

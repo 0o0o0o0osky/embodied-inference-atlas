@@ -3,6 +3,7 @@ import { adaptLogicalDag } from "../model-graph/domain/adaptLogicalDag";
 import { adaptV1ModelGraph, isV1ModelGraphRecord } from "../model-graph/domain/adaptV1ModelGraph";
 import type { EditableSymbol } from "../model-graph/domain/types";
 import { adaptRuntimeRealization, isRuntimeRealizationRecord } from "../runtime/domain/adaptRuntimeRealization";
+import { isInferenceRuntimeForModel } from "../runtime/domain/runtimeCatalog";
 import type { RuntimeRealizationRecord } from "../runtime/domain/types";
 import type { RooflineScenarioRecord } from "../roofline/domain/types";
 
@@ -159,6 +160,7 @@ function modelIds(data: AtlasData): string[] {
 }
 
 export function createModelCapabilityRegistry(data: AtlasData): ModelCapabilityRegistry {
+  const runtimeById = new Map(data.datasets.runtimes.map((runtime) => [runtime.runtime_id, runtime]));
   const allRealizations = data.datasets.runtime_realizations
     .filter((record) => isRuntimeRealizationRecord(record))
     .map(adaptRuntimeRealization);
@@ -196,12 +198,16 @@ export function createModelCapabilityRegistry(data: AtlasData): ModelCapabilityR
     const configurationIds = new Set<string>();
 
     data.datasets.runtimes.forEach((runtime) => {
-      if (runtime.model_support.some((support) => support.model_id === modelId && support.status !== "not_supported")) {
+      if (
+        isInferenceRuntimeForModel(runtime, modelId)
+        && runtime.model_support.some((support) => support.model_id === modelId && support.status !== "not_supported")
+      ) {
         runtimeIds.add(runtime.runtime_id);
       }
     });
     modelRuns.forEach((run) => {
-      runtimeIds.add(run.runtime_id);
+      const runtime = runtimeById.get(run.runtime_id);
+      if (!runtime || isInferenceRuntimeForModel(runtime, modelId)) runtimeIds.add(run.runtime_id);
       hardwareIds.add(run.device_id);
       configurationIds.add(run.configuration_id);
     });
@@ -209,7 +215,11 @@ export function createModelCapabilityRegistry(data: AtlasData): ModelCapabilityR
     const realizationGroups = new Set<PairKey>();
     const realizationGroupContexts = new Map<PairKey, SelectionContext>();
     modelRealizations.forEach((realization) => {
-      if (realization.availability !== "not_supported") {
+      const runtime = runtimeById.get(realization.runtimeId);
+      if (
+        realization.availability !== "not_supported"
+        && (!runtime || isInferenceRuntimeForModel(runtime, modelId))
+      ) {
         runtimeIds.add(realization.runtimeId);
         realization.deviceIds.forEach((deviceId) => hardwareIds.add(deviceId));
         realization.configurationIds.forEach((configurationId) => configurationIds.add(configurationId));
