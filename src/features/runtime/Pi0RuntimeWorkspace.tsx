@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { RoutePatch, RouteState } from "../../app/routes";
 import { RouteLink } from "../../components/RouteLink";
 import type { AtlasData, CanonicalRecord, ModelRecord } from "../../types/atlas";
@@ -75,6 +75,9 @@ export function Pi0RuntimeWorkspace({ data, model, record, route, navigate }: Pi
     precisionId: route.runtimePrecision, slice,
   }), [data, profiler, model.model_id, route.runtime, route.hardware, route.runtimePrecision, slice]);
   const activeRealization = activeCandidate?.actualPrecisionId === actualPrecision ? activeCandidate.realization : null;
+  const realizationId = activeRealization?.realizationId ?? null;
+  useEffect(() => setDagOpen(false), [realizationId]);
+  const renderedDagOpen = Boolean(dagOpen && activeRealization);
   const profilerIndex = useMemo(() => indexProfilerEvidence(scopedProfiler), [scopedProfiler]);
   const nsys = useMemo(() => {
     const captures = scopedProfiler.captures.filter((capture) => capture.tool === "nsys"
@@ -107,10 +110,10 @@ export function Pi0RuntimeWorkspace({ data, model, record, route, navigate }: Pi
         onCaptureChange={(timelineCapture) => navigate({ ...scopePatch, timelineCapture, entity: null })}
         onSelectEvent={(event) => nsys.active && navigate({ ...scopePatch, tab: "timeline", timelineCapture: nsys.active.capture.captureId, entity: timelineEventEntity(nsys.active.timeline.timelineId, event.eventId) })}
         onOpenDetails={() => navigate({ ...scopePatch, tab: "timeline", timelineCapture: nsys.active?.capture.captureId ?? null, entity: null })} />
-      <Pi0KernelSection view={kernels} realization={activeRealization} dagOpen={dagOpen}
+      <Pi0KernelSection view={kernels} realization={activeRealization} dagOpen={renderedDagOpen}
         onOpenDetails={() => navigate({ ...scopePatch, tab: "roofline-kernels", rooflineLevel: "kernel", entity: null, basis: null })}
         onOpenDag={() => setDagOpen((open) => !open)} />
-      {dagOpen ? <section className="pi0-funnel-section" aria-labelledby="pi0-dag-title">
+      {renderedDagOpen ? <section className="pi0-funnel-section" aria-labelledby="pi0-dag-title">
         <header className="pi0-funnel-heading">
           <h3 id="pi0-dag-title">完整实现图</h3>
         </header>
