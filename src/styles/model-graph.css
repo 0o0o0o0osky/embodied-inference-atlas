@@ -314,6 +314,56 @@
   overscroll-behavior-inline: contain;
 }
 
+.logical-scenario-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0 12px;
+  padding-right: 24px;
+}
+
+.logical-zoom-controls {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 2px;
+  margin-left: auto;
+  color: var(--slate);
+  font-size: 13px;
+}
+
+.logical-zoom-controls button {
+  min-width: 30px;
+  min-height: 26px;
+  padding: 2px 8px;
+  border: 0;
+  border-radius: 3px;
+  background: transparent;
+  color: inherit;
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.logical-zoom-controls button:hover:not(:disabled) {
+  background: var(--cold-plate);
+}
+
+.logical-zoom-controls output {
+  min-width: 46px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.logical-dag[data-pannable] {
+  cursor: grab;
+}
+
+.logical-dag[data-dragging] {
+  cursor: grabbing;
+  user-select: none;
+}
+
 .logical-legend {
   display: flex;
   flex-wrap: wrap;

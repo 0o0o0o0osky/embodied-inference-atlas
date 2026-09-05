@@ -193,6 +193,7 @@ function ResolvedModelGraph({
             onSelect={(ref) => navigate({ entity: logicalEntity(ref) }, true)}
             ariaLabel={t(profile.diagramLabel)}
             compactControls={isPi0}
+            cameraResetKey={`${model.model_id}|${route.workload ?? "defaults"}`}
             toolbar={isPi0 ? <>
               <h2 id="logical-graph-title">Pi0 <span>v{graph.version}</span></h2>
               <span className="graph-view-current">理论模型</span>

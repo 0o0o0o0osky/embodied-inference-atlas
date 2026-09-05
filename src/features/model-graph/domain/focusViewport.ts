@@ -8,6 +8,32 @@ export interface GraphViewport {
   scopeId: string | null;
 }
 
+export interface ManualCamera {
+  zoom: number;
+  x: number;
+  y: number;
+}
+
+export type ManualCameraAction =
+  | { type: "zoom"; percent: number; anchor: { x: number; y: number } }
+  | { type: "pan"; x: number; y: number }
+  | { type: "reset" };
+
+// Coordinates are in the outer SVG frame; the authored layout stays untouched.
+export function updateManualCamera(camera: ManualCamera, action: ManualCameraAction): ManualCamera {
+  if (action.type === "reset") return { zoom: 100, x: 0, y: 0 };
+  if (action.type === "pan") return camera.zoom > 100
+    ? { ...camera, x: camera.x + action.x, y: camera.y + action.y }
+    : camera;
+  const zoom = Math.max(50, Math.min(250, Math.round(action.percent / 10) * 10));
+  const ratio = zoom / camera.zoom;
+  return {
+    zoom,
+    x: action.anchor.x - (action.anchor.x - camera.x) * ratio,
+    y: action.anchor.y - (action.anchor.y - camera.y) * ratio,
+  };
+}
+
 const FOCUS_PADDING = 48;
 
 function overview(layout: LogicalLayout): GraphViewport {

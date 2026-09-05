@@ -11,7 +11,7 @@ import type {
   NodeVisualKind,
   ScopeBox,
 } from "../domain/types";
-import type { GraphViewport } from "../domain/focusViewport";
+import { updateManualCamera, type GraphViewport, type ManualCameraAction } from "../domain/focusViewport";
 import { useModelText, type ModelText } from "../presentation/ModelDisplay";
 
 interface LogicalDagSvgProps {
@@ -29,6 +29,7 @@ interface LogicalDagSvgProps {
   compactControls?: boolean;
   toolbar?: ReactNode;
   scenario?: ReactNode;
+  cameraResetKey?: string;
 }
 
 function shortScopeLabel(moduleId: string | null, fallback: string) {
@@ -168,6 +169,7 @@ export function LogicalDagSvg({
   compactControls = false,
   toolbar,
   scenario,
+  cameraResetKey = "",
 }: LogicalDagSvgProps) {
   const t = useModelText();
   const clipId = useId();
@@ -178,6 +180,47 @@ export function LogicalDagSvg({
   const frameY = (layout.height - activeViewport.height * scale) / 2;
   const sceneTransform = `translate(${frameX} ${frameY}) scale(${scale}) translate(${-activeViewport.x} ${-activeViewport.y})`;
   const canvasRef = useRef<HTMLDivElement>(null);
+  const svgRef = useRef<SVGSVGElement>(null);
+  const resetKey = `${cameraResetKey}|${selectedRef}|${mode}`;
+  const automaticCamera = { zoom: 100, x: 0, y: 0 };
+  const [manualState, setManualState] = useState({ resetKey, camera: automaticCamera });
+  const camera = manualState.resetKey === resetKey ? manualState.camera : automaticCamera;
+  const dragRef = useRef<{ pointerId: number; x: number; y: number; resetKey: string } | null>(null);
+  const [dragging, setDragging] = useState(false);
+  useEffect(() => {
+    setManualState({ resetKey, camera: { zoom: 100, x: 0, y: 0 } });
+    dragRef.current = null;
+    setDragging(false);
+  }, [resetKey]);
+  const changeCamera = (action: ManualCameraAction) => setManualState((previous) => ({
+    resetKey,
+    camera: updateManualCamera(previous.resetKey === resetKey ? previous.camera : automaticCamera, action),
+  }));
+  const framePoint = (clientX: number, clientY: number) => {
+    const matrix = svgRef.current?.getScreenCTM();
+    return matrix ? new DOMPoint(clientX, clientY).matrixTransform(matrix.inverse()) : null;
+  };
+  useEffect(() => {
+    const svg = svgRef.current;
+    if (!compactControls || !svg) return;
+    const wheel = (event: WheelEvent) => {
+      if (!(event.ctrlKey || event.metaKey) || event.deltaY === 0) return;
+      event.preventDefault();
+      const anchor = framePoint(event.clientX, event.clientY);
+      if (anchor) changeCamera({ type: "zoom", percent: camera.zoom - Math.sign(event.deltaY) * 10, anchor });
+    };
+    svg.addEventListener("wheel", wheel, { passive: false });
+    return () => svg.removeEventListener("wheel", wheel);
+  }, [compactControls, resetKey, camera.zoom]);
+  const stepZoom = (direction: -1 | 1) => {
+    const canvas = canvasRef.current;
+    const bounds = canvas?.getBoundingClientRect();
+    const anchor = bounds ? framePoint(
+      (Math.max(0, bounds.left) + Math.min(window.innerWidth, bounds.right)) / 2,
+      (Math.max(0, bounds.top) + Math.min(window.innerHeight, bounds.bottom)) / 2,
+    ) : null;
+    if (anchor) changeCamera({ type: "zoom", percent: camera.zoom + direction * 10, anchor });
+  };
   const [panBounds, setPanBounds] = useState({ left: false, right: false });
   useEffect(() => {
     if (!compactControls || !canvasRef.current) return;
@@ -221,12 +264,20 @@ export function LogicalDagSvg({
         </button>
         </> : null}
       </div>
-      {scenario}
+      {compactControls ? <div className="logical-scenario-strip">
+        {scenario}
+        <div className="logical-zoom-controls" role="group" aria-label="模型图缩放">
+          <button type="button" aria-label="缩小模型图" title="缩小模型图" disabled={camera.zoom <= 50} onClick={() => stepZoom(-1)}>−</button>
+          <output aria-label="模型图缩放比例" aria-live="polite">{camera.zoom}%</output>
+          <button type="button" aria-label="放大模型图" title="放大模型图" disabled={camera.zoom >= 250} onClick={() => stepZoom(1)}>+</button>
+          <button type="button" aria-label="适配模型图，恢复自动视图" onClick={() => changeCamera({ type: "reset" })}>适配</button>
+        </div>
+      </div> : scenario}
       <div
         className="logical-canvas"
         ref={canvasRef}
         role="region"
-        aria-label={compactControls ? "模型结构图；窄屏可使用平移按钮或横向滚动" : "Authored-scale logical graph; use the pan buttons or scroll horizontally on narrower screens"}
+        aria-label={compactControls ? "模型结构图；按住 Ctrl 或 Command 滚轮缩放，放大后拖动空白处平移；窄屏可横向滚动" : "Authored-scale logical graph; use the pan buttons or scroll horizontally on narrower screens"}
         tabIndex={0}
       >
       {!compactControls ? <div className="logical-legend" aria-hidden="true">
@@ -236,6 +287,34 @@ export function LogicalDagSvg({
       </div> : null}
       <svg
         className="logical-dag"
+        ref={svgRef}
+        data-manual-zoom={compactControls ? camera.zoom : undefined}
+        data-pannable={compactControls && camera.zoom > 100 || undefined}
+        data-dragging={dragging || undefined}
+        onPointerDown={(event) => {
+          if (!compactControls || camera.zoom <= 100 || event.button !== 0
+            || (event.target as Element).closest('.logical-node, [role="button"]')) return;
+          const point = framePoint(event.clientX, event.clientY);
+          if (!point) return;
+          event.preventDefault();
+          event.currentTarget.setPointerCapture(event.pointerId);
+          dragRef.current = { pointerId: event.pointerId, x: point.x, y: point.y, resetKey };
+          setDragging(true);
+        }}
+        onPointerMove={(event) => {
+          const drag = dragRef.current;
+          if (!drag || drag.pointerId !== event.pointerId || drag.resetKey !== resetKey) return;
+          const point = framePoint(event.clientX, event.clientY);
+          if (!point) return;
+          changeCamera({ type: "pan", x: point.x - drag.x, y: point.y - drag.y });
+          dragRef.current = { ...drag, x: point.x, y: point.y };
+        }}
+        onPointerUp={(event) => {
+          if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
+          dragRef.current = null;
+          setDragging(false);
+        }}
+        onLostPointerCapture={() => { dragRef.current = null; setDragging(false); }}
         viewBox={`0 0 ${layout.width} ${layout.height}`}
         style={{ minWidth: `${layout.width}px` }}
         role="img"
@@ -271,6 +350,7 @@ export function LogicalDagSvg({
           </pattern>
         </defs>
         <g clipPath={compactControls && selected ? `url(#${clipId})` : undefined}>
+        <g className="logical-manual-camera" transform={compactControls ? `translate(${camera.x} ${camera.y}) scale(${camera.zoom / 100})` : undefined}>
         <g
           className="logical-scene"
           transform={sceneTransform}
@@ -371,6 +451,7 @@ export function LogicalDagSvg({
             Unresolved authored route: {item.id}
           </text>
         ))}
+        </g>
         </g>
         </g>
         </svg>
