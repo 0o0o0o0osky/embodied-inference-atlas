@@ -58,7 +58,7 @@ export function AtlasHeader({ data, route, navigate }: AtlasHeaderProps) {
       <nav className="atlas-navigation" aria-label="主要视图">
         {topEntries.map(({ tab, label }) => (
           <RouteLink key={tab} route={route} patch={{ tab }} navigate={navigate}
-            aria-current={route.tab === tab || (tab === "logical" && route.tab === "roofline-kernels") ? "page" : undefined}>
+            aria-current={route.tab === tab || (tab === "logical" && (route.tab === "roofline-kernels" || (route.model !== "pi0" && route.tab === "runtime"))) ? "page" : undefined}>
             {label}
           </RouteLink>
         ))}
