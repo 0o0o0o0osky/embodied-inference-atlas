@@ -26,6 +26,7 @@ export function AtlasHeader({ data, route, navigate }: AtlasHeaderProps) {
   const model = models.find((item) => item.model_id === route.model);
   const topEntries = [
     { tab: "logical", label: "模型结构" },
+    ...(route.model === "pi0" ? [{ tab: "runtime" as const, label: "推理性能" }] : []),
     { tab: "end-to-end", label: "端到端" },
     { tab: "timeline", label: "Nsys" },
   ] as const;
@@ -57,7 +58,7 @@ export function AtlasHeader({ data, route, navigate }: AtlasHeaderProps) {
       <nav className="atlas-navigation" aria-label="主要视图">
         {topEntries.map(({ tab, label }) => (
           <RouteLink key={tab} route={route} patch={{ tab }} navigate={navigate}
-            aria-current={route.tab === tab || (tab === "logical" && (route.tab === "runtime" || route.tab === "roofline-kernels")) ? "page" : undefined}>
+            aria-current={route.tab === tab || (tab === "logical" && route.tab === "roofline-kernels") ? "page" : undefined}>
             {label}
           </RouteLink>
         ))}

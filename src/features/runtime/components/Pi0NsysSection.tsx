@@ -50,7 +50,7 @@ export function Pi0NsysSection({ view: model, onCaptureChange, onSelectEvent, on
           })}
         </dl>
         <div className="pi0-nsys-instrument" aria-label="当前 capture 的紧凑时间线">
-          <TimelineTracks timeline={active.timeline} windowStartNs={active.timeline.window.startNs} windowDurationNs={active.timeline.window.durationNs} selectedEventId={model.selectedEvent?.eventId ?? null} onSelect={onSelectEvent} />
+          <TimelineTracks locale="zh" timeline={active.timeline} windowStartNs={active.timeline.window.startNs} windowDurationNs={active.timeline.window.durationNs} selectedEventId={model.selectedEvent?.eventId ?? null} onSelect={onSelectEvent} />
         </div>
         <p className="pi0-funnel-note">时间线空白是未观测区间；执行包络不代表 GPU busy，CPU 调度核时不代表空闲或可卸载空间。点击区间查看对应详情。</p>
       </>}
