@@ -629,11 +629,24 @@
   stroke: transparent;
   cursor: pointer;
   pointer-events: all;
+  vector-effect: non-scaling-stroke;
 }
 
 .roofline-marker-hit:focus {
+  stroke: transparent;
+}
+
+.roofline-marker-focus {
+  fill: none;
   stroke: var(--roofline-selection);
-  stroke-width: 3;
+  stroke-width: 2;
+  opacity: 0;
+  vector-effect: non-scaling-stroke;
+  pointer-events: none;
+}
+
+.roofline-marker-hit:focus-visible + .roofline-marker-focus {
+  opacity: 1;
 }
 
 .roofline-cluster-count {
@@ -645,6 +658,35 @@
   stroke: var(--white);
   stroke-width: 2px;
   pointer-events: none;
+}
+
+.roofline-cluster-count-leader {
+  stroke: #70807a;
+  stroke-dasharray: 2 2;
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+  pointer-events: none;
+}
+
+.roofline-cluster-count-badge {
+  fill: var(--white);
+  stroke: var(--signal-blue-dark);
+  stroke-width: 1.5;
+  vector-effect: non-scaling-stroke;
+  pointer-events: none;
+}
+
+.roofline-cluster-count-hit {
+  fill: transparent;
+  stroke: transparent;
+  cursor: pointer;
+  pointer-events: all;
+  vector-effect: non-scaling-stroke;
+}
+
+.roofline-cluster-count-hit:focus {
+  stroke: var(--roofline-selection);
+  stroke-width: 2;
 }
 
 .roofline-selected-label {

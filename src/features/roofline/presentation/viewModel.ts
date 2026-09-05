@@ -178,6 +178,31 @@ function positive(value: number | null): value is number {
   return value !== null && Number.isFinite(value) && value > 0;
 }
 
+const COMMON_PLOT_FIELDS = new Set([
+  "work.total_flop",
+  "traffic.total_byte",
+  "derived.arithmetic_intensity_flop_per_byte",
+]);
+const ANALYTICAL_PLOT_FIELDS = new Set([
+  "derived.compute_second",
+  "derived.memory_second",
+  "derived.roof_second",
+  "derived.roof_flop_per_second",
+]);
+const OBSERVED_PLOT_FIELDS = new Set([
+  "timing.observed_second",
+  "derived.achieved_flop_per_second",
+]);
+
+function usesAnalyticalRoof(point: Pick<RooflinePointRecord, "timing">) {
+  return point.timing.observed_second === null;
+}
+
+export function isRooflinePlotBlocker(point: Pick<RooflinePointRecord, "timing">, field: string) {
+  return COMMON_PLOT_FIELDS.has(field)
+    || (usesAnalyticalRoof(point) ? ANALYTICAL_PLOT_FIELDS : OBSERVED_PLOT_FIELDS).has(field);
+}
+
 function sparseObservationMatches(
   basis: RooflineBasisRecord,
   compute: ComputeCeiling,
@@ -349,7 +374,7 @@ export function buildRooflineView(query: RooflineQuery, index: RooflineIndex): R
     const rejectedSparse = point.work.components.some((item) => item.flop > 0
       && item.compute_class !== null && sparseClasses.has(item.compute_class));
     const x = point.derived.arithmetic_intensity_flop_per_byte;
-    const y = point.timing.observed_second === null
+    const y = usesAnalyticalRoof(point)
       ? point.derived.roof_flop_per_second
       : point.derived.achieved_flop_per_second;
     if (rejectedSparse || !positive(x) || !positive(y)) return [];

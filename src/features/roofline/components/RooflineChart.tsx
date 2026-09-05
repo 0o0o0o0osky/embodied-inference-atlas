@@ -3,10 +3,13 @@ import { useEffect, useId, useMemo, useRef, useState } from "react";
 import type { CrossViewEntityKey } from "../../workbench/entityKeys";
 import {
   chartGeometry,
+  localVoronoiCell,
   logX,
   logY,
   markerRadius,
+  placeClusterCounts,
   roofPath,
+  svgPolygonPath,
 } from "../presentation/chartGeometry";
 import {
   formatNumber,
@@ -128,6 +131,24 @@ export function RooflineChart({
     screenY: logY(cluster.yFlopPerSecond, geometry.y, box),
     marker: clusterMarker(cluster.points),
   }));
+  const selectedClusterMember = (cluster: PositionedCluster) => focusedPointId !== null
+    ? cluster.points.find((point) => point.pointId === focusedPointId) ?? null
+    : cluster.points.find((point) => point.selected) ?? null;
+  const hitCenters = positionedClusters.map((cluster) => ({ x: cluster.screenX, y: cluster.screenY }));
+  const hitPolygons = positionedClusters.map((_, index) => localVoronoiCell(hitCenters, index, box));
+  const clusterByKey = new Map(positionedClusters.map((cluster) => [cluster.key, cluster]));
+  const countLabels = placeClusterCounts(
+    positionedClusters.map((cluster) => ({ key: cluster.key, count: cluster.points.length, x: cluster.screenX, y: cluster.screenY })),
+    box,
+  ).map((placement) => ({ ...placement, cluster: clusterByKey.get(placement.key)! }));
+  const nextClusterMember = (cluster: PositionedCluster) => {
+    const focusedIndex = cluster.points.findIndex((point) => point.pointId === focusedPointId);
+    return cluster.points[focusedIndex >= 0 ? (focusedIndex + 1) % cluster.points.length : 0]!;
+  };
+  const activateCluster = (cluster: PositionedCluster) => {
+    const member = nextClusterMember(cluster);
+    onSelect(member.entityKey, member.pointId);
+  };
   return (
     <section className="roofline-chart-panel" aria-labelledby={`${uid}-title`}>
       <header>
@@ -184,49 +205,87 @@ export function RooflineChart({
                 : 18;
               const desiredRadius = markerRadius(cluster.points.reduce((sum, point) => sum + point.markerAreaPx2, 0));
               const radius = Math.min(desiredRadius, Math.max(0.025, ownershipRadius - 0.025));
-              const hitRadius = Math.min(ownershipRadius, Math.max(radius, Math.min(12, radius + 4)));
               const haloRadius = Math.min(radius + 4, ownershipRadius);
-              const focusedIndex = cluster.points.findIndex((point) => point.pointId === focusedPointId);
-              const selectedMember = focusedPointId !== null
-                ? (focusedIndex >= 0 ? cluster.points[focusedIndex]! : null)
-                : cluster.points.find((point) => point.selected) ?? null;
-              const nextMember = cluster.points[focusedIndex >= 0 ? (focusedIndex + 1) % cluster.points.length : 0]!;
+              const selectedMember = selectedClusterMember(cluster);
+              const nextMember = nextClusterMember(cluster);
+              const selectedLabelWidth = selectedMember ? Math.max(48, selectedMember.label.length * 6.5) : 0;
+              const selectedLabelX = radius + 8;
+              const selectedLabelY = -radius - 4;
+              const selectedLabelBlocked = selectedMember && (cluster.points.length > 1 || countLabels.some((label) => (
+                Math.abs(cluster.screenX + selectedLabelX + selectedLabelWidth / 2 - label.x) < (selectedLabelWidth + label.width) / 2
+                && Math.abs(cluster.screenY + selectedLabelY - 5 - label.y) < (16 + label.height) / 2
+              )));
               const title = `${cluster.points.length} point${cluster.points.length === 1 ? "" : "s"} at true AI ${formatNumber(cluster.xFlopPerByte)} FLOP/byte and true throughput ${throughput(cluster.yFlopPerSecond)} FLOP/s; ${markerEvidence(cluster.marker)}; members: ${cluster.points.map((point) => `${point.label} (${markerEvidence(point.marker)})`).join("; ")}`;
-              const activate = () => onSelect(nextMember.entityKey, nextMember.pointId);
               return <g
-                className={`roofline-cluster roofline-marker is-${cluster.marker} ${selectedMember ? "is-selected" : ""}`}
+                className="roofline-cluster"
                 key={cluster.key}
                 transform={`translate(${cluster.screenX} ${cluster.screenY})`}
                 data-cluster-center="true"
+                data-cluster-key={cluster.key}
                 data-cluster-size={cluster.points.length}
+                data-selected-point-id={selectedMember?.pointId}
                 data-true-x={cluster.xFlopPerByte}
                 data-true-y={cluster.yFlopPerSecond}
-                data-hit-radius={hitRadius}
                 data-marker-evidence={cluster.marker}
               >
                 <title>{title}</title>
-                {selectedMember ? <circle className="roofline-marker-halo" r={haloRadius} data-halo-radius={haloRadius} /> : null}
-                <circle className="roofline-marker-base" r={radius} />
-                {cluster.marker === "half" ? <circle className="roofline-marker-half" r={radius} clipPath={`url(#${uid}-${safe(cluster.key)})`} /> : null}
-                {cluster.marker === "mixed" ? <circle className="roofline-marker-mixed" r={radius} fill={`url(#${uid}-mixed-marker)`} /> : null}
-                <circle className="roofline-marker-outline" r={radius} />
-                {cluster.points.length > 1 ? <text className="roofline-cluster-count" y="3.5" textAnchor="middle" aria-hidden="true">{cluster.points.length}</text> : null}
-                <circle
+                <g className={`roofline-marker is-${cluster.marker} ${selectedMember ? "is-selected" : ""}`}>
+                  {selectedMember ? <circle className="roofline-marker-halo" r={haloRadius} data-halo-radius={haloRadius} /> : null}
+                  <circle className="roofline-marker-base" r={radius} />
+                  {cluster.marker === "half" ? <circle className="roofline-marker-half" r={radius} clipPath={`url(#${uid}-${safe(cluster.key)})`} /> : null}
+                  {cluster.marker === "mixed" ? <circle className="roofline-marker-mixed" r={radius} fill={`url(#${uid}-mixed-marker)`} /> : null}
+                  <circle className="roofline-marker-outline" r={radius} />
+                </g>
+                <path
                   className="roofline-marker-hit"
-                  r={hitRadius}
+                  d={svgPolygonPath(hitPolygons[clusterIndex]!, { x: cluster.screenX, y: cluster.screenY })}
                   role="button"
                   tabIndex={0}
                   aria-pressed={selectedMember !== null}
                   aria-label={`${cluster.points.length > 1 ? `Select or cycle ${cluster.points.length} coincident points` : `Select ${nextMember.label}`}; true arithmetic intensity ${formatNumber(cluster.xFlopPerByte)} FLOP per byte; true throughput ${throughput(cluster.yFlopPerSecond)} FLOP per second; ${markerEvidence(cluster.marker)}; next ${nextMember.label}`}
-                  onClick={activate}
+                  data-cluster-key={cluster.key}
+                  onClick={() => activateCluster(cluster)}
                   onKeyDown={(event) => {
                     if (event.key === "Enter" || event.key === " ") {
                       event.preventDefault();
-                      activate();
+                      activateCluster(cluster);
                     }
                   }}
                 />
-                {selectedMember ? <text className="roofline-selected-label" x={radius + 8} y={-radius - 4}>{selectedMember.label}</text> : null}
+                <circle className="roofline-marker-focus" r={Math.max(4, Math.min(radius + 4, 9))} />
+                {selectedMember && !selectedLabelBlocked ? <text className="roofline-selected-label" x={selectedLabelX} y={selectedLabelY}>{selectedMember.label}</text> : null}
+              </g>;
+            })}
+            {countLabels.map((placement) => {
+              const { cluster } = placement;
+              const nextMember = nextClusterMember(cluster);
+              const selected = focusedPointId !== null
+                ? cluster.points.some((point) => point.pointId === focusedPointId)
+                : cluster.points.some((point) => point.selected);
+              return <g className="roofline-cluster-count-control" key={`count-${cluster.key}`} data-cluster-key={cluster.key}>
+                <line className="roofline-cluster-count-leader" x1={cluster.screenX} y1={cluster.screenY} x2={placement.x} y2={placement.y} />
+                <rect className="roofline-cluster-count-badge" x={placement.x - placement.width / 2 + 2} y={placement.y - placement.height / 2 + 3} width={placement.width - 4} height={placement.height - 6} rx="4" />
+                <text className="roofline-cluster-count" x={placement.x} y={placement.y + 3.5} textAnchor="middle" aria-hidden="true">×{cluster.points.length}</text>
+                <rect
+                  className="roofline-cluster-count-hit"
+                  x={placement.x - placement.width / 2}
+                  y={placement.y - placement.height / 2}
+                  width={placement.width}
+                  height={placement.height}
+                  rx="5"
+                  role="button"
+                  tabIndex={0}
+                  aria-pressed={selected}
+                  aria-label={`Select or cycle ${cluster.points.length} coincident points at true arithmetic intensity ${formatNumber(cluster.xFlopPerByte)} FLOP per byte and true throughput ${throughput(cluster.yFlopPerSecond)} FLOP per second; next ${nextMember.label}`}
+                  data-cluster-key={cluster.key}
+                  onClick={() => activateCluster(cluster)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      activateCluster(cluster);
+                    }
+                  }}
+                />
               </g>;
             })}
           </g>

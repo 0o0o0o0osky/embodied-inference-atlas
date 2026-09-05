@@ -6,6 +6,7 @@ import graphDocument from "../../../../data/model_graphs/pi0.json";
 import realizationDocument from "../../../../data/runtime_realizations/pi0.json";
 import type { CanonicalRecord } from "../../../types/atlas";
 import { materializeInteractiveRoofline, runtimeResolutionWorkload } from "../data/materialize";
+import { isRooflinePlotBlocker } from "../presentation/viewModel";
 import { attentionMetrics } from "./attention";
 import { stageLowerBound } from "./criticalPath";
 import { linearBoundaryTraffic } from "./fusedTraffic";
@@ -129,5 +130,20 @@ describe("roofline analytical contracts", () => {
     expect(keyProjection.traffic.total_byte).toBe(47_038_608);
     expect(keyProjection.derived.roof_second).toBeCloseTo(172.3025934065934e-6, 16);
     expect(keyProjection.entity.coverage_key).toBe("logical:prefix-encoder/prefix-blocks/self-attention/key-projection|shape:816x2048x256|calls:18");
+
+    const plotFields = [
+      "work.total_flop", "traffic.total_byte", "derived.arithmetic_intensity_flop_per_byte",
+      "derived.compute_second", "derived.memory_second", "derived.roof_second",
+      "derived.roof_flop_per_second", "derived.achieved_flop_per_second", "timing.observed_second",
+    ];
+    expect(plotFields.map((field) => isRooflinePlotBlocker(keyProjection, field))).toEqual([
+      true, true, true, true, true, true, true, false, false,
+    ]);
+    expect(plotFields.map((field) => isRooflinePlotBlocker({
+      ...keyProjection,
+      timing: { ...keyProjection.timing, observed_second: 1e-3 },
+    }, field))).toEqual([
+      true, true, true, false, false, false, false, true, true,
+    ]);
   });
 });

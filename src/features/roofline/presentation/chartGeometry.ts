@@ -2,6 +2,10 @@ import type { RooflineCurveVM, RooflinePointVM } from "./viewModel";
 
 export interface LogDomain { min: number; max: number }
 export interface PlotBox { left: number; top: number; width: number; height: number }
+export interface ScreenPoint { x: number; y: number }
+interface ScreenBox extends ScreenPoint { width: number; height: number }
+export interface ClusterScreenAnchor extends ScreenPoint { key: string; count: number }
+export interface ClusterCountPlacement extends ScreenBox { key: string }
 
 export interface RooflineChartGeometry {
   x: LogDomain;
@@ -9,6 +13,12 @@ export interface RooflineChartGeometry {
   xTicks: readonly number[];
   yTicks: readonly number[];
 }
+
+const COUNT_LABEL_OFFSETS = [
+  [0, -30], [30, 0], [0, 30], [-30, 0],
+  [24, -24], [24, 24], [-24, 24], [-24, -24],
+  [0, -48], [48, 0], [0, 48], [-48, 0],
+] as const;
 
 function positive(values: readonly number[]) {
   return values.filter((value) => Number.isFinite(value) && value > 0);
@@ -63,4 +73,103 @@ export function roofPath(curve: RooflineCurveVM, x: LogDomain, y: LogDomain, box
 export function markerRadius(areaPx2: number) {
   if (!Number.isFinite(areaPx2) || areaPx2 <= 0) throw new Error("marker area must be positive");
   return Math.sqrt(areaPx2 / Math.PI);
+}
+
+function clipHalfPlane(polygon: readonly ScreenPoint[], unitX: number, unitY: number, limit: number) {
+  if (!polygon.length) return [];
+  const result: ScreenPoint[] = [];
+  polygon.forEach((current, index) => {
+    const previous = polygon[(index + polygon.length - 1) % polygon.length]!;
+    const currentDistance = current.x * unitX + current.y * unitY - limit;
+    const previousDistance = previous.x * unitX + previous.y * unitY - limit;
+    const currentInside = currentDistance <= 1e-7;
+    const previousInside = previousDistance <= 1e-7;
+    if (currentInside !== previousInside) {
+      const ratio = previousDistance / (previousDistance - currentDistance);
+      result.push({
+        x: previous.x + (current.x - previous.x) * ratio,
+        y: previous.y + (current.y - previous.y) * ratio,
+      });
+    }
+    if (currentInside) result.push(current);
+  });
+  return result;
+}
+
+export function localVoronoiCell(
+  centers: readonly ScreenPoint[],
+  index: number,
+  box: PlotBox,
+  proximity = 18,
+) {
+  const current = centers[index]!;
+  let polygon: ScreenPoint[] = [
+    { x: Math.max(box.left, current.x - proximity), y: Math.max(box.top, current.y - proximity) },
+    { x: Math.min(box.left + box.width, current.x + proximity), y: Math.max(box.top, current.y - proximity) },
+    { x: Math.min(box.left + box.width, current.x + proximity), y: Math.min(box.top + box.height, current.y + proximity) },
+    { x: Math.max(box.left, current.x - proximity), y: Math.min(box.top + box.height, current.y + proximity) },
+  ];
+  centers.forEach((neighbor, neighborIndex) => {
+    if (neighborIndex === index || !polygon.length) return;
+    const deltaX = neighbor.x - current.x;
+    const deltaY = neighbor.y - current.y;
+    const distance = Math.hypot(deltaX, deltaY);
+    if (distance <= Number.EPSILON) return;
+    const unitX = deltaX / distance;
+    const unitY = deltaY / distance;
+    const gutter = Math.min(0.5, distance / 4);
+    const middleX = (current.x + neighbor.x) / 2;
+    const middleY = (current.y + neighbor.y) / 2;
+    polygon = clipHalfPlane(
+      polygon,
+      unitX,
+      unitY,
+      middleX * unitX + middleY * unitY - gutter / 2,
+    );
+  });
+  return polygon;
+}
+
+export function svgPolygonPath(polygon: readonly ScreenPoint[], origin: ScreenPoint) {
+  return polygon.map((point, index) => `${index ? "L" : "M"}${(point.x - origin.x).toFixed(3)} ${(point.y - origin.y).toFixed(3)}`).join(" ") + " Z";
+}
+
+function boxesIntersect(left: ScreenBox, right: ScreenBox) {
+  return Math.abs(left.x - right.x) < (left.width + right.width) / 2 + 2
+    && Math.abs(left.y - right.y) < (left.height + right.height) / 2 + 2;
+}
+
+export function placeClusterCounts(
+  anchors: readonly ClusterScreenAnchor[],
+  box: PlotBox,
+) {
+  const placed: ClusterCountPlacement[] = [];
+  [...anchors]
+    .filter((anchor) => anchor.count > 1)
+    .sort((left, right) => right.count - left.count
+      || left.y - right.y
+      || left.x - right.x
+      || left.key.localeCompare(right.key))
+    .forEach((anchor) => {
+      const width = Math.max(28, 16 + `×${anchor.count}`.length * 7);
+      const height = 24;
+      const placement = COUNT_LABEL_OFFSETS.map(([offsetX, offsetY]) => ({
+        key: anchor.key,
+        x: anchor.x + offsetX,
+        y: anchor.y + offsetY,
+        width,
+        height,
+      })).find((candidate) => (
+        candidate.x - width / 2 >= box.left + 1
+        && candidate.x + width / 2 <= box.left + box.width - 1
+        && candidate.y - height / 2 >= box.top + 1
+        && candidate.y + height / 2 <= box.top + box.height - 1
+        && !placed.some((existing) => boxesIntersect(candidate, existing))
+        && !anchors.some((other) => other.key !== anchor.key
+          && Math.abs(candidate.x - other.x) < width / 2 + 5
+          && Math.abs(candidate.y - other.y) < height / 2 + 5)
+      ));
+      if (placement) placed.push(placement);
+    });
+  return placed;
 }
