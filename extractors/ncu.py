@@ -270,7 +270,7 @@ def parse_ncu_exports(
     required_reader_metrics = _required_reader_metrics(
         str(policy["section_mode"])
     )
-    _validate_raw_units(raw_csv, context)
+    _validate_raw_units(raw_csv, context, str(policy["section_mode"]))
     raw_rows = _dict_rows(
         raw_csv, context, "raw", required_reader_metrics
     )
@@ -927,13 +927,29 @@ def _csv_rows(payload: str, context: ProfilerImportContext, page: str) -> list[l
         ) from error
 
 
-def _validate_raw_units(payload: str, context: ProfilerImportContext) -> None:
+def _validate_raw_units(
+    payload: str, context: ProfilerImportContext, section_mode: str
+) -> None:
     rows = _csv_rows(payload, context, "raw")
     if len(rows) < 2 or len(rows[1]) > len(rows[0]):
         raise SourceFormatError(f"{context.source_label}: invalid NCU raw page row 2")
     units = [*rows[1], *("" for _ in range(len(rows[0]) - len(rows[1])))]
-    for name, unit in zip(rows[0], units):
-        if unit and _EXPECTED_RAW_UNITS.get(name) != unit:
+    for column, (name, unit) in enumerate(zip(rows[0], units)):
+        expected = _EXPECTED_RAW_UNITS.get(name)
+        has_numeric_value = (
+            section_mode in _LOCKED_SECTION_MODES
+            and expected is not None
+            and any(
+                _optional_number(
+                    row[column] if column < len(row) else None,
+                    context,
+                    "raw",
+                    row_index,
+                ) is not None
+                for row_index, row in enumerate(rows[2:], start=3)
+            )
+        )
+        if (unit or has_numeric_value) and unit != expected:
             raise SourceFormatError(
                 f"{context.source_label}: invalid NCU raw unit for {name}"
             )

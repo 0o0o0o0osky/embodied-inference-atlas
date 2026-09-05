@@ -4,7 +4,14 @@ from collections import Counter, defaultdict
 from collections.abc import Mapping
 from dataclasses import dataclass
 
-from extractors.profiler_common import METRIC_REGISTRY, valid_warp_trigger
+from extractors.profiler_common import (
+    METRIC_REGISTRY,
+    SCHEDULER_DIRECT_METRIC_NAMES,
+    SCHEDULER_METRIC_NAMES,
+    SYSMEM_SECTOR_METRIC_NAMES,
+    WARP_STATE_METRIC_NAMES,
+    valid_warp_trigger,
+)
 from tools.lib.contracts import Issue
 from tools.lib.model_graph import materialize_model_graph
 
@@ -33,6 +40,20 @@ _TASK7_SYSMEM_METRICS = (
     "lts__t_sectors_srcunit_tex_aperture_sysmem_lookup_miss.sum",
 )
 _TASK7_WARP_SECTIONS = ("SpeedOfLight", "LaunchStats", "WarpStateStats")
+_TASK7_SCHEDULER_METRIC_NAMES = frozenset((
+    *SCHEDULER_DIRECT_METRIC_NAMES,
+    "gpc_cycle_rate_hz",
+    *SCHEDULER_METRIC_NAMES,
+    *SYSMEM_SECTOR_METRIC_NAMES,
+    "system_memory_throughput_pct_of_ceiling",
+    "system_memory_bytes",
+))
+_TASK7_WARP_METRIC_NAMES = frozenset((
+    "kernel_duration",
+    "sm_throughput_pct_of_peak_sustained_elapsed",
+    "gpc_cycle_rate_hz",
+    *WARP_STATE_METRIC_NAMES,
+))
 _TASK7_LOCKED_TELEMETRY = {
     "observed_gpu_frequency": ("MHz", "ncu_gpc_cycle_rate"),
     "observed_emc_frequency": ("MHz", "jetson_clocks_show_current_freq"),
@@ -409,6 +430,9 @@ def profiler_semantic_issues(datasets: Mapping[str, list[Mapping]]) -> list[Issu
             issues.append(_issue(base, "duplicate_metric_identity", "metric identity must be unique per subject and basis"))
         metric_identities.add(identity)
 
+    issues.extend(_locked_ncu_metric_issues(
+        datasets, captures, observations,
+    ))
     issues.extend(_warp_trigger_issues(
         datasets,
         runs,
@@ -418,6 +442,51 @@ def profiler_semantic_issues(datasets: Mapping[str, list[Mapping]]) -> list[Issu
     ))
     issues.extend(_link_issues(datasets, runs, captures, observations, signatures))
     issues.extend(_telemetry_issues(datasets, runs, captures))
+    return issues
+
+
+def _locked_ncu_metric_issues(
+    datasets: Mapping[str, list[Mapping]],
+    captures: Mapping[object, Mapping],
+    observations: Mapping[object, Mapping],
+) -> list[Issue]:
+    issues: list[Issue] = []
+    observations_by_capture: dict[object, list[Mapping]] = defaultdict(list)
+    metrics_by_capture: dict[object, list[Mapping]] = defaultdict(list)
+    for observation in observations.values():
+        observations_by_capture[observation.get("capture_id")].append(observation)
+    for metric in datasets.get("profiler_metrics", []):
+        metrics_by_capture[metric.get("capture_id")].append(metric)
+    expected_by_mode = {
+        "scheduler_stats_with_sysmem_sectors": _TASK7_SCHEDULER_METRIC_NAMES,
+        "warp_state_stats": _TASK7_WARP_METRIC_NAMES,
+    }
+    for capture_id, capture in captures.items():
+        ncu = capture.get("ncu")
+        mode = ncu.get("section_mode") if isinstance(ncu, Mapping) else None
+        expected = expected_by_mode.get(mode)
+        if expected is None:
+            continue
+        capture_observations = observations_by_capture.get(capture_id, [])
+        observation_id = (
+            capture_observations[0].get("observation_id")
+            if len(capture_observations) == 1 else None
+        )
+        records = metrics_by_capture.get(capture_id, [])
+        valid = (
+            observation_id is not None
+            and Counter(record.get("metric_name") for record in records)
+            == Counter(expected)
+            and all(record.get("subject") == {
+                "kind": "kernel_observation", "id": observation_id,
+            } for record in records)
+        )
+        if not valid:
+            issues.append(_issue(
+                f"$.profiler_captures[{capture_id}].ncu.section_mode",
+                "locked_ncu_metric_contract",
+                "locked NCU captures require one exact metric set on their single kernel observation",
+            ))
     return issues
 
 
@@ -539,8 +608,14 @@ def _warp_trigger_issues(
         valid_pair = valid_pair and (
             isinstance(scheduler_run, Mapping)
             and isinstance(warp_run, Mapping)
-            and scheduler_run.get("model_id") == warp_run.get("model_id")
-            and scheduler_run.get("runtime_id") == warp_run.get("runtime_id")
+            and all(
+                scheduler_run.get(field) == warp_run.get(field)
+                for field in (
+                    "model_id", "runtime_id", "system_id", "device_id",
+                    "model_artifact_id", "workload", "precision",
+                    "operating_point",
+                )
+            )
         )
         scheduler_metrics = metrics_by_capture.get(
             trigger["scheduler_capture_id"], {}
@@ -553,6 +628,10 @@ def _warp_trigger_issues(
                 and _is_number(metric.get("value"))
                 and float(metric["value"])
                 == float(criterion["observed_value"])
+                and metric.get("subject") == {
+                    "kind": "kernel_observation",
+                    "id": trigger["scheduler_observation_id"],
+                }
             )
         valid_pair = valid_pair and all(
             isinstance(scheduler_metrics.get(name), Mapping)
@@ -566,7 +645,11 @@ def _warp_trigger_issues(
             scheduler_observation.get("launch")
             if isinstance(scheduler_observation, Mapping) else None
         )
-        valid_pair = valid_pair and isinstance(launch, Mapping)
+        valid_pair = (
+            valid_pair
+            and isinstance(launch, Mapping)
+            and launch == warp_observation.get("launch")
+        )
         if not valid_pair:
             issues.append(_issue(
                 f"$.profiler_captures[{capture_id}].ncu.warp_trigger",
@@ -909,12 +992,15 @@ def _telemetry_issues(
                 and record.get("record_kind") == "sampled_summary"
             )
             valid = valid and (
-                (numeric or unavailable)
+                record.get("alignment") == "same_run_unaligned"
+                and record.get("window") is None
+                and record.get("samples") == []
                 and record.get("measurement_source") == source
                 and record.get("evidence_semantics") == "observed_samples"
                 and (
-                    not unavailable
-                    or record.get("record_kind") == "sampled_series"
+                    numeric
+                    or unavailable
+                    and record.get("record_kind") == "sampled_series"
                     and summary is None
                 )
             )

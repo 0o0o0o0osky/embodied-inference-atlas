@@ -449,6 +449,8 @@ class ProfilerImporterTests(unittest.TestCase):
             "smsp__warps_active.avg.per_cycle_active": ("warp", "8"),
             "smsp__warps_eligible.avg.per_cycle_active": ("warp", "0.5"),
             SYSMEM[0]: ("sector", "1000"), SYSMEM[1]: ("sector", "250"), SYSMEM[2]: ("sector", "75")})
+        for name in ("launch__block_size", "launch__grid_dim_x", "launch__grid_dim_y", "launch__grid_dim_z", "launch__grid_size"):
+            raw = _csv(raw, unit=(name, "thread/block" if name == "launch__block_size" else "block"))
         cases = {}
         for signature_id, selector in SELECTORS.items():
             candidate = copy.deepcopy(policy); candidate["signature"] = signature(signature_id)
@@ -485,7 +487,7 @@ class ProfilerImporterTests(unittest.TestCase):
             session.replace(" --disable-extra-suffixes", "", 1),
             session.replace("--disable-extra-suffixes", "--disable-extra-suffixes --disable-extra-suffixes", 1)):
             reject(changed)
-        reject(session, _csv(raw, unit=("smsp__issue_active.avg.per_cycle_active", "warp/cycle")))
+        reject(session, _csv(raw, unit=("gpc__cycles_elapsed.avg.per_second", "")))
         reject(session, _csv(raw, drop=SYSMEM[0]))
         metrics = {item["metric_name"]: item for item in bundle["datasets"]["profiler_metrics"]}
         self.assertEqual(metrics["scheduler_issue_active_per_active_cycle"]["unit"], "warp_per_cycle")
@@ -532,12 +534,37 @@ class ProfilerImporterTests(unittest.TestCase):
         self.assertEqual((long_stall["raw_counter_name"], long_stall["unit"], long_stall["section_name"]),
             ("smsp__average_warps_issue_stalled_long_scoreboard_per_issue_active.ratio",
              "cycles_per_instruction", "WarpStateStats"))
+        paired = copy.deepcopy(bundle)
+        for dataset, records in warp_bundle["datasets"].items():
+            if dataset != "kernel_signatures": paired["datasets"][dataset].extend(records)
+        self.assertEqual(plan_promotion(paired, ROOT).updates, 0)
+        wrong_context = copy.deepcopy(paired)
+        wrong_run = wrong_context["datasets"]["runs"][1]
+        wrong_run["workload"]["vla"]["camera_views"] = 3
+        wrong_run["comparison_context"]["workload"]["vla"]["camera_views"] = 3
+        with self.assertRaises(PromotionError) as error: plan_promotion(wrong_context, ROOT)
+        self.assertIn("warp_trigger_evidence", {item.code for item in error.exception.issues})
+        wrong_launch = copy.deepcopy(paired); wrong_launch["datasets"]["kernel_observations"][1]["launch"]["grid"][0] += 1
+        wrong_subject = copy.deepcopy(paired); next(item for item in wrong_subject["datasets"]["profiler_metrics"]
+            if item["metric_name"] == "scheduler_issue_active_per_active_cycle")["subject"] = {
+                "kind": "capture", "id": f"capture-{label}-002"}
+        for candidate in (wrong_launch, wrong_subject):
+            with self.assertRaises(PromotionError) as error: plan_promotion(candidate, ROOT)
+            self.assertIn("warp_trigger_evidence", {item.code for item in error.exception.issues})
         for path in ("threshold", "review"):
             bad_trigger = copy.deepcopy(warp_policy)
             if path == "threshold": bad_trigger["warp_trigger"]["criteria"][0]["observed_value"] = 0.61
             else: bad_trigger["warp_trigger"].pop("launch_occupancy_review")
             reject(warp_session, warp_raw, bad_trigger)
         self.assertEqual(plan_promotion(bundle, ROOT).updates, 0)
+        incomplete = copy.deepcopy(bundle); incomplete["datasets"]["profiler_metrics"] = [
+            item for item in incomplete["datasets"]["profiler_metrics"]
+            if item["metric_name"] != "system_memory_bytes"]
+        with self.assertRaises(PromotionError) as error: plan_promotion(incomplete, ROOT)
+        self.assertIn("locked_ncu_metric_contract", {item.code for item in error.exception.issues})
+        misaligned = copy.deepcopy(bundle); misaligned["datasets"]["telemetry"][0]["alignment"] = "separate_run"
+        with self.assertRaises(PromotionError) as error: plan_promotion(misaligned, ROOT)
+        self.assertIn("locked_capture_telemetry", {item.code for item in error.exception.issues})
         drift = copy.deepcopy(bundle); drift["datasets"]["kernel_signatures"][0]["classification_method"] = "manual"
         reused_run = copy.deepcopy(bundle); reused_run["datasets"]["runs"].append(canonical_run)
         reused_child = copy.deepcopy(bundle); reused_child["datasets"]["kernel_observations"].append(_record(
