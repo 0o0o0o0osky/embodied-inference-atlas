@@ -59,9 +59,17 @@
   padding: 4px 8px;
   border: 1px solid #354251;
   border-radius: 4px;
-  color: #fff;
-  background: #0B1420;
+  color: #17232E;
+  background: #F5F8FC;
+  color-scheme: light;
   font-size: 14px;
+}
+
+.atlas-header select:disabled {
+  color: #64748B;
+  background: #E6EBF1;
+  opacity: 1;
+  cursor: not-allowed;
 }
 
 .atlas-navigation {

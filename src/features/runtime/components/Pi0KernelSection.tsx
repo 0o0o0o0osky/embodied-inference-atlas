@@ -5,11 +5,12 @@ import { pi0GroupLabel, pi0PrecisionLabel } from "./runtimePresentation";
 export interface Pi0KernelSectionProps {
   view: KernelRowsModel;
   realization: RuntimeRealizationRecord | null;
+  dagOpen?: boolean;
   onOpenDetails: () => void;
   onOpenDag: () => void;
 }
 
-export function Pi0KernelSection({ view: model, realization, onOpenDetails, onOpenDag }: Pi0KernelSectionProps) {
+export function Pi0KernelSection({ view: model, realization, dagOpen = false, onOpenDetails, onOpenDag }: Pi0KernelSectionProps) {
   const rows = model.rows;
   const aggregates = rows.filter((row) => row.observation.observationKind === "nsys_window_aggregate" && row.capture.nsys?.reportMode === "node");
   const captureId = aggregates[0]?.capture.captureId;
@@ -55,7 +56,7 @@ export function Pi0KernelSection({ view: model, realization, onOpenDetails, onOp
           <p><strong>精度与量化</strong> {paths.length ? paths.map((path) => pi0PrecisionLabel(path.precisionPathId, path.label)).join("；") : "当前源码映射未建立精度路径"}。</p>
           <p className="pi0-funnel-note">以上仅对应当前实现的源码审计映射，不将 Kernel 热点关联到逻辑算子。</p>
         </> : <p>当前选择暂无源码审计实现映射。</p>}
-        {activeRealization ? <button className="pi0-funnel-detail" type="button" onClick={onOpenDag}>查看完整实现图</button> : null}
+        {!dagOpen ? <button className="pi0-funnel-detail" type="button" aria-expanded={false} onClick={onOpenDag}>查看完整实现图</button> : null}
       </div>
     </section>
   );

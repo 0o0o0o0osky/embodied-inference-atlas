@@ -107,21 +107,21 @@ export function Pi0RuntimeWorkspace({ data, model, record, route, navigate }: Pi
         onCaptureChange={(timelineCapture) => navigate({ ...scopePatch, timelineCapture, entity: null })}
         onSelectEvent={(event) => nsys.active && navigate({ ...scopePatch, tab: "timeline", timelineCapture: nsys.active.capture.captureId, entity: timelineEventEntity(nsys.active.timeline.timelineId, event.eventId) })}
         onOpenDetails={() => navigate({ ...scopePatch, tab: "timeline", timelineCapture: nsys.active?.capture.captureId ?? null, entity: null })} />
-      <Pi0KernelSection view={kernels} realization={activeRealization}
+      <Pi0KernelSection view={kernels} realization={activeRealization} dagOpen={dagOpen}
         onOpenDetails={() => navigate({ ...scopePatch, tab: "roofline-kernels", rooflineLevel: "kernel", entity: null, basis: null })}
         onOpenDag={() => setDagOpen(true)} />
-      <section className="pi0-funnel-section" aria-labelledby="pi0-dag-title">
+      {dagOpen ? <section className="pi0-funnel-section" aria-labelledby="pi0-dag-title">
         <header className="pi0-funnel-heading">
           <h3 id="pi0-dag-title">完整实现图</h3>
-          <button type="button" className="pi0-funnel-detail" aria-expanded={dagOpen} aria-controls="pi0-implementation-dag" onClick={() => setDagOpen(!dagOpen)}>
-            {dagOpen ? "关闭完整实现图" : "查看完整实现图"}
+          <button type="button" className="pi0-funnel-detail" aria-expanded={true} aria-controls="pi0-implementation-dag" onClick={() => setDagOpen(false)}>
+            关闭完整实现图
           </button>
         </header>
-        {dagOpen ? <div id="pi0-implementation-dag">
+        <div id="pi0-implementation-dag">
           <Pi0ImplementationDagSection record={record} route={{ ...route, workload: normalizedWorkload }} activeRealization={activeRealization}
             selectedRuntimeName={summaries.find((item) => item.runtimeId === route.runtime)?.displayName ?? null} navigate={navigate} />
-        </div> : null}
-      </section>
+        </div>
+      </section> : null}
     </section>
   );
 }
