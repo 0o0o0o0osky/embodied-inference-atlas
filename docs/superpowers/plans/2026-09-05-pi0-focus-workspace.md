@@ -105,7 +105,10 @@
 - Modify: `src/app/AtlasApp.tsx`
 - Modify: `src/components/AtlasHeader.tsx`
 - Modify: `src/features/workbench/Workbench.tsx`
+- Modify: `src/features/workbench/ContextBar.tsx`
 - Modify: `src/features/model-graph/ModelGraphWorkspace.tsx`
+- Modify: `src/features/model-graph/components/WorkloadControls.tsx`
+- Modify: `src/features/model-graph/components/DerivedSymbols.tsx`
 - Modify: `src/styles/base.css`
 - Modify: `src/styles/shell.css`
 - Modify: `src/styles/model-graph.css`
@@ -125,7 +128,7 @@
 
 - [ ] **Step 3: Apply the modern visual system**
 
-  Use a dark graphite top bar, cold-white canvas, white surfaces, one cyan interaction color, normal-width system/IBM Plex font stacks, restrained radii, softer separators, and clearer whitespace hierarchy. Do not add glassmorphism, giant hero text, gradients, decorative motion, or dense dashboard cards.
+  Use a 56px dark graphite top bar, a roughly 48px graph toolbar, cold-white canvas, white surfaces, one cyan interaction color, normal-width system/IBM Plex font stacks with Chinese sans fallbacks, restrained radii, softer separators, and clearer whitespace hierarchy. The DAG must begin within the first 150px at 1920×1200. Do not add glassmorphism, giant hero text, gradients, decorative motion, or dense dashboard cards.
 
 - [ ] **Step 4: Preserve out-of-scope routes**
 
@@ -133,7 +136,7 @@
 
 - [ ] **Step 5: Build once and perform one visual review loop**
 
-  Run `npm run build`, serve the local site, capture Pi0 at 1920×1200 in overview and focused states, and inspect both images for overlap, clipping, unreadable labels, wrong focus target, and unexpected scrollbars. Fix only concrete defects from these two screenshots.
+  Run `npm run build` once for type safety, then `python3 -m tools.build` once to generate the offline snapshot. Serve `site/`, capture Pi0 at 1920×1200 in overview and one GEMM-focused state, and inspect both images for overlap, clipping, unreadable labels, wrong focus target, and unexpected scrollbars. Check the one real interaction path (select → drawer tab → Escape/close). Fix only concrete defects from these two screenshots.
 
 - [ ] **Step 6: Commit the review checkpoint**
 
