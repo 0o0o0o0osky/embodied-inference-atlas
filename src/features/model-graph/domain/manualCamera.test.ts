@@ -2,6 +2,15 @@ import { expect, it } from "vitest";
 
 import * as camera from "./focusViewport";
 
+it("maps an ordinary vertical graph-wheel gesture to cursor-anchored zoom", () => {
+  const anchor = { x: 320, y: 180 };
+  expect(camera.graphWheelZoomAction(120, -18, anchor)).toEqual({
+    type: "zoom",
+    percent: 130,
+    anchor,
+  });
+});
+
 it("keeps the zoom anchor fixed, clamps manual zoom, and resets panning to the automatic camera", () => {
   // Losing the anchor correction, range clamp, or reset would break this interaction contract.
   expect(camera).toHaveProperty("updateManualCamera");

@@ -11,7 +11,7 @@ import type {
   NodeVisualKind,
   ScopeBox,
 } from "../domain/types";
-import { effectiveCameraZoom, getCameraPanRanges, updateManualCamera, type GraphViewport, type ManualCameraAction } from "../domain/focusViewport";
+import { effectiveCameraZoom, getCameraPanRanges, graphWheelZoomAction, updateManualCamera, type GraphViewport, type ManualCameraAction } from "../domain/focusViewport";
 import { useModelText, type ModelText } from "../presentation/ModelDisplay";
 
 interface LogicalDagSvgProps {
@@ -217,10 +217,10 @@ export function LogicalDagSvg({
     const svg = svgRef.current;
     if (!compactControls || !svg) return;
     const wheel = (event: WheelEvent) => {
-      if (!(event.ctrlKey || event.metaKey) || event.deltaY === 0) return;
+      if (event.deltaY === 0) return;
       event.preventDefault();
       const anchor = framePoint(event.clientX, event.clientY);
-      if (anchor) changeCamera({ type: "zoom", percent: camera.zoom - Math.sign(event.deltaY) * 10, anchor });
+      if (anchor) changeCamera(graphWheelZoomAction(camera.zoom, event.deltaY, anchor));
     };
     svg.addEventListener("wheel", wheel, { passive: false });
     return () => svg.removeEventListener("wheel", wheel);
@@ -290,7 +290,7 @@ export function LogicalDagSvg({
         className="logical-canvas"
         ref={canvasRef}
         role="region"
-        aria-label={compactControls ? "模型结构图；按住 Ctrl 或 Command 滚轮缩放，内容超出视图时可拖动空白处平移；窄屏可横向滚动" : "Authored-scale logical graph; use the pan buttons or scroll horizontally on narrower screens"}
+        aria-label={compactControls ? "模型结构图；在图内滚轮缩放，内容超出视图时可拖动空白处平移；图外滚轮正常滚动页面" : "Authored-scale logical graph; use the pan buttons or scroll horizontally on narrower screens"}
         tabIndex={0}
       >
       {!compactControls ? <div className="logical-legend" aria-hidden="true">

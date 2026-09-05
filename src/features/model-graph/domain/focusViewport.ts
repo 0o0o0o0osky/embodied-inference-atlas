@@ -25,6 +25,14 @@ export function effectiveCameraZoom(relativePercent: number, automaticScale: num
   return Math.round(relativePercent * automaticScale);
 }
 
+export function graphWheelZoomAction(
+  relativePercent: number,
+  deltaY: number,
+  anchor: { x: number; y: number },
+): ManualCameraAction {
+  return { type: "zoom", percent: relativePercent - Math.sign(deltaY) * 10, anchor };
+}
+
 export function getCameraPanRanges(relativePercent: number, frame: CameraBounds, content: CameraBounds) {
   const ratio = relativePercent / 100;
   const axisRange = (frameStart: number, frameSize: number, contentStart: number, contentSize: number) => {
