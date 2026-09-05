@@ -25,6 +25,9 @@ interface LogicalDagSvgProps {
   onSelect: (ref: string) => void;
   ariaLabel: string;
   overlay?: ReactNode;
+  compactControls?: boolean;
+  toolbar?: ReactNode;
+  scenario?: ReactNode;
 }
 
 function shortScopeLabel(moduleId: string | null, fallback: string) {
@@ -158,6 +161,9 @@ export function LogicalDagSvg({
   onSelect,
   ariaLabel,
   overlay,
+  compactControls = false,
+  toolbar,
+  scenario,
 }: LogicalDagSvgProps) {
   const selected = mode === "focus" && Boolean(selectedRef);
   const activeViewport = viewport ?? { x: 0, y: 0, width: layout.width, height: layout.height, scopeId: null };
@@ -169,7 +175,9 @@ export function LogicalDagSvg({
   };
   return (
     <div className="logical-viewport">
-      <div className="logical-viewport-controls" aria-label="Logical graph viewport controls">
+      <div className="logical-viewport-controls" aria-label={compactControls ? "模型图工具栏" : "Logical graph viewport controls"}>
+        {toolbar}
+        {!compactControls ? <>
         <span className="logical-viewport-note">{layout.width}-unit authored layout · pan to inspect at full scale</span>
         <span
           className="logical-edge-coverage"
@@ -181,25 +189,27 @@ export function LogicalDagSvg({
             ? ` · ${connectors.coverage.uncoveredEdgeIds.length} uncovered`
             : ""}
         </span>
-        <button type="button" onClick={() => pan(-1)} aria-label="Pan logical graph left">
-          ← Pan left
+        </> : <span className="graph-direction-hint">横向并行，纵向依赖</span>}
+        <button type="button" onClick={() => pan(-1)} aria-label={compactControls ? "向左平移模型图" : "Pan logical graph left"}>
+          {compactControls ? "←" : "← Pan left"}
         </button>
-        <button type="button" onClick={() => pan(1)} aria-label="Pan logical graph right">
-          Pan right →
+        <button type="button" onClick={() => pan(1)} aria-label={compactControls ? "向右平移模型图" : "Pan logical graph right"}>
+          {compactControls ? "→" : "Pan right →"}
         </button>
       </div>
+      {scenario}
       <div
         className="logical-canvas"
         ref={canvasRef}
         role="region"
-        aria-label="Authored-scale logical graph; use the pan buttons or scroll horizontally on narrower screens"
+        aria-label={compactControls ? "模型结构图；窄屏可使用平移按钮或横向滚动" : "Authored-scale logical graph; use the pan buttons or scroll horizontally on narrower screens"}
         tabIndex={0}
       >
-      <div className="logical-legend" aria-hidden="true">
+      {!compactControls ? <div className="logical-legend" aria-hidden="true">
         <span><i className="legend-line" />Declared tensor flow</span>
         <span><i className="legend-line legend-line--rail" />Residual / loop rail</span>
         <em>Horizontal = parallel · vertical = dependency</em>
-      </div>
+      </div> : null}
       <svg
         className="logical-dag"
         viewBox={`0 0 ${layout.width} ${layout.height}`}

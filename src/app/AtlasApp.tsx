@@ -64,7 +64,7 @@ export function AtlasApp() {
   );
 
   return (
-    <div className="atlas-frame">
+    <div className={`atlas-frame${route.model === "pi0" && route.tab === "logical" ? " atlas-frame--pi0" : ""}`}>
       <AtlasHeader data={loadState.data} route={route} navigate={navigate} />
       {route.model && selectedModel ? (
         <Workbench

@@ -1,4 +1,4 @@
-import { WORKBENCH_TABS, type RoutePatch, type RouteState } from "../../app/routes";
+import { type RoutePatch, type RouteState } from "../../app/routes";
 import { RouteLink } from "../../components/RouteLink";
 import { EndToEndView } from "../end-to-end/EndToEndView";
 import { ModelGraphWorkspace } from "../model-graph/ModelGraphWorkspace";
@@ -15,17 +15,11 @@ interface WorkbenchProps {
   navigate: (patch: RoutePatch, replace?: boolean) => void;
 }
 
-const TAB_LABELS = {
-  logical: "Logical",
-  runtime: "Runtime",
-  "end-to-end": "End-to-end",
-  timeline: "Timeline",
-  "roofline-kernels": "Roofline & Kernels",
-} as const;
-
 export function Workbench({ data, model, route, navigate }: WorkbenchProps) {
+  const isPi0Workspace = model.model_id === "pi0" && route.tab === "logical";
   return (
-    <main className="workbench-view">
+    <main className={`workbench-view${isPi0Workspace ? " workbench-view--pi0" : ""}`}>
+      {!isPi0Workspace ? <>
       <nav className="breadcrumb" aria-label="Breadcrumb">
         <RouteLink
           route={route}
@@ -51,20 +45,7 @@ export function Workbench({ data, model, route, navigate }: WorkbenchProps) {
       </section>
 
       <ContextBar data={data} model={model} route={route} navigate={navigate} />
-
-      <nav className="workbench-tabs" aria-label="Workbench views">
-        {WORKBENCH_TABS.map((tab) => (
-          <RouteLink
-            key={tab}
-            route={route}
-            patch={{ tab }}
-            navigate={navigate}
-            aria-current={route.tab === tab ? "page" : undefined}
-          >
-            {TAB_LABELS[tab]}
-          </RouteLink>
-        ))}
-      </nav>
+      </> : null}
 
       {route.tab === "logical" ? (
         <ModelGraphWorkspace

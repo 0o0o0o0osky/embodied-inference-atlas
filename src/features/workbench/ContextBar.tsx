@@ -6,9 +6,10 @@ interface ContextBarProps {
   model: ModelRecord;
   route: RouteState;
   navigate: (patch: RoutePatch, replace?: boolean) => void;
+  compact?: boolean;
 }
 
-export function ContextBar({ data, model, route, navigate }: ContextBarProps) {
+export function ContextBar({ data, model, route, navigate, compact = false }: ContextBarProps) {
   const scopedRunIds = scopedEvidenceRunIds(data, route.tab);
   const scopedRuns = data.datasets.runs.filter((run) =>
     run.model_id === model.model_id
@@ -37,6 +38,29 @@ export function ContextBar({ data, model, route, navigate }: ContextBarProps) {
     .map((run) => run.precision.precision_id))].sort();
   const rooflinePrecisionIds = rooflinePrecisions(data, model.model_id);
   const fieldCount = 2 + Number(showWorkload) + Number(showRuntimePrecision || showRooflinePrecision);
+
+  if (compact) {
+    return (
+      <div className="atlas-context" aria-label="模型分析场景">
+        <label>
+          <span>硬件</span>
+          <select value={route.hardware ?? ""} onChange={(event) => navigate({ hardware: event.target.value || null, timelineCapture: null })}>
+            <option value="">未选择</option>
+            {route.hardware && !hardwareKnown ? <option value={route.hardware}>{route.hardware}</option> : null}
+            {devices.map((device) => <option key={device.device_id} value={device.device_id}>{device.display_name}</option>)}
+          </select>
+        </label>
+        <label>
+          <span>理论精度</span>
+          <select value={route.precision ?? ""} onChange={(event) => navigate({ precision: event.target.value || null, basis: null }, true)}>
+            <option value="">场景默认</option>
+            {route.precision && !rooflinePrecisionIds.includes(route.precision) ? <option value={route.precision}>{precisionLabel(route.precision)}</option> : null}
+            {rooflinePrecisionIds.map((precisionId) => <option key={precisionId} value={precisionId}>{precisionLabel(precisionId)}</option>)}
+          </select>
+        </label>
+      </div>
+    );
+  }
 
   return (
     <section className={`context-bar context-bar--${fieldCount}`} aria-label="Workbench context">
@@ -125,6 +149,10 @@ export function ContextBar({ data, model, route, navigate }: ContextBarProps) {
       ) : null}
     </section>
   );
+}
+
+function precisionLabel(precisionId: string): string {
+  return precisionId.endsWith("_dense") ? precisionId.slice(0, -6).toUpperCase() : precisionId;
 }
 
 function scopedEvidenceRunIds(data: AtlasData, tab: RouteState["tab"]): Set<string> | null {

@@ -122,9 +122,22 @@ function ResolvedModelGraph({
       true,
     );
   };
+  const isPi0 = model.model_id === "pi0";
+  const workloadControls = (
+    <WorkloadControls
+      symbols={graph.editableSymbols}
+      values={overrides}
+      onChange={(symbol, value) => updateWorkload({ ...overrides, [symbol]: value })}
+      onReset={() => navigate({ workload: null }, true)}
+      compact={isPi0}
+    >
+      {isPi0 ? <details className="scenario-derived"><summary>派生形状</summary><DerivedSymbols symbols={graph.derivedSymbols} compact /></details> : null}
+    </WorkloadControls>
+  );
 
   return (
-    <section className="model-graph-workspace" aria-labelledby="logical-graph-title">
+    <section className={`model-graph-workspace${isPi0 ? " pi0-workspace" : ""}`} aria-labelledby="logical-graph-title">
+      {!isPi0 ? <>
       <header className="logical-intro">
         <div>
           <p>{graph.graphId} / v{graph.version}</p>
@@ -138,18 +151,14 @@ function ResolvedModelGraph({
         </aside>
       </header>
 
-      <WorkloadControls
-        symbols={graph.editableSymbols}
-        values={overrides}
-        onChange={(symbol, value) => updateWorkload({ ...overrides, [symbol]: value })}
-        onReset={() => navigate({ workload: null }, true)}
-      />
+      {workloadControls}
       <DerivedSymbols symbols={graph.derivedSymbols} />
       <p className="workload-annotation">
         {profile.workloadNote}
       </p>
 
       {operator ? <GraphBreadcrumb modelLabel={model.display_name} graph={graph} operator={operator} /> : null}
+      </> : null}
 
       {layout.diagnostics.length || connectors.invalidHints.length || connectors.coverage.uncoveredEdgeIds.length ? (
         <div className="graph-diagnostics" role="status">
@@ -179,6 +188,17 @@ function ResolvedModelGraph({
             viewport={viewport}
             onSelect={(ref) => navigate({ entity: logicalEntity(ref) }, true)}
             ariaLabel={profile.diagramLabel}
+            compactControls={isPi0}
+            toolbar={isPi0 ? <>
+              <h2 id="logical-graph-title">Pi0 <span>v{graph.version}</span></h2>
+              <span className="graph-view-current">理论模型</span>
+              <RouteLink route={route} navigate={navigate} patch={{ tab: "runtime" }}>推理栈实现</RouteLink>
+              <RouteLink route={route} navigate={navigate} patch={{ tab: "roofline-kernels", rooflineLevel: "overview", entity: null }}>理论总览</RouteLink>
+              {workloadControls}
+            </> : undefined}
+            scenario={isPi0 ? <p className="graph-scenario-summary">
+              当前场景：{overrides.V} 个视角，{overrides.L_PROMPT} 个提示词位置，{overrides.T_ACTION} 个动作 token，{overrides.N_DENOISE} 步去噪。
+            </p> : undefined}
           />
         </section>
         {operator ? (

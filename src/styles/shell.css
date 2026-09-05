@@ -1,97 +1,93 @@
 .atlas-frame {
-  width: min(100%, 100rem);
+  width: 100%;
   min-height: 100vh;
-  margin: 0 auto;
-  border-right: 1px solid var(--line-dark);
-  border-left: 1px solid var(--line-dark);
+  margin: 0;
   background: var(--instrument-paper);
 }
 
+.atlas-frame--pi0 {
+  --line-dark: var(--line);
+}
+
 .atlas-header {
-  display: grid;
-  grid-template-columns: minmax(14rem, 1fr) auto;
-  align-items: stretch;
-  min-height: 6.25rem;
-  border-bottom: 1px solid var(--graphite);
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  height: 56px;
+  padding: 0 24px;
+  color: #fff;
+  background: #0B1420;
 }
 
 .atlas-mark {
   display: flex;
   align-items: baseline;
-  gap: 0.7rem;
   min-width: 0;
-  padding: 1.25rem clamp(1rem, 3vw, 2.25rem);
-  color: var(--graphite);
+  color: inherit;
   text-decoration: none;
-}
-
-.atlas-mark span {
-  color: var(--slate);
-  font-size: 0.8rem;
 }
 
 .atlas-mark strong {
   font-family: var(--display-face);
-  font-size: clamp(2.1rem, 5vw, 3.45rem);
-  font-stretch: condensed;
-  font-weight: 800;
-  letter-spacing: -0.055em;
-  line-height: 0.9;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1;
 }
 
-.snapshot-status {
-  display: grid;
-  grid-template-columns: auto minmax(8rem, auto) auto;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.8rem clamp(1rem, 2.5vw, 2rem);
-  border-left: 1px solid var(--line-dark);
-  background: var(--recess);
-}
-
-.status-lamp {
-  width: 0.62rem;
-  height: 0.62rem;
-  border: 1px solid #893815;
-  border-radius: 50%;
-  background: var(--safety-orange);
-}
-
-.snapshot-label {
-  max-width: 10rem;
-  font-size: 0.82rem;
-  font-weight: 700;
-  line-height: 1.2;
-}
-
-.snapshot-status dl {
+.atlas-model-select,
+.atlas-context,
+.atlas-context label {
   display: flex;
-  margin: 0;
-  border: 1px solid var(--line);
-  background: var(--instrument-paper);
+  align-items: center;
+  gap: 10px;
+  white-space: nowrap;
+  font-size: 13px;
 }
 
-.snapshot-status dl div {
-  display: grid;
-  grid-template-columns: auto auto;
-  align-items: baseline;
-  gap: 0.45rem;
-  padding: 0.45rem 0.6rem;
+.atlas-context {
+  gap: 24px;
 }
 
-.snapshot-status dl div + div {
-  border-left: 1px solid var(--line);
+.atlas-model-select > span,
+.atlas-context label > span {
+  color: #a4b3c2;
 }
 
-.snapshot-status dt {
-  color: var(--slate);
-  font-size: 0.68rem;
+.atlas-header select {
+  max-width: 270px;
+  min-height: 32px;
+  padding: 4px 8px;
+  border: 1px solid #354251;
+  border-radius: 4px;
+  color: #fff;
+  background: #0B1420;
+  font-size: 14px;
 }
 
-.snapshot-status dd {
-  margin: 0;
-  font-family: var(--mono-face);
-  font-weight: 700;
+.atlas-navigation {
+  display: flex;
+  align-self: stretch;
+  gap: 28px;
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+.atlas-navigation a {
+  display: flex;
+  align-items: center;
+  border-bottom: 2px solid transparent;
+  color: #a4b3c2;
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.atlas-navigation a:hover,
+.atlas-navigation a[aria-current="page"] {
+  color: #fff;
+}
+
+.atlas-navigation a[aria-current="page"] {
+  border-bottom-color: var(--signal-blue);
 }
 
 .catalog-view,
@@ -386,34 +382,6 @@
   font-size: 1rem;
 }
 
-.workbench-tabs {
-  display: flex;
-  flex-wrap: wrap;
-  margin-top: 1.35rem;
-  border-bottom: 1px solid var(--graphite);
-}
-
-.workbench-tabs a {
-  padding: 0.85rem 1rem;
-  border: 1px solid var(--line-dark);
-  border-bottom: 0;
-  color: #46534f;
-  background: var(--recess);
-  font-size: 0.84rem;
-  font-weight: 700;
-  text-decoration: none;
-}
-
-.workbench-tabs a + a {
-  border-left: 0;
-}
-
-.workbench-tabs a[aria-current="page"] {
-  color: var(--white);
-  border-color: var(--signal-blue-dark);
-  background: var(--signal-blue-dark);
-}
-
 .workbench-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(16rem, 21rem);
@@ -551,14 +519,6 @@
 }
 
 @media (max-width: 76rem) {
-  .snapshot-status {
-    grid-template-columns: auto minmax(8rem, 1fr);
-  }
-
-  .snapshot-status dl {
-    display: none;
-  }
-
   .model-row {
     grid-template-columns: 2rem minmax(8rem, 1fr) minmax(12rem, 1.4fr) minmax(11rem, 1fr) auto;
   }
@@ -582,16 +542,9 @@
 }
 
 @media (max-width: 54rem) {
-  .atlas-header,
   .catalog-intro,
   .workbench-heading {
     grid-template-columns: 1fr;
-  }
-
-  .snapshot-status {
-    min-height: 3.5rem;
-    border-top: 1px solid var(--line-dark);
-    border-left: 0;
   }
 
   .catalog-intro,
@@ -627,17 +580,6 @@
 }
 
 @media (max-width: 38rem) {
-  .atlas-frame {
-    border-right: 0;
-    border-left: 0;
-  }
-
-  .atlas-mark {
-    align-items: flex-start;
-    flex-direction: column-reverse;
-    gap: 0.2rem;
-  }
-
   .catalog-view,
   .workbench-view {
     padding: 1rem;
@@ -677,17 +619,45 @@
     border-left: 0;
   }
 
-  .workbench-tabs a {
-    flex: 1 1 8rem;
-    border-bottom: 1px solid var(--line-dark);
-    text-align: center;
-  }
-
-  .workbench-tabs a + a {
-    border-left: 1px solid var(--line-dark);
-  }
-
   .surface-body {
     min-height: 0;
+  }
+}
+
+.workbench-view.workbench-view--pi0 {
+  padding: 0;
+}
+
+@media (max-width: 70rem) {
+  .atlas-header {
+    height: auto;
+    min-height: 56px;
+    flex-wrap: wrap;
+    gap: 10px 20px;
+    padding: 10px 16px;
+  }
+
+  .atlas-context {
+    flex-wrap: wrap;
+    gap: 10px 20px;
+  }
+
+  .atlas-navigation {
+    min-height: 34px;
+  }
+}
+
+@media (max-width: 38rem) {
+  .atlas-context {
+    order: 1;
+    width: 100%;
+  }
+
+  .atlas-header select {
+    max-width: 215px;
+  }
+
+  .atlas-navigation {
+    gap: 16px;
   }
 }

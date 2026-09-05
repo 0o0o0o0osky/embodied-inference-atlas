@@ -52,7 +52,8 @@ export function resolveFocusViewport(
   layout: LogicalLayout,
   selectedRef: LogicalRef | null,
 ): GraphViewport {
-  const selectedNode = selectedRef ? dag.nodes.get(selectedRef) : null;
+  if (!selectedRef) return overview(layout);
+  const selectedNode = dag.nodes.get(selectedRef);
   if (!selectedNode || selectedNode.kind !== "operator") return overview(layout);
 
   const scopeBox = smallestScope(dag, layout, selectedRef);

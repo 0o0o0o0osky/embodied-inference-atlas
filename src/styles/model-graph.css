@@ -362,7 +362,7 @@
 }
 
 .logical-paper-grid {
-  fill: url(#paper-grid);
+  fill: var(--dag-canvas, url(#paper-grid));
 }
 
 #paper-grid path {
@@ -372,76 +372,78 @@
 }
 
 .logical-stage > rect {
-  fill: rgba(255, 255, 255, 0.91);
-  stroke: #9aaea9;
+  fill: var(--dag-surface, rgba(255, 255, 255, 0.91));
+  stroke: var(--dag-stage-border, #9aaea9);
+  rx: var(--dag-stage-radius, 18);
   stroke-width: 1.2;
 }
 
 .logical-stage--2 > rect {
-  fill: rgba(232, 241, 241, 0.88);
+  fill: var(--dag-surface, rgba(232, 241, 241, 0.88));
 }
 
 .logical-stage--3 > rect {
-  fill: rgba(239, 244, 242, 0.93);
+  fill: var(--dag-surface, rgba(239, 244, 242, 0.93));
 }
 
 .logical-stage--4 > rect {
-  fill: rgba(234, 238, 231, 0.93);
+  fill: var(--dag-surface, rgba(234, 238, 231, 0.93));
 }
 
 .logical-stage-index {
-  fill: #71827d;
-  font-family: var(--mono-face);
+  fill: var(--dag-quiet-label, #71827d);
+  font-family: var(--dag-label-face, var(--mono-face));
   font-size: 10px;
   font-weight: 700;
 }
 
 .logical-stage-label {
-  fill: #204c64;
+  fill: var(--dag-label, #204c64);
   font-family: var(--display-face);
   font-size: 17px;
-  font-weight: 800;
-  letter-spacing: 0.02em;
+  font-weight: var(--dag-label-weight, 800);
 }
 
 .logical-scope-frame {
-  fill: rgba(218, 240, 236, 0.25);
-  stroke: #2c9a92;
-  stroke-width: 1.45;
+  fill: var(--dag-scope-fill, rgba(218, 240, 236, 0.25));
+  stroke: var(--dag-scope-border, #2c9a92);
+  stroke-width: var(--dag-scope-stroke, 1.45);
+  rx: var(--dag-scope-radius, 14);
 }
 
 .logical-scope--denoise .logical-scope-frame {
-  fill: rgba(220, 232, 235, 0.2);
-  stroke: #28627d;
-  stroke-width: 2;
+  fill: var(--dag-scope-fill, rgba(220, 232, 235, 0.2));
+  stroke: var(--dag-scope-border, #28627d);
+  stroke-width: var(--dag-scope-stroke, 2);
 }
 
 .logical-scope-badge {
-  fill: #f6fffd;
-  stroke: #2c9a92;
+  fill: var(--dag-surface, #f6fffd);
+  stroke: var(--dag-scope-border, #2c9a92);
+  rx: var(--dag-scope-radius, 7);
 }
 
 .logical-scope-label,
 .logical-tail-badge text {
-  fill: #176b68;
+  fill: var(--dag-quiet-label, #176b68);
   font-family: var(--display-face);
   font-size: 9.5px;
-  font-weight: 800;
+  font-weight: var(--dag-label-weight, 800);
 }
 
 .logical-tail-badge rect {
-  fill: #fff6d8;
-  stroke: #ad7825;
+  fill: var(--dag-surface, #fff6d8);
+  stroke: var(--dag-scope-border, #ad7825);
 }
 
 .logical-tail-badge text {
-  fill: #6f4b12;
+  fill: var(--dag-quiet-label, #6f4b12);
   font-size: 8.7px;
 }
 
 .logical-edge {
   fill: none;
-  stroke: #203f42;
+  stroke: var(--dag-edge, #203f42);
   stroke-linecap: square;
   stroke-linejoin: round;
   stroke-width: 1.65;
@@ -452,19 +454,19 @@
 .logical-edge--residual,
 .logical-edge--rail,
 .logical-edge--feedback {
-  stroke: #286f6c;
+  stroke: var(--dag-edge, #286f6c);
   stroke-dasharray: 5 3;
   stroke-width: 1.4;
 }
 
 .logical-edge--cross,
 .logical-edge--cache {
-  stroke: #2d535f;
+  stroke: var(--dag-edge, #2d535f);
   stroke-width: 1.8;
 }
 
 .logical-edge.is-incident {
-  stroke: #005f75;
+  stroke: var(--dag-selected, #005f75);
   stroke-width: 2.4;
   opacity: 1;
 }
@@ -475,14 +477,14 @@
 
 .logical-arrow-halo {
   fill: none;
-  stroke: #f8fbfa;
+  stroke: var(--dag-surface, #f8fbfa);
   stroke-linejoin: round;
   stroke-width: 4;
 }
 
 .logical-arrow-head {
-  fill: #18383b;
-  stroke: #18383b;
+  fill: var(--dag-edge, #18383b);
+  stroke: var(--dag-edge, #18383b);
   stroke-linejoin: round;
   stroke-width: 1;
 }
@@ -501,48 +503,48 @@
 .logical-node ellipse,
 .logical-node polygon {
   fill: #fff;
-  stroke: #759198;
+  stroke: var(--dag-node-border, #759198);
   stroke-width: 1.2;
   vector-effect: non-scaling-stroke;
 }
 
 .logical-node--line-op rect,
 .logical-node--control rect {
-  fill: #f4faf8;
+  fill: var(--dag-surface, #f4faf8);
   stroke-dasharray: 2 2;
 }
 
 .logical-node--control rect {
-  fill: #eaf8f4;
-  stroke: #16827d;
+  fill: var(--dag-structural-fill, #eaf8f4);
+  stroke: var(--dag-node-border, #16827d);
 }
 
 .logical-node--storage rect,
 .logical-node--storage ellipse {
-  fill: #f2f7f6;
-  stroke: #52747a;
+  fill: var(--dag-structural-fill, #f2f7f6);
+  stroke: var(--dag-node-border, #52747a);
 }
 
 .logical-node--read-port polygon {
-  fill: #f1f8f6;
-  stroke: #3f7c78;
+  fill: var(--dag-structural-fill, #f1f8f6);
+  stroke: var(--dag-node-border, #3f7c78);
 }
 
 .logical-node--logical-view rect {
-  fill: #f0faf7;
-  stroke: #2b8580;
+  fill: var(--dag-structural-fill, #f0faf7);
+  stroke: var(--dag-node-border, #2b8580);
 }
 
 .logical-view-divider {
-  stroke: #6c9d98;
+  stroke: var(--dag-node-border, #6c9d98);
   stroke-width: 1;
 }
 
 .logical-node text {
-  fill: #193331;
+  fill: var(--dag-label, #193331);
   font-family: var(--display-face);
   font-size: 10.8px;
-  font-weight: 900;
+  font-weight: var(--dag-label-weight, 900);
   pointer-events: none;
 }
 
@@ -554,15 +556,15 @@
 .logical-node--input rect,
 .logical-node--output rect,
 .logical-node--loop rect {
-  fill: #eaf1f3;
+  fill: var(--dag-structural-fill, #eaf1f3);
 }
 
 .logical-node.is-selected rect,
 .logical-node.is-selected circle,
 .logical-node.is-selected ellipse,
 .logical-node.is-selected polygon {
-  fill: #d7f1ed;
-  stroke: #007d77;
+  fill: var(--dag-selected-fill, #d7f1ed);
+  stroke: var(--dag-selected, #007d77);
   stroke-width: 2.5;
 }
 
@@ -570,8 +572,8 @@
 .logical-node.is-related circle,
 .logical-node.is-related ellipse,
 .logical-node.is-related polygon {
-  fill: #fff5d6;
-  stroke: #a8731d;
+  fill: var(--dag-related-fill, #fff5d6);
+  stroke: var(--dag-selected, #a8731d);
 }
 
 .logical-node.is-muted {
@@ -586,7 +588,7 @@
 .logical-node:focus-visible circle,
 .logical-node:focus-visible ellipse,
 .logical-node:focus-visible polygon {
-  stroke: var(--safety-orange);
+  stroke: var(--dag-selected, var(--safety-orange));
   stroke-width: 3;
 }
 
@@ -1170,5 +1172,243 @@
   .logical-edge,
   .logical-node {
     transition: none;
+  }
+}
+
+/* Pi0 is an open diagram workspace. Other model presentations retain their layout. */
+.pi0-workspace {
+  --dag-canvas: var(--cold-plate);
+  --dag-surface: var(--white);
+  --dag-stage-border: var(--line);
+  --dag-stage-radius: 8;
+  --dag-scope-fill: none;
+  --dag-scope-border: #b8c6d2;
+  --dag-scope-stroke: 1;
+  --dag-scope-radius: 4;
+  --dag-label: var(--graphite);
+  --dag-label-face: var(--display-face);
+  --dag-label-weight: 600;
+  --dag-quiet-label: var(--slate);
+  --dag-edge: #526878;
+  --dag-node-border: #8b9eae;
+  --dag-structural-fill: #edf2f7;
+  --dag-selected: var(--signal-blue);
+  --dag-selected-fill: #dff3f6;
+  --dag-related-fill: #eff9fa;
+  margin: 0;
+  border: 0;
+  background: var(--cold-plate);
+}
+
+.pi0-workspace .logical-workspace-grid.is-focused {
+  grid-template-columns: minmax(0, 1fr) clamp(448px, 30vw, 512px);
+}
+
+.pi0-workspace .logical-graph-panel {
+  border: 0;
+  background: var(--cold-plate);
+}
+
+.pi0-workspace .logical-viewport-controls {
+  position: relative;
+  z-index: 2;
+  gap: 18px;
+  min-height: 48px;
+  padding: 6px 24px;
+  border-bottom: 1px solid var(--line);
+  color: var(--slate);
+  background: var(--white);
+  font-size: 14px;
+}
+
+.pi0-workspace .logical-viewport-controls h2 {
+  margin: 0 8px 0 0;
+  color: var(--graphite);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.pi0-workspace .logical-viewport-controls h2 span {
+  margin-left: 6px;
+  color: var(--slate);
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.pi0-workspace .logical-viewport-controls a {
+  text-decoration: none;
+}
+
+.pi0-workspace .logical-viewport-controls a:hover {
+  color: var(--signal-blue);
+}
+
+.graph-view-current {
+  color: var(--graphite);
+  font-weight: 600;
+}
+
+.graph-direction-hint {
+  margin-left: auto;
+  font-size: 12px;
+}
+
+.pi0-workspace .logical-viewport-controls > button {
+  min-width: 30px;
+  min-height: 30px;
+  padding: 2px 7px;
+  border-color: var(--line);
+  border-radius: 4px;
+  color: var(--slate);
+  font-weight: 400;
+}
+
+.pi0-workspace .logical-viewport-controls > button + button {
+  margin-left: -12px;
+}
+
+.graph-scenario-summary {
+  min-height: 28px;
+  margin: 0;
+  padding: 4px 24px;
+  color: var(--slate);
+  font-size: 13px;
+  line-height: 20px;
+}
+
+.graph-scenario-editor {
+  position: relative;
+}
+
+.graph-scenario-editor > summary {
+  padding: 5px 10px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  color: var(--graphite);
+  cursor: pointer;
+}
+
+.graph-scenario-editor > .graph-workload {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  width: min(360px, calc(100vw - 32px));
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--graphite);
+  background: var(--white);
+  box-shadow: 0 6px 20px #17232e12;
+}
+
+.pi0-workspace .graph-workload > header {
+  padding: 14px 16px;
+}
+
+.pi0-workspace .graph-workload-grid {
+  grid-template-columns: minmax(0, 1fr);
+  padding: 0 16px 12px;
+}
+
+.pi0-workspace .graph-workload-grid label {
+  padding: 10px 0;
+  border: 0;
+}
+
+.pi0-workspace .graph-workload-grid label > span,
+.pi0-workspace .graph-workload-grid input,
+.pi0-workspace .graph-workload button {
+  font-family: var(--display-face);
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.pi0-workspace .graph-workload-grid small {
+  font-size: 12px;
+}
+
+.scenario-derived {
+  padding: 12px 16px;
+  border-top: 1px solid var(--line);
+}
+
+.scenario-derived > summary {
+  cursor: pointer;
+}
+
+.scenario-derived .derived-symbols {
+  grid-template-columns: minmax(0, 1fr);
+  margin-top: 10px;
+  border: 0;
+  background: transparent;
+}
+
+.scenario-derived .derived-symbols > div {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  border: 0;
+}
+
+.pi0-workspace .operator-drawer {
+  top: 0;
+  min-height: calc(100svh - 56px);
+  padding: 24px;
+  border-top: 0;
+  border-left: 1px solid var(--line);
+  color: var(--graphite);
+}
+
+.pi0-workspace .operator-inspector h2 {
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: 0;
+  line-height: 1.3;
+}
+
+.pi0-workspace .operator-inspector-close {
+  margin-bottom: 10px;
+  padding: 0;
+  border: 0;
+  color: var(--signal-blue);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.pi0-workspace .operator-drawer-tabs button {
+  font-size: 14px;
+}
+
+@media (max-width: 62rem) {
+  .pi0-workspace .logical-workspace-grid.is-focused {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .pi0-workspace .operator-drawer {
+    top: auto;
+    min-height: 0;
+    border-top: 1px solid var(--line);
+    border-left: 0;
+    border-radius: 8px 8px 0 0;
+  }
+}
+
+@media (max-width: 48rem) {
+  .pi0-workspace .logical-viewport-controls {
+    gap: 10px 14px;
+    padding: 8px 16px;
+  }
+
+  .graph-direction-hint {
+    flex-basis: calc(100% - 92px);
+  }
+
+  .graph-scenario-summary {
+    padding-right: 16px;
+    padding-left: 16px;
+  }
+
+  .graph-scenario-editor > .graph-workload {
+    right: 0;
+    left: auto;
   }
 }

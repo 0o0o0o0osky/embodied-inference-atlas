@@ -1,21 +1,21 @@
 :root {
   color-scheme: light;
   font-family:
-    Inter, Aptos, "Segoe UI", Helvetica, Arial, sans-serif;
-  color: #17211f;
-  background: #dce2df;
+    "IBM Plex Sans", Inter, Aptos, "Segoe UI", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  color: #17232E;
+  background: #F5F8FC;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
-  --cold-plate: #dce2df;
-  --instrument-paper: #f7f9f6;
-  --graphite: #17211f;
-  --slate: #63706c;
-  --signal-blue: #176b87;
-  --signal-blue-dark: #0e4f67;
+  --cold-plate: #F5F8FC;
+  --instrument-paper: #F5F8FC;
+  --graphite: #17232E;
+  --slate: #657483;
+  --signal-blue: #0E8EA0;
+  --signal-blue-dark: #0E8EA0;
   --safety-orange: #d85b2b;
-  --line: #aab5b1;
-  --line-dark: #65716d;
-  --recess: #e9eeeb;
+  --line: #D9E2EA;
+  --line-dark: #a0afbd;
+  --recess: #edf2f7;
   --white: #ffffff;
   --danger: #9a3327;
   --roofline-grid: #c5ceca;
@@ -23,10 +23,8 @@
   --roofline-reference: #71807b;
   --roofline-partial: #9b6818;
   --roofline-selection: var(--safety-orange);
-  --display-face: "Arial Narrow", "Liberation Sans Narrow", "Nimbus Sans Narrow",
-    Aptos, "Segoe UI", sans-serif;
-  --mono-face: "Cascadia Mono", "SFMono-Regular", Consolas, "Liberation Mono",
-    monospace;
+  --display-face: "IBM Plex Sans", Inter, Aptos, "Segoe UI", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --mono-face: "IBM Plex Mono", "Cascadia Mono", "SFMono-Regular", Consolas, "Liberation Mono", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", monospace;
 }
 
 * {
@@ -61,7 +59,7 @@ code {
 }
 
 :focus-visible {
-  outline: 3px solid var(--safety-orange);
+  outline: 2px solid var(--signal-blue);
   outline-offset: 3px;
 }
 

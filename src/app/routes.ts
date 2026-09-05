@@ -41,13 +41,14 @@ const ROUTE_FIELDS = [
 export function readRoute(search = window.location.search): RouteState {
   const params = new URLSearchParams(search);
   const requestedTab = params.get("tab");
+  const isDefaultRoute = params.size === 0;
   return {
-    model: readValue(params, "model"),
+    model: readValue(params, "model") ?? "pi0",
     tab: isWorkbenchTab(requestedTab) ? requestedTab : "logical",
     runtime: readValue(params, "runtime"),
-    hardware: readValue(params, "hardware"),
+    hardware: readValue(params, "hardware") ?? (isDefaultRoute ? "nvidia-jetson-agx-thor" : null),
     workload: readValue(params, "workload"),
-    precision: readValue(params, "precision"),
+    precision: readValue(params, "precision") ?? (isDefaultRoute ? "bf16_dense" : null),
     runtimePrecision: readValue(params, "runtimePrecision"),
     entity: readValue(params, "entity"),
     timelineCapture: readValue(params, "timelineCapture"),
