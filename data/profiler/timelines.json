@@ -308,7 +308,7 @@
           "input_refs": [
             "lane-006"
           ],
-          "metric_name": "recorded_gpu_activity_union",
+          "metric_name": "recorded_copy_activity_union",
           "unit": "ns",
           "value": 20960
         },
@@ -41047,6 +41047,36 @@
           "metric_name": "target_scheduled_core_time_over_full_window",
           "unit": "ns",
           "value": 41574110
+        },
+        {
+          "denominator": "recorded_gpu_activity_union",
+          "derivation_version": "interval-intersection-v1",
+          "input_refs": [
+            "lane-001",
+            "lane-002",
+            "lane-003",
+            "lane-004",
+            "lane-006",
+            "lane-007"
+          ],
+          "metric_name": "target_scheduled_core_time_overlapping_recorded_gpu_activity",
+          "unit": "ns",
+          "value": 35403848
+        },
+        {
+          "denominator": "recorded_gpu_activity_union",
+          "derivation_version": "interval-intersection-v1",
+          "input_refs": [
+            "lane-001",
+            "lane-002",
+            "lane-003",
+            "lane-004",
+            "lane-006",
+            "lane-007"
+          ],
+          "metric_name": "target_wall_overlap_with_recorded_gpu_activity",
+          "unit": "ns",
+          "value": 28481564
         }
       ],
       "time_basis": "relative_to_target_window_start",
@@ -43725,7 +43755,7 @@
           "input_refs": [
             "lane-009"
           ],
-          "metric_name": "recorded_gpu_activity_union",
+          "metric_name": "recorded_copy_activity_union",
           "unit": "ns",
           "value": 20512
         },

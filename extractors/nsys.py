@@ -784,8 +784,10 @@ def _summaries(
     copy_intervals = [(start, end) for start, end, _, _ in copy_rows]
     gpu_refs = [ref for ref in (kernel_lane, copy_lane) if ref is not None]
     gpu_union = _union([*kernel_intervals, *copy_intervals])
-    if gpu_refs:
+    if kernel_lane is not None:
         add("recorded_gpu_activity_union", _measure(gpu_union), "ns", "predict_window", "interval-union-v1", gpu_refs)
+    elif copy_lane is not None:
+        add("recorded_copy_activity_union", _measure(_union(copy_intervals)), "ns", "predict_window", "interval-union-v1", [copy_lane])
 
     role_intervals: dict[str, list[tuple[int, int]]] = defaultdict(list)
     for start, end, _cpu, role, _key in scheduler:
@@ -800,6 +802,18 @@ def _summaries(
     })
     if target_intervals and target_refs:
         add("target_scheduled_core_time_over_full_window", _measure(target_intervals), "ns", "predict_window", "interval-sum-v1", target_refs)
+    if kernel_lane is not None and target_intervals and target_refs:
+        refs = [*target_refs, *gpu_refs]
+        add(
+            "target_scheduled_core_time_overlapping_recorded_gpu_activity",
+            _intersection_sum(target_intervals, gpu_union),
+            "ns", "recorded_gpu_activity_union", "interval-intersection-v1", refs,
+        )
+        add(
+            "target_wall_overlap_with_recorded_gpu_activity",
+            _measure(_intersection(_union(target_intervals), gpu_union)),
+            "ns", "recorded_gpu_activity_union", "interval-intersection-v1", refs,
+        )
     if graph_union:
         if target_intervals and target_refs:
             add("target_scheduled_core_time_overlapping_graph_spans", _intersection_sum(target_intervals, graph_union), "ns", "cuda_graph_span_union", "interval-intersection-v1", target_refs + [graph_lane])

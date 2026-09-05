@@ -11,7 +11,7 @@
       "source_id": {"type": "string", "min_length": 1, "max_length": 80},
       "kernel_signature_id": {"type": "string", "min_length": 1, "max_length": 120},
       "observation_kind": {"type": "string", "enum": ["nsys_window_aggregate", "nsys_launch", "ncu_replayed_launch"]},
-      "population": {"type": "string", "enum": ["all_matching_launches_in_one_predict_window", "one_explicitly_selected_replayed_launch", "one_name_filtered_first_match_replayed_launch"]},
+      "population": {"type": "string", "enum": ["all_matching_launches_in_one_predict_window", "one_explicitly_selected_replayed_launch", "one_name_filtered_selected_match_replayed_launch"]},
       "calls": {"type": "integer", "minimum": 1},
       "duration": {
         "type": "object",

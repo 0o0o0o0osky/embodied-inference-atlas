@@ -110,7 +110,7 @@
       },
       "observation_id": "kernel-observation-pi0-flashrt-ncu-decoder-nvjet-128x16-001",
       "observation_kind": "ncu_replayed_launch",
-      "population": "one_name_filtered_first_match_replayed_launch",
+      "population": "one_name_filtered_selected_match_replayed_launch",
       "quality": [
         "replayed_launch",
         "gpu_frequency_not_fixed"
@@ -149,7 +149,7 @@
       },
       "observation_id": "kernel-observation-pi0-flashrt-ncu-decoder-nvjet-512x16-001",
       "observation_kind": "ncu_replayed_launch",
-      "population": "one_name_filtered_first_match_replayed_launch",
+      "population": "one_name_filtered_selected_match_replayed_launch",
       "quality": [
         "replayed_launch",
         "gpu_frequency_not_fixed"
@@ -188,7 +188,7 @@
       },
       "observation_id": "kernel-observation-pi0-flashrt-ncu-decoder-nvjet-64x16-001",
       "observation_kind": "ncu_replayed_launch",
-      "population": "one_name_filtered_first_match_replayed_launch",
+      "population": "one_name_filtered_selected_match_replayed_launch",
       "quality": [
         "replayed_launch",
         "gpu_frequency_not_fixed"
@@ -227,7 +227,7 @@
       },
       "observation_id": "kernel-observation-pi0-flashrt-ncu-encoder-geglu-001",
       "observation_kind": "ncu_replayed_launch",
-      "population": "one_name_filtered_first_match_replayed_launch",
+      "population": "one_name_filtered_selected_match_replayed_launch",
       "quality": [
         "replayed_launch",
         "gpu_frequency_not_fixed"
@@ -306,7 +306,7 @@
       },
       "observation_id": "kernel-observation-pi0-flashrt-ncu-encoder-qkv-split-001",
       "observation_kind": "ncu_replayed_launch",
-      "population": "one_name_filtered_first_match_replayed_launch",
+      "population": "one_name_filtered_selected_match_replayed_launch",
       "quality": [
         "replayed_launch",
         "gpu_frequency_not_fixed"
@@ -345,7 +345,7 @@
       },
       "observation_id": "kernel-observation-pi0-flashrt-ncu-encoder-residual-rms-001",
       "observation_kind": "ncu_replayed_launch",
-      "population": "one_name_filtered_first_match_replayed_launch",
+      "population": "one_name_filtered_selected_match_replayed_launch",
       "quality": [
         "replayed_launch",
         "gpu_frequency_not_fixed"
@@ -463,7 +463,7 @@
       },
       "observation_id": "kernel-observation-pi0-flashrt-ncu-siglip-broadcast-add-001",
       "observation_kind": "ncu_replayed_launch",
-      "population": "one_name_filtered_first_match_replayed_launch",
+      "population": "one_name_filtered_selected_match_replayed_launch",
       "quality": [
         "replayed_launch",
         "gpu_frequency_not_fixed"
@@ -541,7 +541,7 @@
       },
       "observation_id": "kernel-observation-pi0-flashrt-ncu-siglip-gelu-bias-001",
       "observation_kind": "ncu_replayed_launch",
-      "population": "one_name_filtered_first_match_replayed_launch",
+      "population": "one_name_filtered_selected_match_replayed_launch",
       "quality": [
         "replayed_launch",
         "gpu_frequency_not_fixed"
@@ -580,7 +580,7 @@
       },
       "observation_id": "kernel-observation-pi0-flashrt-ncu-siglip-layer-norm-001",
       "observation_kind": "ncu_replayed_launch",
-      "population": "one_name_filtered_first_match_replayed_launch",
+      "population": "one_name_filtered_selected_match_replayed_launch",
       "quality": [
         "replayed_launch",
         "gpu_frequency_not_fixed"
@@ -619,7 +619,7 @@
       },
       "observation_id": "kernel-observation-pi0-flashrt-ncu-siglip-quantize-001",
       "observation_kind": "ncu_replayed_launch",
-      "population": "one_name_filtered_first_match_replayed_launch",
+      "population": "one_name_filtered_selected_match_replayed_launch",
       "quality": [
         "replayed_launch",
         "gpu_frequency_not_fixed"

@@ -46,6 +46,11 @@ RAW_COUNTER_REGISTRY: dict[str, dict[str, str]] = {
     "sm__warps_active.avg.pct_of_peak_sustained_active": {
         "unit": "percent", "kind": "metric",
     },
+    "gpc__cycles_elapsed.avg.per_second": {"unit": "hz", "kind": "metric"},
+    "sm__cycles_elapsed.avg.per_second": {"unit": "hz", "kind": "metric"},
+    "sm__ops_path_tensor_op_utcqmma_src_fp4_fp6_fp8_dst_fp32_sparsity_off.avg.pct_of_peak_sustained_elapsed": {
+        "unit": "percent", "kind": "metric",
+    },
     "launch__waves_per_multiprocessor": {"unit": "count", "kind": "launch"},
     "launch__grid_dim_x": {"unit": "count", "kind": "launch"},
     "launch__grid_dim_y": {"unit": "count", "kind": "launch"},
@@ -119,6 +124,24 @@ METRIC_REGISTRY: dict[str, dict[str, object]] = {
         "basis": "per_profiled_launch",
         "raw_counter_name": "sm__warps_active.avg.pct_of_peak_sustained_active",
         "sections": ("Occupancy", "custom_metric_set_12"),
+    },
+    "gpc_cycle_rate_hz": {
+        "unit": "hz",
+        "basis": "per_profiled_launch",
+        "raw_counter_name": "gpc__cycles_elapsed.avg.per_second",
+        "sections": ("SpeedOfLight",),
+    },
+    "sm_cycle_rate_hz": {
+        "unit": "hz",
+        "basis": "per_profiled_launch",
+        "raw_counter_name": "sm__cycles_elapsed.avg.per_second",
+        "sections": ("SpeedOfLight_HierarchicalTensorRooflineChart",),
+    },
+    "tensor_path_fp4_fp6_fp8_to_fp32_dense_pct_of_peak_elapsed": {
+        "unit": "percent",
+        "basis": "per_profiled_launch",
+        "raw_counter_name": "sm__ops_path_tensor_op_utcqmma_src_fp4_fp6_fp8_dst_fp32_sparsity_off.avg.pct_of_peak_sustained_elapsed",
+        "sections": ("SpeedOfLight_HierarchicalTensorRooflineChart",),
     },
     "system_memory_throughput_pct_of_ceiling": {
         "unit": "percent", "basis": "per_profiled_launch",

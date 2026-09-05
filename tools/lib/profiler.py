@@ -27,6 +27,35 @@ def profiler_semantic_issues(datasets: Mapping[str, list[Mapping]]) -> list[Issu
     timelines = _index(datasets, "timelines", "timeline_id")
     signatures = _index(datasets, "kernel_signatures", "kernel_signature_id")
     observations = _index(datasets, "kernel_observations", "observation_id")
+    sources = _index(datasets, "sources", "source_id")
+    models = _index(datasets, "models", "model_id")
+    runtimes = _index(datasets, "runtimes", "runtime_id")
+    devices = _index(datasets, "devices", "device_id")
+    systems = _index(datasets, "systems", "system_id")
+
+    profiler_run_ids = {
+        run_id for run_id, run in runs.items()
+        if run.get("capture_method") in {"nsys", "ncu"}
+    }
+    for run_id in sorted(profiler_run_ids, key=str):
+        run = runs[run_id]
+        for field, dataset_name, catalog in (
+            ("source_id", "sources", sources),
+            ("model_id", "models", models),
+            ("runtime_id", "runtimes", runtimes),
+            ("device_id", "devices", devices),
+            ("system_id", "systems", systems),
+        ):
+            if dataset_name in datasets and run.get(field) not in catalog:
+                issues.append(_broken(f"$.runs[{run_id}].{field}"))
+    for dataset_name in ("end_to_end", "stages"):
+        for index, measurement in enumerate(datasets.get(dataset_name, [])):
+            if measurement.get("run_id") in profiler_run_ids:
+                issues.append(_issue(
+                    f"$.{dataset_name}[{index}].run_id",
+                    "profiler_timing_measurement",
+                    "profiler runs cannot carry end-to-end or stage measurements",
+                ))
 
     capture_counts = Counter(
         record.get("run_id") for record in datasets.get("profiler_captures", [])
@@ -50,6 +79,21 @@ def profiler_semantic_issues(datasets: Mapping[str, list[Mapping]]) -> list[Issu
         if tool == "ncu" and isinstance(ncu, Mapping):
             warnings = capture.get("warnings")
             operating = run.get("operating_point")
+            origins = ncu.get("origins")
+            missing = capture.get("missing")
+            if (
+                not isinstance(origins, Mapping)
+                or origins.get("selection_policy") != "session_command"
+                or origins.get("gpu_frequency_not_fixed") != "collection_log_manual_audit"
+                or origins.get("warmup_count") != "harness_source_audit"
+                or origins.get("backing_store_bytes") != "unavailable"
+                or ncu.get("backing_store_bytes") is not None
+                or not isinstance(missing, Mapping)
+                or missing.get("ncu.backing_store_bytes") != "unavailable"
+                or not isinstance(warnings, list)
+                or "gpu_frequency_not_fixed" not in warnings
+            ):
+                issues.append(_issue(base, "ncu_provenance", "NCU collection fields require controlled evidence origins"))
             if (
                 isinstance(warnings, list)
                 and "gpu_frequency_not_fixed" in warnings
@@ -108,12 +152,23 @@ def profiler_semantic_issues(datasets: Mapping[str, list[Mapping]]) -> list[Issu
             if isinstance(signature_id, str) and signature_id not in signatures:
                 issues.append(_broken(f"{event_base}.kernel_signature_id"))
         valid_inputs = lane_ids | event_ids
+        lane_by_id = {
+            lane.get("lane_id"): lane
+            for lane in lanes if isinstance(lane.get("lane_id"), str)
+        }
+        summary_names: set[object] = set()
         for summary_index, summary in enumerate(_mapping_list(timeline.get("summaries"))):
             summary_base = f"{base}.summaries[{summary_index}]"
-            capture_timeline_summaries[str(timeline.get("capture_id"))].add(str(summary.get("metric_name")))
+            metric_name = summary.get("metric_name")
+            capture_timeline_summaries[str(timeline.get("capture_id"))].add(str(metric_name))
+            if metric_name in summary_names:
+                issues.append(_issue(summary_base, "duplicate_summary", "timeline summary names must be unique"))
+            summary_names.add(metric_name)
             refs = summary.get("input_refs")
             if not isinstance(refs, list) or not refs or any(ref not in valid_inputs for ref in refs):
                 issues.append(_issue(f"{summary_base}.input_refs", "summary_inputs", "derived summaries require same-timeline inputs"))
+            else:
+                _validate_activity_summary(issues, summary, lane_by_id, summary_base)
 
     for index, signature in enumerate(datasets.get("kernel_signatures", [])):
         precision = signature.get("precision_path")
@@ -134,12 +189,30 @@ def profiler_semantic_issues(datasets: Mapping[str, list[Mapping]]) -> list[Issu
             issues.append(_broken(f"{base}.capture_id"))
             continue
         _same_capture_context(issues, base, observation, capture)
-        if observation.get("kernel_signature_id") not in signatures:
+        signature = signatures.get(observation.get("kernel_signature_id"))
+        if signature is None:
             issues.append(_broken(f"{base}.kernel_signature_id"))
+        else:
+            run = runs.get(observation.get("run_id"))
+            if run is None:
+                issues.append(_broken(f"{base}.run_id"))
+            elif (
+                signature.get("model_id") != run.get("model_id")
+                or signature.get("runtime_id") != run.get("runtime_id")
+            ):
+                issues.append(_issue(
+                    f"{base}.kernel_signature_id",
+                    "signature_run_mismatch",
+                    "signature model and runtime must match the observation run",
+                ))
         duration = observation.get("duration")
         if not isinstance(duration, Mapping) or duration.get("sample_count") != observation.get("calls"):
             issues.append(_issue(f"{base}.duration.sample_count", "observation_samples", "duration samples must match calls"))
         if capture.get("tool") == "ncu":
+            expected_population = {
+                "explicit_invocation": "one_explicitly_selected_replayed_launch",
+                "name_filter_selected_match": "one_name_filtered_selected_match_replayed_launch",
+            }.get(capture.get("selection_policy"))
             valid_ncu = (
                 observation.get("observation_kind") == "ncu_replayed_launch"
                 and observation.get("calls") == 1
@@ -147,6 +220,7 @@ def profiler_semantic_issues(datasets: Mapping[str, list[Mapping]]) -> list[Issu
                 and duration.get("statistic") == "single"
                 and duration.get("sample_count") == 1
                 and observation.get("duration_share") is None
+                and observation.get("population") == expected_population
             )
             if not valid_ncu:
                 issues.append(_issue(base, "ncu_replay_basis", "NCU observations must remain one replayed launch without duration share"))
@@ -206,13 +280,18 @@ def profiler_semantic_issues(datasets: Mapping[str, list[Mapping]]) -> list[Issu
         subject_record = None
         if isinstance(subject, Mapping):
             subject_record = {
-                "capture": capture,
+                "capture": captures.get(subject.get("id")),
                 "timeline": timelines.get(subject.get("id")),
                 "kernel_observation": observations.get(subject.get("id")),
             }.get(subject.get("kind"))
         if subject_record is None:
             issues.append(_broken(f"{base}.subject.id"))
-        elif subject.get("kind") != "capture" and subject_record.get("capture_id") != metric.get("capture_id"):
+        elif (
+            subject.get("kind") == "capture"
+            and subject.get("id") != metric.get("capture_id")
+            or subject.get("kind") != "capture"
+            and subject_record.get("capture_id") != metric.get("capture_id")
+        ):
             issues.append(_issue(f"{base}.subject.id", "subject_capture_mismatch", "metric subject must belong to its capture"))
         identity = (
             subject.get("kind") if isinstance(subject, Mapping) else None,
@@ -246,7 +325,8 @@ def _link_issues(
             continue
         if link.get("kernel_signature_id") not in signatures or link.get("kernel_signature_id") != observation.get("kernel_signature_id"):
             issues.append(_broken(f"{base}.kernel_signature_id"))
-        if link.get("run_id") not in runs or link.get("run_id") != observation.get("run_id"):
+        run = runs.get(link.get("run_id"))
+        if run is None or link.get("run_id") != observation.get("run_id"):
             issues.append(_broken(f"{base}.run_id"))
         graph = graphs.get(link.get("model_graph_id"))
         logical_refs: set[str] = set()
@@ -254,6 +334,12 @@ def _link_issues(
         if graph is None:
             issues.append(_broken(f"{base}.model_graph_id"))
         else:
+            if run is not None and graph.get("model_id") != run.get("model_id"):
+                issues.append(_issue(
+                    f"{base}.model_graph_id",
+                    "link_model_mismatch",
+                    "link graph model must match the run model",
+                ))
             try:
                 logical_refs, repeat_scopes = _logical_index(materialize_model_graph(graph))
             except (KeyError, TypeError, ValueError):
@@ -313,6 +399,15 @@ def _link_issues(
             continue
         if realization.get("model_graph_id") != link.get("model_graph_id"):
             issues.append(_issue(f"{base}.realization_id", "link_graph_mismatch", "link realization must use the declared graph"))
+        if run is not None and (
+            realization.get("model_id") != run.get("model_id")
+            or realization.get("runtime_id") != run.get("runtime_id")
+        ):
+            issues.append(_issue(
+                f"{base}.realization_id",
+                "link_realization_run_mismatch",
+                "link realization model and runtime must match the run",
+            ))
         valid_groups = {
             group.get("execution_group_id")
             for group in _mapping_list(realization.get("execution_groups"))
@@ -497,6 +592,93 @@ def _same_capture_context(
     for field in ("run_id", "source_id"):
         if record.get(field) != capture.get(field):
             issues.append(_issue(f"{base}.{field}", "capture_context_mismatch", f"{field} must match the capture"))
+
+
+def _validate_activity_summary(
+    issues: list[Issue],
+    summary: Mapping,
+    lane_by_id: Mapping[object, Mapping],
+    base: str,
+) -> None:
+    name = summary.get("metric_name")
+    refs = summary.get("input_refs")
+    if name not in {
+        "recorded_gpu_activity_union",
+        "recorded_copy_activity_union",
+        "target_scheduled_core_time_overlapping_recorded_gpu_activity",
+        "target_wall_overlap_with_recorded_gpu_activity",
+    } or not isinstance(refs, list):
+        return
+    lanes = [lane_by_id.get(ref) for ref in refs]
+    if any(lane is None for lane in lanes):
+        issues.append(_issue(
+            f"{base}.input_refs",
+            "activity_summary_lanes",
+            "recorded-activity summaries require lane references",
+        ))
+        return
+    kinds = {lane.get("kind") for lane in lanes if lane is not None}
+    roles = {lane.get("role") for lane in lanes if lane is not None}
+    ref_set = set(refs)
+    expected_denominator = (
+        "predict_window"
+        if name in {"recorded_gpu_activity_union", "recorded_copy_activity_union"}
+        else "recorded_gpu_activity_union"
+    )
+    compatible = (
+        summary.get("denominator") == expected_denominator
+        and summary.get("unit") == "ns"
+        and summary.get("derivation_version") in {
+            "interval-union-v1", "interval-intersection-v1"
+        }
+    )
+    if name == "recorded_gpu_activity_union":
+        expected_refs = {
+            lane_id for lane_id, lane in lane_by_id.items()
+            if lane.get("kind") in {"gpu_kernel", "gpu_memcpy"}
+        }
+        compatible = compatible and "gpu_kernel" in kinds and kinds <= {
+            "gpu_kernel", "gpu_memcpy"
+        } and ref_set == expected_refs and len(refs) == len(ref_set) and summary.get(
+            "derivation_version"
+        ) == "interval-union-v1"
+    elif name == "recorded_copy_activity_union":
+        expected_refs = {
+            lane_id for lane_id, lane in lane_by_id.items()
+            if lane.get("kind") == "gpu_memcpy"
+        }
+        compatible = (
+            compatible and kinds == {"gpu_memcpy"}
+            and ref_set == expected_refs and len(refs) == len(ref_set)
+            and summary.get("derivation_version") == "interval-union-v1"
+        )
+    else:
+        target_roles = {"target-main", "target-worker", "cuda-event-handler"}
+        expected_refs = {
+            lane_id for lane_id, lane in lane_by_id.items()
+            if lane.get("kind") in {"gpu_kernel", "gpu_memcpy"}
+            or lane.get("kind") == "cpu_thread" and lane.get("role") in target_roles
+        }
+        compatible = (
+            compatible
+            and "gpu_kernel" in kinds
+            and "cpu_thread" in kinds
+            and kinds <= {"cpu_thread", "gpu_kernel", "gpu_memcpy"}
+            and bool(roles & target_roles)
+            and ref_set == expected_refs
+            and len(refs) == len(ref_set)
+            and all(
+                lane.get("kind") != "cpu_thread" or lane.get("role") in target_roles
+                for lane in lanes if lane is not None
+            )
+            and summary.get("derivation_version") == "interval-intersection-v1"
+        )
+    if not compatible:
+        issues.append(_issue(
+            base,
+            "activity_summary_identity",
+            "recorded-activity summary identity and lane inputs are incompatible",
+        ))
 
 
 def _index(

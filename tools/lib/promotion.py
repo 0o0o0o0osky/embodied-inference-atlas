@@ -205,7 +205,11 @@ def _validate_profiler_bundle(
         raise PromotionError("profiler bundle failed validation", issues)
 
     combined: dict[str, list[Mapping]] = {}
-    required = {"runs", "model_graphs", "runtime_realizations", *PROFILER_DATASETS}
+    required = {
+        "sources", "models", "runtimes", "devices", "systems",
+        "runs", "end_to_end", "stages", "model_graphs",
+        "runtime_realizations", *PROFILER_DATASETS,
+    }
     for dataset in required:
         entry = manifest_entries.get(dataset)
         if not isinstance(entry, Mapping):

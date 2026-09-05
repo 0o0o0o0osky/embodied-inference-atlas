@@ -14,7 +14,7 @@
       "collection_scope": {"type": "string", "enum": ["prediction_window", "representative_kernel_launch"]},
       "target_window_label": {"type": ["string", "null"], "enum": ["predict", null]},
       "target_window_count": {"type": "integer", "minimum": 1},
-      "selection_policy": {"type": "string", "enum": ["explicit_invocation", "name_filter_first_match", "single_predict_window"]},
+      "selection_policy": {"type": "string", "enum": ["explicit_invocation", "name_filter_selected_match", "single_predict_window"]},
       "coverage": {
         "type": "object",
         "required": ["population", "observed_count", "is_complete_for_population"],
@@ -45,7 +45,7 @@
       },
       "ncu": {
         "type": ["object", "null"],
-        "required": ["replay_mode", "replay_passes", "cache_control_request", "clock_control_request", "warmup_count", "backing_store_bytes"],
+        "required": ["replay_mode", "replay_passes", "cache_control_request", "clock_control_request", "warmup_count", "backing_store_bytes", "origins"],
         "additional_properties": false,
         "properties": {
           "replay_mode": {"type": "string", "enum": ["kernel"]},
@@ -53,7 +53,22 @@
           "cache_control_request": {"type": "string", "enum": ["all"]},
           "clock_control_request": {"type": "string", "enum": ["base"]},
           "warmup_count": {"type": "integer", "minimum": 0},
-          "backing_store_bytes": {"type": ["integer", "null"], "minimum": 0}
+          "backing_store_bytes": {"type": ["integer", "null"], "minimum": 0},
+          "origins": {
+            "type": "object",
+            "required": ["selection_policy", "replay_mode", "replay_passes", "cache_control_request", "clock_control_request", "warmup_count", "backing_store_bytes", "gpu_frequency_not_fixed"],
+            "additional_properties": false,
+            "properties": {
+              "selection_policy": {"type": "string", "enum": ["session_command"]},
+              "replay_mode": {"type": "string", "enum": ["session_command", "ncu_cli_default_2025_3"]},
+              "replay_passes": {"type": "string", "enum": ["collection_log_manual_audit"]},
+              "cache_control_request": {"type": "string", "enum": ["session_command", "ncu_cli_default_2025_3"]},
+              "clock_control_request": {"type": "string", "enum": ["session_command", "ncu_cli_default_2025_3"]},
+              "warmup_count": {"type": "string", "enum": ["harness_source_audit"]},
+              "backing_store_bytes": {"type": "string", "enum": ["unavailable"]},
+              "gpu_frequency_not_fixed": {"type": "string", "enum": ["collection_log_manual_audit"]}
+            }
+          }
         }
       },
       "missing": {
@@ -64,7 +79,7 @@
           "target_window_label": {"type": "string", "enum": ["not_applicable"]},
           "nsys": {"type": "string", "enum": ["not_applicable"]},
           "ncu": {"type": "string", "enum": ["not_applicable"]},
-          "ncu.backing_store_bytes": {"type": "string", "enum": ["counter_absent_from_report"]}
+          "ncu.backing_store_bytes": {"type": "string", "enum": ["unavailable"]}
         }
       }
     }

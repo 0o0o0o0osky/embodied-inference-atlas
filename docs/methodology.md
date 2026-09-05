@@ -132,10 +132,13 @@ assumption IDs are not treated as the unknown sentinel.
 
 The snapshot now contains canonical Nsys timelines and NCU representative-
 launch evidence. Nsys scheduler-running intervals establish observed CPU
-execution overlapping controlled CUDA Graph spans, but they do not establish
-CPU idle time, useful work, or offload headroom; the graph spans are execution
-envelopes, not exact GPU-busy intervals. NCU preserves per-replay SM, tensor,
-L1, L2, and L2 sysmem-fill metrics, but L2 and sysmem-fill activity is not
+execution overlapping controlled intervals, but they do not establish CPU
+idle time, useful work, or offload headroom. The graph and system-wide reports
+provide CUDA Graph envelopes plus recorded copy intervals, not kernel lanes or
+exact GPU-busy time. The intrusive node report provides a recorded kernel-plus-
+copy activity union and controlled CPU-overlap summaries; even that union is
+not evidence of all GPU activity. NCU preserves per-replay SM, tensor, clock-
+rate, L1, L2, and L2 sysmem-fill metrics, but L2 and sysmem-fill activity is not
 LPDDR or whole-system memory traffic. Because the captures lack DRAM traffic,
 SchedulerStats, and long/short-scoreboard counters, they cannot prove LPDDR
 saturation or a kernel, compute, memory, or stall bottleneck. NCU replay

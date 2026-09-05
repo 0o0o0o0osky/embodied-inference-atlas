@@ -11,7 +11,7 @@
       },
       "evidence": "measured_local",
       "missing": {
-        "ncu.backing_store_bytes": "counter_absent_from_report",
+        "ncu.backing_store_bytes": "unavailable",
         "nsys": "not_applicable",
         "target_window_label": "not_applicable"
       },
@@ -19,6 +19,16 @@
         "backing_store_bytes": null,
         "cache_control_request": "all",
         "clock_control_request": "base",
+        "origins": {
+          "backing_store_bytes": "unavailable",
+          "cache_control_request": "ncu_cli_default_2025_3",
+          "clock_control_request": "ncu_cli_default_2025_3",
+          "gpu_frequency_not_fixed": "collection_log_manual_audit",
+          "replay_mode": "ncu_cli_default_2025_3",
+          "replay_passes": "collection_log_manual_audit",
+          "selection_policy": "session_command",
+          "warmup_count": "harness_source_audit"
+        },
         "replay_mode": "kernel",
         "replay_passes": 10,
         "warmup_count": 3
@@ -45,7 +55,7 @@
       },
       "evidence": "measured_local",
       "missing": {
-        "ncu.backing_store_bytes": "counter_absent_from_report",
+        "ncu.backing_store_bytes": "unavailable",
         "nsys": "not_applicable",
         "target_window_label": "not_applicable"
       },
@@ -53,6 +63,16 @@
         "backing_store_bytes": null,
         "cache_control_request": "all",
         "clock_control_request": "base",
+        "origins": {
+          "backing_store_bytes": "unavailable",
+          "cache_control_request": "ncu_cli_default_2025_3",
+          "clock_control_request": "ncu_cli_default_2025_3",
+          "gpu_frequency_not_fixed": "collection_log_manual_audit",
+          "replay_mode": "ncu_cli_default_2025_3",
+          "replay_passes": "collection_log_manual_audit",
+          "selection_policy": "session_command",
+          "warmup_count": "harness_source_audit"
+        },
         "replay_mode": "kernel",
         "replay_passes": 10,
         "warmup_count": 3
@@ -79,7 +99,7 @@
       },
       "evidence": "measured_local",
       "missing": {
-        "ncu.backing_store_bytes": "counter_absent_from_report",
+        "ncu.backing_store_bytes": "unavailable",
         "nsys": "not_applicable",
         "target_window_label": "not_applicable"
       },
@@ -87,13 +107,23 @@
         "backing_store_bytes": null,
         "cache_control_request": "all",
         "clock_control_request": "base",
+        "origins": {
+          "backing_store_bytes": "unavailable",
+          "cache_control_request": "ncu_cli_default_2025_3",
+          "clock_control_request": "ncu_cli_default_2025_3",
+          "gpu_frequency_not_fixed": "collection_log_manual_audit",
+          "replay_mode": "ncu_cli_default_2025_3",
+          "replay_passes": "collection_log_manual_audit",
+          "selection_policy": "session_command",
+          "warmup_count": "harness_source_audit"
+        },
         "replay_mode": "kernel",
         "replay_passes": 10,
         "warmup_count": 3
       },
       "nsys": null,
       "run_id": "run-pi0-flashrt-ncu-decoder-nvjet-128x16-001",
-      "selection_policy": "name_filter_first_match",
+      "selection_policy": "name_filter_selected_match",
       "source_id": "source-local-thor",
       "target_window_count": 1,
       "target_window_label": null,
@@ -113,7 +143,7 @@
       },
       "evidence": "measured_local",
       "missing": {
-        "ncu.backing_store_bytes": "counter_absent_from_report",
+        "ncu.backing_store_bytes": "unavailable",
         "nsys": "not_applicable",
         "target_window_label": "not_applicable"
       },
@@ -121,13 +151,23 @@
         "backing_store_bytes": null,
         "cache_control_request": "all",
         "clock_control_request": "base",
+        "origins": {
+          "backing_store_bytes": "unavailable",
+          "cache_control_request": "ncu_cli_default_2025_3",
+          "clock_control_request": "ncu_cli_default_2025_3",
+          "gpu_frequency_not_fixed": "collection_log_manual_audit",
+          "replay_mode": "ncu_cli_default_2025_3",
+          "replay_passes": "collection_log_manual_audit",
+          "selection_policy": "session_command",
+          "warmup_count": "harness_source_audit"
+        },
         "replay_mode": "kernel",
         "replay_passes": 15,
         "warmup_count": 3
       },
       "nsys": null,
       "run_id": "run-pi0-flashrt-ncu-decoder-nvjet-512x16-001",
-      "selection_policy": "name_filter_first_match",
+      "selection_policy": "name_filter_selected_match",
       "source_id": "source-local-thor",
       "target_window_count": 1,
       "target_window_label": null,
@@ -147,7 +187,7 @@
       },
       "evidence": "measured_local",
       "missing": {
-        "ncu.backing_store_bytes": "counter_absent_from_report",
+        "ncu.backing_store_bytes": "unavailable",
         "nsys": "not_applicable",
         "target_window_label": "not_applicable"
       },
@@ -155,13 +195,23 @@
         "backing_store_bytes": null,
         "cache_control_request": "all",
         "clock_control_request": "base",
+        "origins": {
+          "backing_store_bytes": "unavailable",
+          "cache_control_request": "ncu_cli_default_2025_3",
+          "clock_control_request": "ncu_cli_default_2025_3",
+          "gpu_frequency_not_fixed": "collection_log_manual_audit",
+          "replay_mode": "ncu_cli_default_2025_3",
+          "replay_passes": "collection_log_manual_audit",
+          "selection_policy": "session_command",
+          "warmup_count": "harness_source_audit"
+        },
         "replay_mode": "kernel",
         "replay_passes": 15,
         "warmup_count": 3
       },
       "nsys": null,
       "run_id": "run-pi0-flashrt-ncu-decoder-nvjet-64x16-001",
-      "selection_policy": "name_filter_first_match",
+      "selection_policy": "name_filter_selected_match",
       "source_id": "source-local-thor",
       "target_window_count": 1,
       "target_window_label": null,
@@ -181,7 +231,7 @@
       },
       "evidence": "measured_local",
       "missing": {
-        "ncu.backing_store_bytes": "counter_absent_from_report",
+        "ncu.backing_store_bytes": "unavailable",
         "nsys": "not_applicable",
         "target_window_label": "not_applicable"
       },
@@ -189,13 +239,23 @@
         "backing_store_bytes": null,
         "cache_control_request": "all",
         "clock_control_request": "base",
+        "origins": {
+          "backing_store_bytes": "unavailable",
+          "cache_control_request": "ncu_cli_default_2025_3",
+          "clock_control_request": "ncu_cli_default_2025_3",
+          "gpu_frequency_not_fixed": "collection_log_manual_audit",
+          "replay_mode": "ncu_cli_default_2025_3",
+          "replay_passes": "collection_log_manual_audit",
+          "selection_policy": "session_command",
+          "warmup_count": "harness_source_audit"
+        },
         "replay_mode": "kernel",
         "replay_passes": 15,
         "warmup_count": 3
       },
       "nsys": null,
       "run_id": "run-pi0-flashrt-ncu-encoder-geglu-001",
-      "selection_policy": "name_filter_first_match",
+      "selection_policy": "name_filter_selected_match",
       "source_id": "source-local-thor",
       "target_window_count": 1,
       "target_window_label": null,
@@ -215,7 +275,7 @@
       },
       "evidence": "measured_local",
       "missing": {
-        "ncu.backing_store_bytes": "counter_absent_from_report",
+        "ncu.backing_store_bytes": "unavailable",
         "nsys": "not_applicable",
         "target_window_label": "not_applicable"
       },
@@ -223,6 +283,16 @@
         "backing_store_bytes": null,
         "cache_control_request": "all",
         "clock_control_request": "base",
+        "origins": {
+          "backing_store_bytes": "unavailable",
+          "cache_control_request": "ncu_cli_default_2025_3",
+          "clock_control_request": "ncu_cli_default_2025_3",
+          "gpu_frequency_not_fixed": "collection_log_manual_audit",
+          "replay_mode": "ncu_cli_default_2025_3",
+          "replay_passes": "collection_log_manual_audit",
+          "selection_policy": "session_command",
+          "warmup_count": "harness_source_audit"
+        },
         "replay_mode": "kernel",
         "replay_passes": 15,
         "warmup_count": 3
@@ -250,7 +320,7 @@
       },
       "evidence": "measured_local",
       "missing": {
-        "ncu.backing_store_bytes": "counter_absent_from_report",
+        "ncu.backing_store_bytes": "unavailable",
         "nsys": "not_applicable",
         "target_window_label": "not_applicable"
       },
@@ -258,13 +328,23 @@
         "backing_store_bytes": null,
         "cache_control_request": "all",
         "clock_control_request": "base",
+        "origins": {
+          "backing_store_bytes": "unavailable",
+          "cache_control_request": "ncu_cli_default_2025_3",
+          "clock_control_request": "ncu_cli_default_2025_3",
+          "gpu_frequency_not_fixed": "collection_log_manual_audit",
+          "replay_mode": "ncu_cli_default_2025_3",
+          "replay_passes": "collection_log_manual_audit",
+          "selection_policy": "session_command",
+          "warmup_count": "harness_source_audit"
+        },
         "replay_mode": "kernel",
         "replay_passes": 10,
         "warmup_count": 3
       },
       "nsys": null,
       "run_id": "run-pi0-flashrt-ncu-encoder-qkv-split-001",
-      "selection_policy": "name_filter_first_match",
+      "selection_policy": "name_filter_selected_match",
       "source_id": "source-local-thor",
       "target_window_count": 1,
       "target_window_label": null,
@@ -284,7 +364,7 @@
       },
       "evidence": "measured_local",
       "missing": {
-        "ncu.backing_store_bytes": "counter_absent_from_report",
+        "ncu.backing_store_bytes": "unavailable",
         "nsys": "not_applicable",
         "target_window_label": "not_applicable"
       },
@@ -292,13 +372,23 @@
         "backing_store_bytes": null,
         "cache_control_request": "all",
         "clock_control_request": "base",
+        "origins": {
+          "backing_store_bytes": "unavailable",
+          "cache_control_request": "ncu_cli_default_2025_3",
+          "clock_control_request": "ncu_cli_default_2025_3",
+          "gpu_frequency_not_fixed": "collection_log_manual_audit",
+          "replay_mode": "ncu_cli_default_2025_3",
+          "replay_passes": "collection_log_manual_audit",
+          "selection_policy": "session_command",
+          "warmup_count": "harness_source_audit"
+        },
         "replay_mode": "kernel",
         "replay_passes": 10,
         "warmup_count": 3
       },
       "nsys": null,
       "run_id": "run-pi0-flashrt-ncu-encoder-residual-rms-001",
-      "selection_policy": "name_filter_first_match",
+      "selection_policy": "name_filter_selected_match",
       "source_id": "source-local-thor",
       "target_window_count": 1,
       "target_window_label": null,
@@ -318,7 +408,7 @@
       },
       "evidence": "measured_local",
       "missing": {
-        "ncu.backing_store_bytes": "counter_absent_from_report",
+        "ncu.backing_store_bytes": "unavailable",
         "nsys": "not_applicable",
         "target_window_label": "not_applicable"
       },
@@ -326,6 +416,16 @@
         "backing_store_bytes": null,
         "cache_control_request": "all",
         "clock_control_request": "base",
+        "origins": {
+          "backing_store_bytes": "unavailable",
+          "cache_control_request": "ncu_cli_default_2025_3",
+          "clock_control_request": "ncu_cli_default_2025_3",
+          "gpu_frequency_not_fixed": "collection_log_manual_audit",
+          "replay_mode": "ncu_cli_default_2025_3",
+          "replay_passes": "collection_log_manual_audit",
+          "selection_policy": "session_command",
+          "warmup_count": "harness_source_audit"
+        },
         "replay_mode": "kernel",
         "replay_passes": 15,
         "warmup_count": 3
@@ -353,7 +453,7 @@
       },
       "evidence": "measured_local",
       "missing": {
-        "ncu.backing_store_bytes": "counter_absent_from_report",
+        "ncu.backing_store_bytes": "unavailable",
         "nsys": "not_applicable",
         "target_window_label": "not_applicable"
       },
@@ -361,6 +461,16 @@
         "backing_store_bytes": null,
         "cache_control_request": "all",
         "clock_control_request": "base",
+        "origins": {
+          "backing_store_bytes": "unavailable",
+          "cache_control_request": "ncu_cli_default_2025_3",
+          "clock_control_request": "ncu_cli_default_2025_3",
+          "gpu_frequency_not_fixed": "collection_log_manual_audit",
+          "replay_mode": "ncu_cli_default_2025_3",
+          "replay_passes": "collection_log_manual_audit",
+          "selection_policy": "session_command",
+          "warmup_count": "harness_source_audit"
+        },
         "replay_mode": "kernel",
         "replay_passes": 10,
         "warmup_count": 3
@@ -387,7 +497,7 @@
       },
       "evidence": "measured_local",
       "missing": {
-        "ncu.backing_store_bytes": "counter_absent_from_report",
+        "ncu.backing_store_bytes": "unavailable",
         "nsys": "not_applicable",
         "target_window_label": "not_applicable"
       },
@@ -395,13 +505,23 @@
         "backing_store_bytes": null,
         "cache_control_request": "all",
         "clock_control_request": "base",
+        "origins": {
+          "backing_store_bytes": "unavailable",
+          "cache_control_request": "ncu_cli_default_2025_3",
+          "clock_control_request": "ncu_cli_default_2025_3",
+          "gpu_frequency_not_fixed": "collection_log_manual_audit",
+          "replay_mode": "ncu_cli_default_2025_3",
+          "replay_passes": "collection_log_manual_audit",
+          "selection_policy": "session_command",
+          "warmup_count": "harness_source_audit"
+        },
         "replay_mode": "kernel",
         "replay_passes": 10,
         "warmup_count": 3
       },
       "nsys": null,
       "run_id": "run-pi0-flashrt-ncu-siglip-broadcast-add-001",
-      "selection_policy": "name_filter_first_match",
+      "selection_policy": "name_filter_selected_match",
       "source_id": "source-local-thor",
       "target_window_count": 1,
       "target_window_label": null,
@@ -421,7 +541,7 @@
       },
       "evidence": "measured_local",
       "missing": {
-        "ncu.backing_store_bytes": "counter_absent_from_report",
+        "ncu.backing_store_bytes": "unavailable",
         "nsys": "not_applicable",
         "target_window_label": "not_applicable"
       },
@@ -429,6 +549,16 @@
         "backing_store_bytes": null,
         "cache_control_request": "all",
         "clock_control_request": "base",
+        "origins": {
+          "backing_store_bytes": "unavailable",
+          "cache_control_request": "ncu_cli_default_2025_3",
+          "clock_control_request": "ncu_cli_default_2025_3",
+          "gpu_frequency_not_fixed": "collection_log_manual_audit",
+          "replay_mode": "ncu_cli_default_2025_3",
+          "replay_passes": "collection_log_manual_audit",
+          "selection_policy": "session_command",
+          "warmup_count": "harness_source_audit"
+        },
         "replay_mode": "kernel",
         "replay_passes": 15,
         "warmup_count": 3
@@ -455,7 +585,7 @@
       },
       "evidence": "measured_local",
       "missing": {
-        "ncu.backing_store_bytes": "counter_absent_from_report",
+        "ncu.backing_store_bytes": "unavailable",
         "nsys": "not_applicable",
         "target_window_label": "not_applicable"
       },
@@ -463,13 +593,23 @@
         "backing_store_bytes": null,
         "cache_control_request": "all",
         "clock_control_request": "base",
+        "origins": {
+          "backing_store_bytes": "unavailable",
+          "cache_control_request": "ncu_cli_default_2025_3",
+          "clock_control_request": "ncu_cli_default_2025_3",
+          "gpu_frequency_not_fixed": "collection_log_manual_audit",
+          "replay_mode": "ncu_cli_default_2025_3",
+          "replay_passes": "collection_log_manual_audit",
+          "selection_policy": "session_command",
+          "warmup_count": "harness_source_audit"
+        },
         "replay_mode": "kernel",
         "replay_passes": 10,
         "warmup_count": 3
       },
       "nsys": null,
       "run_id": "run-pi0-flashrt-ncu-siglip-gelu-bias-001",
-      "selection_policy": "name_filter_first_match",
+      "selection_policy": "name_filter_selected_match",
       "source_id": "source-local-thor",
       "target_window_count": 1,
       "target_window_label": null,
@@ -489,7 +629,7 @@
       },
       "evidence": "measured_local",
       "missing": {
-        "ncu.backing_store_bytes": "counter_absent_from_report",
+        "ncu.backing_store_bytes": "unavailable",
         "nsys": "not_applicable",
         "target_window_label": "not_applicable"
       },
@@ -497,13 +637,23 @@
         "backing_store_bytes": null,
         "cache_control_request": "all",
         "clock_control_request": "base",
+        "origins": {
+          "backing_store_bytes": "unavailable",
+          "cache_control_request": "ncu_cli_default_2025_3",
+          "clock_control_request": "ncu_cli_default_2025_3",
+          "gpu_frequency_not_fixed": "collection_log_manual_audit",
+          "replay_mode": "ncu_cli_default_2025_3",
+          "replay_passes": "collection_log_manual_audit",
+          "selection_policy": "session_command",
+          "warmup_count": "harness_source_audit"
+        },
         "replay_mode": "kernel",
         "replay_passes": 15,
         "warmup_count": 3
       },
       "nsys": null,
       "run_id": "run-pi0-flashrt-ncu-siglip-layer-norm-001",
-      "selection_policy": "name_filter_first_match",
+      "selection_policy": "name_filter_selected_match",
       "source_id": "source-local-thor",
       "target_window_count": 1,
       "target_window_label": null,
@@ -523,7 +673,7 @@
       },
       "evidence": "measured_local",
       "missing": {
-        "ncu.backing_store_bytes": "counter_absent_from_report",
+        "ncu.backing_store_bytes": "unavailable",
         "nsys": "not_applicable",
         "target_window_label": "not_applicable"
       },
@@ -531,13 +681,23 @@
         "backing_store_bytes": null,
         "cache_control_request": "all",
         "clock_control_request": "base",
+        "origins": {
+          "backing_store_bytes": "unavailable",
+          "cache_control_request": "ncu_cli_default_2025_3",
+          "clock_control_request": "ncu_cli_default_2025_3",
+          "gpu_frequency_not_fixed": "collection_log_manual_audit",
+          "replay_mode": "ncu_cli_default_2025_3",
+          "replay_passes": "collection_log_manual_audit",
+          "selection_policy": "session_command",
+          "warmup_count": "harness_source_audit"
+        },
         "replay_mode": "kernel",
         "replay_passes": 10,
         "warmup_count": 3
       },
       "nsys": null,
       "run_id": "run-pi0-flashrt-ncu-siglip-quantize-001",
-      "selection_policy": "name_filter_first_match",
+      "selection_policy": "name_filter_selected_match",
       "source_id": "source-local-thor",
       "target_window_count": 1,
       "target_window_label": null,
