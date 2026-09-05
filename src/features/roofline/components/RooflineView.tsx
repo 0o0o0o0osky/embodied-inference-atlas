@@ -123,12 +123,22 @@ function sparseObservedRunIds(data: AtlasData) {
 }
 
 function basisContract(basis: RooflineBasisRecord) {
-  return [
+  return JSON.stringify([
+    basis.precision_path_id,
     basis.ceiling_id,
     basis.bandwidth_ceiling_id,
     basis.device_id,
     basis.operating_point_id,
-  ].join("\u0000");
+    basis.time_basis,
+    basis.traffic_basis,
+    basis.work_basis,
+    basis.runtime_overhead,
+    basis.runtime_id,
+    basis.realization_id,
+    basis.run_id,
+    basis.capture_id,
+    basis.comparison_mode,
+  ]);
 }
 
 export function RooflineView(props: RooflineViewProps) {
@@ -164,9 +174,13 @@ function CoreRooflineView({
     const scenarioBases = canonical.bases.filter((basis) =>
       basis.scenario_id === sourceScenario.scenario_id
       && (!route.hardware || basis.device_id === route.hardware),
+    ).filter((basis) =>
+      (basis.level === "stage" || basis.level === "atomic")
+      && basis.time_basis === "analytical_roof"
+      && basis.traffic_basis === "atomic_materialized",
     );
-    const requestedSourceBasis = requestedBasis?.scenario_id === sourceScenario.scenario_id
-      && (!route.hardware || requestedBasis.device_id === route.hardware)
+    const requestedSourceBasis = requestedBasis
+      && scenarioBases.some((basis) => basis.basis_id === requestedBasis.basis_id)
       ? requestedBasis
       : null;
     const contracts = new Set(scenarioBases.map(basisContract));
@@ -180,7 +194,13 @@ function CoreRooflineView({
     const atomicBasis = scenarioBases.find((basis) =>
       basis.level === "atomic" && basisContract(basis) === sourceContract,
     );
-    if (!stageBasis || !atomicBasis) return null;
+    if (
+      !stageBasis || !atomicBasis
+      || stageBasis.work_unit !== "action_chunk"
+      || stageBasis.aggregation !== "dag_resource_and_critical_path"
+      || atomicBasis.work_unit !== "operator_invocation"
+      || atomicBasis.aggregation !== "entity"
+    ) return null;
     const ceiling = canonical.ceilingById.get(atomicBasis.ceiling_id);
     if (!ceiling?.bandwidth.some((candidate) =>
       candidate.bandwidth_ceiling_id === atomicBasis.bandwidth_ceiling_id,
@@ -214,14 +234,17 @@ function CoreRooflineView({
   const realizations = useMemo(() => data.datasets.runtime_realizations
     .filter((record) => isRuntimeRealizationRecord(record, modelId))
     .map(adaptRuntimeRealization), [data.datasets.runtime_realizations, modelId]);
+  const runtimeConfigurationIds = useMemo(() => realizations
+    .filter((realization) => !route.runtime || realization.runtimeId === route.runtime)
+    .flatMap((realization) => realization.configurationIds), [realizations, route.runtime]);
   const runtimeCandidates = useMemo(() => route.runtime ? resolveRuntimeCandidates(realizations, data.datasets.runs, {
     modelId,
     modelGraphId: sourceScenario.model_graph_id!,
     runtimeId: route.runtime,
     hardwareId: route.hardware,
-    workload: runtimeResolutionWorkload(route.workload, workload),
+    workload: runtimeResolutionWorkload(route.workload, workload, runtimeConfigurationIds),
     precisionId: route.runtimePrecision,
-  }) : [], [data.datasets.runs, modelId, realizations, route.hardware, route.runtime, route.runtimePrecision, route.workload, sourceScenario.model_graph_id, workload]);
+  }) : [], [data.datasets.runs, modelId, realizations, route.hardware, route.runtime, route.runtimePrecision, route.workload, runtimeConfigurationIds, sourceScenario.model_graph_id, workload]);
   const activeCandidate = exactRuntimeCandidate(runtimeCandidates);
   const activeRealization = activeCandidate?.realization ?? null;
   // Task 4 resolves realizations but does not yet expose a canonical capture

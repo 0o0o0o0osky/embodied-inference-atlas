@@ -486,7 +486,11 @@ export function serializeInteractiveWorkload(value: InteractiveWorkload) {
   return `v=${value.executedCameraViews},p=${value.executedPromptTokens},a=${value.actionHorizon},n=${value.denoiseSteps}`;
 }
 
-export function runtimeResolutionWorkload(encoded: string | null, value: InteractiveWorkload) {
-  if (encoded?.startsWith("cfg-")) return encoded;
+export function runtimeResolutionWorkload(
+  encoded: string | null,
+  value: InteractiveWorkload,
+  configurationIds: readonly string[] = [],
+) {
+  if (encoded && (configurationIds.includes(encoded) || /^(?:cfg|config)-/.test(encoded))) return encoded;
   return `V=${value.executedCameraViews},L_PROMPT=${value.executedPromptTokens},T_ACTION=${value.actionHorizon},N_DENOISE=${value.denoiseSteps}`;
 }

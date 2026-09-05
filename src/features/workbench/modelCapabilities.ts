@@ -34,6 +34,7 @@ export interface ModelCapabilities {
   readonly captureContexts: ReadonlyMap<string, SelectionContext>;
   readonly timelineEvents: ReadonlySet<PairKey>;
   readonly timelineEventContexts: ReadonlyMap<PairKey, SelectionContext>;
+  readonly timelineEventCaptureIds: ReadonlyMap<PairKey, string>;
   readonly kernelObservations: ReadonlySet<PairKey>;
   readonly realizationGroups: ReadonlySet<PairKey>;
   readonly realizationGroupContexts: ReadonlyMap<PairKey, SelectionContext>;
@@ -135,15 +136,17 @@ export function createModelCapabilityRegistry(data: AtlasData): ModelCapabilityR
           addToMapSet(runtimePrecisionIds, realization.runtimeId, precision.precisionPathId),
         );
       }
-      realization.executionGroups.forEach((group) => {
-        const key = pair(realization.realizationId, group.executionGroupId);
-        realizationGroups.add(key);
-        realizationGroupContexts.set(key, {
-          runtimeId: realization.runtimeId,
-          hardwareIds: new Set(realization.deviceIds),
-          precisionIds: new Set(realization.precisionPaths.map((precision) => precision.precisionPathId)),
+      if (realization.availability !== "not_supported") {
+        realization.executionGroups.forEach((group) => {
+          const key = pair(realization.realizationId, group.executionGroupId);
+          realizationGroups.add(key);
+          realizationGroupContexts.set(key, {
+            runtimeId: realization.runtimeId,
+            hardwareIds: new Set(realization.deviceIds),
+            precisionIds: new Set(realization.precisionPaths.map((precision) => precision.precisionPathId)),
+          });
         });
-      });
+      }
     });
 
     const modelScenarios = scenarios.filter((scenario) => scenario.model_id === modelId);
@@ -193,6 +196,7 @@ export function createModelCapabilityRegistry(data: AtlasData): ModelCapabilityR
     });
     const timelineEvents = new Set<PairKey>();
     const timelineEventContexts = new Map<PairKey, SelectionContext>();
+    const timelineEventCaptureIds = new Map<PairKey, string>();
     const timelineCaptureIds = new Set<string>();
     data.datasets.timelines.forEach((timeline) => {
       const timelineId = text(timeline, "timeline_id");
@@ -204,6 +208,7 @@ export function createModelCapabilityRegistry(data: AtlasData): ModelCapabilityR
         if (eventId) {
           const key = pair(timelineId, eventId);
           timelineEvents.add(key);
+          timelineEventCaptureIds.set(key, captureId);
           const context = captureContexts.get(captureId);
           if (context) timelineEventContexts.set(key, context);
         }
@@ -247,6 +252,7 @@ export function createModelCapabilityRegistry(data: AtlasData): ModelCapabilityR
       captureContexts,
       timelineEvents,
       timelineEventContexts,
+      timelineEventCaptureIds,
       kernelObservations,
       realizationGroups,
       realizationGroupContexts,
