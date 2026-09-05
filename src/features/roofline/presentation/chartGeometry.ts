@@ -4,8 +4,20 @@ export interface LogDomain { min: number; max: number }
 export interface PlotBox { left: number; top: number; width: number; height: number }
 export interface ScreenPoint { x: number; y: number }
 interface ScreenBox extends ScreenPoint { width: number; height: number }
-export interface ClusterScreenAnchor extends ScreenPoint { key: string; count: number }
-export interface ClusterCountPlacement extends ScreenBox { key: string }
+export interface ClusterScreenAnchor extends ScreenPoint {
+  key: string;
+  count: number;
+  coreRadius?: number;
+  cellPolygon?: readonly ScreenPoint[];
+}
+export interface ClusterCountPlacement extends ScreenBox {
+  key: string;
+  label: string;
+  leaderStartX: number;
+  leaderStartY: number;
+  leaderEndX: number;
+  leaderEndY: number;
+}
 
 export interface RooflineChartGeometry {
   x: LogDomain;
@@ -18,7 +30,12 @@ const COUNT_LABEL_OFFSETS = [
   [0, -30], [30, 0], [0, 30], [-30, 0],
   [24, -24], [24, 24], [-24, 24], [-24, -24],
   [0, -48], [48, 0], [0, 48], [-48, 0],
+  [36, -48], [48, -36], [48, 36], [36, 48],
+  [-36, 48], [-48, 36], [-48, -36], [-36, -48],
+  [0, -72], [72, 0], [0, 72], [-72, 0],
+  [24, 72], [-24, -72],
 ] as const;
+const MIN_LOCAL_CONTROL_DIAMETER = 10;
 
 function positive(values: readonly number[]) {
   return values.filter((value) => Number.isFinite(value) && value > 0);
@@ -134,9 +151,66 @@ export function svgPolygonPath(polygon: readonly ScreenPoint[], origin: ScreenPo
   return polygon.map((point, index) => `${index ? "L" : "M"}${(point.x - origin.x).toFixed(3)} ${(point.y - origin.y).toFixed(3)}`).join(" ") + " Z";
 }
 
+function pointToSegmentDistance(point: ScreenPoint, start: ScreenPoint, end: ScreenPoint) {
+  const deltaX = end.x - start.x;
+  const deltaY = end.y - start.y;
+  const lengthSquared = deltaX ** 2 + deltaY ** 2;
+  if (lengthSquared <= Number.EPSILON) return Math.hypot(point.x - start.x, point.y - start.y);
+  const ratio = Math.max(0, Math.min(1,
+    ((point.x - start.x) * deltaX + (point.y - start.y) * deltaY) / lengthSquared,
+  ));
+  return Math.hypot(point.x - (start.x + ratio * deltaX), point.y - (start.y + ratio * deltaY));
+}
+
+export function polygonCenterClearance(polygon: readonly ScreenPoint[], center: ScreenPoint) {
+  if (polygon.length < 3) return 0;
+  return polygon.reduce((clearance, start, index) => Math.min(
+    clearance,
+    pointToSegmentDistance(center, start, polygon[(index + 1) % polygon.length]!),
+  ), Number.POSITIVE_INFINITY);
+}
+
 function boxesIntersect(left: ScreenBox, right: ScreenBox) {
   return Math.abs(left.x - right.x) < (left.width + right.width) / 2 + 2
     && Math.abs(left.y - right.y) < (left.height + right.height) / 2 + 2;
+}
+
+function boxIntersectsCore(candidate: ScreenBox, core: ClusterScreenAnchor) {
+  const radius = core.coreRadius ?? 0;
+  const deltaX = Math.max(0, Math.abs(core.x - candidate.x) - candidate.width / 2);
+  const deltaY = Math.max(0, Math.abs(core.y - candidate.y) - candidate.height / 2);
+  return Math.hypot(deltaX, deltaY) <= radius;
+}
+
+function visibleLeader(anchor: ClusterScreenAnchor, candidate: ScreenBox) {
+  const deltaX = candidate.x - anchor.x;
+  const deltaY = candidate.y - anchor.y;
+  const distance = Math.hypot(deltaX, deltaY);
+  const unitX = deltaX / distance;
+  const unitY = deltaY / distance;
+  const badgeHalfWidth = (candidate.width - 4) / 2;
+  const badgeHalfHeight = (candidate.height - 6) / 2;
+  const badgeInset = Math.min(
+    Math.abs(unitX) > Number.EPSILON ? badgeHalfWidth / Math.abs(unitX) : Number.POSITIVE_INFINITY,
+    Math.abs(unitY) > Number.EPSILON ? badgeHalfHeight / Math.abs(unitY) : Number.POSITIVE_INFINITY,
+  );
+  return {
+    leaderStartX: anchor.x + unitX * (anchor.coreRadius ?? 0),
+    leaderStartY: anchor.y + unitY * (anchor.coreRadius ?? 0),
+    leaderEndX: candidate.x - unitX * badgeInset,
+    leaderEndY: candidate.y - unitY * badgeInset,
+  };
+}
+
+function leaderIntersectsCore(
+  leader: ReturnType<typeof visibleLeader>,
+  core: ClusterScreenAnchor,
+) {
+  return pointToSegmentDistance(
+    core,
+    { x: leader.leaderStartX, y: leader.leaderStartY },
+    { x: leader.leaderEndX, y: leader.leaderEndY },
+  ) <= (core.coreRadius ?? 0);
 }
 
 export function placeClusterCounts(
@@ -145,29 +219,38 @@ export function placeClusterCounts(
 ) {
   const placed: ClusterCountPlacement[] = [];
   [...anchors]
-    .filter((anchor) => anchor.count > 1)
+    .filter((anchor) => anchor.count > 1 || (
+      anchor.cellPolygon
+      && polygonCenterClearance(anchor.cellPolygon, anchor) * 2 < MIN_LOCAL_CONTROL_DIAMETER
+    ))
     .sort((left, right) => right.count - left.count
       || left.y - right.y
       || left.x - right.x
       || left.key.localeCompare(right.key))
     .forEach((anchor) => {
-      const width = Math.max(28, 16 + `×${anchor.count}`.length * 7);
-      const height = 24;
-      const placement = COUNT_LABEL_OFFSETS.map(([offsetX, offsetY]) => ({
-        key: anchor.key,
-        x: anchor.x + offsetX,
-        y: anchor.y + offsetY,
-        width,
-        height,
-      })).find((candidate) => (
+      const label = anchor.count > 1 ? `×${anchor.count}` : "1 pt";
+      const width = Math.max(28, 16 + label.length * 7);
+      const height = 26;
+      const placement = COUNT_LABEL_OFFSETS.map(([offsetX, offsetY]) => {
+        const candidate = {
+          key: anchor.key,
+          label,
+          x: anchor.x + offsetX,
+          y: anchor.y + offsetY,
+          width,
+          height,
+        };
+        return { ...candidate, ...visibleLeader(anchor, candidate) };
+      }).find((candidate) => (
         candidate.x - width / 2 >= box.left + 1
         && candidate.x + width / 2 <= box.left + box.width - 1
         && candidate.y - height / 2 >= box.top + 1
         && candidate.y + height / 2 <= box.top + box.height - 1
         && !placed.some((existing) => boxesIntersect(candidate, existing))
-        && !anchors.some((other) => other.key !== anchor.key
-          && Math.abs(candidate.x - other.x) < width / 2 + 5
-          && Math.abs(candidate.y - other.y) < height / 2 + 5)
+        && !anchors.some((other) => other.key !== anchor.key && (
+          boxIntersectsCore(candidate, other)
+          || leaderIntersectsCore(candidate, other)
+        ))
       ));
       if (placement) placed.push(placement);
     });

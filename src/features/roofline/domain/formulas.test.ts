@@ -6,6 +6,7 @@ import graphDocument from "../../../../data/model_graphs/pi0.json";
 import realizationDocument from "../../../../data/runtime_realizations/pi0.json";
 import type { CanonicalRecord } from "../../../types/atlas";
 import { materializeInteractiveRoofline, runtimeResolutionWorkload } from "../data/materialize";
+import { placeClusterCounts } from "../presentation/chartGeometry";
 import { isRooflinePlotBlocker } from "../presentation/viewModel";
 import { attentionMetrics } from "./attention";
 import { stageLowerBound } from "./criticalPath";
@@ -144,6 +145,38 @@ describe("roofline analytical contracts", () => {
       timing: { ...keyProjection.timing, observed_second: 1e-3 },
     }, field))).toEqual([
       true, true, true, false, false, false, false, true, true,
+    ]);
+
+    const plotBox = { left: 0, top: 0, width: 200, height: 200 };
+    expect(placeClusterCounts([{
+      key: "needle-singleton",
+      count: 1,
+      x: 50,
+      y: 50,
+      coreRadius: 0.4,
+      cellPolygon: [
+        { x: 49.5, y: 30 }, { x: 50.5, y: 30 },
+        { x: 50.5, y: 70 }, { x: 49.5, y: 70 },
+      ],
+    }], plotBox)).toMatchObject([{
+      key: "needle-singleton", label: "1 pt", width: 44, height: 26,
+    }]);
+
+    expect(placeClusterCounts([
+      { key: "source", count: 2, x: 50, y: 100, coreRadius: 1 },
+      { key: "foreign", count: 1, x: 50, y: 95, coreRadius: 1 },
+    ], plotBox)).toMatchObject([{
+      key: "source", x: 80, y: 100,
+    }]);
+
+    expect(placeClusterCounts([
+      { key: "dense-a", count: 1, x: 96, y: 100, coreRadius: 2.5, cellPolygon: [{ x: 95.5, y: 82 }, { x: 96.5, y: 82 }, { x: 96.5, y: 118 }, { x: 95.5, y: 118 }] },
+      { key: "dense-b", count: 2, x: 98, y: 100, coreRadius: 2.5 },
+      { key: "dense-c", count: 2, x: 100, y: 100, coreRadius: 2.5 },
+      { key: "dense-d", count: 1, x: 102, y: 100, coreRadius: 2.5, cellPolygon: [{ x: 101.5, y: 82 }, { x: 102.5, y: 82 }, { x: 102.5, y: 118 }, { x: 101.5, y: 118 }] },
+      { key: "dense-e", count: 3, x: 104, y: 100, coreRadius: 2.5 },
+    ], plotBox).map((placement) => placement.key).sort()).toEqual([
+      "dense-a", "dense-b", "dense-c", "dense-d", "dense-e",
     ]);
   });
 });

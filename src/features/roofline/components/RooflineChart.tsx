@@ -136,9 +136,25 @@ export function RooflineChart({
     : cluster.points.find((point) => point.selected) ?? null;
   const hitCenters = positionedClusters.map((cluster) => ({ x: cluster.screenX, y: cluster.screenY }));
   const hitPolygons = positionedClusters.map((_, index) => localVoronoiCell(hitCenters, index, box));
+  const clusterRadii = positionedClusters.map((cluster, index) => {
+    const nearest = nearestCenterDistance(positionedClusters, index);
+    const ownershipRadius = Number.isFinite(nearest)
+      ? Math.max(0.05, nearest / 2 - 0.05)
+      : 18;
+    const desiredRadius = markerRadius(cluster.points.reduce((sum, point) => sum + point.markerAreaPx2, 0));
+    const radius = Math.min(desiredRadius, Math.max(0.025, ownershipRadius - 0.025));
+    return { ownershipRadius, radius };
+  });
   const clusterByKey = new Map(positionedClusters.map((cluster) => [cluster.key, cluster]));
   const countLabels = placeClusterCounts(
-    positionedClusters.map((cluster) => ({ key: cluster.key, count: cluster.points.length, x: cluster.screenX, y: cluster.screenY })),
+    positionedClusters.map((cluster, index) => ({
+      key: cluster.key,
+      count: cluster.points.length,
+      x: cluster.screenX,
+      y: cluster.screenY,
+      coreRadius: clusterRadii[index]!.radius + 2,
+      cellPolygon: hitPolygons[index]!,
+    })),
     box,
   ).map((placement) => ({ ...placement, cluster: clusterByKey.get(placement.key)! }));
   const nextClusterMember = (cluster: PositionedCluster) => {
@@ -170,7 +186,7 @@ export function RooflineChart({
         ) : null}
         <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-labelledby={`${uid}-svg-title ${uid}-svg-desc`}>
           <title id={`${uid}-svg-title`}>{title}</title>
-          <desc id={`${uid}-svg-desc`}>Logarithmic roofline chart. Hollow markers are analytical; half-filled markers combine observed time with modeled traffic; filled markers require observed time and measured traffic. Exact coincidences use one aggregate glyph at the true coordinate; activate it repeatedly or use the roster to select members.</desc>
+          <desc id={`${uid}-svg-desc`}>Logarithmic roofline chart. Hollow markers are analytical; half-filled markers combine observed time with modeled traffic; filled markers require observed time and measured traffic. Exact coincidences use one aggregate glyph at the true coordinate; activate it repeatedly or use the roster to select members. Dense singleton positions with a narrow local target receive an external 1 pt selector.</desc>
           <defs>
             <clipPath id={`${uid}-plot`}><rect x={box.left} y={box.top} width={box.width} height={box.height} /></clipPath>
             {positionedClusters.filter((cluster) => cluster.marker === "half").map((cluster) => (
@@ -198,13 +214,17 @@ export function RooflineChart({
                 {curve.kind === "uniform_roof" ? <line className="roofline-ridge" x1={ridgeX} x2={ridgeX} y1={box.top} y2={box.top + box.height} /> : null}
               </g>;
             })}
+            {countLabels.map((placement) => <line
+              className="roofline-cluster-count-leader"
+              key={`leader-${placement.key}`}
+              data-cluster-key={placement.key}
+              x1={placement.leaderStartX}
+              y1={placement.leaderStartY}
+              x2={placement.leaderEndX}
+              y2={placement.leaderEndY}
+            />)}
             {positionedClusters.map((cluster, clusterIndex) => {
-              const nearest = nearestCenterDistance(positionedClusters, clusterIndex);
-              const ownershipRadius = Number.isFinite(nearest)
-                ? Math.max(0.05, nearest / 2 - 0.05)
-                : 18;
-              const desiredRadius = markerRadius(cluster.points.reduce((sum, point) => sum + point.markerAreaPx2, 0));
-              const radius = Math.min(desiredRadius, Math.max(0.025, ownershipRadius - 0.025));
+              const { ownershipRadius, radius } = clusterRadii[clusterIndex]!;
               const haloRadius = Math.min(radius + 4, ownershipRadius);
               const selectedMember = selectedClusterMember(cluster);
               const nextMember = nextClusterMember(cluster);
@@ -262,10 +282,15 @@ export function RooflineChart({
               const selected = focusedPointId !== null
                 ? cluster.points.some((point) => point.pointId === focusedPointId)
                 : cluster.points.some((point) => point.selected);
-              return <g className="roofline-cluster-count-control" key={`count-${cluster.key}`} data-cluster-key={cluster.key}>
-                <line className="roofline-cluster-count-leader" x1={cluster.screenX} y1={cluster.screenY} x2={placement.x} y2={placement.y} />
+              const coincident = cluster.points.length > 1;
+              return <g
+                className={`roofline-cluster-count-control${coincident ? "" : " is-singleton"}`}
+                key={`count-${cluster.key}`}
+                data-cluster-key={cluster.key}
+                data-control-kind={coincident ? "coincident-count" : "dense-singleton"}
+              >
                 <rect className="roofline-cluster-count-badge" x={placement.x - placement.width / 2 + 2} y={placement.y - placement.height / 2 + 3} width={placement.width - 4} height={placement.height - 6} rx="4" />
-                <text className="roofline-cluster-count" x={placement.x} y={placement.y + 3.5} textAnchor="middle" aria-hidden="true">×{cluster.points.length}</text>
+                <text className="roofline-cluster-count" x={placement.x} y={placement.y + 3.5} textAnchor="middle" aria-hidden="true">{placement.label}</text>
                 <rect
                   className="roofline-cluster-count-hit"
                   x={placement.x - placement.width / 2}
@@ -276,7 +301,9 @@ export function RooflineChart({
                   role="button"
                   tabIndex={0}
                   aria-pressed={selected}
-                  aria-label={`Select or cycle ${cluster.points.length} coincident points at true arithmetic intensity ${formatNumber(cluster.xFlopPerByte)} FLOP per byte and true throughput ${throughput(cluster.yFlopPerSecond)} FLOP per second; next ${nextMember.label}`}
+                  aria-label={coincident
+                    ? `Select or cycle ${cluster.points.length} coincident points at true arithmetic intensity ${formatNumber(cluster.xFlopPerByte)} FLOP per byte and true throughput ${throughput(cluster.yFlopPerSecond)} FLOP per second; next ${nextMember.label}`
+                    : `Select ${nextMember.label} using the external control for this dense true-coordinate point at arithmetic intensity ${formatNumber(cluster.xFlopPerByte)} FLOP per byte and throughput ${throughput(cluster.yFlopPerSecond)} FLOP per second`}
                   data-cluster-key={cluster.key}
                   onClick={() => activateCluster(cluster)}
                   onKeyDown={(event) => {
