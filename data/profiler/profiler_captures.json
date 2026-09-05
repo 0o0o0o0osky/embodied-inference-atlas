@@ -311,6 +311,68 @@
       ]
     },
     {
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-large-gemm-002",
+      "collection_scope": "representative_kernel_launch",
+      "coverage": {
+        "is_complete_for_population": true,
+        "observed_count": 1,
+        "population": "one_replayed_launch"
+      },
+      "evidence": "measured_local",
+      "missing": {
+        "ncu.backing_store_bytes": "unavailable",
+        "nsys": "not_applicable",
+        "target_window_label": "not_applicable"
+      },
+      "ncu": {
+        "backing_store_bytes": null,
+        "cache_control_request": "all",
+        "clock_control_request": "none",
+        "disable_extra_suffixes": true,
+        "explicit_metrics": [
+          "lts__d_sectors_fill_sysmem.sum",
+          "lts__t_sectors_aperture_sysmem_op_write.sum",
+          "lts__t_sectors_srcunit_tex_aperture_sysmem_lookup_miss.sum"
+        ],
+        "external_clock_control": {
+          "controller": "jetson_clocks",
+          "state": "locked"
+        },
+        "origins": {
+          "backing_store_bytes": "unavailable",
+          "cache_control_request": "session_command",
+          "clock_control_request": "session_command",
+          "disable_extra_suffixes": "session_command",
+          "external_clock_control": "collection_wrapper_observed",
+          "replay_mode": "session_command",
+          "replay_passes": "collection_log_manual_audit",
+          "selection_policy": "session_command",
+          "warmup_count": "harness_source_audit"
+        },
+        "replay_mode": "kernel",
+        "replay_passes": 13,
+        "section_mode": "scheduler_stats_with_sysmem_sectors",
+        "sections": [
+          "SpeedOfLight",
+          "ComputeWorkloadAnalysis",
+          "MemoryWorkloadAnalysis",
+          "LaunchStats",
+          "Occupancy",
+          "SchedulerStats"
+        ],
+        "warmup_count": 3
+      },
+      "nsys": null,
+      "run_id": "run-pi0-flashrt-ncu-encoder-large-gemm-002",
+      "selection_policy": "explicit_invocation",
+      "source_id": "source-local-thor",
+      "target_window_count": 1,
+      "target_window_label": null,
+      "tool": "ncu",
+      "tool_version": "2025.3.0.0",
+      "warnings": []
+    },
+    {
       "capture_id": "capture-pi0-flashrt-ncu-encoder-qkv-split-001",
       "collection_scope": "representative_kernel_launch",
       "coverage": {

@@ -397,9 +397,21 @@ class ProfilerImporterTests(unittest.TestCase):
 
         fixture = json.loads(FIXTURE.read_text())
         label = "pi0-flashrt-ncu-encoder-large-gemm"
-        canonical_run = _record("data/measurements/runs.json", "run_id", f"run-{label}-001")
+        canonical_run = _record(
+            "data/measurements/runs.json", "run_id", f"run-{label}-001"
+        )
+        canonical_ordinals = [
+            int(item["run_id"].rsplit("-", 1)[1])
+            for item in json.loads(
+                (ROOT / "data/measurements/runs.json").read_text(encoding="utf-8")
+            )["records"]
+            if item["run_id"].startswith(f"run-{label}-")
+        ]
+        scheduler_ordinal = f"{max(canonical_ordinals) + 1:03d}"
+        warp_ordinal = f"{max(canonical_ordinals) + 2:03d}"
         run = copy.deepcopy(canonical_run)
-        run["run_id"], run["configuration_id"] = f"run-{label}-002", f"config-{label}-002"
+        run["run_id"] = f"run-{label}-{scheduler_ordinal}"
+        run["configuration_id"] = f"config-{label}-{scheduler_ordinal}"
         run["operating_point"] = {"operating_point_id": "thor-120w-jetson-clocks",
             "power_mode": "120w-mode-1", "clock_policy": "jetson_clocks_locked", "throttle_status": "unknown"}
         run["comparison_context"]["platform"]["operating_point_id"] = "thor-120w-jetson-clocks"
@@ -506,10 +518,12 @@ class ProfilerImporterTests(unittest.TestCase):
             import_ncu_report(Path("/local/input.ncu-rep"), context, policy)
         self.assertTrue(all(call.args[0].count("--config-file") == 1 and
             call.args[0][call.args[0].index("--config-file") + 1] == "off" for call in reader.call_args_list))
-        run3 = copy.deepcopy(run); run3["run_id"], run3["configuration_id"] = f"run-{label}-003", f"config-{label}-003"
+        run3 = copy.deepcopy(run)
+        run3["run_id"] = f"run-{label}-{warp_ordinal}"
+        run3["configuration_id"] = f"config-{label}-{warp_ordinal}"
         context3 = copy.deepcopy(context); object.__setattr__(context3, "run", run3)
-        trigger = {"scheduler_capture_id": f"capture-{label}-002",
-            "scheduler_observation_id": f"kernel-observation-{label}_r002_001",
+        trigger = {"scheduler_capture_id": f"capture-{label}-{scheduler_ordinal}",
+            "scheduler_observation_id": f"kernel-observation-{label}_r{scheduler_ordinal}_001",
             "origin": "reviewed_scheduler_evidence", "criteria": [
                 {"metric_name": "scheduler_issue_active_per_active_cycle", "operator": "lt",
                  "threshold": 0.6, "observed_value": 0.55},
@@ -548,7 +562,7 @@ class ProfilerImporterTests(unittest.TestCase):
         wrong_launch = copy.deepcopy(paired); wrong_launch["datasets"]["kernel_observations"][1]["launch"]["grid"][0] += 1
         wrong_subject = copy.deepcopy(paired); next(item for item in wrong_subject["datasets"]["profiler_metrics"]
             if item["metric_name"] == "scheduler_issue_active_per_active_cycle")["subject"] = {
-                "kind": "capture", "id": f"capture-{label}-002"}
+                "kind": "capture", "id": f"capture-{label}-{scheduler_ordinal}"}
         for candidate in (wrong_launch, wrong_subject):
             with self.assertRaises(PromotionError) as error: plan_promotion(candidate, ROOT)
             self.assertIn("warp_trigger_evidence", {item.code for item in error.exception.issues})
@@ -569,7 +583,8 @@ class ProfilerImporterTests(unittest.TestCase):
         drift = copy.deepcopy(bundle); drift["datasets"]["kernel_signatures"][0]["classification_method"] = "manual"
         reused_run = copy.deepcopy(bundle); reused_run["datasets"]["runs"].append(canonical_run)
         reused_child = copy.deepcopy(bundle); reused_child["datasets"]["kernel_observations"].append(_record(
-            "data/profiler/kernel_observations.json", "observation_id", f"kernel-observation-{label}-001"))
+            "data/profiler/kernel_observations.json", "observation_id",
+            f"kernel-observation-{label}-001"))
         for expected, candidate in (("profiler_signature_drift", drift),
             ("profiler_evidence_overwrite", reused_run), ("profiler_evidence_overwrite", reused_child)):
             with self.assertRaises(PromotionError) as error: plan_promotion(candidate, ROOT)
