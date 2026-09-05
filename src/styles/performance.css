@@ -60,6 +60,15 @@
   line-height: 1.5;
 }
 
+.profiler-intro > strong > small {
+  display: block;
+  margin-top: 0.45rem;
+  color: var(--slate);
+  font-family: var(--mono-face);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
 .profiler-inventory {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));

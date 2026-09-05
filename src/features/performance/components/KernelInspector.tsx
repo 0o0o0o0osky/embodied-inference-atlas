@@ -66,6 +66,8 @@ export function KernelInspector({ model, route, navigate }: {
         <Ledger label="Duration" value={formatDuration(row.observation.duration.valueNs)} />
         <Ledger label="Share" value={row.observation.durationShare ? `${row.observation.durationShare.value.toFixed(2)}% of ${humanize(row.observation.durationShare.denominator)}` : "Not defined for replay"} />
         <Ledger label="Selection" value={humanize(row.capture.selectionPolicy)} />
+        <Ledger label="Function family" value={humanize(row.signature.functionFamily)} />
+        <Ledger label="Implementation family" value={humanize(row.signature.implementationFamily)} />
       </dl>
 
       <section className="kernel-inspector-section">
@@ -136,7 +138,7 @@ export function KernelInspector({ model, route, navigate }: {
               <li key={metric.metricId}>
                 <strong>{humanize(metric.metricName)}</strong>
                 <code>{metric.rawCounterName ?? "no raw counter"}</code>
-                <span>{metric.sectionName} · {metric.basis} · {metric.confidence} confidence · {metric.missingReason ?? "observed"}</span>
+                <span>{humanize(metric.statistic)} · {metric.unit} · {metric.sectionName} · {metric.basis} · {metric.confidence} confidence · {metric.missingReason ?? "observed"}</span>
               </li>
             ))}
           </ul>

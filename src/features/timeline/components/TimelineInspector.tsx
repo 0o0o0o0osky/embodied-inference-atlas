@@ -47,7 +47,6 @@ export function TimelineInspector({
               ? `${observation.durationShare.value.toFixed(2)}% of this capture's ${humanize(observation.durationShare.denominator)}.`
               : "No duration share is defined on this observation."}
           </p>
-          <LaunchLedger launch={observation.launch} compact />
           <RouteLink
             route={route}
             patch={{ tab: "roofline-kernels", rooflineLevel: "overview", entity: kernelEntity(observation.captureId, observation.observationId) }}
@@ -58,7 +57,7 @@ export function TimelineInspector({
         </section>
       ) : null}
 
-      {replay && view.separateReplayCapture ? (
+      {replay && view.separateReplayCapture && view.separateReplayRun ? (
         <section className="timeline-replay">
           <div className="timeline-replay-divider">
             <p>Separate NCU replay · one profiled launch</p>
@@ -68,6 +67,12 @@ export function TimelineInspector({
           <p className="timeline-replay-basis">
             {formatDuration(replay.duration.valueNs)} single replay · no Nsys share or end-to-end meaning · {humanize(view.separateReplayCapture.selectionPolicy)}
           </p>
+          <dl className="timeline-replay-context">
+            <div><dt>Independent run</dt><dd><code>{view.separateReplayRun.run_id}</code></dd></div>
+            <div><dt>Device basis</dt><dd>{view.separateReplayDeviceLabel}<small>{view.separateReplayRun.device_id}</small></dd></div>
+            <div><dt>Operating point</dt><dd>{humanize(view.separateReplayRun.operating_point.operating_point_id)}</dd></div>
+          </dl>
+          <p className="timeline-replay-independence">Same model/runtime/device only. Independent run and operating point; matched signature, not sample.</p>
           <dl className="timeline-metric-grid">
             <MetricValue label="SM throughput" metric={metric(metrics, "sm_throughput_pct_of_peak_sustained_elapsed")} />
             <MetricValue label="Tensor active" metric={metric(metrics, "tensor_cycles_active_pct_of_peak_sustained_elapsed")} />
@@ -97,7 +102,7 @@ export function TimelineInspector({
                 <li key={item.metricId}>
                   <strong>{humanize(item.metricName)}</strong>
                   <code>{item.rawCounterName ?? "no raw counter"}</code>
-                  <span>{item.sectionName} · {item.basis} · {item.confidence} confidence · {item.missingReason ?? "observed"}</span>
+                  <span>{humanize(item.statistic)} · {item.unit} · {item.sectionName} · {item.basis} · {item.confidence} confidence · {item.missingReason ?? "observed"}</span>
                 </li>
               ))}
             </ul>
@@ -135,16 +140,14 @@ function MissingMetric({ label, metrics }: { label: string; metrics: readonly (P
   );
 }
 
-function LaunchLedger({ launch, compact = false }: { launch: KernelLaunch; compact?: boolean }) {
+function LaunchLedger({ launch }: { launch: KernelLaunch }) {
   const shape = (value: readonly number[] | null) => value ? value.join(" × ") : "Missing";
   return (
-    <dl className={`timeline-launch-ledger ${compact ? "is-compact" : ""}`}>
+    <dl className="timeline-launch-ledger">
       <div><dt>Grid</dt><dd>{shape(launch.grid)}</dd></div>
       <div><dt>Block</dt><dd>{shape(launch.block)}</dd></div>
-      {!compact ? <>
-        <div><dt>Registers / thread</dt><dd>{launch.registersPerThread ?? "Missing"}</dd></div>
-        <div><dt>Dynamic shared</dt><dd>{launch.dynamicSharedMemoryBytes === null ? "Missing" : formatBytes(launch.dynamicSharedMemoryBytes)}</dd></div>
-      </> : null}
+      <div><dt>Registers / thread</dt><dd>{launch.registersPerThread ?? "Missing"}</dd></div>
+      <div><dt>Dynamic shared</dt><dd>{launch.dynamicSharedMemoryBytes === null ? "Missing" : formatBytes(launch.dynamicSharedMemoryBytes)}</dd></div>
     </dl>
   );
 }

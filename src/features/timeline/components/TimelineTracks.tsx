@@ -37,7 +37,7 @@ export function TimelineTracks({
       id: lane.laneId,
       lane,
       label: laneLabel(lane),
-      detail: lane.coverage === "partial" ? "partial capture" : lane.coverage,
+      detail: laneDetail(lane),
       events: eventsByLane.get(lane.laneId) ?? [],
       missing: null,
     }));
@@ -116,6 +116,7 @@ export function TimelineTracks({
         <span className="is-envelope">Graph execution envelope</span>
         <span className="is-scheduler">Scheduler-running interval</span>
         <span className="is-unknown">Unclassified / unknown</span>
+        <span className="is-selected">Selected interval</span>
         <strong>Unfilled space is unobserved, not idle.</strong>
       </div>
     </section>
@@ -140,11 +141,19 @@ function laneLabel(lane: TimelineLane) {
 function eventClass(event: TimelineEvent) {
   if (event.eventKind === "scheduler") return "timeline-event is-scheduler";
   if (event.evidenceSemantics === "cuda_graph_execution_span") return "timeline-event is-envelope";
+  if (event.eventKind === "cuda_api") return "timeline-event is-api";
   if (event.eventKind === "kernel" && !event.kernelSignatureId) return "timeline-event is-unknown";
   if (event.eventKind === "kernel") return "timeline-event is-kernel";
   if (event.eventKind === "memcpy") return "timeline-event is-copy";
   if (event.eventKind === "profiler_overhead") return "timeline-event is-profiler";
   return "timeline-event is-exact";
+}
+
+function laneDetail(lane: TimelineLane) {
+  const coverage = lane.coverage === "partial" ? "partial capture" : lane.coverage;
+  return lane.kind === "cuda_api"
+    ? `API wall interval · not CPU scheduled execution · coverage: ${coverage}`
+    : `coverage: ${coverage}`;
 }
 
 function eventAriaLabel(event: TimelineEvent) {

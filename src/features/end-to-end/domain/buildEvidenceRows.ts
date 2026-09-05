@@ -2,6 +2,7 @@ import type {
   AtlasData,
   CanonicalRecord,
   EvidenceClass,
+  ModelArtifactRecord,
   RunRecord,
 } from "../../../types/atlas";
 import { parseEntityKey } from "../../workbench/entityKeys";
@@ -39,6 +40,8 @@ export interface StageMeasurement extends TimingMeasurement {
 
 export interface EvidenceRow {
   run: RunRecord;
+  artifact: ModelArtifactRecord | null;
+  artifactQualification: string;
   measurement: TimingMeasurement;
   stages: readonly StageMeasurement[];
   runtimeLabel: string;
@@ -184,6 +187,14 @@ function comparisonNote(run: RunRecord): string {
   return "Single-run value · no ratio emitted";
 }
 
+function artifactQualification(artifact: ModelArtifactRecord | null): string {
+  if (!artifact) return "Artifact is not present in the model catalog";
+  if (!artifact.public_model_id) return "No public model identity recorded";
+  return artifact.public_revision
+    ? `Public model ${artifact.public_model_id} · revision ${artifact.public_revision}`
+    : `Public model ${artifact.public_model_id} · revision not recorded`;
+}
+
 function countRows(rows: readonly EvidenceRow[]) {
   return Object.fromEntries(EVIDENCE_PLANES.map((evidence) => [
     evidence,
@@ -197,6 +208,9 @@ export function buildEvidenceRows(
   filters: { runtimeId: string | null; hardwareId: string | null; entity: string | null },
 ): EvidenceRowsModel {
   const runById = new Map(data.datasets.runs.map((run) => [run.run_id, run]));
+  const artifactsByModelAndId = new Map(data.datasets.models.flatMap((catalogModel) =>
+    catalogModel.artifacts.map((artifact) => [`${catalogModel.model_id}/${artifact.artifact_id}`, artifact] as const),
+  ));
   const stagesByRun = new Map<string, StageMeasurement[]>();
   data.datasets.stages.forEach((record) => {
     const stage = adaptStage(record);
@@ -213,8 +227,11 @@ export function buildEvidenceRows(
     if (!measurement) return [];
     const run = runById.get(measurement.runId);
     if (!run || run.model_id !== modelId || run.evidence !== measurement.evidence) return [];
+    const artifact = artifactsByModelAndId.get(`${run.model_id}/${run.model_artifact_id}`) ?? null;
     return [{
       run,
+      artifact,
+      artifactQualification: artifactQualification(artifact),
       measurement,
       stages: stagesByRun.get(run.run_id) ?? [],
       runtimeLabel: runtimeLabels.get(run.runtime_id) ?? run.runtime_id,

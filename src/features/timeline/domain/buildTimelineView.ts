@@ -29,6 +29,8 @@ export interface TimelineViewModel {
   selectedObservation: KernelObservation | null;
   separateReplay: KernelObservation | null;
   separateReplayCapture: ProfilerCapture | null;
+  separateReplayRun: RunRecord | null;
+  separateReplayDeviceLabel: string | null;
   replayMetrics: readonly ProfilerMetric[];
   summariesByName: ReadonlyMap<string, TimelineSummary>;
   requestedCaptureUnavailable: boolean;
@@ -141,6 +143,8 @@ export function buildTimelineView(
       selectedObservation: null,
       separateReplay: null,
       separateReplayCapture: null,
+      separateReplayRun: null,
+      separateReplayDeviceLabel: null,
       replayMetrics: [],
       summariesByName: new Map(),
       requestedCaptureUnavailable: query.captureId !== null,
@@ -177,10 +181,29 @@ export function buildTimelineView(
       && observation.observationKind.startsWith("nsys_"),
     ) ?? null;
   }
-  const separateReplay = signatureId
-    ? (index.observationsBySignatureId.get(signatureId) ?? []).find((observation) => observation.observationKind === "ncu_replayed_launch") ?? null
+  const replayCandidate = signatureId
+    ? (index.observationsBySignatureId.get(signatureId) ?? []).flatMap((observation) => {
+      if (observation.observationKind !== "ncu_replayed_launch") return [];
+      const capture = index.captureById.get(observation.captureId);
+      const run = runById.get(observation.runId);
+      if (
+        !capture
+        || capture.tool !== "ncu"
+        || !run
+        || capture.runId !== run.run_id
+        || run.model_id !== active.run.model_id
+        || run.runtime_id !== active.run.runtime_id
+        || run.device_id !== active.run.device_id
+      ) return [];
+      return [{ observation, capture, run }];
+    }).sort((left, right) => left.observation.observationId.localeCompare(right.observation.observationId))[0] ?? null
     : null;
-  const separateReplayCapture = separateReplay ? index.captureById.get(separateReplay.captureId) ?? null : null;
+  const separateReplay = replayCandidate?.observation ?? null;
+  const separateReplayCapture = replayCandidate?.capture ?? null;
+  const separateReplayRun = replayCandidate?.run ?? null;
+  const separateReplayDeviceLabel = separateReplayRun
+    ? data.datasets.devices.find((device) => device.device_id === separateReplayRun.device_id)?.display_name ?? separateReplayRun.device_id
+    : null;
 
   return {
     options,
@@ -190,6 +213,8 @@ export function buildTimelineView(
     selectedObservation,
     separateReplay,
     separateReplayCapture,
+    separateReplayRun,
+    separateReplayDeviceLabel,
     replayMetrics: separateReplay
       ? index.metricsBySubjectId.get(`kernel_observation:${separateReplay.observationId}`) ?? []
       : [],

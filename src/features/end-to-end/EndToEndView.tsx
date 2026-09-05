@@ -47,7 +47,7 @@ export function EndToEndView({ data, model, route, navigate }: EndToEndViewProps
       </header>
 
       <p className="e2e-boundary-note">
-        Bar traces compare statistics only within one run and reset their scale on every row. No current measured record is comparison-safe with a VLA-Perf estimate; no gap or speedup ratio is emitted.
+        Bar traces compare statistics only within one run and reset their scale on every row. No current measured record is comparison-safe with an analytical artifact; no gap or speedup ratio is emitted.
       </p>
 
       <div className="evidence-planes">

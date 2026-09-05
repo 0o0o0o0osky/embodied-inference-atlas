@@ -40,6 +40,7 @@ export function PerformanceView({ data, model, route, navigate }: PerformanceVie
           </div>
           <strong>
             {inventory.observations} capture-local observations / {inventory.ncuReplays} diagnostic NCU replays / {inventory.rooflineEligibleKernelPoints} roofline-eligible kernel points
+            <small>Active scope: {view.activeFilter}</small>
           </strong>
         </header>
 

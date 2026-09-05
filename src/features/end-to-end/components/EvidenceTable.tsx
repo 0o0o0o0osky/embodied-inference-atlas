@@ -8,7 +8,7 @@ const EVIDENCE_COPY: Record<EvidenceClass, { title: string; description: string 
   },
   analytical: {
     title: "Analytical",
-    description: "Modeled VLA-Perf estimates. They remain separate from observed wall-clock values and do not validate a speedup.",
+    description: "Canonical artifact labels distinguish stock, proxy, and custom analyses. No analytical row is assumed to be a model-faithful bound.",
   },
   reported_external: {
     title: "Reported external",
@@ -45,7 +45,7 @@ export function EvidenceTable({
             <table>
               <thead>
                 <tr>
-                  <th scope="col">Run / runtime</th>
+                  <th scope="col">Run / runtime / artifact</th>
                   <th scope="col">Selected latency</th>
                   <th scope="col">Within-run timing</th>
                   <th scope="col">Workload</th>
@@ -64,6 +64,8 @@ export function EvidenceTable({
                         {row.runtimeLabel}
                         <small>{row.run.run_id}</small>
                       </button>
+                      <span className="evidence-artifact-label">{row.artifact?.label ?? "Artifact not cataloged"}</span>
+                      <small>{row.artifactQualification}</small>
                     </th>
                     <td className="evidence-selected-value">
                       {row.selected?.value === null || !row.selected ? "Unavailable" : formatTiming(row.selected.value, row.selected.unit)}

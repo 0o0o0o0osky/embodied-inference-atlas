@@ -22,7 +22,7 @@ export function StageLedger({ row }: { row: EvidenceRow | null }) {
           <h3 id="stage-ledger-title">Stage ledger</h3>
           <code>{row.run.run_id}</code>
         </div>
-        <span>{statusLabel(status)}</span>
+        <span>{statusLabel(status, row.measurement.evidence)}</span>
       </header>
       <div className="stage-ledger-context">
         <strong>{row.runtimeLabel} · {row.selected?.value === null || !row.selected ? "latency unavailable" : formatTiming(row.selected.value, row.selected.unit)}</strong>
@@ -34,7 +34,7 @@ export function StageLedger({ row }: { row: EvidenceRow | null }) {
       ) : (
         <>
           {status === "additive_reconciled" && selectedValue !== null ? (
-            <div className="stage-composition" aria-label="Reconciled analytical stage composition">
+            <div className="stage-composition" aria-label={`Reconciled ${evidenceLabel(row.measurement.evidence)} stage composition`}>
               {selectedStages.map(({ stage, timing }) => timing?.value === null || !timing ? null : (
                 <span
                   key={stage.measurementId}
@@ -58,7 +58,7 @@ export function StageLedger({ row }: { row: EvidenceRow | null }) {
           </div>
           <p className={`stage-ledger-note stage-ledger-note--${status}`}>
             {status === "additive_reconciled"
-              ? "These analytical stages share the end-to-end boundary, are declared additive, and reconcile to the selected estimate. The composition bar is valid only for this run."
+              ? `These ${evidenceLabel(row.measurement.evidence)} stages share the end-to-end boundary, are declared additive, and reconcile to the selected value. The composition bar is valid only for this run.`
               : status === "non_additive_summaries"
                 ? "These are independently summarized stages. They are not summed, stacked, or treated as a partition of the end-to-end window."
                 : "The available stages do not prove a complete additive partition, so no stacked composition or stage total is shown."}
@@ -69,9 +69,13 @@ export function StageLedger({ row }: { row: EvidenceRow | null }) {
   );
 }
 
-function statusLabel(status: ReturnType<typeof stagePartitionStatus>) {
-  if (status === "additive_reconciled") return "Analytical partition reconciled";
+function statusLabel(status: ReturnType<typeof stagePartitionStatus>, evidence?: EvidenceRow["measurement"]["evidence"]) {
+  if (status === "additive_reconciled") return `${evidenceLabel(evidence ?? "analytical")} partition reconciled`;
   if (status === "non_additive_summaries") return "Non-additive summaries";
   if (status === "not_collected") return "Not collected";
   return "Incomplete partition";
+}
+
+function evidenceLabel(evidence: EvidenceRow["measurement"]["evidence"]) {
+  return evidence.replaceAll("_", " ");
 }

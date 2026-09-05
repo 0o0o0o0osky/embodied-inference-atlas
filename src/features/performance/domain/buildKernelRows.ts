@@ -63,17 +63,21 @@ function modelEvidence(
   data: AtlasData,
   evidence: ProfilerEvidence,
   index: ProfilerEvidenceIndex,
-  modelId: string,
+  query: { modelId: string; runtimeId: string | null; hardwareId: string | null },
 ) {
   const modelRunIds = new Set(data.datasets.runs
-    .filter((run) => run.model_id === modelId)
+    .filter((run) => run.model_id === query.modelId
+      && (!query.runtimeId || run.runtime_id === query.runtimeId)
+      && (!query.hardwareId || run.device_id === query.hardwareId))
     .map((run) => run.run_id));
-  const signatureIds = new Set(evidence.signatures.filter((signature) => signature.modelId === modelId).map((signature) => signature.kernelSignatureId));
-  const observations = evidence.observations.filter((observation) => signatureIds.has(observation.kernelSignatureId));
+  const modelSignatureIds = new Set(evidence.signatures.filter((signature) => signature.modelId === query.modelId).map((signature) => signature.kernelSignatureId));
+  const observations = evidence.observations.filter((observation) =>
+    modelRunIds.has(observation.runId) && modelSignatureIds.has(observation.kernelSignatureId));
+  const observedSignatureIds = new Set(observations.map((observation) => observation.kernelSignatureId));
   const captures = evidence.captures.filter((capture) => modelRunIds.has(capture.runId));
   const captureIds = new Set(captures.map((capture) => capture.captureId));
   return {
-    signatures: evidence.signatures.filter((signature) => signatureIds.has(signature.kernelSignatureId)),
+    signatures: evidence.signatures.filter((signature) => observedSignatureIds.has(signature.kernelSignatureId)),
     observations,
     captures,
     timelines: evidence.timelines.filter((timeline) => captureIds.has(timeline.captureId)),
@@ -89,7 +93,9 @@ function modelEvidence(
       const modelBasisIds = new Set(data.datasets.roofline_bases.flatMap((record) =>
         typeof record.basis_id === "string"
         && typeof record.scenario_id === "string"
-        && scenariosById.get(record.scenario_id) === modelId
+        && scenariosById.get(record.scenario_id) === query.modelId
+        && (!query.runtimeId || record.runtime_id === query.runtimeId)
+        && (!query.hardwareId || record.device_id === query.hardwareId)
           ? [record.basis_id]
           : [],
       ));
@@ -163,7 +169,7 @@ export function buildKernelRows(
   index: ProfilerEvidenceIndex,
   query: { modelId: string; runtimeId: string | null; hardwareId: string | null; entity: string | null },
 ): KernelRowsModel {
-  const model = modelEvidence(data, evidence, index, query.modelId);
+  const model = modelEvidence(data, evidence, index, query);
   const runById = new Map(data.datasets.runs.map((run) => [run.run_id, run]));
   const rows = model.observations.flatMap((observation): KernelRow[] => {
     const signature = index.signatureById.get(observation.kernelSignatureId);
@@ -209,7 +215,9 @@ export function buildKernelRows(
   const siblings = selectedRow
     ? rows.filter((row) => row.signature.kernelSignatureId === selectedRow.signature.kernelSignatureId)
     : [];
-  const labels = [query.runtimeId ? `runtime ${query.runtimeId}` : null, query.hardwareId ? `hardware ${query.hardwareId}` : null]
+  const runtimeLabel = data.datasets.runtimes.find((runtime) => runtime.runtime_id === query.runtimeId)?.display_name ?? query.runtimeId;
+  const hardwareLabel = data.datasets.devices.find((device) => device.device_id === query.hardwareId)?.display_name ?? query.hardwareId;
+  const labels = [query.runtimeId ? `runtime ${runtimeLabel}` : null, query.hardwareId ? `hardware ${hardwareLabel}` : null]
     .filter((value): value is string => value !== null);
   return {
     rows,

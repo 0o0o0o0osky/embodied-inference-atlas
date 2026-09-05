@@ -213,6 +213,15 @@
   line-height: 1.35;
 }
 
+.evidence-artifact-label {
+  display: block;
+  max-width: 24rem;
+  margin-top: 0.55rem;
+  color: var(--graphite);
+  font-weight: 800;
+  line-height: 1.35;
+}
+
 .evidence-selected-value {
   font-family: var(--mono-face);
   font-size: 0.94rem;

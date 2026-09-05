@@ -194,7 +194,7 @@
 
 .timeline-analysis-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(27rem, 31rem);
+  grid-template-columns: minmax(0, 1fr) minmax(29rem, 33rem);
   align-items: start;
   gap: 1rem;
   padding-top: 1rem;
@@ -318,6 +318,13 @@
   stroke-dasharray: 7 4;
 }
 
+.timeline-event.is-api {
+  fill: #e5efef;
+  stroke: var(--signal-blue-dark);
+  stroke-width: 2;
+  stroke-dasharray: 3 2;
+}
+
 .timeline-event.is-kernel,
 .timeline-event.is-exact {
   fill: var(--signal-blue-dark);
@@ -373,14 +380,20 @@
 .timeline-legend .is-envelope::before { border: 2px dashed var(--signal-blue-dark); }
 .timeline-legend .is-scheduler::before { background: #a9b3af; opacity: 0.6; }
 .timeline-legend .is-unknown::before { background: transparent; }
+.timeline-legend .is-selected::before { border: 2px solid var(--graphite); background: var(--safety-orange); }
 .timeline-legend strong { margin-left: auto; color: var(--danger); }
 
 .timeline-summary > dl,
 .timeline-event-ledger,
 .timeline-metric-grid,
 .timeline-launch-ledger,
+.timeline-replay-context,
 .timeline-missing-evidence {
   margin: 0;
+}
+
+.timeline-event-ledger {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 .timeline-summary > dl {
@@ -456,17 +469,18 @@
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
-.timeline-launch-ledger {
+.timeline-metric-grid {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
-.timeline-launch-ledger.is-compact {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+.timeline-launch-ledger {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 .timeline-event-ledger > div,
 .timeline-metric-grid > div,
 .timeline-launch-ledger > div,
+.timeline-replay-context > div,
 .timeline-missing-evidence > div {
   min-width: 0;
   padding: 0.35rem 0.55rem;
@@ -477,15 +491,63 @@
 .timeline-event-ledger dd,
 .timeline-metric-grid dd,
 .timeline-launch-ledger dd,
+.timeline-replay-context dd,
 .timeline-missing-evidence dd {
   overflow-wrap: anywhere;
   font-size: 1rem;
+}
+
+.timeline-replay-context {
+  display: grid;
+  grid-template-columns: 2fr 1.35fr 0.8fr;
+  margin: 0.45rem 0 0;
+  border-top: 1px solid var(--line-dark);
+  border-left: 1px solid var(--line-dark);
+}
+
+.timeline-replay-context dt {
+  color: var(--slate);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.timeline-replay-context dd {
+  margin: 0.2rem 0 0;
+  overflow-wrap: anywhere;
+  font-family: var(--mono-face);
+  font-size: 1rem;
+  font-weight: 800;
+  line-height: 1.05;
+}
+
+.timeline-replay-context dd code {
+  font-size: 0.78rem;
+}
+
+.timeline-replay-context small {
+  display: block;
+  margin-top: 0.15rem;
+  color: var(--slate);
+  font-size: 0.72rem;
+}
+
+.timeline-replay-independence {
+  margin: 0;
+  padding: 0.3rem 0.45rem;
+  border-left: 4px solid var(--signal-blue-dark);
+  background: #edf4f3;
+  font-size: 1rem;
+  line-height: 1.25;
 }
 
 .timeline-aggregate,
 .timeline-replay {
   padding: 0.6rem;
   border-top: 2px solid var(--graphite);
+}
+
+.timeline-aggregate {
+  padding: 0.4rem 0.6rem;
 }
 
 .timeline-inspector-section-heading {
@@ -510,13 +572,14 @@
 .timeline-aggregate > a,
 .kernel-timeline-link {
   display: inline-block;
-  margin-top: 0.55rem;
+  margin-top: 0.25rem;
   color: var(--signal-blue-dark);
   font-size: 1rem;
   font-weight: 800;
 }
 
 .timeline-replay {
+  padding: 0.5rem;
   border-top: 5px double var(--safety-orange);
   background-image: repeating-linear-gradient(0deg, transparent, transparent 23px, rgb(101 113 109 / 8%) 23px, rgb(101 113 109 / 8%) 24px);
 }
@@ -532,7 +595,7 @@
 }
 
 .timeline-missing-evidence {
-  margin-top: 0.55rem;
+  margin-top: 0.4rem;
   border-top: 1px dashed var(--danger);
   border-left: 1px dashed var(--danger);
 }
@@ -542,9 +605,14 @@
   border-bottom: 1px dashed var(--danger);
 }
 
+.timeline-missing-evidence dt {
+  font-size: 0.75rem;
+  line-height: 1.2;
+}
+
 .timeline-diagnosis-boundary {
-  margin: 0.55rem 0;
-  padding: 0.4rem 0.5rem;
+  margin: 0.25rem 0;
+  padding: 0.2rem 0.4rem;
   border-left: 4px solid var(--danger);
   background: #fff2ee;
   font-size: 1rem;

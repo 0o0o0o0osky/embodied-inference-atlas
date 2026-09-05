@@ -12,7 +12,14 @@ export interface ModelRecord {
   input_modalities: string[];
   output_modalities: string[];
   execution_modes: string[];
-  artifacts: Array<{ artifact_id: string; label: string }>;
+  artifacts: ModelArtifactRecord[];
+}
+
+export interface ModelArtifactRecord {
+  artifact_id: string;
+  label: string;
+  public_model_id: string | null;
+  public_revision: string | null;
 }
 
 export interface RuntimeSupportRecord {
