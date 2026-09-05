@@ -154,7 +154,7 @@ export function RooflineView(props: RooflineViewProps) {
   return <CoreRooflineView
     {...props}
     defaultScenarioId={modelCapabilities.roofline.defaultScenarioId}
-    configurationIds={modelCapabilities.configurationIds}
+    canonicalConfigurationIds={modelCapabilities.canonicalConfigurationIds}
   />;
 }
 
@@ -164,8 +164,8 @@ function CoreRooflineView({
   route,
   navigate,
   defaultScenarioId,
-  configurationIds,
-}: RooflineViewProps & { defaultScenarioId: string; configurationIds: ReadonlySet<string> }) {
+  canonicalConfigurationIds,
+}: RooflineViewProps & { defaultScenarioId: string; canonicalConfigurationIds: ReadonlySet<string> }) {
   const canonical = useMemo(() => indexRoofline(data), [data]);
   const modelId = model.model_id;
   const requestedBasis = route.basis ? canonical.basisById.get(route.basis) : null;
@@ -179,7 +179,7 @@ function CoreRooflineView({
   const workloadBounds = useMemo(() => promptBounds(graphRecord), [graphRecord]);
   const workload = parseInteractiveWorkload(route.workload, sourceScenario.workload, workloadBounds);
   const interactive = useMemo(() => {
-    if (!isAnalyticalWorkload(route.workload, configurationIds)) return null;
+    if (!isAnalyticalWorkload(route.workload, canonicalConfigurationIds)) return null;
     const realizationId = sourceScenario.precision_path.realization_ids.length === 1
       ? sourceScenario.precision_path.realization_ids[0]!
       : null;
@@ -226,7 +226,7 @@ function CoreRooflineView({
     } catch {
       return null;
     }
-  }, [canonical, configurationIds, data.datasets.runtime_realizations, graphRecord, requestedBasis, route.hardware, route.workload, sourceScenario, workload]);
+  }, [canonical, canonicalConfigurationIds, data.datasets.runtime_realizations, graphRecord, requestedBasis, route.hardware, route.workload, sourceScenario, workload]);
   const index = useMemo(() => interactive
     ? createRooflineIndex(
       canonical.ceilings,
@@ -243,10 +243,10 @@ function CoreRooflineView({
     modelGraphId: sourceScenario.model_graph_id!,
     runtimeId: route.runtime,
     hardwareId: route.hardware,
-    workload: runtimeResolutionWorkload(route.workload, workload, [...configurationIds]),
+    workload: runtimeResolutionWorkload(route.workload, workload, [...canonicalConfigurationIds]),
     precisionId: route.runtimePrecision,
-    opaqueConfigurationIds: configurationIds,
-  }) : [], [configurationIds, data.datasets.runs, modelId, realizations, route.hardware, route.runtime, route.runtimePrecision, route.workload, sourceScenario.model_graph_id, workload]);
+    canonicalConfigurationIds,
+  }) : [], [canonicalConfigurationIds, data.datasets.runs, modelId, realizations, route.hardware, route.runtime, route.runtimePrecision, route.workload, sourceScenario.model_graph_id, workload]);
   const activeCandidate = exactRuntimeCandidate(runtimeCandidates);
   const activeRealization = activeCandidate?.realization ?? null;
   // Task 4 resolves realizations but does not yet expose a canonical capture

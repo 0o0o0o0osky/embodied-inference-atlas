@@ -4,7 +4,6 @@ import { readRoute, routeHref } from "../../../app/routes";
 import type { LogicalDag, LogicalLayout, LogicalNode } from "../../model-graph/domain/types";
 import { placeRuntimeLabel } from "../components/RuntimeOverlay";
 import type { ExecutionGroup, RuntimeMapping, RuntimeRealizationRecord } from "../domain/types";
-import { resolveRuntimeCandidates } from "../domain/resolveRuntimeRealization";
 import { buildRuntimeOverlay } from "./buildRuntimeOverlay";
 
 it("projects runtime states without altering or obscuring fixed logical geometry", () => {
@@ -73,15 +72,6 @@ it("projects runtime states without altering or obscuring fixed logical geometry
   expect([...layout.nodeBoxes]).toEqual(before);
   const route = readRoute("?model=pi0&tab=runtime&precision=dense-bf16&runtimePrecision=uniform-fp16");
   expect(routeHref(route, { tab: "logical" })).toContain("precision=dense-bf16&runtimePrecision=uniform-fp16");
-  const unsupported = {
-    ...realization, modelId: "smolvla", modelGraphId: "smolvla-base-logical-v1", runtimeId: "vla-cpp",
-    availability: "not_supported", availabilityReasonCode: "loader_rejects_q8_tensor",
-    configurationIds: [], deviceIds: [], precisionPaths: [{ precisionPathId: "q8", label: "Q8" }],
-  } as unknown as RuntimeRealizationRecord;
-  expect(resolveRuntimeCandidates([unsupported], [], {
-    modelId: "smolvla", modelGraphId: "smolvla-base-logical-v1", runtimeId: "vla-cpp",
-    hardwareId: "thor", workload: "cfg-other", precisionId: "q8",
-  })[0]?.realization.availabilityReasonCode).toBe("loader_rejects_q8_tensor");
   const blocked = { ...layout, width: 320, height: 220 };
   const blockers = [{ x: 0, y: 0, width: 320, height: 220 }];
   expect(placeRuntimeLabel({ x: 100, y: 100, width: 60, height: 30 }, 190, blocked, blockers)).toBeNull();

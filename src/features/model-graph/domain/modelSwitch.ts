@@ -42,12 +42,16 @@ function parsedRuntimeWorkload(encoded: string) {
 function contextMatches(
   context: SelectionContext | undefined,
   selection: CompatibleSelection,
+  precisionId: string | null = selection.runtimePrecision,
 ) {
   if (!context) return false;
-  if (selection.runtime && context.runtimeId && context.runtimeId !== selection.runtime) return false;
+  if (context.runtimeId && context.runtimeId !== selection.runtime) return false;
   if (selection.hardware && context.hardwareIds.size && !context.hardwareIds.has(selection.hardware)) return false;
-  if (selection.runtimePrecision && context.precisionIds.size && !context.precisionIds.has(selection.runtimePrecision)) return false;
-  if (!selection.realizationId || !context.realizationIds.has(selection.realizationId)) return false;
+  if (precisionId && context.precisionIds.size && !context.precisionIds.has(precisionId)) return false;
+  if (context.runtimeId && context.realizationIds.size === 0) return false;
+  if (context.realizationIds.size && (
+    !selection.realizationId || !context.realizationIds.has(selection.realizationId)
+  )) return false;
   if (selection.configurationId && !context.configurationIds.has(selection.configurationId)) return false;
   const workload = selection.workload && !selection.configurationId
     ? parsedRuntimeWorkload(selection.workload)
@@ -60,7 +64,7 @@ function contextMatches(
 }
 
 function runtimeWorkload(capabilities: ModelCapabilities, encoded: string | null): string | null {
-  if (!encoded || capabilities.configurationIds.has(encoded)) return encoded;
+  if (!encoded || capabilities.canonicalConfigurationIds.has(encoded)) return encoded;
   const aliases = new Map<string, string>([
     ["v", "V"], ["p", "L_PROMPT"], ["a", "T_ACTION"], ["n", "N_DENOISE"],
   ]);
@@ -106,7 +110,7 @@ function compatibleRuntimeSelection(
       hardwareId: hardware,
       workload: runtimeWorkload(capabilities, workload),
       precisionId: runtimePrecision,
-      opaqueConfigurationIds: capabilities.configurationIds,
+      canonicalConfigurationIds: capabilities.canonicalConfigurationIds,
     });
     return candidates.length === 1 ? candidates[0]! : null;
   };
@@ -229,12 +233,7 @@ export function modelSwitchPatch(
     : null;
   const basis = current.basis && basisContext
     && (current.rooflineLevel === "overview" || basisContext.level === current.rooflineLevel)
-    && (!precision || basisContext.precisionIds.has(precision))
-    && (!selection.hardware || basisContext.hardwareIds.has(selection.hardware))
-    && (!selection.runtime || !basisContext.runtimeId || basisContext.runtimeId === selection.runtime)
-    && (!selection.runtime || basisContext.realizationIds.size === 0 || (
-      selection.realizationId !== null && basisContext.realizationIds.has(selection.realizationId)
-    ))
+    && contextMatches(basisContext, selection, precision)
     ? current.basis
     : null;
   const timelineCapture = current.timelineCapture

@@ -15,6 +15,8 @@ import pi05RealizationDocument from "../../../data/runtime_realizations/pi05.jso
 import type { RouteState } from "../../app/routes";
 import type { AtlasData, AtlasDatasets, CanonicalRecord, ModelRecord } from "../../types/atlas";
 import { modelSwitchPatch } from "../model-graph/domain/modelSwitch";
+import { adaptRuntimeRealization } from "../runtime/domain/adaptRuntimeRealization";
+import { resolveRuntimeCandidates } from "../runtime/domain/resolveRuntimeRealization";
 import { RooflineView } from "../roofline/components/RooflineView";
 import {
   interactiveSourceBasisIsLossless,
@@ -28,6 +30,7 @@ import {
   runtimeGroupEntity,
   timelineEventEntity,
 } from "./entityKeys";
+import { createModelCapabilityRegistry } from "./modelCapabilities";
 
 function atlas(overrides: Partial<AtlasDatasets>): AtlasData {
   return {
@@ -67,8 +70,12 @@ it("retains only target-model-compatible selections and discovers roofline suppo
     basis: "basis-pi0-bf16_dense-stage-default",
   });
   const assignmentShapedConfiguration = "V=3,L_PROMPT=180,T_ACTION=10,N_DENOISE=10";
+  const foreignAssignmentShapedConfiguration = "V=2,L_PROMPT=160,T_ACTION=10,N_DENOISE=10";
   const vlaPerfRun = runDocument.records.find((record) =>
     record.model_id === "pi05" && record.runtime_id === "vla-perf",
+  )!;
+  const foreignRun = runDocument.records.find((record) =>
+    record.model_id === "pi0" && record.runtime_id === "vla-perf",
   )!;
   const switchData = atlas({
     models: modelDocument.records as unknown as ModelRecord[],
@@ -80,6 +87,7 @@ it("retains only target-model-compatible selections and discovers roofline suppo
     runs: [
       ...runDocument.records,
       { ...structuredClone(vlaPerfRun), run_id: "run-assignment-config-fixture", configuration_id: assignmentShapedConfiguration },
+      { ...structuredClone(foreignRun), run_id: "run-foreign-assignment-config-fixture", configuration_id: foreignAssignmentShapedConfiguration },
     ] as unknown as AtlasDatasets["runs"],
     runtime_realizations: [
       ...pi05RealizationDocument.records,
@@ -97,6 +105,10 @@ it("retains only target-model-compatible selections and discovers roofline suppo
       entity: { kind: "atomic_operator" },
     }],
   });
+  const registry = createModelCapabilityRegistry(switchData);
+  const pi05Capabilities = registry.get("pi05")!;
+  expect(pi05Capabilities.canonicalConfigurationIds.has(foreignAssignmentShapedConfiguration)).toBe(true);
+  expect(pi05Capabilities.configurationIds.has(foreignAssignmentShapedConfiguration)).toBe(false);
   expect(modelSwitchPatch(switchData, "pi05", currentRoute)).toEqual({
     model: "pi05",
     runtime: null,
@@ -130,7 +142,21 @@ it("retains only target-model-compatible selections and discovers roofline suppo
     precision: "runtime_mixed",
     runtimePrecision: null,
     basis: "basis-pi05-runtime_mixed-stage-default",
+  }).basis).toBeNull();
+  expect(modelSwitchPatch(switchData, "pi05", {
+    ...currentRoute,
+    runtime: "flashrt",
+    hardware: "nvidia-jetson-agx-thor",
+    workload: "cfg-flashrt-pi05-matrix-008",
+    precision: "runtime_mixed",
+    runtimePrecision: "mixed-fp8-e4m3-fp16",
+    basis: "basis-pi05-runtime_mixed-stage-default",
   }).basis).toBe("basis-pi05-runtime_mixed-stage-default");
+  const mixedBasisContext = pi05Capabilities.rooflineBasisContexts.get("basis-pi05-runtime_mixed-stage-default")!;
+  expect([...mixedBasisContext.configurationIds]).toEqual(["cfg-flashrt-pi05-matrix-008"]);
+  expect(Object.fromEntries(mixedBasisContext.workloadBindings!)).toMatchObject({
+    V: 3, L_PROMPT: 160, T_ACTION: 10, N_DENOISE: 10,
+  });
   const unsupportedGroupId = pi05RealizationDocument.records[0]!.execution_groups[0]!.execution_group_id;
   expect(modelSwitchPatch(switchData, "pi05", {
     ...currentRoute,
@@ -160,6 +186,15 @@ it("retains only target-model-compatible selections and discovers roofline suppo
       current: {
         runtime: "flashrt",
         workload: assignmentShapedConfiguration,
+        runtimePrecision: "mixed-fp8-e4m3-fp16",
+      },
+      expected: { workload: null },
+    },
+    {
+      name: "assignment-shaped configuration owned by another model",
+      current: {
+        runtime: "flashrt",
+        workload: foreignAssignmentShapedConfiguration,
         runtimePrecision: "mixed-fp8-e4m3-fp16",
       },
       expected: { workload: null },
@@ -197,6 +232,8 @@ it("retains only target-model-compatible selections and discovers roofline suppo
     roofline_scenarios: scenarioDocument.records as unknown as CanonicalRecord[],
     roofline_bases: basisDocument.records as unknown as CanonicalRecord[],
   });
+  const pi0Capabilities = createModelCapabilityRegistry(pi0Data).get("pi0")!;
+  expect(pi0Capabilities.captureContexts.get("capture-pi0-flashrt-nsys-graph-001")?.realizationIds.size).toBe(0);
   expect(modelSwitchPatch(pi0Data, "pi0", route({
     model: "pi0",
     timelineCapture: "capture-pi0-flashrt-ncu-encoder-large-gemm-001",
@@ -212,7 +249,7 @@ it("retains only target-model-compatible selections and discovers roofline suppo
     timelineCapture: "capture-pi0-flashrt-nsys-graph-001",
     entity: timelineEventEntity("timeline-node-fixture", "event-node"),
   }))).toMatchObject({
-    timelineCapture: "capture-pi0-flashrt-nsys-graph-001",
+    timelineCapture: null,
     entity: null,
   });
   expect(modelSwitchPatch(pi0Data, "pi0", route({
@@ -314,4 +351,38 @@ it("retains only target-model-compatible selections and discovers roofline suppo
     { executedCameraViews: 3, executedPromptTokens: 48, actionHorizon: 50, denoiseSteps: 10 },
     [assignmentShapedConfiguration],
   )).toBe(assignmentShapedConfiguration);
+  expect(runtimeResolutionWorkload(
+    foreignAssignmentShapedConfiguration,
+    { executedCameraViews: 3, executedPromptTokens: 48, actionHorizon: 50, denoiseSteps: 10 },
+    [...pi05Capabilities.canonicalConfigurationIds],
+  )).toBe(foreignAssignmentShapedConfiguration);
+
+  const measuredRealization = adaptRuntimeRealization({
+    ...structuredClone(pi05RealizationDocument.records[0]!),
+    device_ids: ["nvidia-jetson-agx-thor", "not-the-measured-device"],
+  });
+  const unsupportedRealization = adaptRuntimeRealization({
+    ...structuredClone(pi05RealizationDocument.records[0]!),
+    realization_id: "rr-pi05-not-supported-resolver-fixture",
+    availability: "not_supported",
+    precision_paths: [structuredClone(pi05RealizationDocument.records[0]!.precision_paths[0]!)],
+  });
+  expect(resolveRuntimeCandidates([unsupportedRealization], switchData.datasets.runs, {
+    modelId: "pi05",
+    modelGraphId: "pi05-droid-logical-v1",
+    runtimeId: "flashrt",
+    hardwareId: "nvidia-jetson-agx-thor",
+    workload: "cfg-flashrt-pi05-matrix-008",
+    precisionId: "mixed-fp8-e4m3-fp16",
+    canonicalConfigurationIds: pi05Capabilities.canonicalConfigurationIds,
+  })).toEqual([]);
+  expect(resolveRuntimeCandidates([measuredRealization], switchData.datasets.runs, {
+    modelId: "pi05",
+    modelGraphId: "pi05-droid-logical-v1",
+    runtimeId: "flashrt",
+    hardwareId: "not-the-measured-device",
+    workload: "cfg-flashrt-pi05-matrix-008",
+    precisionId: "mixed-fp8-e4m3-fp16",
+    canonicalConfigurationIds: pi05Capabilities.canonicalConfigurationIds,
+  })).toEqual([]);
 });

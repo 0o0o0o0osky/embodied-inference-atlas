@@ -86,12 +86,13 @@ function ResolvedRuntimeView({ data, model, record, route, navigate }: RuntimeVi
       .map(adaptRuntimeRealization),
     [data.datasets.runtime_realizations, model.model_id],
   );
-  const configurationIds = useMemo(() => new Set([
-    ...data.datasets.runs
-      .filter((run) => run.model_id === model.model_id)
-      .map((run) => run.configuration_id),
-    ...realizations.flatMap((realization) => realization.configurationIds),
-  ]), [data.datasets.runs, model.model_id, realizations]);
+  const canonicalConfigurationIds = useMemo(() => new Set([
+    ...data.datasets.runs.map((run) => run.configuration_id),
+    ...data.datasets.runtime_realizations.flatMap((realization) =>
+      Array.isArray(realization.configuration_ids)
+        ? realization.configuration_ids.filter((value): value is string => typeof value === "string")
+        : []),
+  ]), [data.datasets.runs, data.datasets.runtime_realizations]);
   const candidates = useMemo(() => route.runtime ? resolveRuntimeCandidates(realizations, data.datasets.runs, {
     modelId: model.model_id,
     modelGraphId: graph.graphId,
@@ -99,17 +100,15 @@ function ResolvedRuntimeView({ data, model, record, route, navigate }: RuntimeVi
     hardwareId: route.hardware,
     workload: route.workload,
     precisionId: null,
-    opaqueConfigurationIds: configurationIds,
-  }) : [], [configurationIds, data.datasets.runs, graph.graphId, model.model_id, realizations, route.hardware, route.runtime, route.workload]);
+    canonicalConfigurationIds,
+  }) : [], [canonicalConfigurationIds, data.datasets.runs, graph.graphId, model.model_id, realizations, route.hardware, route.runtime, route.workload]);
   const precisionMatches = route.runtimePrecision
     ? candidates.filter((candidate) => candidate.actualPrecisionId === route.runtimePrecision)
     : candidates;
   const activeCandidate = precisionMatches.length === 1 && (route.runtimePrecision !== null || candidates.length === 1)
     ? precisionMatches[0]!
     : null;
-  const activeRealization = activeCandidate?.realization.availability === "not_supported"
-    ? null
-    : activeCandidate?.realization ?? null;
+  const activeRealization = activeCandidate?.realization ?? null;
   const overlay = useMemo(
     () => activeRealization ? buildRuntimeOverlay(dag, layout, activeRealization, route.entity) : null,
     [activeRealization, dag, layout, route.entity],
@@ -119,6 +118,9 @@ function ResolvedRuntimeView({ data, model, record, route, navigate }: RuntimeVi
   const relatedRefs = overlay?.highlightedLogicalRefs ?? new Set<string>();
   const selectedRuntime = data.datasets.runtimes.find((runtime) => runtime.runtime_id === route.runtime) ?? null;
   const selectedSupport = selectedRuntime ? supportSummary(selectedRuntime, model.model_id) : null;
+  const unsupportedReasons = realizations
+    .filter((realization) => realization.runtimeId === route.runtime && realization.availability === "not_supported")
+    .map((realization) => realization.availabilityReasonCode);
   const runtimes = data.datasets.runtimes.filter((runtime) =>
     runtime.model_support.some((support) => support.model_id === model.model_id),
   );
@@ -176,6 +178,7 @@ function ResolvedRuntimeView({ data, model, record, route, navigate }: RuntimeVi
         selectedSupport={selectedSupport}
         candidates={candidates}
         activeCandidate={activeCandidate}
+        unsupportedReasons={unsupportedReasons}
         navigate={navigate}
       />
 
@@ -265,6 +268,7 @@ function RuntimeResolution({
   selectedSupport,
   candidates,
   activeCandidate,
+  unsupportedReasons,
   navigate,
 }: {
   route: RouteState;
@@ -272,6 +276,7 @@ function RuntimeResolution({
   selectedSupport: ReturnType<typeof supportSummary> | null;
   candidates: readonly RuntimeCandidate[];
   activeCandidate: RuntimeCandidate | null;
+  unsupportedReasons: readonly string[];
   navigate: (patch: RoutePatch, replace?: boolean) => void;
 }) {
   if (!route.runtime) return <p className="runtime-resolution">Runtime off. The graph below is the canonical logical layout.</p>;
@@ -300,18 +305,14 @@ function RuntimeResolution({
       </p>
     );
   }
-  if (activeCandidate?.realization.availability === "not_supported") {
-    return (
-      <p className="runtime-resolution is-missing">
-        <strong>Not supported.</strong> {activeCandidate.realization.availabilityReasonCode}. No executable group or mapping is fabricated.
-      </p>
-    );
-  }
   if (activeCandidate) {
     return (
-      <p className="runtime-resolution is-active">
-        <strong>{selectedRuntime.display_name} · {activeCandidate.precisionLabel}</strong> resolved from model, runtime, hardware, workload/configuration, and actual measured precision.
-      </p>
+      <>
+        <p className="runtime-resolution is-active">
+          <strong>{selectedRuntime.display_name} · {activeCandidate.precisionLabel}</strong> resolved from model, runtime, hardware, workload/configuration, and actual measured precision.
+        </p>
+        <UnsupportedResolution reasons={unsupportedReasons} />
+      </>
     );
   }
   if (!route.runtimePrecision && candidates.length > 1) {
@@ -335,8 +336,20 @@ function RuntimeResolution({
   }
   const reasons = selectedSupport?.reasons.map(humanizeRuntime).join(" · ");
   return (
+    <>
+      <p className="runtime-resolution is-missing">
+        <strong>No matching measured realization.</strong> The selected hardware, workload/configuration, or actual precision is not evidenced{reasons ? ` (${reasons})` : ""}.
+      </p>
+      <UnsupportedResolution reasons={unsupportedReasons} />
+    </>
+  );
+}
+
+function UnsupportedResolution({ reasons }: { reasons: readonly string[] }) {
+  if (!reasons.length) return null;
+  return (
     <p className="runtime-resolution is-missing">
-      <strong>No matching measured realization.</strong> The selected hardware, workload/configuration, or actual precision is not evidenced{reasons ? ` (${reasons})` : ""}.
+      <strong>Unsupported path recorded separately.</strong> {[...new Set(reasons)].map(humanizeRuntime).join(" · ")}. It is not an actual candidate.
     </p>
   );
 }

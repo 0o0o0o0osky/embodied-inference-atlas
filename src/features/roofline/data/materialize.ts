@@ -526,9 +526,9 @@ export function serializeInteractiveWorkload(value: InteractiveWorkload) {
 export function runtimeResolutionWorkload(
   encoded: string | null,
   value: InteractiveWorkload,
-  configurationIds: readonly string[] = [],
+  canonicalConfigurationIds: readonly string[] = [],
 ) {
-  if (encoded && configurationIds.includes(encoded)) return encoded;
+  if (encoded && canonicalConfigurationIds.includes(encoded)) return encoded;
   if (encoded && !encoded.split(",").every((part) =>
     /^(?:v|p|a|n|V|L_PROMPT|T_ACTION|N_DENOISE)=/.test(part.trim()),
   )) return encoded;

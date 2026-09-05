@@ -31,6 +31,7 @@ export interface ModelCapabilities {
   readonly runtimePrecisionIds: ReadonlyMap<string, ReadonlySet<string>>;
   readonly hardwareIds: ReadonlySet<string>;
   readonly configurationIds: ReadonlySet<string>;
+  readonly canonicalConfigurationIds: ReadonlySet<string>;
   readonly runIds: ReadonlySet<string>;
   readonly captureIds: ReadonlySet<string>;
   readonly timelineCaptureIds: ReadonlySet<string>;
@@ -105,12 +106,48 @@ function resolvedRunRealizationIds(
   const matches = realizations.filter((realization) =>
     realization.availability === "measured"
     && realization.runtimeId === run.runtime_id
+    && realization.configurationIds.includes(run.configuration_id)
     && realization.deviceIds.includes(run.device_id)
     && realization.precisionPaths.some((precision) =>
       precision.precisionPathId === run.precision.precision_id,
     ),
   );
   return matches.length === 1 ? singleton(matches[0]!.realizationId) : new Set<string>();
+}
+
+function scenarioWorkloadBindings(scenario: RooflineScenarioRecord) {
+  return new Map<string, number>([
+    ["V", scenario.workload.executed_camera_views],
+    ["L_PROMPT", scenario.workload.executed_prompt_tokens],
+    ["T_ACTION", scenario.workload.action_horizon],
+    ["N_DENOISE", scenario.workload.denoise_steps],
+  ]);
+}
+
+function derivationInputRefs(record: CanonicalRecord) {
+  const provenance = record.provenance;
+  if (typeof provenance !== "object" || provenance === null || Array.isArray(provenance)) return [];
+  const derivation = (provenance as CanonicalRecord).derivation;
+  if (typeof derivation !== "object" || derivation === null || Array.isArray(derivation)) return [];
+  const refs = (derivation as CanonicalRecord).input_refs;
+  return Array.isArray(refs) ? refs.filter((ref): ref is string => typeof ref === "string") : [];
+}
+
+function basisConfigurationIds(
+  basis: CanonicalRecord,
+  scenario: CanonicalRecord & RooflineScenarioRecord,
+  runById: ReadonlyMap<string, RunRecord>,
+) {
+  const sourceRunIds = new Set([
+    text(basis, "run_id"),
+    ...derivationInputRefs(basis),
+    ...(scenario.provenance.derivation?.input_refs ?? []),
+  ].filter((value): value is string => value !== null && runById.has(value)));
+  const configurationIds = new Set([...sourceRunIds].flatMap((runId) => {
+    const run = runById.get(runId);
+    return run && run.model_id === scenario.model_id ? [run.configuration_id] : [];
+  }));
+  return configurationIds.size === 1 ? configurationIds : new Set<string>();
 }
 
 function modelIds(data: AtlasData): string[] {
@@ -122,6 +159,14 @@ function modelIds(data: AtlasData): string[] {
 }
 
 export function createModelCapabilityRegistry(data: AtlasData): ModelCapabilityRegistry {
+  const allRealizations = data.datasets.runtime_realizations
+    .filter((record) => isRuntimeRealizationRecord(record))
+    .map(adaptRuntimeRealization);
+  const canonicalConfigurationIds = new Set([
+    ...data.datasets.runs.map((run) => run.configuration_id),
+    ...allRealizations.flatMap((realization) => realization.configurationIds),
+  ]);
+  const runById = new Map(data.datasets.runs.map((run) => [run.run_id, run]));
   const capturesById = new Map(data.datasets.profiler_captures.flatMap((record) => {
     const captureId = text(record, "capture_id");
     return captureId ? [[captureId, record] as const] : [];
@@ -135,9 +180,7 @@ export function createModelCapabilityRegistry(data: AtlasData): ModelCapabilityR
     const graph = graphRecord ? adaptV1ModelGraph(graphRecord) : null;
     const dag = graph ? adaptLogicalDag(graph) : null;
     const modelRuns = data.datasets.runs.filter((run) => run.model_id === modelId);
-    const modelRealizations = data.datasets.runtime_realizations
-      .filter((record) => isRuntimeRealizationRecord(record, modelId))
-      .map(adaptRuntimeRealization);
+    const modelRealizations = allRealizations.filter((record) => record.modelId === modelId);
     const runIds = new Set(modelRuns.map((run) => run.run_id));
     const runContexts = new Map(modelRuns.map((run) => [run.run_id, {
       runtimeId: run.runtime_id,
@@ -189,6 +232,7 @@ export function createModelCapabilityRegistry(data: AtlasData): ModelCapabilityR
     });
 
     const modelScenarios = scenarios.filter((scenario) => scenario.model_id === modelId);
+    const scenarioById = new Map(modelScenarios.map((scenario) => [scenario.scenario_id, scenario]));
     const rooflinePrecisionIds = new Set(modelScenarios.map((scenario) => scenario.precision_path.precision_path_id));
     const scenarioIds = new Set(modelScenarios.map((scenario) => scenario.scenario_id));
     const modelBases = data.datasets.roofline_bases.filter((basis) => {
@@ -199,16 +243,18 @@ export function createModelCapabilityRegistry(data: AtlasData): ModelCapabilityR
     const rooflineBasisContexts = new Map<string, RooflineBasisCapability>();
     modelBases.forEach((basis) => {
       const basisId = text(basis, "basis_id");
+      const scenarioId = text(basis, "scenario_id");
+      const scenario = scenarioId ? scenarioById.get(scenarioId) : null;
       const deviceId = text(basis, "device_id");
       if (deviceId) hardwareIds.add(deviceId);
       const level = text(basis, "level");
-      if (basisId && (level === "stage" || level === "atomic" || level === "fused" || level === "kernel")) {
+      if (basisId && scenario && (level === "stage" || level === "atomic" || level === "fused" || level === "kernel")) {
         rooflineBasisContexts.set(basisId, {
           runtimeId: text(basis, "runtime_id"),
           hardwareIds: singleton(deviceId),
           precisionIds: singleton(text(basis, "precision_path_id")),
-          configurationIds: new Set(),
-          workloadBindings: null,
+          configurationIds: basisConfigurationIds(basis, scenario, runById),
+          workloadBindings: scenarioWorkloadBindings(scenario),
           realizationIds: singleton(text(basis, "realization_id")),
           level,
         });
@@ -287,6 +333,7 @@ export function createModelCapabilityRegistry(data: AtlasData): ModelCapabilityR
       runtimePrecisionIds,
       hardwareIds,
       configurationIds,
+      canonicalConfigurationIds,
       runIds,
       captureIds: modelCaptureIds,
       timelineCaptureIds,
@@ -324,7 +371,9 @@ export function modelWorkloadIsCompatible(
   encoded: string | null,
 ): boolean {
   if (!encoded) return true;
-  if (capabilities.configurationIds.has(encoded)) return true;
+  if (capabilities.canonicalConfigurationIds.has(encoded)) {
+    return capabilities.configurationIds.has(encoded);
+  }
   const aliases = new Map<string, string>([
     ["v", "V"], ["p", "L_PROMPT"], ["a", "T_ACTION"], ["n", "N_DENOISE"],
   ]);

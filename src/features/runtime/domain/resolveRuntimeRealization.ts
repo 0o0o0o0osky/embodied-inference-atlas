@@ -14,47 +14,35 @@ interface RuntimeSelection {
   hardwareId: string | null;
   workload: string | null;
   precisionId: string | null;
-  opaqueConfigurationIds?: ReadonlySet<string>;
-}
-
-function actualPrecisionId(record: RuntimeRealizationRecord, runs: readonly RunRecord[]) {
-  if (record.availability === "not_supported") {
-    return record.precisionPaths.length === 1 ? record.precisionPaths[0]!.precisionPathId : null;
-  }
-  const configurations = new Set(record.configurationIds);
-  const ids = new Set(
-    runs
-      .filter((run) =>
-        run.evidence === "measured_local"
-        && run.model_id === record.modelId
-        && run.runtime_id === record.runtimeId
-        && configurations.has(run.configuration_id),
-      )
-      .map((run) => run.precision.precision_id),
-  );
-  return ids.size === 1 ? [...ids][0]! : null;
+  canonicalConfigurationIds?: ReadonlySet<string>;
 }
 
 function parsedBindings(encoded: string) {
+  const aliases = new Map<string, string>([
+    ["v", "V"], ["p", "L_PROMPT"], ["a", "T_ACTION"], ["n", "N_DENOISE"],
+  ]);
   const bindings = new Map<string, number>();
   for (const part of encoded.split(",")) {
-    const [name, rawValue] = part.split("=", 2);
+    const [rawName, rawValue] = part.split("=", 2);
+    const trimmedName = rawName?.trim();
+    const name = trimmedName ? aliases.get(trimmedName) ?? trimmedName : null;
     const value = Number(rawValue);
-    if (!name?.trim() || !Number.isSafeInteger(value)) return null;
-    bindings.set(name.trim(), value);
+    if (!name || bindings.has(name) || !Number.isSafeInteger(value)) return null;
+    bindings.set(name, value);
   }
   return bindings;
 }
 
-function matchesWorkload(
+function runMatchesWorkload(
   record: RuntimeRealizationRecord,
-  runs: readonly RunRecord[],
+  run: RunRecord,
   encoded: string | null,
-  opaqueConfigurationIds: ReadonlySet<string>,
+  canonicalConfigurationIds: ReadonlySet<string>,
 ) {
   if (!encoded) return true;
-  if (opaqueConfigurationIds.has(encoded)) return record.configurationIds.includes(encoded);
-  if (record.configurationIds.includes(encoded)) return true;
+  if (canonicalConfigurationIds.has(encoded) || record.configurationIds.includes(encoded)) {
+    return record.configurationIds.includes(encoded) && run.configuration_id === encoded;
+  }
   if (/^(?:cfg|config)-/.test(encoded)) return false;
   const bindings = parsedBindings(encoded);
   if (!bindings) return false;
@@ -69,20 +57,35 @@ function matchesWorkload(
     const selected = bindings.get(name);
     if (selected !== undefined && selected !== expected) return false;
   }
+  const workload = run.workload.vla;
+  if (!workload) return false;
+  const witnessed = new Map<string, number | null>([
+    ["V", workload.camera_views],
+    ["L_PROMPT", workload.executed_prompt_tokens],
+    ["T_ACTION", workload.action_chunk],
+    ["N_DENOISE", workload.denoise_steps],
+  ]);
+  return [...bindings].every(([name, value]) => witnessed.get(name) === value);
+}
 
-  const configurations = new Set(record.configurationIds);
-  const measuredRuns = runs.filter((run) =>
+function actualPrecisionId(
+  record: RuntimeRealizationRecord,
+  runs: readonly RunRecord[],
+  selection: RuntimeSelection,
+) {
+  if (record.availability !== "measured") return null;
+  const configurationIds = new Set(record.configurationIds);
+  const canonicalConfigurationIds = selection.canonicalConfigurationIds ?? new Set<string>();
+  const ids = new Set(runs.filter((run) =>
     run.evidence === "measured_local"
     && run.model_id === record.modelId
     && run.runtime_id === record.runtimeId
-    && configurations.has(run.configuration_id),
-  );
-  const variableBindings = [...bindings].filter(([name]) => name === "V" || name === "L_PROMPT");
-  return variableBindings.length === 0 || measuredRuns.some((run) =>
-    variableBindings.every(([name, value]) =>
-      value === (name === "V" ? run.workload.vla?.camera_views : run.workload.vla?.executed_prompt_tokens),
-    ),
-  );
+    && configurationIds.has(run.configuration_id)
+    && record.deviceIds.includes(run.device_id)
+    && (!selection.hardwareId || run.device_id === selection.hardwareId)
+    && runMatchesWorkload(record, run, selection.workload, canonicalConfigurationIds)
+  ).map((run) => run.precision.precision_id));
+  return ids.size === 1 ? [...ids][0]! : null;
 }
 
 export function resolveRuntimeCandidates(
@@ -94,27 +97,18 @@ export function resolveRuntimeCandidates(
     if (
       record.modelId !== selection.modelId ||
       record.modelGraphId !== selection.modelGraphId ||
-      record.runtimeId !== selection.runtimeId
+      record.runtimeId !== selection.runtimeId ||
+      record.availability !== "measured"
     ) return [];
-    const precisionId = actualPrecisionId(record, runs);
+    const precisionId = actualPrecisionId(record, runs, selection);
     if (!precisionId || (selection.precisionId && selection.precisionId !== precisionId)) return [];
     const precision = record.precisionPaths.find((path) => path.precisionPathId === precisionId);
+    if (!precision) return [];
     const candidate = {
       realization: record,
       actualPrecisionId: precisionId,
-      precisionLabel: precision?.label ?? precisionId,
+      precisionLabel: precision.label,
     };
-    if (record.availability === "not_supported") return [candidate];
-    if (
-      selection.hardwareId &&
-      !record.deviceIds.includes(selection.hardwareId)
-    ) return [];
-    if (!matchesWorkload(
-      record,
-      runs,
-      selection.workload,
-      selection.opaqueConfigurationIds ?? new Set(),
-    )) return [];
     return [candidate];
   });
 }
