@@ -130,11 +130,14 @@ but they do not satisfy the fixed power/clock invariant required for a ratio.
 Attested controlled IDs such as `thor-120w-dynamic` and explicit analytical
 assumption IDs are not treated as the unknown sentinel.
 
-The snapshot also contains no canonical Nsys timeline or NCU kernel dataset.
-Without scheduler or per-core observations it cannot conclude that the CPU was
-idle. Without measured DRAM throughput and an applicable bandwidth ceiling it
-cannot conclude that memory bandwidth was saturated. Analytical roofline
-limiters describe a model under stated assumptions; without matching kernel
-measurements and saturation evidence they cannot establish that execution was
-kernel-bound, compute-bound, or memory-bound. These questions remain open for
-the separate profiler-evidence phase.
+The snapshot now contains canonical Nsys timelines and NCU representative-
+launch evidence. Nsys scheduler-running intervals establish observed CPU
+execution overlapping controlled CUDA Graph spans, but they do not establish
+CPU idle time, useful work, or offload headroom; the graph spans are execution
+envelopes, not exact GPU-busy intervals. NCU preserves per-replay SM, tensor,
+L1, L2, and L2 sysmem-fill metrics, but L2 and sysmem-fill activity is not
+LPDDR or whole-system memory traffic. Because the captures lack DRAM traffic,
+SchedulerStats, and long/short-scoreboard counters, they cannot prove LPDDR
+saturation or a kernel, compute, memory, or stall bottleneck. NCU replay
+durations remain separate single-launch observations and are neither summed
+across reports nor used as end-to-end or stage timing.

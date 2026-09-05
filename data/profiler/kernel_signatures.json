@@ -1,0 +1,372 @@
+{
+  "dataset": "kernel_signatures",
+  "records": [
+    {
+      "classification_confidence": "high",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "attention",
+      "implementation_family": "cutlass-tensor-core",
+      "kernel_signature_id": "kernel-signature-pi0-decoder-attention-tensorop",
+      "label_sanitized": "decoder attention tensor-op",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "flashrt"
+    },
+    {
+      "classification_confidence": "high",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "attention",
+      "implementation_family": "cutlass-wmma",
+      "kernel_signature_id": "kernel-signature-pi0-decoder-attention-wmma",
+      "label_sanitized": "decoder attention WMMA",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "flashrt"
+    },
+    {
+      "classification_confidence": "high",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "gemm",
+      "implementation_family": "nvjet",
+      "kernel_signature_id": "kernel-signature-pi0-decoder-nvjet-128x16",
+      "label_sanitized": "decoder NVJET 128x16",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "flashrt"
+    },
+    {
+      "classification_confidence": "high",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "gemm",
+      "implementation_family": "nvjet",
+      "kernel_signature_id": "kernel-signature-pi0-decoder-nvjet-512x16",
+      "label_sanitized": "decoder NVJET 512x16",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "flashrt"
+    },
+    {
+      "classification_confidence": "high",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "gemm",
+      "implementation_family": "nvjet",
+      "kernel_signature_id": "kernel-signature-pi0-decoder-nvjet-64x16",
+      "label_sanitized": "decoder NVJET 64x16",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "flashrt"
+    },
+    {
+      "classification_confidence": "high",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "elementwise",
+      "implementation_family": "fused-elementwise",
+      "kernel_signature_id": "kernel-signature-pi0-encoder-geglu",
+      "label_sanitized": "encoder GEGLU",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "flashrt"
+    },
+    {
+      "classification_confidence": "high",
+      "classification_method": "combined",
+      "function_family": "gemm",
+      "implementation_family": "cutlass-tensor-core",
+      "kernel_signature_id": "kernel-signature-pi0-encoder-large-gemm",
+      "label_sanitized": "encoder large GEMM",
+      "missing": {
+        "run_precision_linkage": "precision_conflict"
+      },
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": "fp32",
+        "input_dtype_class": "fp8_e4m3",
+        "missing": {
+          "output_dtype_class": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "off"
+      },
+      "runtime_id": "flashrt"
+    },
+    {
+      "classification_confidence": "high",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "other",
+      "implementation_family": "fused-elementwise",
+      "kernel_signature_id": "kernel-signature-pi0-encoder-qkv-split",
+      "label_sanitized": "encoder QKV split",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "flashrt"
+    },
+    {
+      "classification_confidence": "high",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "normalization",
+      "implementation_family": "fused-elementwise",
+      "kernel_signature_id": "kernel-signature-pi0-encoder-residual-rms",
+      "label_sanitized": "encoder residual RMS",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "flashrt"
+    },
+    {
+      "classification_confidence": "high",
+      "classification_method": "combined",
+      "function_family": "gemm",
+      "implementation_family": "cutlass-tensor-core",
+      "kernel_signature_id": "kernel-signature-pi0-encoder-second-gemm",
+      "label_sanitized": "encoder second GEMM",
+      "missing": {
+        "run_precision_linkage": "precision_conflict"
+      },
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": "fp32",
+        "input_dtype_class": "fp8_e4m3",
+        "missing": {
+          "output_dtype_class": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "off"
+      },
+      "runtime_id": "flashrt"
+    },
+    {
+      "classification_confidence": "high",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "gemm",
+      "implementation_family": "cutlass-tensor-core",
+      "kernel_signature_id": "kernel-signature-pi0-encoder-third-gemm",
+      "label_sanitized": "encoder third GEMM",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "flashrt"
+    },
+    {
+      "classification_confidence": "high",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "gemm",
+      "implementation_family": "nvjet",
+      "kernel_signature_id": "kernel-signature-pi0-siglip-broadcast-add",
+      "label_sanitized": "SigLIP broadcast add",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "flashrt"
+    },
+    {
+      "classification_confidence": "high",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "attention",
+      "implementation_family": "fmha",
+      "kernel_signature_id": "kernel-signature-pi0-siglip-fmha",
+      "label_sanitized": "SigLIP FMHA",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "flashrt"
+    },
+    {
+      "classification_confidence": "high",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "gemm",
+      "implementation_family": "nvjet",
+      "kernel_signature_id": "kernel-signature-pi0-siglip-gelu-bias",
+      "label_sanitized": "SigLIP GELU+bias",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "flashrt"
+    },
+    {
+      "classification_confidence": "high",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "normalization",
+      "implementation_family": "layer-normalization",
+      "kernel_signature_id": "kernel-signature-pi0-siglip-layer-norm",
+      "label_sanitized": "SigLIP layer norm",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "flashrt"
+    },
+    {
+      "classification_confidence": "high",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "quantize",
+      "implementation_family": "quantization",
+      "kernel_signature_id": "kernel-signature-pi0-siglip-quantize",
+      "label_sanitized": "SigLIP quantize",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "flashrt"
+    }
+  ],
+  "schema_version": "1.0.0"
+}

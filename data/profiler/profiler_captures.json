@@ -1,0 +1,650 @@
+{
+  "dataset": "profiler_captures",
+  "records": [
+    {
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-attention-tensorop-001",
+      "collection_scope": "representative_kernel_launch",
+      "coverage": {
+        "is_complete_for_population": true,
+        "observed_count": 1,
+        "population": "one_replayed_launch"
+      },
+      "evidence": "measured_local",
+      "missing": {
+        "ncu.backing_store_bytes": "counter_absent_from_report",
+        "nsys": "not_applicable",
+        "target_window_label": "not_applicable"
+      },
+      "ncu": {
+        "backing_store_bytes": null,
+        "cache_control_request": "all",
+        "clock_control_request": "base",
+        "replay_mode": "kernel",
+        "replay_passes": 10,
+        "warmup_count": 3
+      },
+      "nsys": null,
+      "run_id": "run-pi0-flashrt-ncu-decoder-attention-tensorop-001",
+      "selection_policy": "explicit_invocation",
+      "source_id": "source-local-thor",
+      "target_window_count": 1,
+      "target_window_label": null,
+      "tool": "ncu",
+      "tool_version": "2025.3.0.0",
+      "warnings": [
+        "gpu_frequency_not_fixed"
+      ]
+    },
+    {
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-attention-wmma-001",
+      "collection_scope": "representative_kernel_launch",
+      "coverage": {
+        "is_complete_for_population": true,
+        "observed_count": 1,
+        "population": "one_replayed_launch"
+      },
+      "evidence": "measured_local",
+      "missing": {
+        "ncu.backing_store_bytes": "counter_absent_from_report",
+        "nsys": "not_applicable",
+        "target_window_label": "not_applicable"
+      },
+      "ncu": {
+        "backing_store_bytes": null,
+        "cache_control_request": "all",
+        "clock_control_request": "base",
+        "replay_mode": "kernel",
+        "replay_passes": 10,
+        "warmup_count": 3
+      },
+      "nsys": null,
+      "run_id": "run-pi0-flashrt-ncu-decoder-attention-wmma-001",
+      "selection_policy": "explicit_invocation",
+      "source_id": "source-local-thor",
+      "target_window_count": 1,
+      "target_window_label": null,
+      "tool": "ncu",
+      "tool_version": "2025.3.0.0",
+      "warnings": [
+        "gpu_frequency_not_fixed"
+      ]
+    },
+    {
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-nvjet-128x16-001",
+      "collection_scope": "representative_kernel_launch",
+      "coverage": {
+        "is_complete_for_population": true,
+        "observed_count": 1,
+        "population": "one_replayed_launch"
+      },
+      "evidence": "measured_local",
+      "missing": {
+        "ncu.backing_store_bytes": "counter_absent_from_report",
+        "nsys": "not_applicable",
+        "target_window_label": "not_applicable"
+      },
+      "ncu": {
+        "backing_store_bytes": null,
+        "cache_control_request": "all",
+        "clock_control_request": "base",
+        "replay_mode": "kernel",
+        "replay_passes": 10,
+        "warmup_count": 3
+      },
+      "nsys": null,
+      "run_id": "run-pi0-flashrt-ncu-decoder-nvjet-128x16-001",
+      "selection_policy": "name_filter_first_match",
+      "source_id": "source-local-thor",
+      "target_window_count": 1,
+      "target_window_label": null,
+      "tool": "ncu",
+      "tool_version": "2025.3.0.0",
+      "warnings": [
+        "gpu_frequency_not_fixed"
+      ]
+    },
+    {
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-nvjet-512x16-001",
+      "collection_scope": "representative_kernel_launch",
+      "coverage": {
+        "is_complete_for_population": true,
+        "observed_count": 1,
+        "population": "one_replayed_launch"
+      },
+      "evidence": "measured_local",
+      "missing": {
+        "ncu.backing_store_bytes": "counter_absent_from_report",
+        "nsys": "not_applicable",
+        "target_window_label": "not_applicable"
+      },
+      "ncu": {
+        "backing_store_bytes": null,
+        "cache_control_request": "all",
+        "clock_control_request": "base",
+        "replay_mode": "kernel",
+        "replay_passes": 15,
+        "warmup_count": 3
+      },
+      "nsys": null,
+      "run_id": "run-pi0-flashrt-ncu-decoder-nvjet-512x16-001",
+      "selection_policy": "name_filter_first_match",
+      "source_id": "source-local-thor",
+      "target_window_count": 1,
+      "target_window_label": null,
+      "tool": "ncu",
+      "tool_version": "2025.3.0.0",
+      "warnings": [
+        "gpu_frequency_not_fixed"
+      ]
+    },
+    {
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-nvjet-64x16-001",
+      "collection_scope": "representative_kernel_launch",
+      "coverage": {
+        "is_complete_for_population": true,
+        "observed_count": 1,
+        "population": "one_replayed_launch"
+      },
+      "evidence": "measured_local",
+      "missing": {
+        "ncu.backing_store_bytes": "counter_absent_from_report",
+        "nsys": "not_applicable",
+        "target_window_label": "not_applicable"
+      },
+      "ncu": {
+        "backing_store_bytes": null,
+        "cache_control_request": "all",
+        "clock_control_request": "base",
+        "replay_mode": "kernel",
+        "replay_passes": 15,
+        "warmup_count": 3
+      },
+      "nsys": null,
+      "run_id": "run-pi0-flashrt-ncu-decoder-nvjet-64x16-001",
+      "selection_policy": "name_filter_first_match",
+      "source_id": "source-local-thor",
+      "target_window_count": 1,
+      "target_window_label": null,
+      "tool": "ncu",
+      "tool_version": "2025.3.0.0",
+      "warnings": [
+        "gpu_frequency_not_fixed"
+      ]
+    },
+    {
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-geglu-001",
+      "collection_scope": "representative_kernel_launch",
+      "coverage": {
+        "is_complete_for_population": true,
+        "observed_count": 1,
+        "population": "one_replayed_launch"
+      },
+      "evidence": "measured_local",
+      "missing": {
+        "ncu.backing_store_bytes": "counter_absent_from_report",
+        "nsys": "not_applicable",
+        "target_window_label": "not_applicable"
+      },
+      "ncu": {
+        "backing_store_bytes": null,
+        "cache_control_request": "all",
+        "clock_control_request": "base",
+        "replay_mode": "kernel",
+        "replay_passes": 15,
+        "warmup_count": 3
+      },
+      "nsys": null,
+      "run_id": "run-pi0-flashrt-ncu-encoder-geglu-001",
+      "selection_policy": "name_filter_first_match",
+      "source_id": "source-local-thor",
+      "target_window_count": 1,
+      "target_window_label": null,
+      "tool": "ncu",
+      "tool_version": "2025.3.0.0",
+      "warnings": [
+        "gpu_frequency_not_fixed"
+      ]
+    },
+    {
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-large-gemm-001",
+      "collection_scope": "representative_kernel_launch",
+      "coverage": {
+        "is_complete_for_population": true,
+        "observed_count": 1,
+        "population": "one_replayed_launch"
+      },
+      "evidence": "measured_local",
+      "missing": {
+        "ncu.backing_store_bytes": "counter_absent_from_report",
+        "nsys": "not_applicable",
+        "target_window_label": "not_applicable"
+      },
+      "ncu": {
+        "backing_store_bytes": null,
+        "cache_control_request": "all",
+        "clock_control_request": "base",
+        "replay_mode": "kernel",
+        "replay_passes": 15,
+        "warmup_count": 3
+      },
+      "nsys": null,
+      "run_id": "run-pi0-flashrt-ncu-encoder-large-gemm-001",
+      "selection_policy": "explicit_invocation",
+      "source_id": "source-local-thor",
+      "target_window_count": 1,
+      "target_window_label": null,
+      "tool": "ncu",
+      "tool_version": "2025.3.0.0",
+      "warnings": [
+        "gpu_frequency_not_fixed",
+        "work_id_unavailable"
+      ]
+    },
+    {
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-qkv-split-001",
+      "collection_scope": "representative_kernel_launch",
+      "coverage": {
+        "is_complete_for_population": true,
+        "observed_count": 1,
+        "population": "one_replayed_launch"
+      },
+      "evidence": "measured_local",
+      "missing": {
+        "ncu.backing_store_bytes": "counter_absent_from_report",
+        "nsys": "not_applicable",
+        "target_window_label": "not_applicable"
+      },
+      "ncu": {
+        "backing_store_bytes": null,
+        "cache_control_request": "all",
+        "clock_control_request": "base",
+        "replay_mode": "kernel",
+        "replay_passes": 10,
+        "warmup_count": 3
+      },
+      "nsys": null,
+      "run_id": "run-pi0-flashrt-ncu-encoder-qkv-split-001",
+      "selection_policy": "name_filter_first_match",
+      "source_id": "source-local-thor",
+      "target_window_count": 1,
+      "target_window_label": null,
+      "tool": "ncu",
+      "tool_version": "2025.3.0.0",
+      "warnings": [
+        "gpu_frequency_not_fixed"
+      ]
+    },
+    {
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-residual-rms-001",
+      "collection_scope": "representative_kernel_launch",
+      "coverage": {
+        "is_complete_for_population": true,
+        "observed_count": 1,
+        "population": "one_replayed_launch"
+      },
+      "evidence": "measured_local",
+      "missing": {
+        "ncu.backing_store_bytes": "counter_absent_from_report",
+        "nsys": "not_applicable",
+        "target_window_label": "not_applicable"
+      },
+      "ncu": {
+        "backing_store_bytes": null,
+        "cache_control_request": "all",
+        "clock_control_request": "base",
+        "replay_mode": "kernel",
+        "replay_passes": 10,
+        "warmup_count": 3
+      },
+      "nsys": null,
+      "run_id": "run-pi0-flashrt-ncu-encoder-residual-rms-001",
+      "selection_policy": "name_filter_first_match",
+      "source_id": "source-local-thor",
+      "target_window_count": 1,
+      "target_window_label": null,
+      "tool": "ncu",
+      "tool_version": "2025.3.0.0",
+      "warnings": [
+        "gpu_frequency_not_fixed"
+      ]
+    },
+    {
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-second-gemm-001",
+      "collection_scope": "representative_kernel_launch",
+      "coverage": {
+        "is_complete_for_population": true,
+        "observed_count": 1,
+        "population": "one_replayed_launch"
+      },
+      "evidence": "measured_local",
+      "missing": {
+        "ncu.backing_store_bytes": "counter_absent_from_report",
+        "nsys": "not_applicable",
+        "target_window_label": "not_applicable"
+      },
+      "ncu": {
+        "backing_store_bytes": null,
+        "cache_control_request": "all",
+        "clock_control_request": "base",
+        "replay_mode": "kernel",
+        "replay_passes": 15,
+        "warmup_count": 3
+      },
+      "nsys": null,
+      "run_id": "run-pi0-flashrt-ncu-encoder-second-gemm-001",
+      "selection_policy": "explicit_invocation",
+      "source_id": "source-local-thor",
+      "target_window_count": 1,
+      "target_window_label": null,
+      "tool": "ncu",
+      "tool_version": "2025.3.0.0",
+      "warnings": [
+        "gpu_frequency_not_fixed",
+        "work_id_unavailable"
+      ]
+    },
+    {
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-third-gemm-001",
+      "collection_scope": "representative_kernel_launch",
+      "coverage": {
+        "is_complete_for_population": true,
+        "observed_count": 1,
+        "population": "one_replayed_launch"
+      },
+      "evidence": "measured_local",
+      "missing": {
+        "ncu.backing_store_bytes": "counter_absent_from_report",
+        "nsys": "not_applicable",
+        "target_window_label": "not_applicable"
+      },
+      "ncu": {
+        "backing_store_bytes": null,
+        "cache_control_request": "all",
+        "clock_control_request": "base",
+        "replay_mode": "kernel",
+        "replay_passes": 10,
+        "warmup_count": 3
+      },
+      "nsys": null,
+      "run_id": "run-pi0-flashrt-ncu-encoder-third-gemm-001",
+      "selection_policy": "explicit_invocation",
+      "source_id": "source-local-thor",
+      "target_window_count": 1,
+      "target_window_label": null,
+      "tool": "ncu",
+      "tool_version": "2025.3.0.0",
+      "warnings": [
+        "gpu_frequency_not_fixed"
+      ]
+    },
+    {
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-broadcast-add-001",
+      "collection_scope": "representative_kernel_launch",
+      "coverage": {
+        "is_complete_for_population": true,
+        "observed_count": 1,
+        "population": "one_replayed_launch"
+      },
+      "evidence": "measured_local",
+      "missing": {
+        "ncu.backing_store_bytes": "counter_absent_from_report",
+        "nsys": "not_applicable",
+        "target_window_label": "not_applicable"
+      },
+      "ncu": {
+        "backing_store_bytes": null,
+        "cache_control_request": "all",
+        "clock_control_request": "base",
+        "replay_mode": "kernel",
+        "replay_passes": 10,
+        "warmup_count": 3
+      },
+      "nsys": null,
+      "run_id": "run-pi0-flashrt-ncu-siglip-broadcast-add-001",
+      "selection_policy": "name_filter_first_match",
+      "source_id": "source-local-thor",
+      "target_window_count": 1,
+      "target_window_label": null,
+      "tool": "ncu",
+      "tool_version": "2025.3.0.0",
+      "warnings": [
+        "gpu_frequency_not_fixed"
+      ]
+    },
+    {
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-fmha-001",
+      "collection_scope": "representative_kernel_launch",
+      "coverage": {
+        "is_complete_for_population": true,
+        "observed_count": 1,
+        "population": "one_replayed_launch"
+      },
+      "evidence": "measured_local",
+      "missing": {
+        "ncu.backing_store_bytes": "counter_absent_from_report",
+        "nsys": "not_applicable",
+        "target_window_label": "not_applicable"
+      },
+      "ncu": {
+        "backing_store_bytes": null,
+        "cache_control_request": "all",
+        "clock_control_request": "base",
+        "replay_mode": "kernel",
+        "replay_passes": 15,
+        "warmup_count": 3
+      },
+      "nsys": null,
+      "run_id": "run-pi0-flashrt-ncu-siglip-fmha-001",
+      "selection_policy": "explicit_invocation",
+      "source_id": "source-local-thor",
+      "target_window_count": 1,
+      "target_window_label": null,
+      "tool": "ncu",
+      "tool_version": "2025.3.0.0",
+      "warnings": [
+        "gpu_frequency_not_fixed"
+      ]
+    },
+    {
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-gelu-bias-001",
+      "collection_scope": "representative_kernel_launch",
+      "coverage": {
+        "is_complete_for_population": true,
+        "observed_count": 1,
+        "population": "one_replayed_launch"
+      },
+      "evidence": "measured_local",
+      "missing": {
+        "ncu.backing_store_bytes": "counter_absent_from_report",
+        "nsys": "not_applicable",
+        "target_window_label": "not_applicable"
+      },
+      "ncu": {
+        "backing_store_bytes": null,
+        "cache_control_request": "all",
+        "clock_control_request": "base",
+        "replay_mode": "kernel",
+        "replay_passes": 10,
+        "warmup_count": 3
+      },
+      "nsys": null,
+      "run_id": "run-pi0-flashrt-ncu-siglip-gelu-bias-001",
+      "selection_policy": "name_filter_first_match",
+      "source_id": "source-local-thor",
+      "target_window_count": 1,
+      "target_window_label": null,
+      "tool": "ncu",
+      "tool_version": "2025.3.0.0",
+      "warnings": [
+        "gpu_frequency_not_fixed"
+      ]
+    },
+    {
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-layer-norm-001",
+      "collection_scope": "representative_kernel_launch",
+      "coverage": {
+        "is_complete_for_population": true,
+        "observed_count": 1,
+        "population": "one_replayed_launch"
+      },
+      "evidence": "measured_local",
+      "missing": {
+        "ncu.backing_store_bytes": "counter_absent_from_report",
+        "nsys": "not_applicable",
+        "target_window_label": "not_applicable"
+      },
+      "ncu": {
+        "backing_store_bytes": null,
+        "cache_control_request": "all",
+        "clock_control_request": "base",
+        "replay_mode": "kernel",
+        "replay_passes": 15,
+        "warmup_count": 3
+      },
+      "nsys": null,
+      "run_id": "run-pi0-flashrt-ncu-siglip-layer-norm-001",
+      "selection_policy": "name_filter_first_match",
+      "source_id": "source-local-thor",
+      "target_window_count": 1,
+      "target_window_label": null,
+      "tool": "ncu",
+      "tool_version": "2025.3.0.0",
+      "warnings": [
+        "gpu_frequency_not_fixed"
+      ]
+    },
+    {
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-quantize-001",
+      "collection_scope": "representative_kernel_launch",
+      "coverage": {
+        "is_complete_for_population": true,
+        "observed_count": 1,
+        "population": "one_replayed_launch"
+      },
+      "evidence": "measured_local",
+      "missing": {
+        "ncu.backing_store_bytes": "counter_absent_from_report",
+        "nsys": "not_applicable",
+        "target_window_label": "not_applicable"
+      },
+      "ncu": {
+        "backing_store_bytes": null,
+        "cache_control_request": "all",
+        "clock_control_request": "base",
+        "replay_mode": "kernel",
+        "replay_passes": 10,
+        "warmup_count": 3
+      },
+      "nsys": null,
+      "run_id": "run-pi0-flashrt-ncu-siglip-quantize-001",
+      "selection_policy": "name_filter_first_match",
+      "source_id": "source-local-thor",
+      "target_window_count": 1,
+      "target_window_label": null,
+      "tool": "ncu",
+      "tool_version": "2025.3.0.0",
+      "warnings": [
+        "gpu_frequency_not_fixed"
+      ]
+    },
+    {
+      "capture_id": "capture-pi0-flashrt-nsys-graph-001",
+      "collection_scope": "prediction_window",
+      "coverage": {
+        "is_complete_for_population": true,
+        "observed_count": 1,
+        "population": "one_profiled_prediction"
+      },
+      "evidence": "measured_local",
+      "missing": {
+        "ncu": "not_applicable"
+      },
+      "ncu": null,
+      "nsys": {
+        "cuda_graph_trace_present": true,
+        "graph_node_trace_present": false,
+        "logical_cpu_count": 14,
+        "profiler_overhead_trace_present": true,
+        "report_mode": "graph",
+        "scheduler_scope": "process_tree",
+        "scheduler_trace_present": true
+      },
+      "run_id": "run-pi0-flashrt-nsys-graph-001",
+      "selection_policy": "single_predict_window",
+      "source_id": "source-local-thor",
+      "target_window_count": 1,
+      "target_window_label": "predict",
+      "tool": "nsys",
+      "tool_version": "2025.3.2.367",
+      "warnings": []
+    },
+    {
+      "capture_id": "capture-pi0-flashrt-nsys-node-001",
+      "collection_scope": "prediction_window",
+      "coverage": {
+        "is_complete_for_population": true,
+        "observed_count": 1,
+        "population": "one_profiled_prediction"
+      },
+      "evidence": "measured_local",
+      "missing": {
+        "ncu": "not_applicable"
+      },
+      "ncu": null,
+      "nsys": {
+        "cuda_graph_trace_present": false,
+        "graph_node_trace_present": true,
+        "logical_cpu_count": 14,
+        "profiler_overhead_trace_present": true,
+        "report_mode": "node",
+        "scheduler_scope": "process_tree",
+        "scheduler_trace_present": true
+      },
+      "run_id": "run-pi0-flashrt-nsys-node-001",
+      "selection_policy": "single_predict_window",
+      "source_id": "source-local-thor",
+      "target_window_count": 1,
+      "target_window_label": "predict",
+      "tool": "nsys",
+      "tool_version": "2025.3.2.367",
+      "warnings": [
+        "intrusive_node_trace",
+        "partial_kernel_signature_coverage"
+      ]
+    },
+    {
+      "capture_id": "capture-pi0-flashrt-nsys-systemwide-001",
+      "collection_scope": "prediction_window",
+      "coverage": {
+        "is_complete_for_population": true,
+        "observed_count": 1,
+        "population": "one_profiled_prediction"
+      },
+      "evidence": "measured_local",
+      "missing": {
+        "ncu": "not_applicable"
+      },
+      "ncu": null,
+      "nsys": {
+        "cuda_graph_trace_present": true,
+        "graph_node_trace_present": false,
+        "logical_cpu_count": 14,
+        "profiler_overhead_trace_present": true,
+        "report_mode": "graph",
+        "scheduler_scope": "system_wide",
+        "scheduler_trace_present": true
+      },
+      "run_id": "run-pi0-flashrt-nsys-systemwide-001",
+      "selection_policy": "single_predict_window",
+      "source_id": "source-local-thor",
+      "target_window_count": 1,
+      "target_window_label": "predict",
+      "tool": "nsys",
+      "tool_version": "2025.3.2.367",
+      "warnings": [
+        "profiler_scheduler_activity_present"
+      ]
+    }
+  ],
+  "schema_version": "1.0.0"
+}

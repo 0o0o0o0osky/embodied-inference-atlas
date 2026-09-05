@@ -1,0 +1,32 @@
+{
+  "dataset": "profiler_metrics",
+  "record": {
+    "type": "object",
+    "required": ["metric_id", "capture_id", "run_id", "source_id", "subject", "metric_name", "raw_counter_name", "section_name", "basis", "statistic", "value", "unit", "confidence", "missing_reason"],
+    "additional_properties": false,
+    "properties": {
+      "metric_id": {"type": "string", "min_length": 1, "max_length": 120},
+      "capture_id": {"type": "string", "min_length": 1, "max_length": 120},
+      "run_id": {"type": "string", "min_length": 1, "max_length": 120},
+      "source_id": {"type": "string", "min_length": 1, "max_length": 80},
+      "subject": {
+        "type": "object",
+        "required": ["kind", "id"],
+        "additional_properties": false,
+        "properties": {
+          "kind": {"type": "string", "enum": ["capture", "timeline", "kernel_observation"]},
+          "id": {"type": "string", "min_length": 1, "max_length": 120}
+        }
+      },
+      "metric_name": {"type": "string", "enum": ["kernel_duration", "sm_throughput_pct_of_peak_sustained_elapsed", "tensor_cycles_active_pct_of_peak_sustained_elapsed", "memory_sol_pct_of_peak_sustained_elapsed", "l1_throughput_pct_of_peak_sustained_active", "l2_throughput_pct_of_peak_sustained_elapsed", "l2_sysmem_fill_pct_of_peak_sustained_elapsed", "theoretical_occupancy_percent", "achieved_occupancy_percent", "system_memory_throughput_pct_of_ceiling", "system_memory_bytes", "scheduler_issue_active_percent", "warp_stall_long_scoreboard_percent", "warp_stall_short_scoreboard_percent", "source_counter_attribution"]},
+      "raw_counter_name": {"type": ["string", "null"], "enum": ["gpu__time_duration.sum", "sm__throughput.avg.pct_of_peak_sustained_elapsed", "sm__pipe_tensor_cycles_active.avg.pct_of_peak_sustained_elapsed", "gpu__compute_memory_throughput.avg.pct_of_peak_sustained_elapsed", "l1tex__throughput.avg.pct_of_peak_sustained_active", "lts__throughput.avg.pct_of_peak_sustained_elapsed", "lts__d_sectors_fill_sysmem.avg.pct_of_peak_sustained_elapsed", "sm__maximum_warps_per_active_cycle_pct", "sm__warps_active.avg.pct_of_peak_sustained_active", null]},
+      "section_name": {"type": "string", "enum": ["LaunchStats", "Occupancy", "SpeedOfLight", "MemoryWorkloadAnalysis", "SpeedOfLight_HierarchicalTensorRooflineChart", "SchedulerStats", "WarpStateStats", "SourceCounters", "custom_metric_set_12"]},
+      "basis": {"type": "string", "enum": ["per_profiled_launch", "per_prediction_window", "per_graph_span", "scheduled_core_time", "metadata_snapshot", "replay_internal"]},
+      "statistic": {"type": "string", "enum": ["single", "sum", "metadata_value"]},
+      "value": {"type": ["number", "null"]},
+      "unit": {"type": "string", "enum": ["ns", "percent", "byte", "count", "hz", "MHz"]},
+      "confidence": {"type": "string", "enum": ["high", "medium", "low", "unknown"]},
+      "missing_reason": {"type": ["string", "null"], "enum": ["not_collected", "section_not_collected", "counter_absent_from_report", "not_applicable", "unstable_replay", "capture_not_aligned", "privacy_filtered", null]}
+    }
+  }
+}

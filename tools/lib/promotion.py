@@ -13,6 +13,8 @@ from pathlib import Path
 from tools.lib.contracts import Issue, load_manifest, validate_document
 from tools.lib.jsonio import load_json, write_json_atomic
 from tools.lib.privacy import scan_json
+from tools.lib.profiler import PROFILER_DATASETS, profiler_semantic_issues
+from tools.lib.profiler_privacy import scan_profiler_bundle
 
 
 class PromotionError(ValueError):
@@ -51,6 +53,7 @@ def plan_promotion(bundle: Mapping, repo_root: Path) -> PromotionPlan:
     unknown = sorted(set(incoming_sets) - set(datasets))
     if unknown:
         raise PromotionError(f"unknown dataset: {unknown[0]}")
+    _validate_profiler_bundle(bundle, incoming_sets, datasets, repo_root, manifest)
 
     planned: list[PromotionChange] = []
     additions = 0
@@ -175,6 +178,70 @@ def _validate_incoming_keys(records: list[dict], primary_key: str) -> None:
         if key in seen:
             raise PromotionError(f"duplicate incoming key: {key}")
         seen.add(key)
+
+
+def _validate_profiler_bundle(
+    bundle: Mapping,
+    incoming_sets: Mapping,
+    manifest_entries: Mapping,
+    repo_root: Path,
+    manifest: Mapping,
+) -> None:
+    has_profiler_data = any(dataset in incoming_sets for dataset in PROFILER_DATASETS)
+    has_profiler_run = "runs" in incoming_sets
+    if not has_profiler_data and not has_profiler_run:
+        return
+    issues = scan_profiler_bundle(bundle)
+    for dataset, incoming in incoming_sets.items():
+        if dataset not in {*PROFILER_DATASETS, "runs"} or not isinstance(incoming, list):
+            continue
+        document = {
+            "schema_version": manifest.get("schema_version"),
+            "dataset": dataset,
+            "records": incoming,
+        }
+        issues.extend(validate_document(dataset, document, repo_root))
+    if issues:
+        raise PromotionError("profiler bundle failed validation", issues)
+
+    combined: dict[str, list[Mapping]] = {}
+    required = {"runs", "model_graphs", "runtime_realizations", *PROFILER_DATASETS}
+    for dataset in required:
+        entry = manifest_entries.get(dataset)
+        if not isinstance(entry, Mapping):
+            combined[dataset] = []
+            continue
+        current: list[Mapping] = []
+        data = entry.get("data")
+        paths: list[Path]
+        if isinstance(data, str):
+            paths = [repo_root / data]
+        elif isinstance(entry.get("data_glob"), str):
+            paths = sorted(repo_root.glob(entry["data_glob"]))
+        else:
+            paths = []
+        for path in paths:
+            if path.is_file():
+                document = load_json(path)
+                records = document.get("records")
+                if isinstance(records, list):
+                    current.extend(record for record in records if isinstance(record, Mapping))
+        incoming = incoming_sets.get(dataset, [])
+        primary_key = entry.get("primary_key")
+        if isinstance(incoming, list) and isinstance(primary_key, str):
+            merged = {
+                record.get(primary_key): copy.deepcopy(dict(record)) for record in current
+                if isinstance(record.get(primary_key), str)
+            }
+            for record in incoming:
+                if isinstance(record, Mapping) and isinstance(record.get(primary_key), str):
+                    merged[record[primary_key]] = copy.deepcopy(dict(record))
+            combined[dataset] = list(merged.values())
+        else:
+            combined[dataset] = current
+    semantic = profiler_semantic_issues(combined)
+    if semantic:
+        raise PromotionError("profiler bundle failed semantic validation", semantic)
 
 
 def _record_keys(records: object, primary_key: str) -> set[str]:

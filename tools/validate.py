@@ -16,6 +16,8 @@ from tools.lib.privacy import (
     scan_release_tree,
     scan_site_tree,
 )
+from tools.lib.profiler import profiler_semantic_issues
+from tools.lib.profiler_privacy import scan_profiler_bundle
 from tools.lib.roofline import roofline_problems
 from tools.lib.roofline_materialize import logical_snapshot_problems
 from tools.lib.runtime_realization import runtime_realization_problems
@@ -65,6 +67,8 @@ def validate_repository(repo_root: Path) -> list[Issue]:
                     record for record in document_records if isinstance(record, Mapping)
                 )
     issues.extend(validate_references(records))
+    issues.extend(profiler_semantic_issues(records))
+    issues.extend(scan_profiler_bundle({"datasets": records}))
     issues.extend(
         Issue(problem.path, problem.code, problem.message)
         for problem in roofline_problems(records)

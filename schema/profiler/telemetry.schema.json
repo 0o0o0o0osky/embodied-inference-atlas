@@ -1,0 +1,53 @@
+{
+  "dataset": "telemetry",
+  "record": {
+    "type": "object",
+    "required": ["telemetry_id", "run_id", "capture_id", "source_id", "operating_point_id", "record_kind", "alignment", "window", "metric_name", "samples", "summary", "evidence_semantics", "missing_reason"],
+    "additional_properties": false,
+    "properties": {
+      "telemetry_id": {"type": "string", "min_length": 1, "max_length": 120},
+      "run_id": {"type": "string", "min_length": 1, "max_length": 120},
+      "capture_id": {"type": "string", "min_length": 1, "max_length": 120},
+      "source_id": {"type": "string", "min_length": 1, "max_length": 80},
+      "operating_point_id": {"type": "string", "min_length": 1, "max_length": 120},
+      "record_kind": {"type": "string", "enum": ["metadata_snapshot", "sampled_series", "sampled_summary"]},
+      "alignment": {"type": "string", "enum": ["same_capture_relative_time", "same_run_unaligned", "separate_run", "metadata_only"]},
+      "window": {
+        "type": ["object", "null"],
+        "required": ["start_ns", "duration_ns"],
+        "additional_properties": false,
+        "properties": {
+          "start_ns": {"type": "integer", "minimum": 0},
+          "duration_ns": {"type": "integer", "minimum": 1}
+        }
+      },
+      "metric_name": {"type": "string", "enum": ["emc_target_environment_frequency", "cpu_target_environment_frequency", "observed_emc_frequency", "throttle_status"]},
+      "samples": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["offset_ns", "value", "unit"],
+          "additional_properties": false,
+          "properties": {
+            "offset_ns": {"type": "integer", "minimum": 0},
+            "value": {"type": "number"},
+            "unit": {"type": "string", "enum": ["MHz", "percent"]}
+          }
+        }
+      },
+      "summary": {
+        "type": ["object", "null"],
+        "required": ["statistic", "value", "unit", "sample_count"],
+        "additional_properties": false,
+        "properties": {
+          "statistic": {"type": "string", "enum": ["metadata_value", "mean", "max"]},
+          "value": {"type": "number"},
+          "unit": {"type": "string", "enum": ["MHz", "percent"]},
+          "sample_count": {"type": "integer", "minimum": 0}
+        }
+      },
+      "evidence_semantics": {"type": "string", "enum": ["profiler_target_environment_metadata", "observed_samples"]},
+      "missing_reason": {"type": ["string", "null"], "enum": ["not_collected", "capture_not_aligned", null]}
+    }
+  }
+}

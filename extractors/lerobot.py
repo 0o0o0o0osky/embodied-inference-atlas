@@ -87,8 +87,8 @@ def normalize_lerobot_timing(
         },
         "vla": {
             "camera_views": nonnegative_integer(source.get("num_views"), context, "timing"),
-            "image_height": 224,
-            "image_width": 224,
+            "image_height": 256,
+            "image_width": 256,
             "semantic_prompt_tokens": nonnegative_integer(
                 source.get("semantic_prompt_tokens"), context, "timing"
             ),

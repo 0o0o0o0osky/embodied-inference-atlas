@@ -1,0 +1,1289 @@
+{
+  "dataset": "kernel_observations",
+  "records": [
+    {
+      "calls": 1,
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-attention-tensorop-001",
+      "duration": {
+        "sample_count": 1,
+        "statistic": "single",
+        "value_ns": 19648
+      },
+      "duration_share": null,
+      "kernel_signature_id": "kernel-signature-pi0-decoder-attention-tensorop",
+      "launch": {
+        "block": [
+          128,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 24576,
+        "grid": [
+          4,
+          1,
+          8
+        ],
+        "registers_per_thread": 158,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": 0.53
+      },
+      "missing": {
+        "duration_share": "not_applicable"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-ncu-decoder-attention-tensorop-001",
+      "observation_kind": "ncu_replayed_launch",
+      "population": "one_explicitly_selected_replayed_launch",
+      "quality": [
+        "replayed_launch",
+        "gpu_frequency_not_fixed"
+      ],
+      "run_id": "run-pi0-flashrt-ncu-decoder-attention-tensorop-001",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 1,
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-attention-wmma-001",
+      "duration": {
+        "sample_count": 1,
+        "statistic": "single",
+        "value_ns": 19648
+      },
+      "duration_share": null,
+      "kernel_signature_id": "kernel-signature-pi0-decoder-attention-wmma",
+      "launch": {
+        "block": [
+          128,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 9216,
+        "grid": [
+          24,
+          3,
+          1
+        ],
+        "registers_per_thread": 62,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": 0.45
+      },
+      "missing": {
+        "duration_share": "not_applicable"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-ncu-decoder-attention-wmma-001",
+      "observation_kind": "ncu_replayed_launch",
+      "population": "one_explicitly_selected_replayed_launch",
+      "quality": [
+        "replayed_launch",
+        "gpu_frequency_not_fixed"
+      ],
+      "run_id": "run-pi0-flashrt-ncu-decoder-attention-wmma-001",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 1,
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-nvjet-128x16-001",
+      "duration": {
+        "sample_count": 1,
+        "statistic": "single",
+        "value_ns": 25600
+      },
+      "duration_share": null,
+      "kernel_signature_id": "kernel-signature-pi0-decoder-nvjet-128x16",
+      "launch": {
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 225720,
+        "grid": [
+          20,
+          1,
+          1
+        ],
+        "registers_per_thread": 255,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": 1.0
+      },
+      "missing": {
+        "duration_share": "not_applicable"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-ncu-decoder-nvjet-128x16-001",
+      "observation_kind": "ncu_replayed_launch",
+      "population": "one_name_filtered_first_match_replayed_launch",
+      "quality": [
+        "replayed_launch",
+        "gpu_frequency_not_fixed"
+      ],
+      "run_id": "run-pi0-flashrt-ncu-decoder-nvjet-128x16-001",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 1,
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-nvjet-512x16-001",
+      "duration": {
+        "sample_count": 1,
+        "statistic": "single",
+        "value_ns": 57088
+      },
+      "duration_share": null,
+      "kernel_signature_id": "kernel-signature-pi0-decoder-nvjet-512x16",
+      "launch": {
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 216288,
+        "grid": [
+          16,
+          1,
+          1
+        ],
+        "registers_per_thread": 255,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": 0.8
+      },
+      "missing": {
+        "duration_share": "not_applicable"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-ncu-decoder-nvjet-512x16-001",
+      "observation_kind": "ncu_replayed_launch",
+      "population": "one_name_filtered_first_match_replayed_launch",
+      "quality": [
+        "replayed_launch",
+        "gpu_frequency_not_fixed"
+      ],
+      "run_id": "run-pi0-flashrt-ncu-decoder-nvjet-512x16-001",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 1,
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-nvjet-64x16-001",
+      "duration": {
+        "sample_count": 1,
+        "statistic": "single",
+        "value_ns": 21408
+      },
+      "duration_share": null,
+      "kernel_signature_id": "kernel-signature-pi0-decoder-nvjet-64x16",
+      "launch": {
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 164376,
+        "grid": [
+          16,
+          1,
+          1
+        ],
+        "registers_per_thread": 255,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": 0.8
+      },
+      "missing": {
+        "duration_share": "not_applicable"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-ncu-decoder-nvjet-64x16-001",
+      "observation_kind": "ncu_replayed_launch",
+      "population": "one_name_filtered_first_match_replayed_launch",
+      "quality": [
+        "replayed_launch",
+        "gpu_frequency_not_fixed"
+      ],
+      "run_id": "run-pi0-flashrt-ncu-decoder-nvjet-64x16-001",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 1,
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-geglu-001",
+      "duration": {
+        "sample_count": 1,
+        "statistic": "single",
+        "value_ns": 211200
+      },
+      "duration_share": null,
+      "kernel_signature_id": "kernel-signature-pi0-encoder-geglu",
+      "launch": {
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 0,
+        "grid": [
+          8320,
+          1,
+          1
+        ],
+        "registers_per_thread": 21,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": 69.33
+      },
+      "missing": {
+        "duration_share": "not_applicable"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-ncu-encoder-geglu-001",
+      "observation_kind": "ncu_replayed_launch",
+      "population": "one_name_filtered_first_match_replayed_launch",
+      "quality": [
+        "replayed_launch",
+        "gpu_frequency_not_fixed"
+      ],
+      "run_id": "run-pi0-flashrt-ncu-encoder-geglu-001",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 1,
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-large-gemm-001",
+      "duration": {
+        "sample_count": 1,
+        "statistic": "single",
+        "value_ns": 584960
+      },
+      "duration_share": null,
+      "kernel_signature_id": "kernel-signature-pi0-encoder-large-gemm",
+      "launch": {
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 230400,
+        "grid": [
+          10,
+          128,
+          1
+        ],
+        "registers_per_thread": 119,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": 64.0
+      },
+      "missing": {
+        "duration_share": "not_applicable"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-ncu-encoder-large-gemm-001",
+      "observation_kind": "ncu_replayed_launch",
+      "population": "one_explicitly_selected_replayed_launch",
+      "quality": [
+        "replayed_launch",
+        "gpu_frequency_not_fixed",
+        "work_id_unavailable"
+      ],
+      "run_id": "run-pi0-flashrt-ncu-encoder-large-gemm-001",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 1,
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-qkv-split-001",
+      "duration": {
+        "sample_count": 1,
+        "statistic": "single",
+        "value_ns": 66464
+      },
+      "duration_share": null,
+      "kernel_signature_id": "kernel-signature-pi0-encoder-qkv-split",
+      "launch": {
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 0,
+        "grid": [
+          5200,
+          1,
+          1
+        ],
+        "registers_per_thread": 18,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": 43.33
+      },
+      "missing": {
+        "duration_share": "not_applicable"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-ncu-encoder-qkv-split-001",
+      "observation_kind": "ncu_replayed_launch",
+      "population": "one_name_filtered_first_match_replayed_launch",
+      "quality": [
+        "replayed_launch",
+        "gpu_frequency_not_fixed"
+      ],
+      "run_id": "run-pi0-flashrt-ncu-encoder-qkv-split-001",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 1,
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-residual-rms-001",
+      "duration": {
+        "sample_count": 1,
+        "statistic": "single",
+        "value_ns": 42976
+      },
+      "duration_share": null,
+      "kernel_signature_id": "kernel-signature-pi0-encoder-residual-rms",
+      "launch": {
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 0,
+        "grid": [
+          520,
+          1,
+          1
+        ],
+        "registers_per_thread": 34,
+        "static_shared_memory_bytes": 64,
+        "waves_per_sm": 4.33
+      },
+      "missing": {
+        "duration_share": "not_applicable"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-ncu-encoder-residual-rms-001",
+      "observation_kind": "ncu_replayed_launch",
+      "population": "one_name_filtered_first_match_replayed_launch",
+      "quality": [
+        "replayed_launch",
+        "gpu_frequency_not_fixed"
+      ],
+      "run_id": "run-pi0-flashrt-ncu-encoder-residual-rms-001",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 1,
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-second-gemm-001",
+      "duration": {
+        "sample_count": 1,
+        "statistic": "single",
+        "value_ns": 259040
+      },
+      "duration_share": null,
+      "kernel_signature_id": "kernel-signature-pi0-encoder-second-gemm",
+      "launch": {
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 230400,
+        "grid": [
+          6,
+          16,
+          1
+        ],
+        "registers_per_thread": 122,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": 4.8
+      },
+      "missing": {
+        "duration_share": "not_applicable"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-ncu-encoder-second-gemm-001",
+      "observation_kind": "ncu_replayed_launch",
+      "population": "one_explicitly_selected_replayed_launch",
+      "quality": [
+        "replayed_launch",
+        "gpu_frequency_not_fixed",
+        "work_id_unavailable"
+      ],
+      "run_id": "run-pi0-flashrt-ncu-encoder-second-gemm-001",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 1,
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-third-gemm-001",
+      "duration": {
+        "sample_count": 1,
+        "statistic": "single",
+        "value_ns": 56000
+      },
+      "duration_share": null,
+      "kernel_signature_id": "kernel-signature-pi0-encoder-third-gemm",
+      "launch": {
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 231424,
+        "grid": [
+          6,
+          10,
+          1
+        ],
+        "registers_per_thread": 177,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": 3.0
+      },
+      "missing": {
+        "duration_share": "not_applicable"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-ncu-encoder-third-gemm-001",
+      "observation_kind": "ncu_replayed_launch",
+      "population": "one_explicitly_selected_replayed_launch",
+      "quality": [
+        "replayed_launch",
+        "gpu_frequency_not_fixed"
+      ],
+      "run_id": "run-pi0-flashrt-ncu-encoder-third-gemm-001",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 1,
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-broadcast-add-001",
+      "duration": {
+        "sample_count": 1,
+        "statistic": "single",
+        "value_ns": 72704
+      },
+      "duration_share": null,
+      "kernel_signature_id": "kernel-signature-pi0-siglip-broadcast-add",
+      "launch": {
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 213568,
+        "grid": [
+          20,
+          1,
+          1
+        ],
+        "registers_per_thread": 255,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": 1.0
+      },
+      "missing": {
+        "duration_share": "not_applicable"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-ncu-siglip-broadcast-add-001",
+      "observation_kind": "ncu_replayed_launch",
+      "population": "one_name_filtered_first_match_replayed_launch",
+      "quality": [
+        "replayed_launch",
+        "gpu_frequency_not_fixed"
+      ],
+      "run_id": "run-pi0-flashrt-ncu-siglip-broadcast-add-001",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 1,
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-fmha-001",
+      "duration": {
+        "sample_count": 1,
+        "statistic": "single",
+        "value_ns": 78688
+      },
+      "duration_share": null,
+      "kernel_signature_id": "kernel-signature-pi0-siglip-fmha",
+      "launch": {
+        "block": [
+          512,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 164080,
+        "grid": [
+          1,
+          16,
+          2
+        ],
+        "registers_per_thread": 128,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": 1.6
+      },
+      "missing": {
+        "duration_share": "not_applicable"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-ncu-siglip-fmha-001",
+      "observation_kind": "ncu_replayed_launch",
+      "population": "one_explicitly_selected_replayed_launch",
+      "quality": [
+        "replayed_launch",
+        "gpu_frequency_not_fixed"
+      ],
+      "run_id": "run-pi0-flashrt-ncu-siglip-fmha-001",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 1,
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-gelu-bias-001",
+      "duration": {
+        "sample_count": 1,
+        "statistic": "single",
+        "value_ns": 61344
+      },
+      "duration_share": null,
+      "kernel_signature_id": "kernel-signature-pi0-siglip-gelu-bias",
+      "launch": {
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 213616,
+        "grid": [
+          136,
+          1,
+          1
+        ],
+        "registers_per_thread": 255,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": 6.8
+      },
+      "missing": {
+        "duration_share": "not_applicable"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-ncu-siglip-gelu-bias-001",
+      "observation_kind": "ncu_replayed_launch",
+      "population": "one_name_filtered_first_match_replayed_launch",
+      "quality": [
+        "replayed_launch",
+        "gpu_frequency_not_fixed"
+      ],
+      "run_id": "run-pi0-flashrt-ncu-siglip-gelu-bias-001",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 1,
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-layer-norm-001",
+      "duration": {
+        "sample_count": 1,
+        "statistic": "single",
+        "value_ns": 33056
+      },
+      "duration_share": null,
+      "kernel_signature_id": "kernel-signature-pi0-siglip-layer-norm",
+      "launch": {
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 0,
+        "grid": [
+          512,
+          1,
+          1
+        ],
+        "registers_per_thread": 26,
+        "static_shared_memory_bytes": 128,
+        "waves_per_sm": 4.27
+      },
+      "missing": {
+        "duration_share": "not_applicable"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-ncu-siglip-layer-norm-001",
+      "observation_kind": "ncu_replayed_launch",
+      "population": "one_name_filtered_first_match_replayed_launch",
+      "quality": [
+        "replayed_launch",
+        "gpu_frequency_not_fixed"
+      ],
+      "run_id": "run-pi0-flashrt-ncu-siglip-layer-norm-001",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 1,
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-quantize-001",
+      "duration": {
+        "sample_count": 1,
+        "statistic": "single",
+        "value_ns": 37088
+      },
+      "duration_share": null,
+      "kernel_signature_id": "kernel-signature-pi0-siglip-quantize",
+      "launch": {
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 0,
+        "grid": [
+          2152,
+          1,
+          1
+        ],
+        "registers_per_thread": 16,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": 17.93
+      },
+      "missing": {
+        "duration_share": "not_applicable"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-ncu-siglip-quantize-001",
+      "observation_kind": "ncu_replayed_launch",
+      "population": "one_name_filtered_first_match_replayed_launch",
+      "quality": [
+        "replayed_launch",
+        "gpu_frequency_not_fixed"
+      ],
+      "run_id": "run-pi0-flashrt-ncu-siglip-quantize-001",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 180,
+      "capture_id": "capture-pi0-flashrt-nsys-node-001",
+      "duration": {
+        "sample_count": 180,
+        "statistic": "sum",
+        "value_ns": 1634560
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 3.467763184972121
+      },
+      "kernel_signature_id": "kernel-signature-pi0-decoder-attention-tensorop",
+      "launch": {
+        "block": [
+          128,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 24576,
+        "grid": [
+          4,
+          1,
+          8
+        ],
+        "registers_per_thread": 158,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-nsys-node-001",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-flashrt-nsys-node-001",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 180,
+      "capture_id": "capture-pi0-flashrt-nsys-node-001",
+      "duration": {
+        "sample_count": 180,
+        "statistic": "sum",
+        "value_ns": 1884064
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 3.9970926593892635
+      },
+      "kernel_signature_id": "kernel-signature-pi0-decoder-attention-wmma",
+      "launch": {
+        "block": [
+          128,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 9216,
+        "grid": [
+          24,
+          3,
+          1
+        ],
+        "registers_per_thread": 62,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-nsys-node-002",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-flashrt-nsys-node-001",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 180,
+      "capture_id": "capture-pi0-flashrt-nsys-node-001",
+      "duration": {
+        "sample_count": 180,
+        "statistic": "sum",
+        "value_ns": 2253888
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 4.781684263318841
+      },
+      "kernel_signature_id": "kernel-signature-pi0-decoder-nvjet-128x16",
+      "launch": {
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 225720,
+        "grid": [
+          20,
+          1,
+          1
+        ],
+        "registers_per_thread": 255,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-nsys-node-003",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-flashrt-nsys-node-001",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 180,
+      "capture_id": "capture-pi0-flashrt-nsys-node-001",
+      "duration": {
+        "sample_count": 180,
+        "statistic": "sum",
+        "value_ns": 6343071
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 13.456996435410323
+      },
+      "kernel_signature_id": "kernel-signature-pi0-decoder-nvjet-512x16",
+      "launch": {
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 216288,
+        "grid": [
+          16,
+          1,
+          1
+        ],
+        "registers_per_thread": 255,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-nsys-node-004",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-flashrt-nsys-node-001",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 360,
+      "capture_id": "capture-pi0-flashrt-nsys-node-001",
+      "duration": {
+        "sample_count": 360,
+        "statistic": "sum",
+        "value_ns": 5260767
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 11.160859269354585
+      },
+      "kernel_signature_id": "kernel-signature-pi0-decoder-nvjet-64x16",
+      "launch": {
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 164376,
+        "grid": [
+          16,
+          1,
+          1
+        ],
+        "registers_per_thread": 255,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-nsys-node-005",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-flashrt-nsys-node-001",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 17,
+      "capture_id": "capture-pi0-flashrt-nsys-node-001",
+      "duration": {
+        "sample_count": 17,
+        "statistic": "sum",
+        "value_ns": 8649728
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 18.35063155737479
+      },
+      "kernel_signature_id": "kernel-signature-pi0-encoder-large-gemm",
+      "launch": {
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 230400,
+        "grid": [
+          10,
+          128,
+          1
+        ],
+        "registers_per_thread": 119,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-nsys-node-006",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-flashrt-nsys-node-001",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 197,
+      "capture_id": "capture-pi0-flashrt-nsys-node-001",
+      "duration": {
+        "sample_count": 197,
+        "statistic": "sum",
+        "value_ns": 2974784
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 6.311084596738025
+      },
+      "kernel_signature_id": "kernel-signature-pi0-encoder-geglu",
+      "launch": {
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 0,
+        "grid": null,
+        "registers_per_thread": 21,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.grid": "varies_across_population",
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-nsys-node-007",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-flashrt-nsys-node-001",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 198,
+      "capture_id": "capture-pi0-flashrt-nsys-node-001",
+      "duration": {
+        "sample_count": 198,
+        "statistic": "sum",
+        "value_ns": 1572062
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 3.3351719900729506
+      },
+      "kernel_signature_id": "kernel-signature-pi0-encoder-qkv-split",
+      "launch": {
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 0,
+        "grid": null,
+        "registers_per_thread": 18,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.grid": "varies_across_population",
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-nsys-node-008",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-flashrt-nsys-node-001",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 367,
+      "capture_id": "capture-pi0-flashrt-nsys-node-001",
+      "duration": {
+        "sample_count": 367,
+        "statistic": "sum",
+        "value_ns": 1115835
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 2.3672740881358694
+      },
+      "kernel_signature_id": "kernel-signature-pi0-encoder-residual-rms",
+      "launch": {
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 0,
+        "grid": null,
+        "registers_per_thread": 34,
+        "static_shared_memory_bytes": 64,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.grid": "varies_across_population",
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-nsys-node-009",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-flashrt-nsys-node-001",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 17,
+      "capture_id": "capture-pi0-flashrt-nsys-node-001",
+      "duration": {
+        "sample_count": 17,
+        "statistic": "sum",
+        "value_ns": 3344864
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 7.096219311581458
+      },
+      "kernel_signature_id": "kernel-signature-pi0-encoder-second-gemm",
+      "launch": {
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 230400,
+        "grid": [
+          6,
+          16,
+          1
+        ],
+        "registers_per_thread": 122,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-nsys-node-010",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-flashrt-nsys-node-001",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 35,
+      "capture_id": "capture-pi0-flashrt-nsys-node-001",
+      "duration": {
+        "sample_count": 35,
+        "statistic": "sum",
+        "value_ns": 1299680
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 2.757306220783921
+      },
+      "kernel_signature_id": "kernel-signature-pi0-encoder-third-gemm",
+      "launch": {
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 231424,
+        "grid": null,
+        "registers_per_thread": 177,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.grid": "varies_across_population",
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-nsys-node-011",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-flashrt-nsys-node-001",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 54,
+      "capture_id": "capture-pi0-flashrt-nsys-node-001",
+      "duration": {
+        "sample_count": 54,
+        "statistic": "sum",
+        "value_ns": 1070560
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 2.2712219528825823
+      },
+      "kernel_signature_id": "kernel-signature-pi0-siglip-broadcast-add",
+      "launch": {
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 213568,
+        "grid": [
+          20,
+          1,
+          1
+        ],
+        "registers_per_thread": 255,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-nsys-node-012",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-flashrt-nsys-node-001",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 27,
+      "capture_id": "capture-pi0-flashrt-nsys-node-001",
+      "duration": {
+        "sample_count": 27,
+        "statistic": "sum",
+        "value_ns": 1571936
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 3.3349046776700373
+      },
+      "kernel_signature_id": "kernel-signature-pi0-siglip-fmha",
+      "launch": {
+        "block": [
+          512,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 164080,
+        "grid": [
+          1,
+          16,
+          2
+        ],
+        "registers_per_thread": 128,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-nsys-node-013",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-flashrt-nsys-node-001",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 27,
+      "capture_id": "capture-pi0-flashrt-nsys-node-001",
+      "duration": {
+        "sample_count": 27,
+        "statistic": "sum",
+        "value_ns": 1467200
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 3.112704425038601
+      },
+      "kernel_signature_id": "kernel-signature-pi0-siglip-gelu-bias",
+      "launch": {
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 213616,
+        "grid": [
+          136,
+          1,
+          1
+        ],
+        "registers_per_thread": 255,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-nsys-node-014",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-flashrt-nsys-node-001",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 54,
+      "capture_id": "capture-pi0-flashrt-nsys-node-001",
+      "duration": {
+        "sample_count": 54,
+        "statistic": "sum",
+        "value_ns": 1081664
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 2.2947793887710968
+      },
+      "kernel_signature_id": "kernel-signature-pi0-siglip-layer-norm",
+      "launch": {
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 0,
+        "grid": [
+          512,
+          1,
+          1
+        ],
+        "registers_per_thread": 26,
+        "static_shared_memory_bytes": 128,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-nsys-node-015",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-flashrt-nsys-node-001",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 251,
+      "capture_id": "capture-pi0-flashrt-nsys-node-001",
+      "duration": {
+        "sample_count": 251,
+        "statistic": "sum",
+        "value_ns": 1029728
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 2.1845957621225116
+      },
+      "kernel_signature_id": "kernel-signature-pi0-siglip-quantize",
+      "launch": {
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 0,
+        "grid": null,
+        "registers_per_thread": 16,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.grid": "varies_across_population",
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-nsys-node-016",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-flashrt-nsys-node-001",
+      "source_id": "source-local-thor"
+    }
+  ],
+  "schema_version": "1.0.0"
+}

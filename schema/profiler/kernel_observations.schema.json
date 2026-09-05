@@ -1,0 +1,69 @@
+{
+  "dataset": "kernel_observations",
+  "record": {
+    "type": "object",
+    "required": ["observation_id", "capture_id", "run_id", "source_id", "kernel_signature_id", "observation_kind", "population", "calls", "duration", "launch", "duration_share", "quality", "missing"],
+    "additional_properties": false,
+    "properties": {
+      "observation_id": {"type": "string", "min_length": 1, "max_length": 120},
+      "capture_id": {"type": "string", "min_length": 1, "max_length": 120},
+      "run_id": {"type": "string", "min_length": 1, "max_length": 120},
+      "source_id": {"type": "string", "min_length": 1, "max_length": 80},
+      "kernel_signature_id": {"type": "string", "min_length": 1, "max_length": 120},
+      "observation_kind": {"type": "string", "enum": ["nsys_window_aggregate", "nsys_launch", "ncu_replayed_launch"]},
+      "population": {"type": "string", "enum": ["all_matching_launches_in_one_predict_window", "one_explicitly_selected_replayed_launch", "one_name_filtered_first_match_replayed_launch"]},
+      "calls": {"type": "integer", "minimum": 1},
+      "duration": {
+        "type": "object",
+        "required": ["statistic", "value_ns", "sample_count"],
+        "additional_properties": false,
+        "properties": {
+          "statistic": {"type": "string", "enum": ["single", "sum"]},
+          "value_ns": {"type": "integer", "minimum": 0},
+          "sample_count": {"type": "integer", "minimum": 1}
+        }
+      },
+      "launch": {
+        "type": "object",
+        "required": ["grid", "block", "registers_per_thread", "static_shared_memory_bytes", "dynamic_shared_memory_bytes", "waves_per_sm"],
+        "additional_properties": false,
+        "properties": {
+          "grid": {"type": ["array", "null"], "items": {"type": "integer", "minimum": 1}},
+          "block": {"type": ["array", "null"], "items": {"type": "integer", "minimum": 1}},
+          "registers_per_thread": {"type": ["integer", "null"], "minimum": 0},
+          "static_shared_memory_bytes": {"type": ["integer", "null"], "minimum": 0},
+          "dynamic_shared_memory_bytes": {"type": ["integer", "null"], "minimum": 0},
+          "waves_per_sm": {"type": ["number", "null"], "minimum": 0}
+        }
+      },
+      "duration_share": {
+        "type": ["object", "null"],
+        "required": ["value", "unit", "denominator"],
+        "additional_properties": false,
+        "properties": {
+          "value": {"type": "number", "minimum": 0},
+          "unit": {"type": "string", "enum": ["percent"]},
+          "denominator": {"type": "string", "enum": ["kernel_duration_sum", "window_duration"]}
+        }
+      },
+      "quality": {
+        "type": "array",
+        "items": {"type": "string", "enum": ["replayed_launch", "intrusive_node_trace", "gpu_frequency_not_fixed", "work_id_unavailable"]}
+      },
+      "missing": {
+        "type": "object",
+        "required": [],
+        "additional_properties": false,
+        "properties": {
+          "launch.grid": {"type": "string", "enum": ["not_collected", "counter_absent_from_report", "varies_across_population"]},
+          "launch.block": {"type": "string", "enum": ["not_collected", "counter_absent_from_report", "varies_across_population"]},
+          "launch.registers_per_thread": {"type": "string", "enum": ["not_collected", "counter_absent_from_report", "varies_across_population"]},
+          "launch.static_shared_memory_bytes": {"type": "string", "enum": ["not_collected", "counter_absent_from_report", "varies_across_population"]},
+          "launch.dynamic_shared_memory_bytes": {"type": "string", "enum": ["not_collected", "counter_absent_from_report", "varies_across_population"]},
+          "launch.waves_per_sm": {"type": "string", "enum": ["not_collected", "counter_absent_from_report", "varies_across_population"]},
+          "duration_share": {"type": "string", "enum": ["not_applicable", "incomplete_population"]}
+        }
+      }
+    }
+  }
+}

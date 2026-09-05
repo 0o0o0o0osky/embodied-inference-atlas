@@ -1,0 +1,56 @@
+{
+  "dataset": "operator_kernel_links",
+  "record": {
+    "type": "object",
+    "required": ["link_id", "observation_id", "kernel_signature_id", "run_id", "model_graph_id", "logical_targets", "realization_id", "execution_group_ids", "mapping_method", "status", "confidence", "coverage", "evidence_ids", "reason_code"],
+    "additional_properties": false,
+    "properties": {
+      "link_id": {"type": "string", "min_length": 1, "max_length": 120},
+      "observation_id": {"type": "string", "min_length": 1, "max_length": 120},
+      "kernel_signature_id": {"type": "string", "min_length": 1, "max_length": 120},
+      "run_id": {"type": "string", "min_length": 1, "max_length": 120},
+      "model_graph_id": {"type": "string", "min_length": 1, "max_length": 120},
+      "logical_targets": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["ref", "repeat_selectors"],
+          "additional_properties": false,
+          "properties": {
+            "ref": {"type": "string", "min_length": 1, "max_length": 240},
+            "repeat_selectors": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["scope_ref", "selection", "indices"],
+                "additional_properties": false,
+                "properties": {
+                  "scope_ref": {"type": "string", "min_length": 1, "max_length": 180},
+                  "selection": {"type": "string", "enum": ["all", "indices"]},
+                  "indices": {"type": "array", "items": {"type": "integer", "minimum": 0}}
+                }
+              }
+            }
+          }
+        }
+      },
+      "realization_id": {"type": ["string", "null"], "min_length": 1, "max_length": 120},
+      "execution_group_ids": {"type": "array", "items": {"type": "string", "min_length": 1, "max_length": 120}},
+      "mapping_method": {"type": "string", "enum": ["nvtx_correlation", "runtime_correlation", "source_audit", "geometry_and_order", "combined"]},
+      "status": {"type": "string", "enum": ["resolved", "partial", "ambiguous", "unknown"]},
+      "confidence": {"type": "string", "enum": ["high", "medium", "low", "unknown"]},
+      "coverage": {
+        "type": "object",
+        "required": ["mapped_launches", "population_launches", "unit"],
+        "additional_properties": false,
+        "properties": {
+          "mapped_launches": {"type": "integer", "minimum": 0},
+          "population_launches": {"type": "integer", "minimum": 0},
+          "unit": {"type": "string", "enum": ["launch"]}
+        }
+      },
+      "evidence_ids": {"type": "array", "items": {"type": "string", "min_length": 1, "max_length": 120}},
+      "reason_code": {"type": ["string", "null"], "enum": ["precision_conflict", "realization_not_linked", "execution_group_not_linked", "ambiguous_attribution", null]}
+    }
+  }
+}

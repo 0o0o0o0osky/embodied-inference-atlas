@@ -1,0 +1,4566 @@
+{
+  "dataset": "profiler_metrics",
+  "records": [
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-attention-tensorop-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-decoder-attention-tensorop-001",
+      "metric_name": "kernel_duration",
+      "missing_reason": null,
+      "raw_counter_name": "gpu__time_duration.sum",
+      "run_id": "run-pi0-flashrt-ncu-decoder-attention-tensorop-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-decoder-attention-tensorop-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "ns",
+      "value": 19648
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-attention-tensorop-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-decoder-attention-tensorop-002",
+      "metric_name": "sm_throughput_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "sm__throughput.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-decoder-attention-tensorop-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-decoder-attention-tensorop-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 12.0
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-attention-tensorop-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-decoder-attention-tensorop-003",
+      "metric_name": "tensor_cycles_active_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "sm__pipe_tensor_cycles_active.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-decoder-attention-tensorop-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-decoder-attention-tensorop-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 8.3
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-attention-tensorop-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-decoder-attention-tensorop-004",
+      "metric_name": "memory_sol_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "gpu__compute_memory_throughput.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-decoder-attention-tensorop-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-decoder-attention-tensorop-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 22.72
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-attention-tensorop-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-decoder-attention-tensorop-005",
+      "metric_name": "l1_throughput_pct_of_peak_sustained_active",
+      "missing_reason": null,
+      "raw_counter_name": "l1tex__throughput.avg.pct_of_peak_sustained_active",
+      "run_id": "run-pi0-flashrt-ncu-decoder-attention-tensorop-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-decoder-attention-tensorop-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 56.0
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-attention-tensorop-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-decoder-attention-tensorop-006",
+      "metric_name": "l2_throughput_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "lts__throughput.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-decoder-attention-tensorop-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-decoder-attention-tensorop-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 7.8
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-attention-tensorop-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-decoder-attention-tensorop-007",
+      "metric_name": "l2_sysmem_fill_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "lts__d_sectors_fill_sysmem.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-decoder-attention-tensorop-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-decoder-attention-tensorop-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 2.96
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-attention-tensorop-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-decoder-attention-tensorop-008",
+      "metric_name": "theoretical_occupancy_percent",
+      "missing_reason": null,
+      "raw_counter_name": "sm__maximum_warps_per_active_cycle_pct",
+      "run_id": "run-pi0-flashrt-ncu-decoder-attention-tensorop-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-decoder-attention-tensorop-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 25.0
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-attention-tensorop-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-decoder-attention-tensorop-009",
+      "metric_name": "achieved_occupancy_percent",
+      "missing_reason": null,
+      "raw_counter_name": "sm__warps_active.avg.pct_of_peak_sustained_active",
+      "run_id": "run-pi0-flashrt-ncu-decoder-attention-tensorop-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-decoder-attention-tensorop-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 12.78
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-attention-tensorop-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-decoder-attention-tensorop-010",
+      "metric_name": "system_memory_throughput_pct_of_ceiling",
+      "missing_reason": "counter_absent_from_report",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-decoder-attention-tensorop-001",
+      "section_name": "MemoryWorkloadAnalysis",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-decoder-attention-tensorop-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-attention-tensorop-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-decoder-attention-tensorop-011",
+      "metric_name": "system_memory_bytes",
+      "missing_reason": "counter_absent_from_report",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-decoder-attention-tensorop-001",
+      "section_name": "MemoryWorkloadAnalysis",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-decoder-attention-tensorop-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "byte",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-attention-tensorop-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-decoder-attention-tensorop-012",
+      "metric_name": "scheduler_issue_active_percent",
+      "missing_reason": "section_not_collected",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-decoder-attention-tensorop-001",
+      "section_name": "SchedulerStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-decoder-attention-tensorop-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-attention-tensorop-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-decoder-attention-tensorop-013",
+      "metric_name": "warp_stall_long_scoreboard_percent",
+      "missing_reason": "section_not_collected",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-decoder-attention-tensorop-001",
+      "section_name": "WarpStateStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-decoder-attention-tensorop-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-attention-tensorop-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-decoder-attention-tensorop-014",
+      "metric_name": "warp_stall_short_scoreboard_percent",
+      "missing_reason": "section_not_collected",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-decoder-attention-tensorop-001",
+      "section_name": "WarpStateStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-decoder-attention-tensorop-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-attention-tensorop-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-decoder-attention-tensorop-015",
+      "metric_name": "source_counter_attribution",
+      "missing_reason": "section_not_collected",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-decoder-attention-tensorop-001",
+      "section_name": "SourceCounters",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-decoder-attention-tensorop-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "count",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-attention-wmma-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-decoder-attention-wmma-001",
+      "metric_name": "kernel_duration",
+      "missing_reason": null,
+      "raw_counter_name": "gpu__time_duration.sum",
+      "run_id": "run-pi0-flashrt-ncu-decoder-attention-wmma-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-decoder-attention-wmma-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "ns",
+      "value": 19648
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-attention-wmma-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-decoder-attention-wmma-002",
+      "metric_name": "sm_throughput_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "sm__throughput.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-decoder-attention-wmma-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-decoder-attention-wmma-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 9.81
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-attention-wmma-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-decoder-attention-wmma-003",
+      "metric_name": "tensor_cycles_active_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "sm__pipe_tensor_cycles_active.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-decoder-attention-wmma-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-decoder-attention-wmma-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 2.4
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-attention-wmma-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-decoder-attention-wmma-004",
+      "metric_name": "memory_sol_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "gpu__compute_memory_throughput.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-decoder-attention-wmma-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-decoder-attention-wmma-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 28.32
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-attention-wmma-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-decoder-attention-wmma-005",
+      "metric_name": "l1_throughput_pct_of_peak_sustained_active",
+      "missing_reason": null,
+      "raw_counter_name": "l1tex__throughput.avg.pct_of_peak_sustained_active",
+      "run_id": "run-pi0-flashrt-ncu-decoder-attention-wmma-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-decoder-attention-wmma-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 64.81
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-attention-wmma-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-decoder-attention-wmma-006",
+      "metric_name": "l2_throughput_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "lts__throughput.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-decoder-attention-wmma-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-decoder-attention-wmma-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 5.38
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-attention-wmma-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-decoder-attention-wmma-007",
+      "metric_name": "l2_sysmem_fill_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "lts__d_sectors_fill_sysmem.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-decoder-attention-wmma-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-decoder-attention-wmma-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 2.45
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-attention-wmma-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-decoder-attention-wmma-008",
+      "metric_name": "theoretical_occupancy_percent",
+      "missing_reason": null,
+      "raw_counter_name": "sm__maximum_warps_per_active_cycle_pct",
+      "run_id": "run-pi0-flashrt-ncu-decoder-attention-wmma-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-decoder-attention-wmma-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 66.67
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-attention-wmma-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-decoder-attention-wmma-009",
+      "metric_name": "achieved_occupancy_percent",
+      "missing_reason": null,
+      "raw_counter_name": "sm__warps_active.avg.pct_of_peak_sustained_active",
+      "run_id": "run-pi0-flashrt-ncu-decoder-attention-wmma-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-decoder-attention-wmma-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 21.41
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-attention-wmma-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-decoder-attention-wmma-010",
+      "metric_name": "system_memory_throughput_pct_of_ceiling",
+      "missing_reason": "counter_absent_from_report",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-decoder-attention-wmma-001",
+      "section_name": "MemoryWorkloadAnalysis",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-decoder-attention-wmma-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-attention-wmma-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-decoder-attention-wmma-011",
+      "metric_name": "system_memory_bytes",
+      "missing_reason": "counter_absent_from_report",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-decoder-attention-wmma-001",
+      "section_name": "MemoryWorkloadAnalysis",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-decoder-attention-wmma-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "byte",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-attention-wmma-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-decoder-attention-wmma-012",
+      "metric_name": "scheduler_issue_active_percent",
+      "missing_reason": "section_not_collected",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-decoder-attention-wmma-001",
+      "section_name": "SchedulerStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-decoder-attention-wmma-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-attention-wmma-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-decoder-attention-wmma-013",
+      "metric_name": "warp_stall_long_scoreboard_percent",
+      "missing_reason": "section_not_collected",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-decoder-attention-wmma-001",
+      "section_name": "WarpStateStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-decoder-attention-wmma-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-attention-wmma-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-decoder-attention-wmma-014",
+      "metric_name": "warp_stall_short_scoreboard_percent",
+      "missing_reason": "section_not_collected",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-decoder-attention-wmma-001",
+      "section_name": "WarpStateStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-decoder-attention-wmma-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-attention-wmma-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-decoder-attention-wmma-015",
+      "metric_name": "source_counter_attribution",
+      "missing_reason": "section_not_collected",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-decoder-attention-wmma-001",
+      "section_name": "SourceCounters",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-decoder-attention-wmma-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "count",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-nvjet-128x16-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-decoder-nvjet-128x16-001",
+      "metric_name": "kernel_duration",
+      "missing_reason": null,
+      "raw_counter_name": "gpu__time_duration.sum",
+      "run_id": "run-pi0-flashrt-ncu-decoder-nvjet-128x16-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-decoder-nvjet-128x16-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "ns",
+      "value": 25600
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-nvjet-128x16-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-decoder-nvjet-128x16-002",
+      "metric_name": "sm_throughput_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "sm__throughput.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-decoder-nvjet-128x16-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-decoder-nvjet-128x16-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 4.28
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-nvjet-128x16-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-decoder-nvjet-128x16-003",
+      "metric_name": "tensor_cycles_active_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "sm__pipe_tensor_cycles_active.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-decoder-nvjet-128x16-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-decoder-nvjet-128x16-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 0.72
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-nvjet-128x16-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-decoder-nvjet-128x16-004",
+      "metric_name": "memory_sol_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "gpu__compute_memory_throughput.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-decoder-nvjet-128x16-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-decoder-nvjet-128x16-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 14.64
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-nvjet-128x16-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-decoder-nvjet-128x16-005",
+      "metric_name": "l1_throughput_pct_of_peak_sustained_active",
+      "missing_reason": null,
+      "raw_counter_name": "l1tex__throughput.avg.pct_of_peak_sustained_active",
+      "run_id": "run-pi0-flashrt-ncu-decoder-nvjet-128x16-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-decoder-nvjet-128x16-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 5.08
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-nvjet-128x16-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-decoder-nvjet-128x16-006",
+      "metric_name": "l2_throughput_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "lts__throughput.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-decoder-nvjet-128x16-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-decoder-nvjet-128x16-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 14.64
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-nvjet-128x16-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-decoder-nvjet-128x16-007",
+      "metric_name": "l2_sysmem_fill_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "lts__d_sectors_fill_sysmem.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-decoder-nvjet-128x16-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-decoder-nvjet-128x16-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 14.64
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-nvjet-128x16-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-decoder-nvjet-128x16-008",
+      "metric_name": "theoretical_occupancy_percent",
+      "missing_reason": null,
+      "raw_counter_name": "sm__maximum_warps_per_active_cycle_pct",
+      "run_id": "run-pi0-flashrt-ncu-decoder-nvjet-128x16-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-decoder-nvjet-128x16-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 16.67
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-nvjet-128x16-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-decoder-nvjet-128x16-009",
+      "metric_name": "achieved_occupancy_percent",
+      "missing_reason": null,
+      "raw_counter_name": "sm__warps_active.avg.pct_of_peak_sustained_active",
+      "run_id": "run-pi0-flashrt-ncu-decoder-nvjet-128x16-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-decoder-nvjet-128x16-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 12.7
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-nvjet-128x16-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-decoder-nvjet-128x16-010",
+      "metric_name": "system_memory_throughput_pct_of_ceiling",
+      "missing_reason": "counter_absent_from_report",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-decoder-nvjet-128x16-001",
+      "section_name": "MemoryWorkloadAnalysis",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-decoder-nvjet-128x16-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-nvjet-128x16-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-decoder-nvjet-128x16-011",
+      "metric_name": "system_memory_bytes",
+      "missing_reason": "counter_absent_from_report",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-decoder-nvjet-128x16-001",
+      "section_name": "MemoryWorkloadAnalysis",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-decoder-nvjet-128x16-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "byte",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-nvjet-128x16-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-decoder-nvjet-128x16-012",
+      "metric_name": "scheduler_issue_active_percent",
+      "missing_reason": "section_not_collected",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-decoder-nvjet-128x16-001",
+      "section_name": "SchedulerStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-decoder-nvjet-128x16-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-nvjet-128x16-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-decoder-nvjet-128x16-013",
+      "metric_name": "warp_stall_long_scoreboard_percent",
+      "missing_reason": "section_not_collected",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-decoder-nvjet-128x16-001",
+      "section_name": "WarpStateStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-decoder-nvjet-128x16-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-nvjet-128x16-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-decoder-nvjet-128x16-014",
+      "metric_name": "warp_stall_short_scoreboard_percent",
+      "missing_reason": "section_not_collected",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-decoder-nvjet-128x16-001",
+      "section_name": "WarpStateStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-decoder-nvjet-128x16-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-nvjet-128x16-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-decoder-nvjet-128x16-015",
+      "metric_name": "source_counter_attribution",
+      "missing_reason": "section_not_collected",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-decoder-nvjet-128x16-001",
+      "section_name": "SourceCounters",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-decoder-nvjet-128x16-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "count",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-nvjet-512x16-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-decoder-nvjet-512x16-001",
+      "metric_name": "kernel_duration",
+      "missing_reason": null,
+      "raw_counter_name": "gpu__time_duration.sum",
+      "run_id": "run-pi0-flashrt-ncu-decoder-nvjet-512x16-001",
+      "section_name": "SpeedOfLight",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-decoder-nvjet-512x16-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "ns",
+      "value": 57088
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-nvjet-512x16-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-decoder-nvjet-512x16-002",
+      "metric_name": "sm_throughput_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "sm__throughput.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-decoder-nvjet-512x16-001",
+      "section_name": "SpeedOfLight",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-decoder-nvjet-512x16-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 6.22
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-nvjet-512x16-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-decoder-nvjet-512x16-003",
+      "metric_name": "tensor_cycles_active_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "sm__pipe_tensor_cycles_active.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-decoder-nvjet-512x16-001",
+      "section_name": "SpeedOfLight_HierarchicalTensorRooflineChart",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-decoder-nvjet-512x16-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 1.21
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-nvjet-512x16-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-decoder-nvjet-512x16-004",
+      "metric_name": "memory_sol_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "gpu__compute_memory_throughput.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-decoder-nvjet-512x16-001",
+      "section_name": "SpeedOfLight",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-decoder-nvjet-512x16-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 20.82
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-nvjet-512x16-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-decoder-nvjet-512x16-005",
+      "metric_name": "l1_throughput_pct_of_peak_sustained_active",
+      "missing_reason": null,
+      "raw_counter_name": "l1tex__throughput.avg.pct_of_peak_sustained_active",
+      "run_id": "run-pi0-flashrt-ncu-decoder-nvjet-512x16-001",
+      "section_name": "SpeedOfLight",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-decoder-nvjet-512x16-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 8.63
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-nvjet-512x16-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-decoder-nvjet-512x16-006",
+      "metric_name": "l2_throughput_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "lts__throughput.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-decoder-nvjet-512x16-001",
+      "section_name": "SpeedOfLight",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-decoder-nvjet-512x16-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 20.82
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-nvjet-512x16-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-decoder-nvjet-512x16-007",
+      "metric_name": "l2_sysmem_fill_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "lts__d_sectors_fill_sysmem.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-decoder-nvjet-512x16-001",
+      "section_name": "MemoryWorkloadAnalysis",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-decoder-nvjet-512x16-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 20.82
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-nvjet-512x16-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-decoder-nvjet-512x16-008",
+      "metric_name": "theoretical_occupancy_percent",
+      "missing_reason": null,
+      "raw_counter_name": "sm__maximum_warps_per_active_cycle_pct",
+      "run_id": "run-pi0-flashrt-ncu-decoder-nvjet-512x16-001",
+      "section_name": "Occupancy",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-decoder-nvjet-512x16-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 16.67
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-nvjet-512x16-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-decoder-nvjet-512x16-009",
+      "metric_name": "achieved_occupancy_percent",
+      "missing_reason": null,
+      "raw_counter_name": "sm__warps_active.avg.pct_of_peak_sustained_active",
+      "run_id": "run-pi0-flashrt-ncu-decoder-nvjet-512x16-001",
+      "section_name": "Occupancy",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-decoder-nvjet-512x16-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 12.58
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-nvjet-512x16-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-decoder-nvjet-512x16-010",
+      "metric_name": "system_memory_throughput_pct_of_ceiling",
+      "missing_reason": "counter_absent_from_report",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-decoder-nvjet-512x16-001",
+      "section_name": "MemoryWorkloadAnalysis",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-decoder-nvjet-512x16-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-nvjet-512x16-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-decoder-nvjet-512x16-011",
+      "metric_name": "system_memory_bytes",
+      "missing_reason": "counter_absent_from_report",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-decoder-nvjet-512x16-001",
+      "section_name": "MemoryWorkloadAnalysis",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-decoder-nvjet-512x16-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "byte",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-nvjet-512x16-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-decoder-nvjet-512x16-012",
+      "metric_name": "scheduler_issue_active_percent",
+      "missing_reason": "section_not_collected",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-decoder-nvjet-512x16-001",
+      "section_name": "SchedulerStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-decoder-nvjet-512x16-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-nvjet-512x16-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-decoder-nvjet-512x16-013",
+      "metric_name": "warp_stall_long_scoreboard_percent",
+      "missing_reason": "section_not_collected",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-decoder-nvjet-512x16-001",
+      "section_name": "WarpStateStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-decoder-nvjet-512x16-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-nvjet-512x16-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-decoder-nvjet-512x16-014",
+      "metric_name": "warp_stall_short_scoreboard_percent",
+      "missing_reason": "section_not_collected",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-decoder-nvjet-512x16-001",
+      "section_name": "WarpStateStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-decoder-nvjet-512x16-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-nvjet-512x16-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-decoder-nvjet-512x16-015",
+      "metric_name": "source_counter_attribution",
+      "missing_reason": "section_not_collected",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-decoder-nvjet-512x16-001",
+      "section_name": "SourceCounters",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-decoder-nvjet-512x16-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "count",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-nvjet-64x16-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-decoder-nvjet-64x16-001",
+      "metric_name": "kernel_duration",
+      "missing_reason": null,
+      "raw_counter_name": "gpu__time_duration.sum",
+      "run_id": "run-pi0-flashrt-ncu-decoder-nvjet-64x16-001",
+      "section_name": "SpeedOfLight",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-decoder-nvjet-64x16-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "ns",
+      "value": 21408
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-nvjet-64x16-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-decoder-nvjet-64x16-002",
+      "metric_name": "sm_throughput_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "sm__throughput.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-decoder-nvjet-64x16-001",
+      "section_name": "SpeedOfLight",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-decoder-nvjet-64x16-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 5.66
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-nvjet-64x16-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-decoder-nvjet-64x16-003",
+      "metric_name": "tensor_cycles_active_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "sm__pipe_tensor_cycles_active.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-decoder-nvjet-64x16-001",
+      "section_name": "SpeedOfLight_HierarchicalTensorRooflineChart",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-decoder-nvjet-64x16-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 0.75
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-nvjet-64x16-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-decoder-nvjet-64x16-004",
+      "metric_name": "memory_sol_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "gpu__compute_memory_throughput.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-decoder-nvjet-64x16-001",
+      "section_name": "SpeedOfLight",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-decoder-nvjet-64x16-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 14.12
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-nvjet-64x16-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-decoder-nvjet-64x16-005",
+      "metric_name": "l1_throughput_pct_of_peak_sustained_active",
+      "missing_reason": null,
+      "raw_counter_name": "l1tex__throughput.avg.pct_of_peak_sustained_active",
+      "run_id": "run-pi0-flashrt-ncu-decoder-nvjet-64x16-001",
+      "section_name": "SpeedOfLight",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-decoder-nvjet-64x16-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 7.8
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-nvjet-64x16-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-decoder-nvjet-64x16-006",
+      "metric_name": "l2_throughput_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "lts__throughput.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-decoder-nvjet-64x16-001",
+      "section_name": "SpeedOfLight",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-decoder-nvjet-64x16-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 14.12
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-nvjet-64x16-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-decoder-nvjet-64x16-007",
+      "metric_name": "l2_sysmem_fill_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "lts__d_sectors_fill_sysmem.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-decoder-nvjet-64x16-001",
+      "section_name": "MemoryWorkloadAnalysis",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-decoder-nvjet-64x16-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 14.12
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-nvjet-64x16-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-decoder-nvjet-64x16-008",
+      "metric_name": "theoretical_occupancy_percent",
+      "missing_reason": null,
+      "raw_counter_name": "sm__maximum_warps_per_active_cycle_pct",
+      "run_id": "run-pi0-flashrt-ncu-decoder-nvjet-64x16-001",
+      "section_name": "Occupancy",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-decoder-nvjet-64x16-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 16.67
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-nvjet-64x16-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-decoder-nvjet-64x16-009",
+      "metric_name": "achieved_occupancy_percent",
+      "missing_reason": null,
+      "raw_counter_name": "sm__warps_active.avg.pct_of_peak_sustained_active",
+      "run_id": "run-pi0-flashrt-ncu-decoder-nvjet-64x16-001",
+      "section_name": "Occupancy",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-decoder-nvjet-64x16-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 12.78
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-nvjet-64x16-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-decoder-nvjet-64x16-010",
+      "metric_name": "system_memory_throughput_pct_of_ceiling",
+      "missing_reason": "counter_absent_from_report",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-decoder-nvjet-64x16-001",
+      "section_name": "MemoryWorkloadAnalysis",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-decoder-nvjet-64x16-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-nvjet-64x16-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-decoder-nvjet-64x16-011",
+      "metric_name": "system_memory_bytes",
+      "missing_reason": "counter_absent_from_report",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-decoder-nvjet-64x16-001",
+      "section_name": "MemoryWorkloadAnalysis",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-decoder-nvjet-64x16-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "byte",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-nvjet-64x16-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-decoder-nvjet-64x16-012",
+      "metric_name": "scheduler_issue_active_percent",
+      "missing_reason": "section_not_collected",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-decoder-nvjet-64x16-001",
+      "section_name": "SchedulerStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-decoder-nvjet-64x16-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-nvjet-64x16-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-decoder-nvjet-64x16-013",
+      "metric_name": "warp_stall_long_scoreboard_percent",
+      "missing_reason": "section_not_collected",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-decoder-nvjet-64x16-001",
+      "section_name": "WarpStateStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-decoder-nvjet-64x16-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-nvjet-64x16-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-decoder-nvjet-64x16-014",
+      "metric_name": "warp_stall_short_scoreboard_percent",
+      "missing_reason": "section_not_collected",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-decoder-nvjet-64x16-001",
+      "section_name": "WarpStateStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-decoder-nvjet-64x16-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-decoder-nvjet-64x16-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-decoder-nvjet-64x16-015",
+      "metric_name": "source_counter_attribution",
+      "missing_reason": "section_not_collected",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-decoder-nvjet-64x16-001",
+      "section_name": "SourceCounters",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-decoder-nvjet-64x16-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "count",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-geglu-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-geglu-001",
+      "metric_name": "kernel_duration",
+      "missing_reason": null,
+      "raw_counter_name": "gpu__time_duration.sum",
+      "run_id": "run-pi0-flashrt-ncu-encoder-geglu-001",
+      "section_name": "SpeedOfLight",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-geglu-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "ns",
+      "value": 211200
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-geglu-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-geglu-002",
+      "metric_name": "sm_throughput_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "sm__throughput.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-encoder-geglu-001",
+      "section_name": "SpeedOfLight",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-geglu-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 39.98
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-geglu-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-geglu-003",
+      "metric_name": "tensor_cycles_active_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "sm__pipe_tensor_cycles_active.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-encoder-geglu-001",
+      "section_name": "SpeedOfLight_HierarchicalTensorRooflineChart",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-geglu-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 0.0
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-geglu-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-geglu-004",
+      "metric_name": "memory_sol_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "gpu__compute_memory_throughput.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-encoder-geglu-001",
+      "section_name": "SpeedOfLight",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-geglu-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 22.77
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-geglu-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-geglu-005",
+      "metric_name": "l1_throughput_pct_of_peak_sustained_active",
+      "missing_reason": null,
+      "raw_counter_name": "l1tex__throughput.avg.pct_of_peak_sustained_active",
+      "run_id": "run-pi0-flashrt-ncu-encoder-geglu-001",
+      "section_name": "SpeedOfLight",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-geglu-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 13.29
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-geglu-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-geglu-006",
+      "metric_name": "l2_throughput_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "lts__throughput.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-encoder-geglu-001",
+      "section_name": "SpeedOfLight",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-geglu-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 22.77
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-geglu-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-geglu-007",
+      "metric_name": "l2_sysmem_fill_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "lts__d_sectors_fill_sysmem.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-encoder-geglu-001",
+      "section_name": "MemoryWorkloadAnalysis",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-geglu-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 22.77
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-geglu-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-geglu-008",
+      "metric_name": "theoretical_occupancy_percent",
+      "missing_reason": null,
+      "raw_counter_name": "sm__maximum_warps_per_active_cycle_pct",
+      "run_id": "run-pi0-flashrt-ncu-encoder-geglu-001",
+      "section_name": "Occupancy",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-geglu-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 100.0
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-geglu-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-geglu-009",
+      "metric_name": "achieved_occupancy_percent",
+      "missing_reason": null,
+      "raw_counter_name": "sm__warps_active.avg.pct_of_peak_sustained_active",
+      "run_id": "run-pi0-flashrt-ncu-encoder-geglu-001",
+      "section_name": "Occupancy",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-geglu-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 75.82
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-geglu-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-geglu-010",
+      "metric_name": "system_memory_throughput_pct_of_ceiling",
+      "missing_reason": "counter_absent_from_report",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-encoder-geglu-001",
+      "section_name": "MemoryWorkloadAnalysis",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-geglu-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-geglu-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-geglu-011",
+      "metric_name": "system_memory_bytes",
+      "missing_reason": "counter_absent_from_report",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-encoder-geglu-001",
+      "section_name": "MemoryWorkloadAnalysis",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-geglu-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "byte",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-geglu-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-geglu-012",
+      "metric_name": "scheduler_issue_active_percent",
+      "missing_reason": "section_not_collected",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-encoder-geglu-001",
+      "section_name": "SchedulerStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-geglu-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-geglu-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-geglu-013",
+      "metric_name": "warp_stall_long_scoreboard_percent",
+      "missing_reason": "section_not_collected",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-encoder-geglu-001",
+      "section_name": "WarpStateStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-geglu-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-geglu-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-geglu-014",
+      "metric_name": "warp_stall_short_scoreboard_percent",
+      "missing_reason": "section_not_collected",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-encoder-geglu-001",
+      "section_name": "WarpStateStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-geglu-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-geglu-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-geglu-015",
+      "metric_name": "source_counter_attribution",
+      "missing_reason": "section_not_collected",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-encoder-geglu-001",
+      "section_name": "SourceCounters",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-geglu-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "count",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-large-gemm-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-large-gemm-001",
+      "metric_name": "kernel_duration",
+      "missing_reason": null,
+      "raw_counter_name": "gpu__time_duration.sum",
+      "run_id": "run-pi0-flashrt-ncu-encoder-large-gemm-001",
+      "section_name": "SpeedOfLight",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-large-gemm-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "ns",
+      "value": 584960
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-large-gemm-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-large-gemm-002",
+      "metric_name": "sm_throughput_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "sm__throughput.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-encoder-large-gemm-001",
+      "section_name": "SpeedOfLight",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-large-gemm-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 35.64
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-large-gemm-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-large-gemm-003",
+      "metric_name": "tensor_cycles_active_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "sm__pipe_tensor_cycles_active.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-encoder-large-gemm-001",
+      "section_name": "SpeedOfLight_HierarchicalTensorRooflineChart",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-large-gemm-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 31.26
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-large-gemm-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-large-gemm-004",
+      "metric_name": "memory_sol_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "gpu__compute_memory_throughput.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-encoder-large-gemm-001",
+      "section_name": "SpeedOfLight",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-large-gemm-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 60.78
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-large-gemm-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-large-gemm-005",
+      "metric_name": "l1_throughput_pct_of_peak_sustained_active",
+      "missing_reason": null,
+      "raw_counter_name": "l1tex__throughput.avg.pct_of_peak_sustained_active",
+      "run_id": "run-pi0-flashrt-ncu-encoder-large-gemm-001",
+      "section_name": "SpeedOfLight",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-large-gemm-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 24.41
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-large-gemm-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-large-gemm-006",
+      "metric_name": "l2_throughput_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "lts__throughput.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-encoder-large-gemm-001",
+      "section_name": "SpeedOfLight",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-large-gemm-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 60.78
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-large-gemm-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-large-gemm-007",
+      "metric_name": "l2_sysmem_fill_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "lts__d_sectors_fill_sysmem.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-encoder-large-gemm-001",
+      "section_name": "MemoryWorkloadAnalysis",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-large-gemm-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 16.45
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-large-gemm-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-large-gemm-008",
+      "metric_name": "theoretical_occupancy_percent",
+      "missing_reason": null,
+      "raw_counter_name": "sm__maximum_warps_per_active_cycle_pct",
+      "run_id": "run-pi0-flashrt-ncu-encoder-large-gemm-001",
+      "section_name": "Occupancy",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-large-gemm-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 16.67
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-large-gemm-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-large-gemm-009",
+      "metric_name": "achieved_occupancy_percent",
+      "missing_reason": null,
+      "raw_counter_name": "sm__warps_active.avg.pct_of_peak_sustained_active",
+      "run_id": "run-pi0-flashrt-ncu-encoder-large-gemm-001",
+      "section_name": "Occupancy",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-large-gemm-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 14.04
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-large-gemm-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-large-gemm-010",
+      "metric_name": "system_memory_throughput_pct_of_ceiling",
+      "missing_reason": "counter_absent_from_report",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-encoder-large-gemm-001",
+      "section_name": "MemoryWorkloadAnalysis",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-large-gemm-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-large-gemm-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-large-gemm-011",
+      "metric_name": "system_memory_bytes",
+      "missing_reason": "counter_absent_from_report",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-encoder-large-gemm-001",
+      "section_name": "MemoryWorkloadAnalysis",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-large-gemm-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "byte",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-large-gemm-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-large-gemm-012",
+      "metric_name": "scheduler_issue_active_percent",
+      "missing_reason": "section_not_collected",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-encoder-large-gemm-001",
+      "section_name": "SchedulerStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-large-gemm-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-large-gemm-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-large-gemm-013",
+      "metric_name": "warp_stall_long_scoreboard_percent",
+      "missing_reason": "section_not_collected",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-encoder-large-gemm-001",
+      "section_name": "WarpStateStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-large-gemm-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-large-gemm-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-large-gemm-014",
+      "metric_name": "warp_stall_short_scoreboard_percent",
+      "missing_reason": "section_not_collected",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-encoder-large-gemm-001",
+      "section_name": "WarpStateStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-large-gemm-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-large-gemm-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-large-gemm-015",
+      "metric_name": "source_counter_attribution",
+      "missing_reason": "section_not_collected",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-encoder-large-gemm-001",
+      "section_name": "SourceCounters",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-large-gemm-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "count",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-qkv-split-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-qkv-split-001",
+      "metric_name": "kernel_duration",
+      "missing_reason": null,
+      "raw_counter_name": "gpu__time_duration.sum",
+      "run_id": "run-pi0-flashrt-ncu-encoder-qkv-split-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-qkv-split-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "ns",
+      "value": 66464
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-qkv-split-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-qkv-split-002",
+      "metric_name": "sm_throughput_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "sm__throughput.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-encoder-qkv-split-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-qkv-split-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 51.46
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-qkv-split-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-qkv-split-003",
+      "metric_name": "tensor_cycles_active_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "sm__pipe_tensor_cycles_active.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-encoder-qkv-split-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-qkv-split-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 0.0
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-qkv-split-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-qkv-split-004",
+      "metric_name": "memory_sol_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "gpu__compute_memory_throughput.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-encoder-qkv-split-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-qkv-split-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 18.89
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-qkv-split-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-qkv-split-005",
+      "metric_name": "l1_throughput_pct_of_peak_sustained_active",
+      "missing_reason": null,
+      "raw_counter_name": "l1tex__throughput.avg.pct_of_peak_sustained_active",
+      "run_id": "run-pi0-flashrt-ncu-encoder-qkv-split-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-qkv-split-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 17.54
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-qkv-split-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-qkv-split-006",
+      "metric_name": "l2_throughput_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "lts__throughput.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-encoder-qkv-split-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-qkv-split-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 18.89
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-qkv-split-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-qkv-split-007",
+      "metric_name": "l2_sysmem_fill_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "lts__d_sectors_fill_sysmem.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-encoder-qkv-split-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-qkv-split-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 6.26
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-qkv-split-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-qkv-split-008",
+      "metric_name": "theoretical_occupancy_percent",
+      "missing_reason": null,
+      "raw_counter_name": "sm__maximum_warps_per_active_cycle_pct",
+      "run_id": "run-pi0-flashrt-ncu-encoder-qkv-split-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-qkv-split-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 100.0
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-qkv-split-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-qkv-split-009",
+      "metric_name": "achieved_occupancy_percent",
+      "missing_reason": null,
+      "raw_counter_name": "sm__warps_active.avg.pct_of_peak_sustained_active",
+      "run_id": "run-pi0-flashrt-ncu-encoder-qkv-split-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-qkv-split-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 85.31
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-qkv-split-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-qkv-split-010",
+      "metric_name": "system_memory_throughput_pct_of_ceiling",
+      "missing_reason": "counter_absent_from_report",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-encoder-qkv-split-001",
+      "section_name": "MemoryWorkloadAnalysis",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-qkv-split-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-qkv-split-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-qkv-split-011",
+      "metric_name": "system_memory_bytes",
+      "missing_reason": "counter_absent_from_report",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-encoder-qkv-split-001",
+      "section_name": "MemoryWorkloadAnalysis",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-qkv-split-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "byte",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-qkv-split-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-qkv-split-012",
+      "metric_name": "scheduler_issue_active_percent",
+      "missing_reason": "section_not_collected",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-encoder-qkv-split-001",
+      "section_name": "SchedulerStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-qkv-split-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-qkv-split-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-qkv-split-013",
+      "metric_name": "warp_stall_long_scoreboard_percent",
+      "missing_reason": "section_not_collected",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-encoder-qkv-split-001",
+      "section_name": "WarpStateStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-qkv-split-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-qkv-split-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-qkv-split-014",
+      "metric_name": "warp_stall_short_scoreboard_percent",
+      "missing_reason": "section_not_collected",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-encoder-qkv-split-001",
+      "section_name": "WarpStateStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-qkv-split-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-qkv-split-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-qkv-split-015",
+      "metric_name": "source_counter_attribution",
+      "missing_reason": "section_not_collected",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-encoder-qkv-split-001",
+      "section_name": "SourceCounters",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-qkv-split-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "count",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-residual-rms-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-residual-rms-001",
+      "metric_name": "kernel_duration",
+      "missing_reason": null,
+      "raw_counter_name": "gpu__time_duration.sum",
+      "run_id": "run-pi0-flashrt-ncu-encoder-residual-rms-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-residual-rms-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "ns",
+      "value": 42976
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-residual-rms-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-residual-rms-002",
+      "metric_name": "sm_throughput_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "sm__throughput.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-encoder-residual-rms-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-residual-rms-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 19.02
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-residual-rms-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-residual-rms-003",
+      "metric_name": "tensor_cycles_active_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "sm__pipe_tensor_cycles_active.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-encoder-residual-rms-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-residual-rms-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 0.0
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-residual-rms-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-residual-rms-004",
+      "metric_name": "memory_sol_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "gpu__compute_memory_throughput.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-encoder-residual-rms-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-residual-rms-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 14.18
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-residual-rms-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-residual-rms-005",
+      "metric_name": "l1_throughput_pct_of_peak_sustained_active",
+      "missing_reason": null,
+      "raw_counter_name": "l1tex__throughput.avg.pct_of_peak_sustained_active",
+      "run_id": "run-pi0-flashrt-ncu-encoder-residual-rms-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-residual-rms-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 17.67
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-residual-rms-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-residual-rms-006",
+      "metric_name": "l2_throughput_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "lts__throughput.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-encoder-residual-rms-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-residual-rms-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 14.18
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-residual-rms-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-residual-rms-007",
+      "metric_name": "l2_sysmem_fill_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "lts__d_sectors_fill_sysmem.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-encoder-residual-rms-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-residual-rms-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 14.04
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-residual-rms-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-residual-rms-008",
+      "metric_name": "theoretical_occupancy_percent",
+      "missing_reason": null,
+      "raw_counter_name": "sm__maximum_warps_per_active_cycle_pct",
+      "run_id": "run-pi0-flashrt-ncu-encoder-residual-rms-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-residual-rms-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 100.0
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-residual-rms-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-residual-rms-009",
+      "metric_name": "achieved_occupancy_percent",
+      "missing_reason": null,
+      "raw_counter_name": "sm__warps_active.avg.pct_of_peak_sustained_active",
+      "run_id": "run-pi0-flashrt-ncu-encoder-residual-rms-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-residual-rms-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 96.68
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-residual-rms-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-residual-rms-010",
+      "metric_name": "system_memory_throughput_pct_of_ceiling",
+      "missing_reason": "counter_absent_from_report",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-encoder-residual-rms-001",
+      "section_name": "MemoryWorkloadAnalysis",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-residual-rms-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-residual-rms-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-residual-rms-011",
+      "metric_name": "system_memory_bytes",
+      "missing_reason": "counter_absent_from_report",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-encoder-residual-rms-001",
+      "section_name": "MemoryWorkloadAnalysis",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-residual-rms-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "byte",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-residual-rms-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-residual-rms-012",
+      "metric_name": "scheduler_issue_active_percent",
+      "missing_reason": "section_not_collected",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-encoder-residual-rms-001",
+      "section_name": "SchedulerStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-residual-rms-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-residual-rms-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-residual-rms-013",
+      "metric_name": "warp_stall_long_scoreboard_percent",
+      "missing_reason": "section_not_collected",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-encoder-residual-rms-001",
+      "section_name": "WarpStateStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-residual-rms-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-residual-rms-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-residual-rms-014",
+      "metric_name": "warp_stall_short_scoreboard_percent",
+      "missing_reason": "section_not_collected",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-encoder-residual-rms-001",
+      "section_name": "WarpStateStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-residual-rms-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-residual-rms-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-residual-rms-015",
+      "metric_name": "source_counter_attribution",
+      "missing_reason": "section_not_collected",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-encoder-residual-rms-001",
+      "section_name": "SourceCounters",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-residual-rms-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "count",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-second-gemm-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-second-gemm-001",
+      "metric_name": "kernel_duration",
+      "missing_reason": null,
+      "raw_counter_name": "gpu__time_duration.sum",
+      "run_id": "run-pi0-flashrt-ncu-encoder-second-gemm-001",
+      "section_name": "SpeedOfLight",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-second-gemm-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "ns",
+      "value": 259040
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-second-gemm-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-second-gemm-002",
+      "metric_name": "sm_throughput_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "sm__throughput.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-encoder-second-gemm-001",
+      "section_name": "SpeedOfLight",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-second-gemm-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 48.58
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-second-gemm-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-second-gemm-003",
+      "metric_name": "tensor_cycles_active_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "sm__pipe_tensor_cycles_active.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-encoder-second-gemm-001",
+      "section_name": "SpeedOfLight_HierarchicalTensorRooflineChart",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-second-gemm-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 45.06
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-second-gemm-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-second-gemm-004",
+      "metric_name": "memory_sol_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "gpu__compute_memory_throughput.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-encoder-second-gemm-001",
+      "section_name": "SpeedOfLight",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-second-gemm-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 50.37
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-second-gemm-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-second-gemm-005",
+      "metric_name": "l1_throughput_pct_of_peak_sustained_active",
+      "missing_reason": null,
+      "raw_counter_name": "l1tex__throughput.avg.pct_of_peak_sustained_active",
+      "run_id": "run-pi0-flashrt-ncu-encoder-second-gemm-001",
+      "section_name": "SpeedOfLight",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-second-gemm-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 39.97
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-second-gemm-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-second-gemm-006",
+      "metric_name": "l2_throughput_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "lts__throughput.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-encoder-second-gemm-001",
+      "section_name": "SpeedOfLight",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-second-gemm-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 50.37
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-second-gemm-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-second-gemm-007",
+      "metric_name": "l2_sysmem_fill_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "lts__d_sectors_fill_sysmem.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-encoder-second-gemm-001",
+      "section_name": "MemoryWorkloadAnalysis",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-second-gemm-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 22.93
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-second-gemm-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-second-gemm-008",
+      "metric_name": "theoretical_occupancy_percent",
+      "missing_reason": null,
+      "raw_counter_name": "sm__maximum_warps_per_active_cycle_pct",
+      "run_id": "run-pi0-flashrt-ncu-encoder-second-gemm-001",
+      "section_name": "Occupancy",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-second-gemm-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 16.67
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-second-gemm-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-second-gemm-009",
+      "metric_name": "achieved_occupancy_percent",
+      "missing_reason": null,
+      "raw_counter_name": "sm__warps_active.avg.pct_of_peak_sustained_active",
+      "run_id": "run-pi0-flashrt-ncu-encoder-second-gemm-001",
+      "section_name": "Occupancy",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-second-gemm-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 12.03
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-second-gemm-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-second-gemm-010",
+      "metric_name": "system_memory_throughput_pct_of_ceiling",
+      "missing_reason": "counter_absent_from_report",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-encoder-second-gemm-001",
+      "section_name": "MemoryWorkloadAnalysis",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-second-gemm-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-second-gemm-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-second-gemm-011",
+      "metric_name": "system_memory_bytes",
+      "missing_reason": "counter_absent_from_report",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-encoder-second-gemm-001",
+      "section_name": "MemoryWorkloadAnalysis",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-second-gemm-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "byte",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-second-gemm-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-second-gemm-012",
+      "metric_name": "scheduler_issue_active_percent",
+      "missing_reason": "section_not_collected",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-encoder-second-gemm-001",
+      "section_name": "SchedulerStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-second-gemm-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-second-gemm-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-second-gemm-013",
+      "metric_name": "warp_stall_long_scoreboard_percent",
+      "missing_reason": "section_not_collected",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-encoder-second-gemm-001",
+      "section_name": "WarpStateStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-second-gemm-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-second-gemm-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-second-gemm-014",
+      "metric_name": "warp_stall_short_scoreboard_percent",
+      "missing_reason": "section_not_collected",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-encoder-second-gemm-001",
+      "section_name": "WarpStateStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-second-gemm-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-second-gemm-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-second-gemm-015",
+      "metric_name": "source_counter_attribution",
+      "missing_reason": "section_not_collected",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-encoder-second-gemm-001",
+      "section_name": "SourceCounters",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-second-gemm-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "count",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-third-gemm-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-third-gemm-001",
+      "metric_name": "kernel_duration",
+      "missing_reason": null,
+      "raw_counter_name": "gpu__time_duration.sum",
+      "run_id": "run-pi0-flashrt-ncu-encoder-third-gemm-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-third-gemm-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "ns",
+      "value": 56000
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-third-gemm-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-third-gemm-002",
+      "metric_name": "sm_throughput_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "sm__throughput.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-encoder-third-gemm-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-third-gemm-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 33.12
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-third-gemm-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-third-gemm-003",
+      "metric_name": "tensor_cycles_active_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "sm__pipe_tensor_cycles_active.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-encoder-third-gemm-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-third-gemm-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 31.69
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-third-gemm-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-third-gemm-004",
+      "metric_name": "memory_sol_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "gpu__compute_memory_throughput.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-encoder-third-gemm-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-third-gemm-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 31.32
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-third-gemm-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-third-gemm-005",
+      "metric_name": "l1_throughput_pct_of_peak_sustained_active",
+      "missing_reason": null,
+      "raw_counter_name": "l1tex__throughput.avg.pct_of_peak_sustained_active",
+      "run_id": "run-pi0-flashrt-ncu-encoder-third-gemm-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-third-gemm-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 25.95
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-third-gemm-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-third-gemm-006",
+      "metric_name": "l2_throughput_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "lts__throughput.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-encoder-third-gemm-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-third-gemm-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 31.32
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-third-gemm-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-third-gemm-007",
+      "metric_name": "l2_sysmem_fill_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "lts__d_sectors_fill_sysmem.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-encoder-third-gemm-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-third-gemm-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 16.05
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-third-gemm-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-third-gemm-008",
+      "metric_name": "theoretical_occupancy_percent",
+      "missing_reason": null,
+      "raw_counter_name": "sm__maximum_warps_per_active_cycle_pct",
+      "run_id": "run-pi0-flashrt-ncu-encoder-third-gemm-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-third-gemm-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 16.67
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-third-gemm-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-third-gemm-009",
+      "metric_name": "achieved_occupancy_percent",
+      "missing_reason": null,
+      "raw_counter_name": "sm__warps_active.avg.pct_of_peak_sustained_active",
+      "run_id": "run-pi0-flashrt-ncu-encoder-third-gemm-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-third-gemm-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 13.51
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-third-gemm-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-third-gemm-010",
+      "metric_name": "system_memory_throughput_pct_of_ceiling",
+      "missing_reason": "counter_absent_from_report",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-encoder-third-gemm-001",
+      "section_name": "MemoryWorkloadAnalysis",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-third-gemm-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-third-gemm-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-third-gemm-011",
+      "metric_name": "system_memory_bytes",
+      "missing_reason": "counter_absent_from_report",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-encoder-third-gemm-001",
+      "section_name": "MemoryWorkloadAnalysis",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-third-gemm-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "byte",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-third-gemm-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-third-gemm-012",
+      "metric_name": "scheduler_issue_active_percent",
+      "missing_reason": "section_not_collected",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-encoder-third-gemm-001",
+      "section_name": "SchedulerStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-third-gemm-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-third-gemm-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-third-gemm-013",
+      "metric_name": "warp_stall_long_scoreboard_percent",
+      "missing_reason": "section_not_collected",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-encoder-third-gemm-001",
+      "section_name": "WarpStateStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-third-gemm-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-third-gemm-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-third-gemm-014",
+      "metric_name": "warp_stall_short_scoreboard_percent",
+      "missing_reason": "section_not_collected",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-encoder-third-gemm-001",
+      "section_name": "WarpStateStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-third-gemm-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-encoder-third-gemm-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-encoder-third-gemm-015",
+      "metric_name": "source_counter_attribution",
+      "missing_reason": "section_not_collected",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-encoder-third-gemm-001",
+      "section_name": "SourceCounters",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-encoder-third-gemm-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "count",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-broadcast-add-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-siglip-broadcast-add-001",
+      "metric_name": "kernel_duration",
+      "missing_reason": null,
+      "raw_counter_name": "gpu__time_duration.sum",
+      "run_id": "run-pi0-flashrt-ncu-siglip-broadcast-add-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-siglip-broadcast-add-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "ns",
+      "value": 72704
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-broadcast-add-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-siglip-broadcast-add-002",
+      "metric_name": "sm_throughput_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "sm__throughput.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-siglip-broadcast-add-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-siglip-broadcast-add-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 19.1
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-broadcast-add-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-siglip-broadcast-add-003",
+      "metric_name": "tensor_cycles_active_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "sm__pipe_tensor_cycles_active.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-siglip-broadcast-add-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-siglip-broadcast-add-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 17.29
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-broadcast-add-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-siglip-broadcast-add-004",
+      "metric_name": "memory_sol_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "gpu__compute_memory_throughput.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-siglip-broadcast-add-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-siglip-broadcast-add-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 23.91
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-broadcast-add-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-siglip-broadcast-add-005",
+      "metric_name": "l1_throughput_pct_of_peak_sustained_active",
+      "missing_reason": null,
+      "raw_counter_name": "l1tex__throughput.avg.pct_of_peak_sustained_active",
+      "run_id": "run-pi0-flashrt-ncu-siglip-broadcast-add-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-siglip-broadcast-add-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 17.34
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-broadcast-add-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-siglip-broadcast-add-006",
+      "metric_name": "l2_throughput_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "lts__throughput.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-siglip-broadcast-add-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-siglip-broadcast-add-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 23.91
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-broadcast-add-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-siglip-broadcast-add-007",
+      "metric_name": "l2_sysmem_fill_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "lts__d_sectors_fill_sysmem.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-siglip-broadcast-add-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-siglip-broadcast-add-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 16.26
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-broadcast-add-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-siglip-broadcast-add-008",
+      "metric_name": "theoretical_occupancy_percent",
+      "missing_reason": null,
+      "raw_counter_name": "sm__maximum_warps_per_active_cycle_pct",
+      "run_id": "run-pi0-flashrt-ncu-siglip-broadcast-add-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-siglip-broadcast-add-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 16.67
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-broadcast-add-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-siglip-broadcast-add-009",
+      "metric_name": "achieved_occupancy_percent",
+      "missing_reason": null,
+      "raw_counter_name": "sm__warps_active.avg.pct_of_peak_sustained_active",
+      "run_id": "run-pi0-flashrt-ncu-siglip-broadcast-add-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-siglip-broadcast-add-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 13.01
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-broadcast-add-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-siglip-broadcast-add-010",
+      "metric_name": "system_memory_throughput_pct_of_ceiling",
+      "missing_reason": "counter_absent_from_report",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-siglip-broadcast-add-001",
+      "section_name": "MemoryWorkloadAnalysis",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-siglip-broadcast-add-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-broadcast-add-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-siglip-broadcast-add-011",
+      "metric_name": "system_memory_bytes",
+      "missing_reason": "counter_absent_from_report",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-siglip-broadcast-add-001",
+      "section_name": "MemoryWorkloadAnalysis",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-siglip-broadcast-add-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "byte",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-broadcast-add-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-siglip-broadcast-add-012",
+      "metric_name": "scheduler_issue_active_percent",
+      "missing_reason": "section_not_collected",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-siglip-broadcast-add-001",
+      "section_name": "SchedulerStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-siglip-broadcast-add-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-broadcast-add-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-siglip-broadcast-add-013",
+      "metric_name": "warp_stall_long_scoreboard_percent",
+      "missing_reason": "section_not_collected",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-siglip-broadcast-add-001",
+      "section_name": "WarpStateStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-siglip-broadcast-add-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-broadcast-add-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-siglip-broadcast-add-014",
+      "metric_name": "warp_stall_short_scoreboard_percent",
+      "missing_reason": "section_not_collected",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-siglip-broadcast-add-001",
+      "section_name": "WarpStateStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-siglip-broadcast-add-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-broadcast-add-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-siglip-broadcast-add-015",
+      "metric_name": "source_counter_attribution",
+      "missing_reason": "section_not_collected",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-siglip-broadcast-add-001",
+      "section_name": "SourceCounters",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-siglip-broadcast-add-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "count",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-fmha-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-siglip-fmha-001",
+      "metric_name": "kernel_duration",
+      "missing_reason": null,
+      "raw_counter_name": "gpu__time_duration.sum",
+      "run_id": "run-pi0-flashrt-ncu-siglip-fmha-001",
+      "section_name": "SpeedOfLight",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-siglip-fmha-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "ns",
+      "value": 78688
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-fmha-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-siglip-fmha-002",
+      "metric_name": "sm_throughput_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "sm__throughput.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-siglip-fmha-001",
+      "section_name": "SpeedOfLight",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-siglip-fmha-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 12.26
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-fmha-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-siglip-fmha-003",
+      "metric_name": "tensor_cycles_active_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "sm__pipe_tensor_cycles_active.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-siglip-fmha-001",
+      "section_name": "SpeedOfLight_HierarchicalTensorRooflineChart",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-siglip-fmha-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 5.76
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-fmha-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-siglip-fmha-004",
+      "metric_name": "memory_sol_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "gpu__compute_memory_throughput.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-siglip-fmha-001",
+      "section_name": "SpeedOfLight",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-siglip-fmha-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 24.52
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-fmha-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-siglip-fmha-005",
+      "metric_name": "l1_throughput_pct_of_peak_sustained_active",
+      "missing_reason": null,
+      "raw_counter_name": "l1tex__throughput.avg.pct_of_peak_sustained_active",
+      "run_id": "run-pi0-flashrt-ncu-siglip-fmha-001",
+      "section_name": "SpeedOfLight",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-siglip-fmha-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 23.25
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-fmha-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-siglip-fmha-006",
+      "metric_name": "l2_throughput_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "lts__throughput.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-siglip-fmha-001",
+      "section_name": "SpeedOfLight",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-siglip-fmha-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 24.52
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-fmha-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-siglip-fmha-007",
+      "metric_name": "l2_sysmem_fill_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "lts__d_sectors_fill_sysmem.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-siglip-fmha-001",
+      "section_name": "MemoryWorkloadAnalysis",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-siglip-fmha-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 6.6
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-fmha-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-siglip-fmha-008",
+      "metric_name": "theoretical_occupancy_percent",
+      "missing_reason": null,
+      "raw_counter_name": "sm__maximum_warps_per_active_cycle_pct",
+      "run_id": "run-pi0-flashrt-ncu-siglip-fmha-001",
+      "section_name": "Occupancy",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-siglip-fmha-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 33.33
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-fmha-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-siglip-fmha-009",
+      "metric_name": "achieved_occupancy_percent",
+      "missing_reason": null,
+      "raw_counter_name": "sm__warps_active.avg.pct_of_peak_sustained_active",
+      "run_id": "run-pi0-flashrt-ncu-siglip-fmha-001",
+      "section_name": "Occupancy",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-siglip-fmha-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 29.42
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-fmha-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-siglip-fmha-010",
+      "metric_name": "system_memory_throughput_pct_of_ceiling",
+      "missing_reason": "counter_absent_from_report",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-siglip-fmha-001",
+      "section_name": "MemoryWorkloadAnalysis",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-siglip-fmha-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-fmha-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-siglip-fmha-011",
+      "metric_name": "system_memory_bytes",
+      "missing_reason": "counter_absent_from_report",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-siglip-fmha-001",
+      "section_name": "MemoryWorkloadAnalysis",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-siglip-fmha-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "byte",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-fmha-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-siglip-fmha-012",
+      "metric_name": "scheduler_issue_active_percent",
+      "missing_reason": "section_not_collected",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-siglip-fmha-001",
+      "section_name": "SchedulerStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-siglip-fmha-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-fmha-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-siglip-fmha-013",
+      "metric_name": "warp_stall_long_scoreboard_percent",
+      "missing_reason": "section_not_collected",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-siglip-fmha-001",
+      "section_name": "WarpStateStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-siglip-fmha-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-fmha-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-siglip-fmha-014",
+      "metric_name": "warp_stall_short_scoreboard_percent",
+      "missing_reason": "section_not_collected",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-siglip-fmha-001",
+      "section_name": "WarpStateStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-siglip-fmha-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-fmha-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-siglip-fmha-015",
+      "metric_name": "source_counter_attribution",
+      "missing_reason": "section_not_collected",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-siglip-fmha-001",
+      "section_name": "SourceCounters",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-siglip-fmha-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "count",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-gelu-bias-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-siglip-gelu-bias-001",
+      "metric_name": "kernel_duration",
+      "missing_reason": null,
+      "raw_counter_name": "gpu__time_duration.sum",
+      "run_id": "run-pi0-flashrt-ncu-siglip-gelu-bias-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-siglip-gelu-bias-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "ns",
+      "value": 61344
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-gelu-bias-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-siglip-gelu-bias-002",
+      "metric_name": "sm_throughput_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "sm__throughput.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-siglip-gelu-bias-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-siglip-gelu-bias-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 22.18
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-gelu-bias-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-siglip-gelu-bias-003",
+      "metric_name": "tensor_cycles_active_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "sm__pipe_tensor_cycles_active.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-siglip-gelu-bias-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-siglip-gelu-bias-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 18.44
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-gelu-bias-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-siglip-gelu-bias-004",
+      "metric_name": "memory_sol_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "gpu__compute_memory_throughput.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-siglip-gelu-bias-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-siglip-gelu-bias-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 42.41
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-gelu-bias-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-siglip-gelu-bias-005",
+      "metric_name": "l1_throughput_pct_of_peak_sustained_active",
+      "missing_reason": null,
+      "raw_counter_name": "l1tex__throughput.avg.pct_of_peak_sustained_active",
+      "run_id": "run-pi0-flashrt-ncu-siglip-gelu-bias-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-siglip-gelu-bias-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 34.33
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-gelu-bias-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-siglip-gelu-bias-006",
+      "metric_name": "l2_throughput_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "lts__throughput.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-siglip-gelu-bias-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-siglip-gelu-bias-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 42.41
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-gelu-bias-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-siglip-gelu-bias-007",
+      "metric_name": "l2_sysmem_fill_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "lts__d_sectors_fill_sysmem.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-siglip-gelu-bias-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-siglip-gelu-bias-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 12.88
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-gelu-bias-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-siglip-gelu-bias-008",
+      "metric_name": "theoretical_occupancy_percent",
+      "missing_reason": null,
+      "raw_counter_name": "sm__maximum_warps_per_active_cycle_pct",
+      "run_id": "run-pi0-flashrt-ncu-siglip-gelu-bias-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-siglip-gelu-bias-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 16.67
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-gelu-bias-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-siglip-gelu-bias-009",
+      "metric_name": "achieved_occupancy_percent",
+      "missing_reason": null,
+      "raw_counter_name": "sm__warps_active.avg.pct_of_peak_sustained_active",
+      "run_id": "run-pi0-flashrt-ncu-siglip-gelu-bias-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-siglip-gelu-bias-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 12.73
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-gelu-bias-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-siglip-gelu-bias-010",
+      "metric_name": "system_memory_throughput_pct_of_ceiling",
+      "missing_reason": "counter_absent_from_report",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-siglip-gelu-bias-001",
+      "section_name": "MemoryWorkloadAnalysis",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-siglip-gelu-bias-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-gelu-bias-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-siglip-gelu-bias-011",
+      "metric_name": "system_memory_bytes",
+      "missing_reason": "counter_absent_from_report",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-siglip-gelu-bias-001",
+      "section_name": "MemoryWorkloadAnalysis",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-siglip-gelu-bias-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "byte",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-gelu-bias-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-siglip-gelu-bias-012",
+      "metric_name": "scheduler_issue_active_percent",
+      "missing_reason": "section_not_collected",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-siglip-gelu-bias-001",
+      "section_name": "SchedulerStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-siglip-gelu-bias-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-gelu-bias-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-siglip-gelu-bias-013",
+      "metric_name": "warp_stall_long_scoreboard_percent",
+      "missing_reason": "section_not_collected",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-siglip-gelu-bias-001",
+      "section_name": "WarpStateStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-siglip-gelu-bias-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-gelu-bias-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-siglip-gelu-bias-014",
+      "metric_name": "warp_stall_short_scoreboard_percent",
+      "missing_reason": "section_not_collected",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-siglip-gelu-bias-001",
+      "section_name": "WarpStateStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-siglip-gelu-bias-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-gelu-bias-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-siglip-gelu-bias-015",
+      "metric_name": "source_counter_attribution",
+      "missing_reason": "section_not_collected",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-siglip-gelu-bias-001",
+      "section_name": "SourceCounters",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-siglip-gelu-bias-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "count",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-layer-norm-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-siglip-layer-norm-001",
+      "metric_name": "kernel_duration",
+      "missing_reason": null,
+      "raw_counter_name": "gpu__time_duration.sum",
+      "run_id": "run-pi0-flashrt-ncu-siglip-layer-norm-001",
+      "section_name": "SpeedOfLight",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-siglip-layer-norm-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "ns",
+      "value": 33056
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-layer-norm-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-siglip-layer-norm-002",
+      "metric_name": "sm_throughput_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "sm__throughput.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-siglip-layer-norm-001",
+      "section_name": "SpeedOfLight",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-siglip-layer-norm-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 26.22
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-layer-norm-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-siglip-layer-norm-003",
+      "metric_name": "tensor_cycles_active_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "sm__pipe_tensor_cycles_active.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-siglip-layer-norm-001",
+      "section_name": "SpeedOfLight_HierarchicalTensorRooflineChart",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-siglip-layer-norm-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 0.0
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-layer-norm-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-siglip-layer-norm-004",
+      "metric_name": "memory_sol_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "gpu__compute_memory_throughput.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-siglip-layer-norm-001",
+      "section_name": "SpeedOfLight",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-siglip-layer-norm-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 19.66
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-layer-norm-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-siglip-layer-norm-005",
+      "metric_name": "l1_throughput_pct_of_peak_sustained_active",
+      "missing_reason": null,
+      "raw_counter_name": "l1tex__throughput.avg.pct_of_peak_sustained_active",
+      "run_id": "run-pi0-flashrt-ncu-siglip-layer-norm-001",
+      "section_name": "SpeedOfLight",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-siglip-layer-norm-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 25.49
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-layer-norm-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-siglip-layer-norm-006",
+      "metric_name": "l2_throughput_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "lts__throughput.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-siglip-layer-norm-001",
+      "section_name": "SpeedOfLight",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-siglip-layer-norm-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 5.13
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-layer-norm-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-siglip-layer-norm-007",
+      "metric_name": "l2_sysmem_fill_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "lts__d_sectors_fill_sysmem.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-siglip-layer-norm-001",
+      "section_name": "MemoryWorkloadAnalysis",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-siglip-layer-norm-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 5.13
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-layer-norm-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-siglip-layer-norm-008",
+      "metric_name": "theoretical_occupancy_percent",
+      "missing_reason": null,
+      "raw_counter_name": "sm__maximum_warps_per_active_cycle_pct",
+      "run_id": "run-pi0-flashrt-ncu-siglip-layer-norm-001",
+      "section_name": "Occupancy",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-siglip-layer-norm-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 100.0
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-layer-norm-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-siglip-layer-norm-009",
+      "metric_name": "achieved_occupancy_percent",
+      "missing_reason": null,
+      "raw_counter_name": "sm__warps_active.avg.pct_of_peak_sustained_active",
+      "run_id": "run-pi0-flashrt-ncu-siglip-layer-norm-001",
+      "section_name": "Occupancy",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-siglip-layer-norm-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 86.02
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-layer-norm-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-siglip-layer-norm-010",
+      "metric_name": "system_memory_throughput_pct_of_ceiling",
+      "missing_reason": "counter_absent_from_report",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-siglip-layer-norm-001",
+      "section_name": "MemoryWorkloadAnalysis",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-siglip-layer-norm-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-layer-norm-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-siglip-layer-norm-011",
+      "metric_name": "system_memory_bytes",
+      "missing_reason": "counter_absent_from_report",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-siglip-layer-norm-001",
+      "section_name": "MemoryWorkloadAnalysis",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-siglip-layer-norm-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "byte",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-layer-norm-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-siglip-layer-norm-012",
+      "metric_name": "scheduler_issue_active_percent",
+      "missing_reason": "section_not_collected",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-siglip-layer-norm-001",
+      "section_name": "SchedulerStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-siglip-layer-norm-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-layer-norm-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-siglip-layer-norm-013",
+      "metric_name": "warp_stall_long_scoreboard_percent",
+      "missing_reason": "section_not_collected",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-siglip-layer-norm-001",
+      "section_name": "WarpStateStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-siglip-layer-norm-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-layer-norm-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-siglip-layer-norm-014",
+      "metric_name": "warp_stall_short_scoreboard_percent",
+      "missing_reason": "section_not_collected",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-siglip-layer-norm-001",
+      "section_name": "WarpStateStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-siglip-layer-norm-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-layer-norm-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-siglip-layer-norm-015",
+      "metric_name": "source_counter_attribution",
+      "missing_reason": "section_not_collected",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-siglip-layer-norm-001",
+      "section_name": "SourceCounters",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-siglip-layer-norm-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "count",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-quantize-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-siglip-quantize-001",
+      "metric_name": "kernel_duration",
+      "missing_reason": null,
+      "raw_counter_name": "gpu__time_duration.sum",
+      "run_id": "run-pi0-flashrt-ncu-siglip-quantize-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-siglip-quantize-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "ns",
+      "value": 37088
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-quantize-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-siglip-quantize-002",
+      "metric_name": "sm_throughput_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "sm__throughput.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-siglip-quantize-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-siglip-quantize-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 21.38
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-quantize-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-siglip-quantize-003",
+      "metric_name": "tensor_cycles_active_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "sm__pipe_tensor_cycles_active.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-siglip-quantize-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-siglip-quantize-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 0.0
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-quantize-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-siglip-quantize-004",
+      "metric_name": "memory_sol_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "gpu__compute_memory_throughput.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-siglip-quantize-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-siglip-quantize-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 16.81
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-quantize-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-siglip-quantize-005",
+      "metric_name": "l1_throughput_pct_of_peak_sustained_active",
+      "missing_reason": null,
+      "raw_counter_name": "l1tex__throughput.avg.pct_of_peak_sustained_active",
+      "run_id": "run-pi0-flashrt-ncu-siglip-quantize-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-siglip-quantize-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 20.29
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-quantize-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-siglip-quantize-006",
+      "metric_name": "l2_throughput_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "lts__throughput.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-siglip-quantize-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-siglip-quantize-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 16.81
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-quantize-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-siglip-quantize-007",
+      "metric_name": "l2_sysmem_fill_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "lts__d_sectors_fill_sysmem.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-flashrt-ncu-siglip-quantize-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-siglip-quantize-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 16.81
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-quantize-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-siglip-quantize-008",
+      "metric_name": "theoretical_occupancy_percent",
+      "missing_reason": null,
+      "raw_counter_name": "sm__maximum_warps_per_active_cycle_pct",
+      "run_id": "run-pi0-flashrt-ncu-siglip-quantize-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-siglip-quantize-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 100.0
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-quantize-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-flashrt-ncu-siglip-quantize-009",
+      "metric_name": "achieved_occupancy_percent",
+      "missing_reason": null,
+      "raw_counter_name": "sm__warps_active.avg.pct_of_peak_sustained_active",
+      "run_id": "run-pi0-flashrt-ncu-siglip-quantize-001",
+      "section_name": "custom_metric_set_12",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-siglip-quantize-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 76.39
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-quantize-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-siglip-quantize-010",
+      "metric_name": "system_memory_throughput_pct_of_ceiling",
+      "missing_reason": "counter_absent_from_report",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-siglip-quantize-001",
+      "section_name": "MemoryWorkloadAnalysis",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-siglip-quantize-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-quantize-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-siglip-quantize-011",
+      "metric_name": "system_memory_bytes",
+      "missing_reason": "counter_absent_from_report",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-siglip-quantize-001",
+      "section_name": "MemoryWorkloadAnalysis",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-siglip-quantize-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "byte",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-quantize-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-siglip-quantize-012",
+      "metric_name": "scheduler_issue_active_percent",
+      "missing_reason": "section_not_collected",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-siglip-quantize-001",
+      "section_name": "SchedulerStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-siglip-quantize-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-quantize-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-siglip-quantize-013",
+      "metric_name": "warp_stall_long_scoreboard_percent",
+      "missing_reason": "section_not_collected",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-siglip-quantize-001",
+      "section_name": "WarpStateStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-siglip-quantize-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-quantize-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-siglip-quantize-014",
+      "metric_name": "warp_stall_short_scoreboard_percent",
+      "missing_reason": "section_not_collected",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-siglip-quantize-001",
+      "section_name": "WarpStateStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-siglip-quantize-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-flashrt-ncu-siglip-quantize-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-flashrt-ncu-siglip-quantize-015",
+      "metric_name": "source_counter_attribution",
+      "missing_reason": "section_not_collected",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-flashrt-ncu-siglip-quantize-001",
+      "section_name": "SourceCounters",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-flashrt-ncu-siglip-quantize-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "count",
+      "value": null
+    }
+  ],
+  "schema_version": "1.0.0"
+}

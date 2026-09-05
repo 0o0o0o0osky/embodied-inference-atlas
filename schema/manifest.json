@@ -31,6 +31,21 @@
       "schema": "schema/measurements/operators.schema.json",
       "primary_key": "operator_id"
     },
+    "operator_kernel_links": {
+      "data": "data/profiler/operator_kernel_links.json",
+      "schema": "schema/profiler/operator_kernel_links.schema.json",
+      "primary_key": "link_id"
+    },
+    "profiler_captures": {
+      "data": "data/profiler/profiler_captures.json",
+      "schema": "schema/profiler/profiler_captures.schema.json",
+      "primary_key": "capture_id"
+    },
+    "profiler_metrics": {
+      "data": "data/profiler/profiler_metrics.json",
+      "schema": "schema/profiler/profiler_metrics.schema.json",
+      "primary_key": "metric_id"
+    },
     "rooflines": {
       "data": "data/measurements/rooflines.json",
       "schema": "schema/measurements/rooflines.schema.json",
@@ -40,6 +55,16 @@
       "data_glob": "data/runtime_realizations/*.json",
       "schema": "schema/runtime_realizations.schema.json",
       "primary_key": "realization_id"
+    },
+    "kernel_observations": {
+      "data": "data/profiler/kernel_observations.json",
+      "schema": "schema/profiler/kernel_observations.schema.json",
+      "primary_key": "observation_id"
+    },
+    "kernel_signatures": {
+      "data": "data/profiler/kernel_signatures.json",
+      "schema": "schema/profiler/kernel_signatures.schema.json",
+      "primary_key": "kernel_signature_id"
     },
     "runs": {
       "data": "data/measurements/runs.json",
@@ -65,6 +90,16 @@
       "data": "data/catalog/systems.json",
       "schema": "schema/catalog/systems.schema.json",
       "primary_key": "system_id"
+    },
+    "telemetry": {
+      "data": "data/profiler/telemetry.json",
+      "schema": "schema/profiler/telemetry.schema.json",
+      "primary_key": "telemetry_id"
+    },
+    "timelines": {
+      "data": "data/profiler/timelines.json",
+      "schema": "schema/profiler/timelines.schema.json",
+      "primary_key": "timeline_id"
     },
     "roofline_ceilings": {
       "data": "data/analysis/roofline_ceilings.json",
