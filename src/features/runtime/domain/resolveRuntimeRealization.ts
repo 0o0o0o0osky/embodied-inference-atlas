@@ -64,7 +64,7 @@ function matchesWorkload(
   const variableBindings = [...bindings].filter(([name]) => name === "V" || name === "L_PROMPT");
   return variableBindings.length === 0 || measuredRuns.some((run) =>
     variableBindings.every(([name, value]) =>
-      value === (name === "V" ? run.workload.vla.camera_views : run.workload.vla.executed_prompt_tokens),
+      value === (name === "V" ? run.workload.vla?.camera_views : run.workload.vla?.executed_prompt_tokens),
     ),
   );
 }

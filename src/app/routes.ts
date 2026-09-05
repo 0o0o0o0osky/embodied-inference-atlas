@@ -19,6 +19,7 @@ export interface RouteState {
   precision: string | null;
   runtimePrecision: string | null;
   entity: string | null;
+  timelineCapture: string | null;
   rooflineLevel: "overview" | "stage" | "atomic" | "fused" | "kernel";
   basis: string | null;
 }
@@ -33,6 +34,7 @@ const ROUTE_FIELDS = [
   "precision",
   "runtimePrecision",
   "entity",
+  "timelineCapture",
   "basis",
 ] as const;
 
@@ -48,6 +50,7 @@ export function readRoute(search = window.location.search): RouteState {
     precision: readValue(params, "precision"),
     runtimePrecision: readValue(params, "runtimePrecision"),
     entity: readValue(params, "entity"),
+    timelineCapture: readValue(params, "timelineCapture"),
     rooflineLevel: readRooflineLevel(params.get("roofline-level")),
     basis: readValue(params, "basis"),
   };

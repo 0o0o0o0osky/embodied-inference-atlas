@@ -1,11 +1,12 @@
 import { WORKBENCH_TABS, type RoutePatch, type RouteState } from "../../app/routes";
 import { RouteLink } from "../../components/RouteLink";
+import { EndToEndView } from "../end-to-end/EndToEndView";
 import { ModelGraphWorkspace } from "../model-graph/ModelGraphWorkspace";
+import { PerformanceView } from "../performance/PerformanceView";
 import { RuntimeView } from "../runtime/RuntimeView";
-import { RooflineView } from "../roofline/components/RooflineView";
+import { TimelineView } from "../timeline/TimelineView";
 import type { AtlasData, ModelRecord } from "../../types/atlas";
 import { ContextBar } from "./ContextBar";
-import { WorkbenchSurface } from "./WorkbenchSurface";
 
 interface WorkbenchProps {
   data: AtlasData;
@@ -74,44 +75,13 @@ export function Workbench({ data, model, route, navigate }: WorkbenchProps) {
         />
       ) : route.tab === "runtime" ? (
         <RuntimeView data={data} model={model} route={route} navigate={navigate} />
+      ) : route.tab === "end-to-end" ? (
+        <EndToEndView data={data} model={model} route={route} navigate={navigate} />
+      ) : route.tab === "timeline" ? (
+        <TimelineView data={data} model={model} route={route} navigate={navigate} />
       ) : route.tab === "roofline-kernels" ? (
-        <RooflineView data={data} model={model} route={route} navigate={navigate} />
-      ) : (
-        <div className="workbench-grid">
-          <WorkbenchSurface data={data} model={model} tab={route.tab} />
-          <RouteLedger route={route} />
-        </div>
-      )}
+        <PerformanceView data={data} model={model} route={route} navigate={navigate} />
+      ) : null}
     </main>
-  );
-}
-
-function RouteLedger({ route }: { route: RouteState }) {
-  const rows: Array<[string, string | null]> = [
-    ["Model", route.model],
-    ["View", route.tab],
-    ["Runtime", route.runtime],
-    ["Hardware", route.hardware],
-    ["Workload", route.workload],
-    ["Analytical precision", route.precision],
-    ["Runtime precision", route.runtimePrecision],
-    ["Selected entity", route.entity],
-  ];
-
-  return (
-    <aside className="route-ledger" aria-labelledby="route-ledger-title">
-      <header>
-        <h2 id="route-ledger-title">Route ledger</h2>
-        <span>Deep-link state</span>
-      </header>
-      <dl>
-        {rows.map(([label, value]) => (
-          <div key={label}>
-            <dt>{label}</dt>
-            <dd>{value ? <code>{value}</code> : <span>Not selected</span>}</dd>
-          </div>
-        ))}
-      </dl>
-    </aside>
   );
 }

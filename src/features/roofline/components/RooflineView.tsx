@@ -57,7 +57,8 @@ function canonicalEntityKey(entity: string | null): CrossViewEntityKey | null {
   if (parsed.kind === "stage") return stageEntity(parsed.modelGraphId, parsed.stageId);
   if (parsed.kind === "runtime-group") return runtimeGroupEntity(parsed.realizationId, parsed.executionGroupId);
   if (parsed.kind === "kernel") return kernelEntity(parsed.captureId, parsed.kernelObservationId);
-  return legacyComponentEntity(parsed.pointId);
+  if (parsed.kind === "legacy-component") return legacyComponentEntity(parsed.pointId);
+  return null;
 }
 
 function selectionKeys(

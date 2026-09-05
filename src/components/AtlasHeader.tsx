@@ -17,6 +17,7 @@ const EMPTY_ROUTE: RoutePatch = {
   precision: null,
   runtimePrecision: null,
   entity: null,
+  timelineCapture: null,
 };
 
 export function AtlasHeader({ data, route, navigate }: AtlasHeaderProps) {

@@ -4,9 +4,14 @@ const DATASET_NAMES = [
   "architectures",
   "devices",
   "end_to_end",
+  "kernel_observations",
+  "kernel_signatures",
   "models",
   "model_graphs",
+  "operator_kernel_links",
   "operators",
+  "profiler_captures",
+  "profiler_metrics",
   "rooflines",
   "roofline_bases",
   "roofline_ceilings",
@@ -18,6 +23,8 @@ const DATASET_NAMES = [
   "sources",
   "stages",
   "systems",
+  "telemetry",
+  "timelines",
 ] as const;
 
 export async function loadAtlasData(): Promise<AtlasData> {

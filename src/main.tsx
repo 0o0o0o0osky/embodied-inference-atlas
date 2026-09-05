@@ -6,6 +6,9 @@ import "./styles/shell.css";
 import "./styles/model-graph.css";
 import "./styles/runtime.css";
 import "./styles/roofline.css";
+import "./styles/end-to-end.css";
+import "./styles/timeline.css";
+import "./styles/performance.css";
 
 const root = document.getElementById("root");
 

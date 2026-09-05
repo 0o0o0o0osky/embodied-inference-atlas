@@ -346,6 +346,14 @@
   background: var(--recess);
 }
 
+.context-bar--2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.context-bar--3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
 .context-bar label {
   display: grid;
   align-content: start;

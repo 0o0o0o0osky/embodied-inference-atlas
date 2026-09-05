@@ -1,0 +1,201 @@
+import type { AtlasData, RunRecord } from "../../../types/atlas";
+import type { ProfilerEvidenceIndex } from "../../profiler/domain/indexProfilerEvidence";
+import type {
+  KernelObservation,
+  KernelSignature,
+  ProfilerCapture,
+  ProfilerEvidence,
+  ProfilerMetric,
+  TimelineEvent,
+  TimelineRecord,
+  TimelineSummary,
+} from "../../profiler/domain/types";
+import { parseEntityKey } from "../../workbench/entityKeys";
+
+export interface TimelineCaptureOption {
+  capture: ProfilerCapture;
+  timeline: TimelineRecord;
+  run: RunRecord;
+  label: string;
+  basisLabel: string;
+  timelineRecordCount: number;
+}
+
+export interface TimelineViewModel {
+  options: readonly TimelineCaptureOption[];
+  active: TimelineCaptureOption | null;
+  selectedEvent: TimelineEvent | null;
+  selectedSignature: KernelSignature | null;
+  selectedObservation: KernelObservation | null;
+  separateReplay: KernelObservation | null;
+  separateReplayCapture: ProfilerCapture | null;
+  replayMetrics: readonly ProfilerMetric[];
+  summariesByName: ReadonlyMap<string, TimelineSummary>;
+  requestedCaptureUnavailable: boolean;
+  unavailableReason: string;
+  kernelCoverage: {
+    totalLaunches: number;
+    classifiedLaunches: number;
+    unclassifiedLaunches: number;
+    totalDurationNs: number;
+    classifiedDurationNs: number;
+    unclassifiedDurationNs: number;
+  } | null;
+}
+
+const ENCODER_LARGE_GEMM = "kernel-signature-pi0-encoder-large-gemm";
+
+function captureLabel(capture: ProfilerCapture): string {
+  if (capture.nsys?.reportMode === "node") return "Intrusive node trace";
+  if (capture.nsys?.schedulerScope === "system_wide") return "System-wide scheduler trace";
+  return "Graph-envelope trace";
+}
+
+function basisLabel(capture: ProfilerCapture, timeline: TimelineRecord): string {
+  if (capture.nsys?.reportMode === "node") {
+    return `${timeline.timeBasis.replaceAll("_", " ")} · exact kernel and copy intervals`;
+  }
+  return `${timeline.timeBasis.replaceAll("_", " ")} · CUDA Graph execution envelopes`;
+}
+
+function timelinesForCapture(index: ProfilerEvidenceIndex, captureId: string): readonly TimelineRecord[] {
+  return [...(index.timelinesByCaptureId.get(captureId) ?? [])]
+    .sort((left, right) => left.timelineId.localeCompare(right.timelineId));
+}
+
+function firstEventForSignature(timeline: TimelineRecord, signatureId: string): TimelineEvent | null {
+  return timeline.events
+    .filter((event) => event.kernelSignatureId === signatureId)
+    .sort((left, right) => left.startNs - right.startNs || left.eventId.localeCompare(right.eventId))[0] ?? null;
+}
+
+function kernelCoverage(timeline: TimelineRecord): TimelineViewModel["kernelCoverage"] {
+  const kernels = timeline.events.filter((event) => event.eventKind === "kernel");
+  if (!kernels.length) return null;
+  const classified = kernels.filter((event) => event.kernelSignatureId !== null);
+  const totalDurationNs = kernels.reduce((sum, event) => sum + event.durationNs, 0);
+  const classifiedDurationNs = classified.reduce((sum, event) => sum + event.durationNs, 0);
+  return {
+    totalLaunches: kernels.length,
+    classifiedLaunches: classified.length,
+    unclassifiedLaunches: kernels.length - classified.length,
+    totalDurationNs,
+    classifiedDurationNs,
+    unclassifiedDurationNs: totalDurationNs - classifiedDurationNs,
+  };
+}
+
+export function buildTimelineView(
+  data: AtlasData,
+  evidence: ProfilerEvidence,
+  index: ProfilerEvidenceIndex,
+  query: {
+    modelId: string;
+    runtimeId: string | null;
+    hardwareId: string | null;
+    captureId: string | null;
+    entity: string | null;
+  },
+): TimelineViewModel {
+  const runById = new Map(data.datasets.runs.map((run) => [run.run_id, run]));
+  const options = evidence.captures.flatMap((capture): TimelineCaptureOption[] => {
+    if (capture.tool !== "nsys") return [];
+    const timelines = timelinesForCapture(index, capture.captureId);
+    const timeline = timelines[0] ?? null;
+    const run = runById.get(capture.runId);
+    if (!timeline || !run || run.model_id !== query.modelId) return [];
+    if (query.runtimeId && run.runtime_id !== query.runtimeId) return [];
+    if (query.hardwareId && run.device_id !== query.hardwareId) return [];
+    return [{
+      capture,
+      timeline,
+      run,
+      label: captureLabel(capture),
+      basisLabel: basisLabel(capture, timeline),
+      timelineRecordCount: timelines.length,
+    }];
+  }).sort((left, right) => {
+    const rank = (item: TimelineCaptureOption) => item.capture.nsys?.reportMode === "node"
+      ? 0
+      : item.capture.nsys?.schedulerScope === "system_wide" ? 2 : 1;
+    return rank(left) - rank(right) || left.capture.captureId.localeCompare(right.capture.captureId);
+  });
+  const requested = query.captureId
+    ? options.find((option) => option.capture.captureId === query.captureId) ?? null
+    : null;
+  const preferredNode = options.find((option) =>
+    option.run.model_id === "pi0"
+    && option.run.runtime_id === "flashrt"
+    && option.capture.nsys?.reportMode === "node",
+  ) ?? null;
+  const active = requested ?? preferredNode ?? options[0] ?? null;
+  if (!active) {
+    const filters = [query.runtimeId ? `runtime ${query.runtimeId}` : null, query.hardwareId ? `hardware ${query.hardwareId}` : null]
+      .filter((value): value is string => value !== null)
+      .join(" / ");
+    return {
+      options,
+      active: null,
+      selectedEvent: null,
+      selectedSignature: null,
+      selectedObservation: null,
+      separateReplay: null,
+      separateReplayCapture: null,
+      replayMetrics: [],
+      summariesByName: new Map(),
+      requestedCaptureUnavailable: query.captureId !== null,
+      unavailableReason: filters
+        ? `No sanitized Nsys timeline matches ${query.modelId} / ${filters}.`
+        : `${query.modelId} has no sanitized Nsys timeline in this snapshot.`,
+      kernelCoverage: null,
+    };
+  }
+
+  const timeline = active.timeline;
+  const parsed = parseEntityKey(query.entity);
+  const localEventsById = new Map(timeline.events.map((event) => [`${timeline.timelineId}/${event.eventId}`, event]));
+  let selectedEvent: TimelineEvent | null = null;
+  let selectedObservation: KernelObservation | null = null;
+  if (parsed?.kind === "timeline-event" && parsed.timelineId === timeline.timelineId) {
+    selectedEvent = localEventsById.get(`${parsed.timelineId}/${parsed.eventId}`) ?? null;
+  } else if (parsed?.kind === "kernel" && parsed.captureId === active.capture.captureId) {
+    const observation = index.observationById.get(parsed.kernelObservationId) ?? null;
+    if (observation?.captureId === active.capture.captureId) {
+      selectedObservation = observation;
+      selectedEvent = firstEventForSignature(timeline, observation.kernelSignatureId);
+    }
+  }
+  selectedEvent ??= firstEventForSignature(timeline, ENCODER_LARGE_GEMM)
+    ?? timeline.events.find((event) => event.eventKind !== "scheduler")
+    ?? timeline.events[0]
+    ?? null;
+  const signatureId = selectedObservation?.kernelSignatureId ?? selectedEvent?.kernelSignatureId ?? null;
+  const selectedSignature = signatureId ? index.signatureById.get(signatureId) ?? null : null;
+  if (!selectedObservation && signatureId) {
+    selectedObservation = (index.observationsBySignatureId.get(signatureId) ?? []).find((observation) =>
+      observation.captureId === active.capture.captureId
+      && observation.observationKind.startsWith("nsys_"),
+    ) ?? null;
+  }
+  const separateReplay = signatureId
+    ? (index.observationsBySignatureId.get(signatureId) ?? []).find((observation) => observation.observationKind === "ncu_replayed_launch") ?? null
+    : null;
+  const separateReplayCapture = separateReplay ? index.captureById.get(separateReplay.captureId) ?? null : null;
+
+  return {
+    options,
+    active,
+    selectedEvent,
+    selectedSignature,
+    selectedObservation,
+    separateReplay,
+    separateReplayCapture,
+    replayMetrics: separateReplay
+      ? index.metricsBySubjectId.get(`kernel_observation:${separateReplay.observationId}`) ?? []
+      : [],
+    summariesByName: new Map(timeline.summaries.map((summary) => [summary.metricName, summary])),
+    requestedCaptureUnavailable: query.captureId !== null && requested === null,
+    unavailableReason: "",
+    kernelCoverage: kernelCoverage(timeline),
+  };
+}

@@ -3,6 +3,8 @@ export type CrossViewEntityKey =
   | `stage:${string}/${string}`
   | `runtime-group:${string}/${string}`
   | `kernel:${string}/${string}`
+  | `timeline-event:${string}/${string}`
+  | `run:${string}`
   | `legacy-component:${string}`;
 
 export type ParsedEntityKey =
@@ -10,12 +12,14 @@ export type ParsedEntityKey =
   | { kind: "stage"; modelGraphId: string; stageId: string }
   | { kind: "runtime-group"; realizationId: string; executionGroupId: string }
   | { kind: "kernel"; captureId: string; kernelObservationId: string }
+  | { kind: "timeline-event"; timelineId: string; eventId: string }
+  | { kind: "run"; runId: string }
   | { kind: "legacy-component"; pointId: string };
 
 const encode = encodeURIComponent;
 
 function pair(
-  prefix: "stage" | "runtime-group" | "kernel",
+  prefix: "stage" | "runtime-group" | "kernel" | "timeline-event",
   first: string,
   second: string,
 ): CrossViewEntityKey {
@@ -38,6 +42,14 @@ export function kernelEntity(captureId: string, kernelObservationId: string): Cr
   return pair("kernel", captureId, kernelObservationId);
 }
 
+export function timelineEventEntity(timelineId: string, eventId: string): CrossViewEntityKey {
+  return pair("timeline-event", timelineId, eventId);
+}
+
+export function runEntity(runId: string): CrossViewEntityKey {
+  return `run:${encode(runId)}`;
+}
+
 export function legacyComponentEntity(pointId: string): CrossViewEntityKey {
   return `legacy-component:${encode(pointId)}`;
 }
@@ -53,7 +65,8 @@ export function parseEntityKey(entity: string | null): ParsedEntityKey | null {
     if (prefix === "legacy-component") {
       return { kind: "legacy-component", pointId: decodeURIComponent(payload) };
     }
-    if (prefix === "stage" || prefix === "runtime-group" || prefix === "kernel") {
+    if (prefix === "run") return { kind: "run", runId: decodeURIComponent(payload) };
+    if (prefix === "stage" || prefix === "runtime-group" || prefix === "kernel" || prefix === "timeline-event") {
       const slash = payload.indexOf("/");
       if (slash < 1 || slash === payload.length - 1) return null;
       const first = decodeURIComponent(payload.slice(0, slash));
@@ -62,6 +75,7 @@ export function parseEntityKey(entity: string | null): ParsedEntityKey | null {
       if (prefix === "runtime-group") {
         return { kind: prefix, realizationId: first, executionGroupId: second };
       }
+      if (prefix === "timeline-event") return { kind: prefix, timelineId: first, eventId: second };
       return { kind: prefix, captureId: first, kernelObservationId: second };
     }
   } catch {
