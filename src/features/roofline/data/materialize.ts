@@ -2,6 +2,7 @@ import { adaptLogicalDag } from "../../model-graph/domain/adaptLogicalDag";
 import { adaptV1ModelGraph } from "../../model-graph/domain/adaptV1ModelGraph";
 import type { LogicalDag, MaterializedGraph, MaterializedTensor, OperatorDetail } from "../../model-graph/domain/types";
 import { adaptRuntimeRealization } from "../../runtime/domain/adaptRuntimeRealization";
+import type { RuntimeRealizationRecord } from "../../runtime/domain/types";
 import type { CanonicalRecord } from "../../../types/atlas";
 import { attentionMetrics, type AttentionShape } from "../domain/attention";
 import { stageLowerBound } from "../domain/criticalPath";
@@ -38,6 +39,42 @@ export interface InteractiveMaterialization {
   bases: readonly RooflineBasisRecord[];
   points: readonly RooflinePointRecord[];
   materializationId: string;
+}
+
+export function interactiveSourceBasisIsLossless(
+  basis: RooflineBasisRecord,
+  scenario: RooflineScenarioRecord,
+  realization: RuntimeRealizationRecord | null,
+) {
+  const runtimeMixed = scenario.precision_path.precision_path_id === "runtime_mixed";
+  const expectedRealizationId = scenario.precision_path.realization_ids.length === 1
+    ? scenario.precision_path.realization_ids[0]!
+    : null;
+  const preservesRuntimeIdentity = runtimeMixed
+    ? expectedRealizationId !== null
+      && realization?.realizationId === expectedRealizationId
+      && realization.availability === "measured"
+      && realization.modelId === scenario.model_id
+      && realization.modelGraphId === scenario.model_graph_id
+      && basis.realization_id === expectedRealizationId
+      && basis.runtime_id === realization.runtimeId
+    : scenario.precision_path.realization_ids.length === 0
+      && basis.realization_id === null
+      && basis.runtime_id === null;
+  return (basis.level === "stage" || basis.level === "atomic")
+    && basis.scenario_id === scenario.scenario_id
+    && basis.precision_path_id === scenario.precision_path.precision_path_id
+    && basis.time_basis === "analytical_roof"
+    && basis.traffic_basis === "atomic_materialized"
+    && basis.work_basis === (runtimeMixed ? "runtime_executed_formula" : "logical_formula")
+    && basis.runtime_overhead === "excluded"
+    && basis.run_id === null
+    && basis.capture_id === null
+    && basis.comparison_mode === "same_coverage_only"
+    && (basis.level === "stage"
+      ? basis.work_unit === "action_chunk" && basis.aggregation === "dag_resource_and_critical_path"
+      : basis.work_unit === "operator_invocation" && basis.aggregation === "entity")
+    && preservesRuntimeIdentity;
 }
 
 function safePositive(value: number, label: string) {

@@ -14,6 +14,7 @@ interface RuntimeSelection {
   hardwareId: string | null;
   workload: string | null;
   precisionId: string | null;
+  opaqueConfigurationIds?: ReadonlySet<string>;
 }
 
 function actualPrecisionId(record: RuntimeRealizationRecord, runs: readonly RunRecord[]) {
@@ -23,7 +24,12 @@ function actualPrecisionId(record: RuntimeRealizationRecord, runs: readonly RunR
   const configurations = new Set(record.configurationIds);
   const ids = new Set(
     runs
-      .filter((run) => configurations.has(run.configuration_id))
+      .filter((run) =>
+        run.evidence === "measured_local"
+        && run.model_id === record.modelId
+        && run.runtime_id === record.runtimeId
+        && configurations.has(run.configuration_id),
+      )
       .map((run) => run.precision.precision_id),
   );
   return ids.size === 1 ? [...ids][0]! : null;
@@ -44,8 +50,10 @@ function matchesWorkload(
   record: RuntimeRealizationRecord,
   runs: readonly RunRecord[],
   encoded: string | null,
+  opaqueConfigurationIds: ReadonlySet<string>,
 ) {
   if (!encoded) return true;
+  if (opaqueConfigurationIds.has(encoded)) return record.configurationIds.includes(encoded);
   if (record.configurationIds.includes(encoded)) return true;
   if (/^(?:cfg|config)-/.test(encoded)) return false;
   const bindings = parsedBindings(encoded);
@@ -63,7 +71,12 @@ function matchesWorkload(
   }
 
   const configurations = new Set(record.configurationIds);
-  const measuredRuns = runs.filter((run) => configurations.has(run.configuration_id));
+  const measuredRuns = runs.filter((run) =>
+    run.evidence === "measured_local"
+    && run.model_id === record.modelId
+    && run.runtime_id === record.runtimeId
+    && configurations.has(run.configuration_id),
+  );
   const variableBindings = [...bindings].filter(([name]) => name === "V" || name === "L_PROMPT");
   return variableBindings.length === 0 || measuredRuns.some((run) =>
     variableBindings.every(([name, value]) =>
@@ -96,7 +109,12 @@ export function resolveRuntimeCandidates(
       selection.hardwareId &&
       !record.deviceIds.includes(selection.hardwareId)
     ) return [];
-    if (!matchesWorkload(record, runs, selection.workload)) return [];
+    if (!matchesWorkload(
+      record,
+      runs,
+      selection.workload,
+      selection.opaqueConfigurationIds ?? new Set(),
+    )) return [];
     return [candidate];
   });
 }

@@ -1,5 +1,5 @@
 import type { RoutePatch, RouteState } from "../../../app/routes";
-import type { AtlasData, RunRecord } from "../../../types/atlas";
+import type { AtlasData } from "../../../types/atlas";
 import { adaptRuntimeRealization, isRuntimeRealizationRecord } from "../../runtime/domain/adaptRuntimeRealization";
 import { resolveRuntimeCandidates } from "../../runtime/domain/resolveRuntimeRealization";
 import { logicalRefFromEntity, parseEntityKey } from "../../workbench/entityKeys";
@@ -12,21 +12,50 @@ import {
   type SelectionContext,
 } from "../../workbench/modelCapabilities";
 
-interface CompatibleSelection {
+interface RuntimeSelectionFields {
   runtime: string | null;
   hardware: string | null;
   workload: string | null;
   runtimePrecision: string | null;
 }
 
+interface CompatibleSelection extends RuntimeSelectionFields {
+  configurationId: string | null;
+  realizationId: string | null;
+}
+
+function parsedRuntimeWorkload(encoded: string) {
+  const aliases = new Map<string, string>([
+    ["v", "V"], ["p", "L_PROMPT"], ["a", "T_ACTION"], ["n", "N_DENOISE"],
+  ]);
+  const bindings = new Map<string, number>();
+  for (const part of encoded.split(",")) {
+    const [rawName, rawValue] = part.split("=", 2);
+    const name = rawName?.trim();
+    const value = Number(rawValue);
+    if (!name || !Number.isSafeInteger(value)) return null;
+    bindings.set(aliases.get(name) ?? name, value);
+  }
+  return bindings;
+}
+
 function contextMatches(
   context: SelectionContext | undefined,
-  selection: Pick<CompatibleSelection, "runtime" | "hardware" | "runtimePrecision">,
+  selection: CompatibleSelection,
 ) {
   if (!context) return false;
   if (selection.runtime && context.runtimeId && context.runtimeId !== selection.runtime) return false;
   if (selection.hardware && context.hardwareIds.size && !context.hardwareIds.has(selection.hardware)) return false;
   if (selection.runtimePrecision && context.precisionIds.size && !context.precisionIds.has(selection.runtimePrecision)) return false;
+  if (!selection.realizationId || !context.realizationIds.has(selection.realizationId)) return false;
+  if (selection.configurationId && !context.configurationIds.has(selection.configurationId)) return false;
+  const workload = selection.workload && !selection.configurationId
+    ? parsedRuntimeWorkload(selection.workload)
+    : null;
+  const contextWorkload = context.workloadBindings;
+  if (workload && contextWorkload && [...workload].some(([name, value]) =>
+    contextWorkload.get(name) !== value,
+  )) return false;
   return true;
 }
 
@@ -42,75 +71,47 @@ function runtimeWorkload(capabilities: ModelCapabilities, encoded: string | null
   }).join(",");
 }
 
-function parsedRuntimeWorkload(encoded: string) {
-  const bindings = new Map<string, number>();
-  for (const part of encoded.split(",")) {
-    const [name, rawValue] = part.split("=", 2);
-    const value = Number(rawValue);
-    if (!name?.trim() || !Number.isSafeInteger(value)) return null;
-    bindings.set(name.trim(), value);
-  }
-  return bindings;
-}
-
-function runMatchesSelection(
-  run: RunRecord,
-  hardware: string | null,
-  workload: string | null,
-  runtimePrecision: string | null,
-) {
-  if (hardware && run.device_id !== hardware) return false;
-  if (runtimePrecision && run.precision.precision_id !== runtimePrecision) return false;
-  if (!workload) return true;
-  if (run.configuration_id === workload) return true;
-  if (/^(?:cfg|config)-/.test(workload)) return false;
-  const bindings = parsedRuntimeWorkload(workload);
-  if (!bindings) return false;
-  const observed = new Map<string, number | null | undefined>([
-    ["V", run.workload.vla?.camera_views],
-    ["L_PROMPT", run.workload.vla?.executed_prompt_tokens],
-    ["T_ACTION", run.workload.vla?.action_chunk],
-    ["N_DENOISE", run.workload.vla?.denoise_steps],
-  ]);
-  return [...bindings].every(([name, value]) => observed.get(name) === value);
-}
-
 function compatibleRuntimeSelection(
   data: AtlasData,
   capabilities: ModelCapabilities,
-  selection: CompatibleSelection,
+  selection: RuntimeSelectionFields,
 ): CompatibleSelection {
-  if (!selection.runtime || !capabilities.modelGraphId) return selection;
-  const modelRuns = data.datasets.runs.filter((run) =>
-    run.model_id === capabilities.modelId && run.runtime_id === selection.runtime,
-  );
+  const unresolved = (fields: RuntimeSelectionFields): CompatibleSelection => ({
+    ...fields,
+    configurationId: fields.workload && capabilities.configurationIds.has(fields.workload)
+      ? fields.workload
+      : null,
+    realizationId: null,
+  });
+  if (!selection.runtime) return unresolved(selection);
+  if (!capabilities.modelGraphId) return unresolved({
+    runtime: selection.runtime,
+    hardware: null,
+    workload: null,
+    runtimePrecision: null,
+  });
   const realizations = data.datasets.runtime_realizations
     .filter((record) => isRuntimeRealizationRecord(record, capabilities.modelId))
     .map(adaptRuntimeRealization)
-    .filter((record) => record.runtimeId === selection.runtime && record.availability !== "not_supported");
-  const compatible = (
+    .filter((record) => record.runtimeId === selection.runtime && record.availability === "measured");
+  const exactCandidate = (
     hardware: string | null,
     workload: string | null,
     runtimePrecision: string | null,
-  ) => resolveRuntimeCandidates(realizations, data.datasets.runs, {
+  ) => {
+    const candidates = resolveRuntimeCandidates(realizations, data.datasets.runs, {
       modelId: capabilities.modelId,
       modelGraphId: capabilities.modelGraphId!,
       runtimeId: selection.runtime!,
       hardwareId: hardware,
       workload: runtimeWorkload(capabilities, workload),
       precisionId: runtimePrecision,
-    }).length > 0
-    || modelRuns.some((run) => runMatchesSelection(
-      run,
-      hardware,
-      runtimeWorkload(capabilities, workload),
-      runtimePrecision,
-    ));
-  if (!compatible(null, null, null)) {
-    return { runtime: selection.runtime, hardware: null, workload: null, runtimePrecision: null };
-  }
+      opaqueConfigurationIds: capabilities.configurationIds,
+    });
+    return candidates.length === 1 ? candidates[0]! : null;
+  };
 
-  const alternatives: Array<Omit<CompatibleSelection, "runtime">> = [
+  const alternatives: RuntimeSelectionFields[] = [
     selection,
     { ...selection, runtimePrecision: null },
     { ...selection, workload: null },
@@ -120,12 +121,23 @@ function compatibleRuntimeSelection(
     { ...selection, workload: null, hardware: null },
     { ...selection, runtimePrecision: null, workload: null, hardware: null },
   ];
-  const compatibleAlternative = alternatives.find((candidate) =>
-    compatible(candidate.hardware, candidate.workload, candidate.runtimePrecision),
-  );
-  return compatibleAlternative
-    ? { runtime: selection.runtime, ...compatibleAlternative }
-    : { runtime: selection.runtime, hardware: null, workload: null, runtimePrecision: null };
+  for (const alternative of alternatives) {
+    const candidate = exactCandidate(
+      alternative.hardware,
+      alternative.workload,
+      alternative.runtimePrecision,
+    );
+    if (candidate) return {
+      ...unresolved(alternative),
+      realizationId: candidate.realization.realizationId,
+    };
+  }
+  return unresolved({
+    runtime: selection.runtime,
+    hardware: null,
+    workload: null,
+    runtimePrecision: null,
+  });
 }
 
 function entityIsCompatible(
@@ -220,6 +232,9 @@ export function modelSwitchPatch(
     && (!precision || basisContext.precisionIds.has(precision))
     && (!selection.hardware || basisContext.hardwareIds.has(selection.hardware))
     && (!selection.runtime || !basisContext.runtimeId || basisContext.runtimeId === selection.runtime)
+    && (!selection.runtime || basisContext.realizationIds.size === 0 || (
+      selection.realizationId !== null && basisContext.realizationIds.has(selection.realizationId)
+    ))
     ? current.basis
     : null;
   const timelineCapture = current.timelineCapture

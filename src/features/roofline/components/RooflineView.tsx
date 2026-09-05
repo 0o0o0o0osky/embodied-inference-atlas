@@ -22,6 +22,7 @@ import { createRooflineIndex, indexRoofline } from "../data/indexRoofline";
 import type { RooflineBasisRecord } from "../domain/types";
 import {
   materializeInteractiveRoofline,
+  interactiveSourceBasisIsLossless,
   parseInteractiveWorkload,
   runtimeResolutionWorkload,
   serializeInteractiveWorkload,
@@ -40,8 +41,11 @@ export interface RooflineViewProps {
   navigate: (patch: RoutePatch, replace?: boolean) => void;
 }
 
-function isAnalyticalWorkload(encoded: string | null) {
-  return encoded?.split(",").some((part) => /^(?:v|p|a|n|V|L_PROMPT|T_ACTION|N_DENOISE)=/.test(part.trim())) ?? false;
+function isAnalyticalWorkload(encoded: string | null, configurationIds: ReadonlySet<string>) {
+  if (!encoded || configurationIds.has(encoded)) return false;
+  return encoded.split(",").every((part) =>
+    /^(?:v|p|a|n|V|L_PROMPT|T_ACTION|N_DENOISE)=-?\d+$/.test(part.trim()),
+  );
 }
 
 function exactRuntimeCandidate(candidates: readonly RuntimeCandidate[]) {
@@ -147,7 +151,11 @@ export function RooflineView(props: RooflineViewProps) {
   if (!modelCapabilities?.roofline.available || !modelCapabilities.roofline.defaultScenarioId) {
     return <section className="roofline-empty"><p>Roofline unavailable</p><h2>No canonical model materializer</h2><span>{modelCapabilities?.roofline.reason ?? `No capability record was derived for ${props.model.model_id}.`}</span></section>;
   }
-  return <CoreRooflineView {...props} defaultScenarioId={modelCapabilities.roofline.defaultScenarioId} />;
+  return <CoreRooflineView
+    {...props}
+    defaultScenarioId={modelCapabilities.roofline.defaultScenarioId}
+    configurationIds={modelCapabilities.configurationIds}
+  />;
 }
 
 function CoreRooflineView({
@@ -156,7 +164,8 @@ function CoreRooflineView({
   route,
   navigate,
   defaultScenarioId,
-}: RooflineViewProps & { defaultScenarioId: string }) {
+  configurationIds,
+}: RooflineViewProps & { defaultScenarioId: string; configurationIds: ReadonlySet<string> }) {
   const canonical = useMemo(() => indexRoofline(data), [data]);
   const modelId = model.model_id;
   const requestedBasis = route.basis ? canonical.basisById.get(route.basis) : null;
@@ -170,15 +179,20 @@ function CoreRooflineView({
   const workloadBounds = useMemo(() => promptBounds(graphRecord), [graphRecord]);
   const workload = parseInteractiveWorkload(route.workload, sourceScenario.workload, workloadBounds);
   const interactive = useMemo(() => {
-    if (!isAnalyticalWorkload(route.workload)) return null;
+    if (!isAnalyticalWorkload(route.workload, configurationIds)) return null;
+    const realizationId = sourceScenario.precision_path.realization_ids.length === 1
+      ? sourceScenario.precision_path.realization_ids[0]!
+      : null;
+    const realizationRecord = realizationId
+      ? data.datasets.runtime_realizations.find((record) => record.realization_id === realizationId) ?? null
+      : null;
+    const realization = realizationRecord && isRuntimeRealizationRecord(realizationRecord)
+      ? adaptRuntimeRealization(realizationRecord)
+      : null;
     const scenarioBases = canonical.bases.filter((basis) =>
       basis.scenario_id === sourceScenario.scenario_id
       && (!route.hardware || basis.device_id === route.hardware),
-    ).filter((basis) =>
-      (basis.level === "stage" || basis.level === "atomic")
-      && basis.time_basis === "analytical_roof"
-      && basis.traffic_basis === "atomic_materialized",
-    );
+    ).filter((basis) => interactiveSourceBasisIsLossless(basis, sourceScenario, realization));
     const requestedSourceBasis = requestedBasis
       && scenarioBases.some((basis) => basis.basis_id === requestedBasis.basis_id)
       ? requestedBasis
@@ -194,21 +208,11 @@ function CoreRooflineView({
     const atomicBasis = scenarioBases.find((basis) =>
       basis.level === "atomic" && basisContract(basis) === sourceContract,
     );
-    if (
-      !stageBasis || !atomicBasis
-      || stageBasis.work_unit !== "action_chunk"
-      || stageBasis.aggregation !== "dag_resource_and_critical_path"
-      || atomicBasis.work_unit !== "operator_invocation"
-      || atomicBasis.aggregation !== "entity"
-    ) return null;
+    if (!stageBasis || !atomicBasis) return null;
     const ceiling = canonical.ceilingById.get(atomicBasis.ceiling_id);
     if (!ceiling?.bandwidth.some((candidate) =>
       candidate.bandwidth_ceiling_id === atomicBasis.bandwidth_ceiling_id,
     )) return null;
-    const realizationId = sourceScenario.precision_path.realization_ids[0];
-    const realizationRecord = realizationId
-      ? data.datasets.runtime_realizations.find((record) => record.realization_id === realizationId) ?? null
-      : null;
     if (!graphRecord || !ceiling) return null;
     try {
       return materializeInteractiveRoofline(
@@ -222,7 +226,7 @@ function CoreRooflineView({
     } catch {
       return null;
     }
-  }, [canonical, data.datasets.runtime_realizations, graphRecord, requestedBasis, route.hardware, route.workload, sourceScenario, workload]);
+  }, [canonical, configurationIds, data.datasets.runtime_realizations, graphRecord, requestedBasis, route.hardware, route.workload, sourceScenario, workload]);
   const index = useMemo(() => interactive
     ? createRooflineIndex(
       canonical.ceilings,
@@ -234,17 +238,15 @@ function CoreRooflineView({
   const realizations = useMemo(() => data.datasets.runtime_realizations
     .filter((record) => isRuntimeRealizationRecord(record, modelId))
     .map(adaptRuntimeRealization), [data.datasets.runtime_realizations, modelId]);
-  const runtimeConfigurationIds = useMemo(() => realizations
-    .filter((realization) => !route.runtime || realization.runtimeId === route.runtime)
-    .flatMap((realization) => realization.configurationIds), [realizations, route.runtime]);
   const runtimeCandidates = useMemo(() => route.runtime ? resolveRuntimeCandidates(realizations, data.datasets.runs, {
     modelId,
     modelGraphId: sourceScenario.model_graph_id!,
     runtimeId: route.runtime,
     hardwareId: route.hardware,
-    workload: runtimeResolutionWorkload(route.workload, workload, runtimeConfigurationIds),
+    workload: runtimeResolutionWorkload(route.workload, workload, [...configurationIds]),
     precisionId: route.runtimePrecision,
-  }) : [], [data.datasets.runs, modelId, realizations, route.hardware, route.runtime, route.runtimePrecision, route.workload, runtimeConfigurationIds, sourceScenario.model_graph_id, workload]);
+    opaqueConfigurationIds: configurationIds,
+  }) : [], [configurationIds, data.datasets.runs, modelId, realizations, route.hardware, route.runtime, route.runtimePrecision, route.workload, sourceScenario.model_graph_id, workload]);
   const activeCandidate = exactRuntimeCandidate(runtimeCandidates);
   const activeRealization = activeCandidate?.realization ?? null;
   // Task 4 resolves realizations but does not yet expose a canonical capture

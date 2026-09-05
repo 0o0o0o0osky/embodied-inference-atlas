@@ -10,13 +10,18 @@ import runDocument from "../../../data/measurements/runs.json";
 import pi0GraphDocument from "../../../data/model_graphs/pi0.json";
 import pi05GraphDocument from "../../../data/model_graphs/pi05.json";
 import captureDocument from "../../../data/profiler/profiler_captures.json";
+import pi0RealizationDocument from "../../../data/runtime_realizations/pi0.json";
 import pi05RealizationDocument from "../../../data/runtime_realizations/pi05.json";
 import type { RouteState } from "../../app/routes";
 import type { AtlasData, AtlasDatasets, CanonicalRecord, ModelRecord } from "../../types/atlas";
 import { modelSwitchPatch } from "../model-graph/domain/modelSwitch";
 import { RooflineView } from "../roofline/components/RooflineView";
-import { materializeInteractiveRoofline, runtimeResolutionWorkload } from "../roofline/data/materialize";
-import type { RooflineCeilingRecord, RooflineScenarioRecord } from "../roofline/domain/types";
+import {
+  interactiveSourceBasisIsLossless,
+  materializeInteractiveRoofline,
+  runtimeResolutionWorkload,
+} from "../roofline/data/materialize";
+import type { RooflineBasisRecord, RooflineCeilingRecord, RooflineScenarioRecord } from "../roofline/domain/types";
 import {
   legacyComponentEntity,
   logicalEntity,
@@ -61,6 +66,10 @@ it("retains only target-model-compatible selections and discovers roofline suppo
     rooflineLevel: "stage",
     basis: "basis-pi0-bf16_dense-stage-default",
   });
+  const assignmentShapedConfiguration = "V=3,L_PROMPT=180,T_ACTION=10,N_DENOISE=10";
+  const vlaPerfRun = runDocument.records.find((record) =>
+    record.model_id === "pi05" && record.runtime_id === "vla-perf",
+  )!;
   const switchData = atlas({
     models: modelDocument.records as unknown as ModelRecord[],
     model_graphs: [
@@ -68,7 +77,10 @@ it("retains only target-model-compatible selections and discovers roofline suppo
       pi05GraphDocument.records[0],
     ] as unknown as CanonicalRecord[],
     runtimes: runtimeDocument.records as unknown as AtlasDatasets["runtimes"],
-    runs: runDocument.records as unknown as AtlasDatasets["runs"],
+    runs: [
+      ...runDocument.records,
+      { ...structuredClone(vlaPerfRun), run_id: "run-assignment-config-fixture", configuration_id: assignmentShapedConfiguration },
+    ] as unknown as AtlasDatasets["runs"],
     runtime_realizations: [
       ...pi05RealizationDocument.records,
       {
@@ -113,16 +125,6 @@ it("retains only target-model-compatible selections and discovers roofline suppo
   });
   expect(modelSwitchPatch(switchData, "pi05", {
     ...currentRoute,
-    runtime: "vla-perf",
-    workload: "cfg-flashrt-pi05-matrix-001",
-    runtimePrecision: "uniform-fp16",
-  })).toMatchObject({
-    runtime: "vla-perf",
-    workload: null,
-    runtimePrecision: "uniform-fp16",
-  });
-  expect(modelSwitchPatch(switchData, "pi05", {
-    ...currentRoute,
     runtime: null,
     workload: null,
     precision: "runtime_mixed",
@@ -137,6 +139,37 @@ it("retains only target-model-compatible selections and discovers roofline suppo
     runtimePrecision: "mixed-fp8-e4m3-fp16",
     entity: runtimeGroupEntity("rr-pi05-not-supported-fixture", unsupportedGroupId),
   }).entity).toBeNull();
+  [
+    {
+      name: "analytical-only runtime",
+      current: { runtime: "vla-perf", workload: "cfg-flashrt-pi05-matrix-001", runtimePrecision: "uniform-fp16" },
+      expected: { runtime: "vla-perf", hardware: null, workload: null, runtimePrecision: null },
+    },
+    {
+      name: "group from a different resolved realization",
+      current: {
+        runtime: "flashrt",
+        workload: "cfg-flashrt-pi05-matrix-010",
+        runtimePrecision: null,
+        entity: runtimeGroupEntity(pi05RealizationDocument.records[0]!.realization_id, unsupportedGroupId),
+      },
+      expected: { workload: "cfg-flashrt-pi05-matrix-010", entity: null },
+    },
+    {
+      name: "assignment-shaped configuration owned by another runtime",
+      current: {
+        runtime: "flashrt",
+        workload: assignmentShapedConfiguration,
+        runtimePrecision: "mixed-fp8-e4m3-fp16",
+      },
+      expected: { workload: null },
+    },
+  ].forEach((testCase) => {
+    expect(
+      modelSwitchPatch(switchData, "pi05", { ...currentRoute, ...testCase.current }),
+      testCase.name,
+    ).toMatchObject(testCase.expected);
+  });
   expect(modelSwitchPatch(switchData, "pi05", {
     ...currentRoute,
     entity: legacyComponentEntity("point-pi05-ordinary-atomic"),
@@ -148,6 +181,7 @@ it("retains only target-model-compatible selections and discovers roofline suppo
     runtimes: runtimeDocument.records as unknown as AtlasDatasets["runtimes"],
     runs: runDocument.records as unknown as AtlasDatasets["runs"],
     profiler_captures: captureDocument.records as unknown as CanonicalRecord[],
+    runtime_realizations: pi0RealizationDocument.records as unknown as CanonicalRecord[],
     timelines: [
       {
         timeline_id: "timeline-graph-fixture",
@@ -181,6 +215,14 @@ it("retains only target-model-compatible selections and discovers roofline suppo
     timelineCapture: "capture-pi0-flashrt-nsys-graph-001",
     entity: null,
   });
+  expect(modelSwitchPatch(pi0Data, "pi0", route({
+    model: "pi0",
+    runtime: "flashrt",
+    hardware: "nvidia-jetson-agx-thor",
+    workload: "cfg-flashrt-pi0-matrix-001",
+    runtimePrecision: "mixed-fp8-e4m3-fp16",
+    timelineCapture: "capture-pi0-flashrt-nsys-graph-001",
+  })).timelineCapture).toBeNull();
 
   const sourceModel = modelDocument.records.find((item) => item.model_id === "pi0")!;
   const sourceScenario = scenarioDocument.records.find((item) =>
@@ -249,9 +291,27 @@ it("retains only target-model-compatible selections and discovers roofline suppo
     selectedBandwidthId,
     selectedBandwidthId,
   ]);
+  const uniformSourceBasis = sourceBasis as unknown as RooflineBasisRecord;
+  expect(interactiveSourceBasisIsLossless(
+    uniformSourceBasis,
+    sourceScenario as unknown as RooflineScenarioRecord,
+    null,
+  )).toBe(true);
+  [
+    { time_basis: "wall_clock" },
+    { traffic_basis: "l2_measured" },
+    { runtime_overhead: "included" },
+    { runtime_id: "flashrt", realization_id: "rr-unexpected" },
+  ].forEach((mismatch) => {
+    expect(interactiveSourceBasisIsLossless(
+      { ...uniformSourceBasis, ...mismatch } as RooflineBasisRecord,
+      sourceScenario as unknown as RooflineScenarioRecord,
+      null,
+    )).toBe(false);
+  });
   expect(runtimeResolutionWorkload(
-    "model-config-without-cfg-prefix",
+    assignmentShapedConfiguration,
     { executedCameraViews: 3, executedPromptTokens: 48, actionHorizon: 50, denoiseSteps: 10 },
-    ["model-config-without-cfg-prefix"],
-  )).toBe("model-config-without-cfg-prefix");
+    [assignmentShapedConfiguration],
+  )).toBe(assignmentShapedConfiguration);
 });

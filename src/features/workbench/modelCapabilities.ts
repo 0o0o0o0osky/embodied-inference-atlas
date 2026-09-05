@@ -1,8 +1,9 @@
-import type { AtlasData, CanonicalRecord } from "../../types/atlas";
+import type { AtlasData, CanonicalRecord, RunRecord } from "../../types/atlas";
 import { adaptLogicalDag } from "../model-graph/domain/adaptLogicalDag";
 import { adaptV1ModelGraph, isV1ModelGraphRecord } from "../model-graph/domain/adaptV1ModelGraph";
 import type { EditableSymbol } from "../model-graph/domain/types";
 import { adaptRuntimeRealization, isRuntimeRealizationRecord } from "../runtime/domain/adaptRuntimeRealization";
+import type { RuntimeRealizationRecord } from "../runtime/domain/types";
 import type { RooflineScenarioRecord } from "../roofline/domain/types";
 
 type PairKey = `${string}\u0000${string}`;
@@ -11,6 +12,9 @@ export interface SelectionContext {
   readonly runtimeId: string | null;
   readonly hardwareIds: ReadonlySet<string>;
   readonly precisionIds: ReadonlySet<string>;
+  readonly configurationIds: ReadonlySet<string>;
+  readonly workloadBindings: ReadonlyMap<string, number> | null;
+  readonly realizationIds: ReadonlySet<string>;
 }
 
 export interface RooflineBasisCapability extends SelectionContext {
@@ -77,6 +81,38 @@ function singleton(value: string | null): ReadonlySet<string> {
   return value ? new Set([value]) : new Set();
 }
 
+function runWorkloadBindings(run: RunRecord) {
+  const bindings = new Map<string, number>();
+  const workload = run.workload.vla;
+  if (!workload) return bindings;
+  const values = [
+    ["V", workload.camera_views],
+    ["L_PROMPT", workload.executed_prompt_tokens],
+    ["T_ACTION", workload.action_chunk],
+    ["N_DENOISE", workload.denoise_steps],
+  ] as const;
+  values.forEach(([name, value]) => {
+    if (value !== null) bindings.set(name, value);
+  });
+  return bindings;
+}
+
+function resolvedRunRealizationIds(
+  run: RunRecord,
+  realizations: readonly RuntimeRealizationRecord[],
+) {
+  if (run.evidence !== "measured_local") return new Set<string>();
+  const matches = realizations.filter((realization) =>
+    realization.availability === "measured"
+    && realization.runtimeId === run.runtime_id
+    && realization.deviceIds.includes(run.device_id)
+    && realization.precisionPaths.some((precision) =>
+      precision.precisionPathId === run.precision.precision_id,
+    ),
+  );
+  return matches.length === 1 ? singleton(matches[0]!.realizationId) : new Set<string>();
+}
+
 function modelIds(data: AtlasData): string[] {
   return [...new Set([
     ...data.datasets.models.map((model) => model.model_id),
@@ -99,11 +135,17 @@ export function createModelCapabilityRegistry(data: AtlasData): ModelCapabilityR
     const graph = graphRecord ? adaptV1ModelGraph(graphRecord) : null;
     const dag = graph ? adaptLogicalDag(graph) : null;
     const modelRuns = data.datasets.runs.filter((run) => run.model_id === modelId);
+    const modelRealizations = data.datasets.runtime_realizations
+      .filter((record) => isRuntimeRealizationRecord(record, modelId))
+      .map(adaptRuntimeRealization);
     const runIds = new Set(modelRuns.map((run) => run.run_id));
     const runContexts = new Map(modelRuns.map((run) => [run.run_id, {
       runtimeId: run.runtime_id,
       hardwareIds: singleton(run.device_id),
       precisionIds: singleton(run.precision.precision_id),
+      configurationIds: singleton(run.configuration_id),
+      workloadBindings: runWorkloadBindings(run),
+      realizationIds: resolvedRunRealizationIds(run, modelRealizations),
     }] as const));
     const runtimeIds = new Set<string>();
     const runtimePrecisionIds = new Map<string, Set<string>>();
@@ -119,12 +161,8 @@ export function createModelCapabilityRegistry(data: AtlasData): ModelCapabilityR
       runtimeIds.add(run.runtime_id);
       hardwareIds.add(run.device_id);
       configurationIds.add(run.configuration_id);
-      addToMapSet(runtimePrecisionIds, run.runtime_id, run.precision.precision_id);
     });
 
-    const modelRealizations = data.datasets.runtime_realizations
-      .filter((record) => isRuntimeRealizationRecord(record, modelId))
-      .map(adaptRuntimeRealization);
     const realizationGroups = new Set<PairKey>();
     const realizationGroupContexts = new Map<PairKey, SelectionContext>();
     modelRealizations.forEach((realization) => {
@@ -135,8 +173,6 @@ export function createModelCapabilityRegistry(data: AtlasData): ModelCapabilityR
         realization.precisionPaths.forEach((precision) =>
           addToMapSet(runtimePrecisionIds, realization.runtimeId, precision.precisionPathId),
         );
-      }
-      if (realization.availability !== "not_supported") {
         realization.executionGroups.forEach((group) => {
           const key = pair(realization.realizationId, group.executionGroupId);
           realizationGroups.add(key);
@@ -144,6 +180,9 @@ export function createModelCapabilityRegistry(data: AtlasData): ModelCapabilityR
             runtimeId: realization.runtimeId,
             hardwareIds: new Set(realization.deviceIds),
             precisionIds: new Set(realization.precisionPaths.map((precision) => precision.precisionPathId)),
+            configurationIds: new Set(realization.configurationIds),
+            workloadBindings: null,
+            realizationIds: singleton(realization.realizationId),
           });
         });
       }
@@ -168,6 +207,9 @@ export function createModelCapabilityRegistry(data: AtlasData): ModelCapabilityR
           runtimeId: text(basis, "runtime_id"),
           hardwareIds: singleton(deviceId),
           precisionIds: singleton(text(basis, "precision_path_id")),
+          configurationIds: new Set(),
+          workloadBindings: null,
+          realizationIds: singleton(text(basis, "realization_id")),
           level,
         });
       }

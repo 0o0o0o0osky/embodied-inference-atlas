@@ -86,6 +86,12 @@ function ResolvedRuntimeView({ data, model, record, route, navigate }: RuntimeVi
       .map(adaptRuntimeRealization),
     [data.datasets.runtime_realizations, model.model_id],
   );
+  const configurationIds = useMemo(() => new Set([
+    ...data.datasets.runs
+      .filter((run) => run.model_id === model.model_id)
+      .map((run) => run.configuration_id),
+    ...realizations.flatMap((realization) => realization.configurationIds),
+  ]), [data.datasets.runs, model.model_id, realizations]);
   const candidates = useMemo(() => route.runtime ? resolveRuntimeCandidates(realizations, data.datasets.runs, {
     modelId: model.model_id,
     modelGraphId: graph.graphId,
@@ -93,7 +99,8 @@ function ResolvedRuntimeView({ data, model, record, route, navigate }: RuntimeVi
     hardwareId: route.hardware,
     workload: route.workload,
     precisionId: null,
-  }) : [], [data.datasets.runs, graph.graphId, model.model_id, realizations, route.hardware, route.runtime, route.workload]);
+    opaqueConfigurationIds: configurationIds,
+  }) : [], [configurationIds, data.datasets.runs, graph.graphId, model.model_id, realizations, route.hardware, route.runtime, route.workload]);
   const precisionMatches = route.runtimePrecision
     ? candidates.filter((candidate) => candidate.actualPrecisionId === route.runtimePrecision)
     : candidates;
