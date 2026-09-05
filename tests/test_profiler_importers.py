@@ -246,15 +246,36 @@ class ProfilerImporterTests(unittest.TestCase):
         )
 
         private_run = copy.deepcopy(bundle)
-        private_run["datasets"]["devices"] = json.loads(
-            (ROOT / "data/catalog/devices.json").read_text(encoding="utf-8")
-        )["records"]
-        private_run["datasets"]["runs"][0]["correctness"]["criterion"] = (
-            "raw::private_symbol"
+        private_run["datasets"]["runs"][0]["device_id"] = (
+            "/home/example/private-device"
         )
         self.assertIn(
-            "profiler_raw_symbol",
+            "profiler_local_path",
             {issue.code for issue in scan_profiler_bundle(private_run)},
+        )
+
+        gapped_run_ids = json.loads(
+            json.dumps(bundle)
+            .replace(f"run-{safe_label}-001", f"run-{safe_label}-042")
+            .replace(f"capture-{safe_label}-001", f"capture-{safe_label}-042")
+        )
+        gapped_run_ids["datasets"]["runs"][0]["configuration_id"] = (
+            f"config-{safe_label}-042"
+        )
+        self.assertIn(
+            "profiler_generated_id",
+            {issue.code for issue in scan_profiler_bundle(gapped_run_ids)},
+        )
+
+        gapped_ids = copy.deepcopy(bundle)
+        gapped_metric = copy.deepcopy(
+            gapped_ids["datasets"]["profiler_metrics"][0]
+        )
+        gapped_metric["metric_id"] = f"metric-{safe_label}-042"
+        gapped_ids["datasets"]["profiler_metrics"].append(gapped_metric)
+        self.assertIn(
+            "profiler_generated_id",
+            {issue.code for issue in scan_profiler_bundle(gapped_ids)},
         )
 
         canonical_runs = json.loads(

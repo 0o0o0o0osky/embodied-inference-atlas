@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+from collections import defaultdict
 from collections.abc import Mapping
 
 from tools.lib.contracts import Issue
@@ -35,6 +36,12 @@ _ABSOLUTE_TIME = re.compile(
 )
 _RAW_SYMBOL = re.compile(r"::|<[^>]+>\s*\(")
 _BLOCKED_REPORT_SUFFIX = re.compile(r"(?i)\.(?:ncu-rep|nsys-rep|sqlite3?|db)$")
+_WINDOWS_PATH = re.compile(r"(?i)(?<![a-z0-9])[a-z]:[\\/]")
+_UNC_PATH = re.compile(r"(?<![a-z0-9_\\])\\\\[^\\\s]+\\[^\\\s]+", re.IGNORECASE)
+_LOCAL_POSIX_PATH = re.compile(
+    r"(?<![a-z0-9._-])/(?:home|Users|root|tmp|private|var|etc|usr|opt|mnt|media|srv|dev|proc|sys|run)(?:/|$)",
+    re.IGNORECASE,
+)
 _SLUG = r"[a-z0-9]+(?:-[a-z0-9]+)*"
 _SLUG_ID = re.compile(rf"^{_SLUG}$")
 _RUN_ID = re.compile(rf"^run-({_SLUG})-(\d{{3}})$")
@@ -78,18 +85,16 @@ def scan_profiler_bundle(value: object) -> list[Issue]:
     for dataset in sorted(PROFILER_DATASETS):
         if dataset in datasets:
             issues.extend(_scan(datasets[dataset], f"$.datasets.{dataset}"))
-    devices = datasets.get("devices")
-    if isinstance(devices, list):
-        device_ids = {
-            item.get("device_id") for item in devices
-            if isinstance(item, Mapping) and isinstance(item.get("device_id"), str)
-        }
-        for index, run in run_records:
-            issues.extend(_scan(
-                run,
-                f"$.datasets.runs[{index}]",
-                catalog_device_ids=device_ids,
-            ))
+    for index, run in run_records:
+        base = f"$.datasets.runs[{index}]"
+        issues.extend(_scan(
+            run,
+            base,
+            allowed_raw_key_paths=frozenset({
+                f"{base}.device_id",
+                f"{base}.comparison_context.platform.device_id",
+            }),
+        ))
     issues.extend(_scan_generated_ids(datasets, run_records))
     return issues
 
@@ -148,6 +153,7 @@ def _scan_generated_ids(
                 ).append(observation)
 
     run_labels: dict[object, tuple[str, str]] = {}
+    run_ordinal_groups: dict[str, list[tuple[str, int]]] = defaultdict(list)
     for index, run in run_records:
         run_id = run.get("run_id")
         configuration_id = run.get("configuration_id")
@@ -161,6 +167,9 @@ def _scan_generated_ids(
         else:
             _, ordinal = match.groups()
             run_labels[run_id] = (expected_label, ordinal)
+            run_ordinal_groups[expected_label].append((
+                f"$.datasets.runs[{index}].run_id", int(ordinal)
+            ))
         if (
             match is None
             or expected_label is None
@@ -170,6 +179,7 @@ def _scan_generated_ids(
             issues.append(_generated_id(
                 f"$.datasets.runs[{index}].configuration_id"
             ))
+    _require_contiguous_ordinals(issues, run_ordinal_groups)
 
     primary_keys = {
         "profiler_captures": "capture_id",
@@ -188,6 +198,9 @@ def _scan_generated_ids(
         "telemetry": "telemetry",
     }
     safe_observation_ids: set[str] = set()
+    record_ordinal_groups: dict[
+        tuple[str, object], list[tuple[str, int]]
+    ] = defaultdict(list)
     for dataset, key in primary_keys.items():
         records = datasets.get(dataset)
         if not isinstance(records, list):
@@ -232,8 +245,13 @@ def _scan_generated_ids(
                     issues.append(_generated_id(
                         f"$.datasets.{dataset}[{index}].{key}"
                     ))
-                elif dataset == "kernel_observations":
-                    safe_observation_ids.add(value)
+                elif dataset != "profiler_captures":
+                    path = f"$.datasets.{dataset}[{index}].{key}"
+                    record_ordinal_groups[
+                        (dataset, record.get("run_id"))
+                    ].append((path, _trailing_ordinal(value)))
+                    if dataset == "kernel_observations":
+                        safe_observation_ids.add(value)
             elif dataset == "operator_kernel_links":
                 observation_id = record.get("observation_id")
                 observation_suffix = (
@@ -252,6 +270,12 @@ def _scan_generated_ids(
                     issues.append(_generated_id(
                         f"$.datasets.{dataset}[{index}].{key}"
                     ))
+                else:
+                    record_ordinal_groups[(dataset, observation_id)].append((
+                        f"$.datasets.{dataset}[{index}].{key}",
+                        _trailing_ordinal(value),
+                    ))
+    _require_contiguous_ordinals(issues, record_ordinal_groups)
     return issues
 
 
@@ -307,6 +331,21 @@ def _expected_run_label(
 
 def _alphanumeric_identity(value: str) -> str:
     return re.sub(r"[^a-z0-9]+", "", value.lower())
+
+
+def _trailing_ordinal(value: str) -> int:
+    return int(value.rsplit("-", 1)[1])
+
+
+def _require_contiguous_ordinals(
+    issues: list[Issue],
+    groups: Mapping[object, list[tuple[str, int]]],
+) -> None:
+    for records in groups.values():
+        if sorted(ordinal for _, ordinal in records) != list(
+            range(1, len(records) + 1)
+        ):
+            issues.extend(_generated_id(path) for path, _ in records)
 
 
 def _scan_reference_ids(
@@ -406,34 +445,38 @@ def _scan(
     value: object,
     path: str,
     *,
-    catalog_device_ids: set[str] | None = None,
+    allowed_raw_key_paths: frozenset[str] = frozenset(),
 ) -> list[Issue]:
     issues: list[Issue] = []
     if isinstance(value, Mapping):
         for raw_key, child in sorted(value.items(), key=lambda item: str(item[0])):
             key = _normalize_key(str(raw_key))
             child_path = f"{path}.{raw_key}"
-            is_catalog_device_ref = (
-                key == "device_id"
-                and isinstance(child, str)
-                and catalog_device_ids is not None
-                and child in catalog_device_ids
-            )
-            if key in _RAW_KEYS and not is_catalog_device_ref:
+            if key in _RAW_KEYS and child_path not in allowed_raw_key_paths:
                 issues.append(
                     Issue(child_path, "profiler_raw_key", "raw profiler identity field is forbidden")
                 )
             issues.extend(_scan(
-                child, child_path, catalog_device_ids=catalog_device_ids
+                child, child_path, allowed_raw_key_paths=allowed_raw_key_paths
             ))
     elif isinstance(value, (list, tuple)):
         for index, child in enumerate(value):
             issues.extend(_scan(
                 child,
                 f"{path}[{index}]",
-                catalog_device_ids=catalog_device_ids,
+                allowed_raw_key_paths=allowed_raw_key_paths,
             ))
     elif isinstance(value, str):
+        if (
+            ".local/" in value
+            or ".local\\" in value
+            or _WINDOWS_PATH.search(value)
+            or _UNC_PATH.search(value)
+            or _LOCAL_POSIX_PATH.search(value)
+        ):
+            issues.append(
+                Issue(path, "profiler_local_path", "local profiler paths are forbidden")
+            )
         if _HASH.fullmatch(value):
             issues.append(
                 Issue(path, "profiler_identity_hash", "hash-shaped profiler identity is forbidden")
