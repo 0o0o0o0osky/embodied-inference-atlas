@@ -35,7 +35,7 @@ _TASK7_SYSMEM_METRICS = (
 _TASK7_WARP_SECTIONS = ("SpeedOfLight", "LaunchStats", "WarpStateStats")
 _TASK7_LOCKED_TELEMETRY = {
     "observed_gpu_frequency": ("MHz", "ncu_gpc_cycle_rate"),
-    "observed_emc_frequency": ("MHz", "jetson_clocks_show"),
+    "observed_emc_frequency": ("MHz", "jetson_clocks_show_current_freq"),
     "observed_junction_temperature": ("celsius", "tegrastats_tj"),
     "observed_gpu_power": ("mW", "tegrastats_vdd_gpu"),
     "throttle_status": ("percent", "clock_event_audit"),

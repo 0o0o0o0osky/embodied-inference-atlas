@@ -22,7 +22,7 @@
         }
       },
       "metric_name": {"type": "string", "enum": ["emc_target_environment_frequency", "cpu_target_environment_frequency", "observed_emc_frequency", "observed_gpu_frequency", "observed_junction_temperature", "observed_gpu_power", "throttle_status"]},
-      "measurement_source": {"type": "string", "enum": ["ncu_gpc_cycle_rate", "jetson_clocks_show", "tegrastats_tj", "tegrastats_vdd_gpu", "clock_event_audit"]},
+      "measurement_source": {"type": "string", "enum": ["ncu_gpc_cycle_rate", "jetson_clocks_show_current_freq", "tegrastats_tj", "tegrastats_vdd_gpu", "clock_event_audit"]},
       "samples": {
         "type": "array",
         "items": {

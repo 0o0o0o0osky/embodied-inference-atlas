@@ -131,6 +131,21 @@ RAW_COUNTER_REGISTRY: dict[str, dict[str, str]] = {
     "gpu__compute_memory_throughput.avg.pct_of_peak_sustained_elapsed": {
         "unit": "percent", "kind": "metric",
     },
+    "gpu__compute_memory_access_throughput.avg.pct_of_peak_sustained_elapsed": {
+        "unit": "percent", "kind": "metric",
+    },
+    "l1tex__t_sector_hit_rate.pct": {
+        "unit": "percent", "kind": "metric",
+    },
+    "gpu__compute_memory_request_throughput.avg.pct_of_peak_sustained_elapsed": {
+        "unit": "percent", "kind": "metric",
+    },
+    "lts__t_sector_hit_rate.pct": {
+        "unit": "percent", "kind": "metric",
+    },
+    "sm__memory_throughput.avg.pct_of_peak_sustained_elapsed": {
+        "unit": "percent", "kind": "metric",
+    },
     "l1tex__throughput.avg.pct_of_peak_sustained_active": {
         "unit": "percent", "kind": "metric",
     },
@@ -152,7 +167,10 @@ RAW_COUNTER_REGISTRY: dict[str, dict[str, str]] = {
         "unit": "percent", "kind": "metric",
     },
     "smsp__issue_active.avg.per_cycle_active": {
-        "unit": "instruction_per_cycle", "kind": "metric",
+        # The CSV base-unit cell is empty. SchedulerStats names the displayed
+        # quantity "Issued Warp Per Scheduler", so this is a canonical display
+        # semantic, not a fabricated raw-unit conversion.
+        "unit": "warp_per_cycle", "kind": "metric",
     },
     "smsp__issue_active.avg.pct_of_peak_sustained_active": {
         "unit": "percent", "kind": "metric",
@@ -240,6 +258,37 @@ METRIC_REGISTRY: dict[str, dict[str, object]] = {
         "raw_counter_name": "gpu__compute_memory_throughput.avg.pct_of_peak_sustained_elapsed",
         "sections": ("SpeedOfLight", "custom_metric_set_12"),
     },
+    "memory_access_throughput_pct_of_peak_sustained_elapsed": {
+        "unit": "percent", "basis": "per_profiled_launch",
+        "raw_counter_name": (
+            "gpu__compute_memory_access_throughput.avg.pct_of_peak_sustained_elapsed"
+        ),
+        "sections": ("MemoryWorkloadAnalysis",),
+    },
+    "l1tex_sector_hit_rate_percent": {
+        "unit": "percent", "basis": "per_profiled_launch",
+        "raw_counter_name": "l1tex__t_sector_hit_rate.pct",
+        "sections": ("MemoryWorkloadAnalysis",),
+    },
+    "memory_request_throughput_pct_of_peak_sustained_elapsed": {
+        "unit": "percent", "basis": "per_profiled_launch",
+        "raw_counter_name": (
+            "gpu__compute_memory_request_throughput.avg.pct_of_peak_sustained_elapsed"
+        ),
+        "sections": ("MemoryWorkloadAnalysis",),
+    },
+    "l2_sector_hit_rate_percent": {
+        "unit": "percent", "basis": "per_profiled_launch",
+        "raw_counter_name": "lts__t_sector_hit_rate.pct",
+        "sections": ("MemoryWorkloadAnalysis",),
+    },
+    "memory_pipes_throughput_pct_of_peak_sustained_elapsed": {
+        "unit": "percent", "basis": "per_profiled_launch",
+        "raw_counter_name": (
+            "sm__memory_throughput.avg.pct_of_peak_sustained_elapsed"
+        ),
+        "sections": ("MemoryWorkloadAnalysis",),
+    },
     "l1_throughput_pct_of_peak_sustained_active": {
         "unit": "percent",
         "basis": "per_profiled_launch",
@@ -301,7 +350,7 @@ METRIC_REGISTRY: dict[str, dict[str, object]] = {
         "raw_counter_name": None, "sections": ("SchedulerStats",),
     },
     "scheduler_issue_active_per_active_cycle": {
-        "unit": "instruction_per_cycle", "basis": "per_profiled_launch",
+        "unit": "warp_per_cycle", "basis": "per_profiled_launch",
         "raw_counter_name": "smsp__issue_active.avg.per_cycle_active",
         "sections": ("SchedulerStats",),
     },
@@ -398,7 +447,11 @@ SCHEDULER_DIRECT_METRIC_NAMES = (
     "memory_sol_pct_of_peak_sustained_elapsed",
     "l1_throughput_pct_of_peak_sustained_active",
     "l2_throughput_pct_of_peak_sustained_elapsed",
-    "l2_sysmem_fill_pct_of_peak_sustained_elapsed",
+    "memory_access_throughput_pct_of_peak_sustained_elapsed",
+    "l1tex_sector_hit_rate_percent",
+    "memory_request_throughput_pct_of_peak_sustained_elapsed",
+    "l2_sector_hit_rate_percent",
+    "memory_pipes_throughput_pct_of_peak_sustained_elapsed",
     "theoretical_occupancy_percent",
     "achieved_occupancy_percent",
 )

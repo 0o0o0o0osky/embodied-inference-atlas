@@ -14,6 +14,7 @@ from extractors.profiler_common import (
     DIRECT_METRIC_NAMES,
     EXPLICIT_MISSING_METRICS,
     METRIC_REGISTRY,
+    RAW_COUNTER_REGISTRY,
     SCHEDULER_DIRECT_METRIC_NAMES,
     ProfilerImportContext,
     SCHEDULER_METRIC_NAMES,
@@ -62,9 +63,16 @@ SCHEDULER_DIRECT_READER_METRICS: tuple[str, ...] = (
     "gpu__compute_memory_throughput.avg.pct_of_peak_sustained_elapsed",
     "l1tex__throughput.avg.pct_of_peak_sustained_active",
     "lts__throughput.avg.pct_of_peak_sustained_elapsed",
-    "lts__d_sectors_fill_sysmem.avg.pct_of_peak_sustained_elapsed",
     "sm__maximum_warps_per_active_cycle_pct",
     "sm__warps_active.avg.pct_of_peak_sustained_active",
+)
+
+MEMORY_WORKLOAD_READER_METRICS: tuple[str, ...] = (
+    "gpu__compute_memory_access_throughput.avg.pct_of_peak_sustained_elapsed",
+    "l1tex__t_sector_hit_rate.pct",
+    "gpu__compute_memory_request_throughput.avg.pct_of_peak_sustained_elapsed",
+    "lts__t_sector_hit_rate.pct",
+    "sm__memory_throughput.avg.pct_of_peak_sustained_elapsed",
 )
 
 LAUNCH_READER_METRICS: tuple[str, ...] = tuple(
@@ -127,6 +135,40 @@ _SCHEDULER_SECTION_ORDER = (
     "SchedulerStats",
 )
 _WARP_SECTION_ORDER = ("SpeedOfLight", "LaunchStats", "WarpStateStats")
+_LOCKED_REQUIRED_OPTIONS = (
+    ("--config-file", None, "off"),
+    ("--profile-from-start", None, "off"),
+    ("--graph-profiling", None, "node"),
+    ("--filter-mode", None, "global"),
+    ("--kernel-name-base", None, "function"),
+    ("--rename-kernels", None, "off"),
+    ("--import-source", None, "off"),
+    ("--replay-mode", None, "kernel"),
+    ("--cache-control", None, "all"),
+    ("--clock-control", None, "none"),
+    ("--launch-count", "-c", "1"),
+)
+_LOCKED_DENIED_OPTIONS = (
+    "--devices", "--nvtx", "--nvtx-include", "--nvtx-exclude",
+    "--range-filter", "--target-processes", "--target-processes-filter",
+    "--native-include", "--native-exclude",
+    "--python-include", "--python-exclude",
+    "--section-folder", "--section-folder-recursive",
+    "--launch-skip-before-match",
+)
+_APPROVED_SELECTORS = {
+    "kernel-signature-pi0-encoder-large-gemm": {
+        "kind": "kernel_id", "value": "::device_kernel:30",
+    },
+    "kernel-signature-pi0-decoder-nvjet-512x16": {
+        "kind": "kernel_name",
+        "value": "nvjet_sm110_qqhsh_512x16_128x3_2x1_2cta_v_bz_NNT",
+        "launch_skip": 90,
+    },
+    "kernel-signature-pi0-siglip-fmha": {
+        "kind": "kernel_id", "value": "::device_kernel:14",
+    },
+}
 _CLI_DEFAULT_VERSION = "2025.3.0.0"
 _COMMON_ORIGIN_KEYS = {
     "selection_policy", "replay_mode", "replay_passes",
@@ -146,11 +188,63 @@ _TELEMETRY_UNITS = {
 }
 _TELEMETRY_ORIGINS = {
     "observed_gpu_frequency": "ncu_gpc_cycle_rate",
-    "observed_emc_frequency": "jetson_clocks_show",
+    "observed_emc_frequency": "jetson_clocks_show_current_freq",
     "observed_junction_temperature": "tegrastats_tj",
     "observed_gpu_power": "tegrastats_vdd_gpu",
     "throttle_status": "clock_event_audit",
 }
+
+_EXPECTED_RAW_UNITS = {
+    "gpu__time_duration.sum": "ns",
+    "sm__throughput.avg.pct_of_peak_sustained_elapsed": "%",
+    "sm__pipe_tensor_cycles_active.avg.pct_of_peak_sustained_elapsed": "%",
+    "sm__pipe_tensor_cycles_active.avg.pct_of_peak_sustained_active": "%",
+    "gpu__compute_memory_throughput.avg.pct_of_peak_sustained_elapsed": "%",
+    "gpu__compute_memory_access_throughput.avg.pct_of_peak_sustained_elapsed": "%",
+    "l1tex__t_sector_hit_rate.pct": "%",
+    "gpu__compute_memory_request_throughput.avg.pct_of_peak_sustained_elapsed": "%",
+    "lts__t_sector_hit_rate.pct": "%",
+    "sm__memory_throughput.avg.pct_of_peak_sustained_elapsed": "%",
+    "l1tex__throughput.avg.pct_of_peak_sustained_active": "%",
+    "lts__throughput.avg.pct_of_peak_sustained_elapsed": "%",
+    "lts__d_sectors_fill_sysmem.avg.pct_of_peak_sustained_elapsed": "%",
+    "sm__maximum_warps_per_active_cycle_pct": "%",
+    "sm__warps_active.avg.pct_of_peak_sustained_active": "%",
+    "gpc__cycles_elapsed.avg.per_second": "hz",
+    "sm__cycles_elapsed.avg.per_second": "hz",
+    "sm__ops_path_tensor_op_utcqmma_src_fp4_fp6_fp8_dst_fp32_sparsity_off.avg.pct_of_peak_sustained_elapsed": "%",
+    "smsp__issue_active.avg.per_cycle_active": "",
+    "smsp__issue_active.avg.pct_of_peak_sustained_active": "%",
+    "smsp__issue_inst0.avg.pct_of_peak_sustained_active": "%",
+    "smsp__warps_active.avg.per_cycle_active": "warp",
+    "smsp__warps_eligible.avg.per_cycle_active": "warp",
+    "smsp__maximum_warps_avg_per_active_cycle": "warp",
+    "smsp__warps_active.avg.peak_sustained": "warp",
+    "lts__d_sectors_fill_sysmem.sum": "sector",
+    "lts__t_sectors_aperture_sysmem_op_write.sum": "sector",
+    "lts__t_sectors_srcunit_tex_aperture_sysmem_lookup_miss.sum": "sector",
+    # WarpStateStats assigns display semantics to otherwise surprising raw
+    # units: latency exports `cycle`, while stall ratios export `inst`. Values
+    # are preserved unchanged and canonical section provenance records the
+    # cycles-per-issued-instruction interpretation; this is not a conversion.
+    "smsp__average_warp_latency_per_inst_issued.ratio": "cycle",
+    "smsp__average_warps_issue_stalled_long_scoreboard_per_issue_active.ratio": "inst",
+    "smsp__average_warps_issue_stalled_short_scoreboard_per_issue_active.ratio": "inst",
+    "launch__block_dim_x": "block",
+    "launch__block_dim_y": "block",
+    "launch__block_dim_z": "block",
+    "launch__grid_dim_x": "block",
+    "launch__grid_dim_y": "block",
+    "launch__grid_dim_z": "block",
+    "launch__grid_size": "block",
+    "launch__block_size": "thread/block",
+    "launch__registers_per_thread": "register/thread",
+    "launch__shared_mem_per_block": "byte/block",
+    "launch__shared_mem_per_block_static": "byte/block",
+    "launch__shared_mem_per_block_dynamic": "byte/block",
+    "launch__waves_per_multiprocessor": "wave",
+}
+assert set(_EXPECTED_RAW_UNITS) == set(RAW_COUNTER_REGISTRY)
 
 
 def parse_ncu_exports(
@@ -162,7 +256,7 @@ def parse_ncu_exports(
 ) -> dict[str, object]:
     run = require_profiler_run(context, "ncu")
     _validate_policy(context, policy)
-    facts = _session_facts(session_csv, context)
+    facts = _session_facts(session_csv, context, policy)
     _verify_collection_facts(context, policy, facts)
     tool_version = facts["tool_version"]
     assert isinstance(tool_version, str)
@@ -176,6 +270,7 @@ def parse_ncu_exports(
     required_reader_metrics = _required_reader_metrics(
         str(policy["section_mode"])
     )
+    _validate_raw_units(raw_csv, context)
     raw_rows = _dict_rows(
         raw_csv, context, "raw", required_reader_metrics
     )
@@ -374,7 +469,7 @@ def import_ncu_report(
     _validate_policy(context, policy)
     reader_metrics = _reader_metrics(str(policy["section_mode"]))
     common = [
-        "ncu", "--import", str(input_file), "--csv",
+        "ncu", "--config-file", "off", "--import", str(input_file), "--csv",
         "--print-kernel-base", "function", "--print-units", "base", "--print-fp",
     ]
     pages: dict[str, str] = {}
@@ -461,7 +556,8 @@ def _validate_policy(context: ProfilerImportContext, policy: Mapping[str, object
         and origins.get("gpu_frequency_not_fixed") == "collection_log_manual_audit"
     )
     locked_keys = common_policy_keys | {
-        "disable_extra_suffixes", "external_clock_control", "telemetry",
+        "approved_selector", "disable_extra_suffixes",
+        "external_clock_control", "telemetry",
     }
     locked_valid = (
         common_valid
@@ -472,8 +568,18 @@ def _validate_policy(context: ProfilerImportContext, policy: Mapping[str, object
         and clock_control == "none"
         and "gpu_frequency_not_fixed" not in warnings
         and set(origins) == _LOCKED_ORIGIN_KEYS
+        and all(
+            origins.get(field) == "session_command"
+            for field in (
+                "selection_policy", "replay_mode", "cache_control_request",
+                "clock_control_request", "disable_extra_suffixes",
+            )
+        )
+        and isinstance(signature, Mapping)
+        and policy.get("approved_selector") == _APPROVED_SELECTORS.get(
+            signature.get("kernel_signature_id")
+        )
         and policy.get("disable_extra_suffixes") is True
-        and origins.get("disable_extra_suffixes") == "session_command"
         and origins.get("external_clock_control") == "collection_wrapper_observed"
         and policy.get("external_clock_control") == {
             "controller": "jetson_clocks", "state": "locked",
@@ -554,6 +660,7 @@ def _reader_metrics(section_mode: str) -> tuple[str, ...]:
     if section_mode == _SCHEDULER_MODE:
         return (
             *SCHEDULER_DIRECT_READER_METRICS,
+            *MEMORY_WORKLOAD_READER_METRICS,
             *LAUNCH_READER_METRICS,
             SECTION_READER_METRICS[0],
             *SCHEDULER_READER_METRICS,
@@ -583,7 +690,9 @@ def _required_reader_metrics(section_mode: str) -> tuple[str, ...]:
 
 
 def _session_facts(
-    payload: str, context: ProfilerImportContext
+    payload: str,
+    context: ProfilerImportContext,
+    policy: Mapping[str, object],
 ) -> dict[str, object]:
     rows = _csv_rows(payload, context, "session")
     versions = [
@@ -671,6 +780,8 @@ def _session_facts(
         section_mode = _WARP_MODE
     else:
         raise SourceFormatError(f"{context.source_label}: invalid NCU section selection")
+    if section_mode in _LOCKED_SECTION_MODES:
+        _validate_locked_command(tokens, policy, context)
     return {
         "tool_version": tool_version,
         "selection_policy": selection,
@@ -687,6 +798,56 @@ def _session_facts(
             "clock_control_request": clock_origin,
         },
     }
+
+
+def _validate_locked_command(
+    tokens: Sequence[str],
+    policy: Mapping[str, object],
+    context: ProfilerImportContext,
+) -> None:
+    for long, short, expected in _LOCKED_REQUIRED_OPTIONS:
+        if (
+            _option_values(tokens, long, short) != [expected]
+            or tokens.count(long) != 1
+        ):
+            raise SourceFormatError(
+                f"{context.source_label}: invalid locked NCU command"
+            )
+    if (
+        tokens.count("--disable-extra-suffixes") != 1
+        or any(_option_values(tokens, option) for option in _LOCKED_DENIED_OPTIONS)
+    ):
+        raise SourceFormatError(
+            f"{context.source_label}: invalid locked NCU command"
+        )
+
+    approved = policy.get("approved_selector")
+    if not isinstance(approved, Mapping):
+        raise SourceFormatError(
+            f"{context.source_label}: invalid locked NCU selector"
+        )
+    kernel_ids = _option_values(tokens, "--kernel-id")
+    kernel_names = _option_values(tokens, "--kernel-name", "-k")
+    launch_skips = _option_values(tokens, "--launch-skip", "-s")
+    if approved.get("kind") == "kernel_id":
+        valid = (
+            kernel_ids == [approved.get("value")]
+            and tokens.count("--kernel-id") == 1
+            and not kernel_names
+            and not launch_skips
+        )
+    else:
+        valid = (
+            kernel_names == [approved.get("value")]
+            and tokens.count("--kernel-name") == 1
+            and not kernel_ids
+            and launch_skips == [str(approved.get("launch_skip"))]
+            and tokens.count("--launch-skip") == 1
+        )
+    if not valid:
+        raise SourceFormatError(
+            f"{context.source_label}: invalid locked NCU selector"
+        )
 
 
 def _option_values(tokens: Sequence[str], long: str, short: str | None = None) -> list[str]:
@@ -764,6 +925,18 @@ def _csv_rows(payload: str, context: ProfilerImportContext, page: str) -> list[l
         raise SourceFormatError(
             f"{context.source_label}: invalid NCU {page} page row 1"
         ) from error
+
+
+def _validate_raw_units(payload: str, context: ProfilerImportContext) -> None:
+    rows = _csv_rows(payload, context, "raw")
+    if len(rows) < 2 or len(rows[1]) > len(rows[0]):
+        raise SourceFormatError(f"{context.source_label}: invalid NCU raw page row 2")
+    units = [*rows[1], *("" for _ in range(len(rows[0]) - len(rows[1])))]
+    for name, unit in zip(rows[0], units):
+        if unit and _EXPECTED_RAW_UNITS.get(name) != unit:
+            raise SourceFormatError(
+                f"{context.source_label}: invalid NCU raw unit for {name}"
+            )
 
 
 def _dict_rows(
