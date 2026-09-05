@@ -491,6 +491,9 @@ export function runtimeResolutionWorkload(
   value: InteractiveWorkload,
   configurationIds: readonly string[] = [],
 ) {
-  if (encoded && (configurationIds.includes(encoded) || /^(?:cfg|config)-/.test(encoded))) return encoded;
+  if (encoded && configurationIds.includes(encoded)) return encoded;
+  if (encoded && !encoded.split(",").every((part) =>
+    /^(?:v|p|a|n|V|L_PROMPT|T_ACTION|N_DENOISE)=/.test(part.trim()),
+  )) return encoded;
   return `V=${value.executedCameraViews},L_PROMPT=${value.executedPromptTokens},T_ACTION=${value.actionHorizon},N_DENOISE=${value.denoiseSteps}`;
 }

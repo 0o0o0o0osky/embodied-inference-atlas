@@ -50,6 +50,8 @@ function matchesWorkload(
   if (/^(?:cfg|config)-/.test(encoded)) return false;
   const bindings = parsedBindings(encoded);
   if (!bindings) return false;
+  const workloadSymbols = new Set(["V", "L_PROMPT", "T_ACTION", "N_DENOISE"]);
+  if ([...bindings.keys()].some((name) => !workloadSymbols.has(name))) return false;
   const applicability = record.workloadApplicability;
   const fixed = new Map<string, number | null>([
     ["T_ACTION", applicability.runtimeActionHorizon],
