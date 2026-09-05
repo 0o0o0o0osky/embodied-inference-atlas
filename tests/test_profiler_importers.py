@@ -20,15 +20,19 @@ class ProfilerImporterTests(unittest.TestCase):
             from extractors.profiler_common import ProfilerImportContext
             from tools.lib.profiler import profiler_semantic_issues
             from tools.lib.profiler_privacy import scan_profiler_bundle
+            from tools.lib.promotion import PromotionError, plan_promotion
         except ImportError as error:
             self.fail(f"profiler importer contract is unavailable: {error}")
 
         fixture = json.loads(FIXTURE.read_text(encoding="utf-8"))
-        run = valid_run("run-fixture-profiler-001")
-        run["configuration_id"] = "config-fixture-profiler-001"
+        safe_label = "pi0-flashrt-ncu-encoder-large-gemm"
+        run = valid_run(f"run-{safe_label}-001")
+        run["configuration_id"] = f"config-{safe_label}-001"
+        run["model_artifact_id"] = "pi0-flashrt-local-01"
+        run["comparison_context"]["model_artifact_id"] = "pi0-flashrt-local-01"
         run["capture_method"] = "ncu"
         context = ProfilerImportContext(
-            source_label="fixture-profiler",
+            source_label=safe_label,
             source_id="source-test",
             system_id="thor-unit-01",
             run=run,
@@ -74,7 +78,7 @@ class ProfilerImporterTests(unittest.TestCase):
                 "block": [128, 1, 1],
             },
             "signature": {
-                "kernel_signature_id": "kernel-signature-fixture-large-gemm",
+                "kernel_signature_id": "kernel-signature-pi0-encoder-large-gemm",
                 "label_sanitized": "encoder large GEMM",
                 "function_family": "gemm",
                 "implementation_family": "cutlass-tensor-core",
@@ -106,7 +110,7 @@ class ProfilerImporterTests(unittest.TestCase):
         except SourceFormatError as error:
             self.fail(f"controlled fixture was rejected: {error}")
 
-        self.assertEqual(bundle["source_label"], "fixture-profiler")
+        self.assertEqual(bundle["source_label"], safe_label)
         self.assertEqual(
             set(bundle["datasets"]),
             {
@@ -124,7 +128,7 @@ class ProfilerImporterTests(unittest.TestCase):
 
         capture = bundle["datasets"]["profiler_captures"][0]
         observation = bundle["datasets"]["kernel_observations"][0]
-        self.assertEqual(capture["capture_id"], "capture-fixture-profiler-001")
+        self.assertEqual(capture["capture_id"], f"capture-{safe_label}-001")
         self.assertEqual(capture["selection_policy"], "explicit_invocation")
         self.assertEqual(capture["ncu"]["origins"], policy["origins"])
         self.assertEqual(observation["calls"], 1)
@@ -205,6 +209,91 @@ class ProfilerImporterTests(unittest.TestCase):
         self.assertEqual(scan_json(bundle), [])
         self.assertEqual(scan_profiler_bundle(bundle), [])
         self.assertEqual(profiler_semantic_issues(bundle["datasets"]), [])
+
+        catalog_models = json.loads(
+            (ROOT / "data/catalog/models.json").read_text(encoding="utf-8")
+        )["records"]
+        ownership_datasets = copy.deepcopy(bundle["datasets"])
+        ownership_datasets["models"] = catalog_models
+        self.assertEqual(profiler_semantic_issues(ownership_datasets), [])
+
+        wrong_artifact = copy.deepcopy(ownership_datasets)
+        wrong_artifact["runs"][0]["model_artifact_id"] = "pi0-private-artifact"
+        self.assertIn(
+            "broken_reference",
+            {issue.code for issue in profiler_semantic_issues(wrong_artifact)},
+        )
+        for dataset, field in (("runs", "profiler_run_evidence"),
+                               ("profiler_captures", "profiler_capture_evidence")):
+            wrong_evidence = copy.deepcopy(ownership_datasets)
+            wrong_evidence[dataset][0]["evidence"] = "reported_external"
+            self.assertIn(
+                field,
+                {issue.code for issue in profiler_semantic_issues(wrong_evidence)},
+            )
+
+        private_signature = copy.deepcopy(bundle)
+        private_signature_id = "kernel-signature-pi0-private-label"
+        private_signature["datasets"]["kernel_signatures"][0][
+            "kernel_signature_id"
+        ] = private_signature_id
+        private_signature["datasets"]["kernel_observations"][0][
+            "kernel_signature_id"
+        ] = private_signature_id
+        self.assertIn(
+            "profiler_generated_id",
+            {issue.code for issue in scan_profiler_bundle(private_signature)},
+        )
+
+        private_run = copy.deepcopy(bundle)
+        private_run["datasets"]["devices"] = json.loads(
+            (ROOT / "data/catalog/devices.json").read_text(encoding="utf-8")
+        )["records"]
+        private_run["datasets"]["runs"][0]["correctness"]["criterion"] = (
+            "raw::private_symbol"
+        )
+        self.assertIn(
+            "profiler_raw_symbol",
+            {issue.code for issue in scan_profiler_bundle(private_run)},
+        )
+
+        canonical_runs = json.loads(
+            (ROOT / "data/measurements/runs.json").read_text(encoding="utf-8")
+        )["records"]
+        profiler_run_id = next(
+            item["run_id"] for item in canonical_runs
+            if item["capture_method"] in {"ncu", "nsys"}
+        )
+        for dataset, path in (
+            ("end_to_end", ROOT / "data/measurements/end_to_end.json"),
+            ("stages", ROOT / "data/measurements/stages.json"),
+        ):
+            measurement = copy.deepcopy(
+                json.loads(path.read_text(encoding="utf-8"))["records"][0]
+            )
+            measurement["run_id"] = profiler_run_id
+            timing_only = {
+                "bundle_version": "1.0.0",
+                "source_label": "profiler-timing-negative",
+                "datasets": {dataset: [measurement]},
+            }
+            with self.assertRaises(PromotionError):
+                plan_promotion(timing_only, ROOT)
+
+        orphaning_model = copy.deepcopy(
+            next(model for model in catalog_models if model["model_id"] == "pi0")
+        )
+        orphaning_model["artifacts"] = [
+            artifact for artifact in orphaning_model["artifacts"]
+            if artifact["artifact_id"] != "pi0-flashrt-local-01"
+        ]
+        catalog_only = {
+            "bundle_version": "1.0.0",
+            "source_label": "profiler-catalog-negative",
+            "datasets": {"models": [orphaning_model]},
+        }
+        with self.assertRaises(PromotionError):
+            plan_promotion(catalog_only, ROOT)
 
         wrong_identity = copy.deepcopy(policy)
         wrong_identity["expected_result_identity"]["Kernel Name"] = "private mismatch"

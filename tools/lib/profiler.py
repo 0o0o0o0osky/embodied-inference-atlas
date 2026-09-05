@@ -32,13 +32,31 @@ def profiler_semantic_issues(datasets: Mapping[str, list[Mapping]]) -> list[Issu
     runtimes = _index(datasets, "runtimes", "runtime_id")
     devices = _index(datasets, "devices", "device_id")
     systems = _index(datasets, "systems", "system_id")
+    model_artifacts = {
+        (model_id, artifact.get("artifact_id"))
+        for model_id, model in models.items()
+        for artifact in _mapping_list(model.get("artifacts"))
+        if isinstance(artifact.get("artifact_id"), str)
+    }
 
+    captured_run_ids = {
+        capture.get("run_id")
+        for capture in datasets.get("profiler_captures", [])
+        if isinstance(capture.get("run_id"), str)
+    }
     profiler_run_ids = {
         run_id for run_id, run in runs.items()
         if run.get("capture_method") in {"nsys", "ncu"}
+        or run_id in captured_run_ids
     }
     for run_id in sorted(profiler_run_ids, key=str):
         run = runs[run_id]
+        if run.get("evidence") != "measured_local":
+            issues.append(_issue(
+                f"$.runs[{run_id}].evidence",
+                "profiler_run_evidence",
+                "profiler runs require measured_local evidence",
+            ))
         for field, dataset_name, catalog in (
             ("source_id", "sources", sources),
             ("model_id", "models", models),
@@ -48,6 +66,12 @@ def profiler_semantic_issues(datasets: Mapping[str, list[Mapping]]) -> list[Issu
         ):
             if dataset_name in datasets and run.get(field) not in catalog:
                 issues.append(_broken(f"$.runs[{run_id}].{field}"))
+        if (
+            "models" in datasets
+            and (run.get("model_id"), run.get("model_artifact_id"))
+            not in model_artifacts
+        ):
+            issues.append(_broken(f"$.runs[{run_id}].model_artifact_id"))
     for dataset_name in ("end_to_end", "stages"):
         for index, measurement in enumerate(datasets.get(dataset_name, [])):
             if measurement.get("run_id") in profiler_run_ids:
@@ -63,6 +87,12 @@ def profiler_semantic_issues(datasets: Mapping[str, list[Mapping]]) -> list[Issu
     )
     for index, capture in enumerate(datasets.get("profiler_captures", [])):
         base = f"$.profiler_captures[{index}]"
+        if capture.get("evidence") != "measured_local":
+            issues.append(_issue(
+                f"{base}.evidence",
+                "profiler_capture_evidence",
+                "profiler captures require measured_local evidence",
+            ))
         run = runs.get(capture.get("run_id"))
         if run is None:
             issues.append(_broken(f"{base}.run_id"))

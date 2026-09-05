@@ -187,23 +187,6 @@ def _validate_profiler_bundle(
     repo_root: Path,
     manifest: Mapping,
 ) -> None:
-    has_profiler_data = any(dataset in incoming_sets for dataset in PROFILER_DATASETS)
-    has_profiler_run = "runs" in incoming_sets
-    if not has_profiler_data and not has_profiler_run:
-        return
-    issues = scan_profiler_bundle(bundle)
-    for dataset, incoming in incoming_sets.items():
-        if dataset not in {*PROFILER_DATASETS, "runs"} or not isinstance(incoming, list):
-            continue
-        document = {
-            "schema_version": manifest.get("schema_version"),
-            "dataset": dataset,
-            "records": incoming,
-        }
-        issues.extend(validate_document(dataset, document, repo_root))
-    if issues:
-        raise PromotionError("profiler bundle failed validation", issues)
-
     combined: dict[str, list[Mapping]] = {}
     required = {
         "sources", "models", "runtimes", "devices", "systems",
@@ -243,6 +226,20 @@ def _validate_profiler_bundle(
             combined[dataset] = list(merged.values())
         else:
             combined[dataset] = current
+
+    issues = scan_profiler_bundle({"datasets": combined})
+    for dataset, incoming in incoming_sets.items():
+        if dataset not in {*PROFILER_DATASETS, "runs"} or not isinstance(incoming, list):
+            continue
+        document = {
+            "schema_version": manifest.get("schema_version"),
+            "dataset": dataset,
+            "records": incoming,
+        }
+        issues.extend(validate_document(dataset, document, repo_root))
+    if issues:
+        raise PromotionError("profiler bundle failed validation", issues)
+
     semantic = profiler_semantic_issues(combined)
     if semantic:
         raise PromotionError("profiler bundle failed semantic validation", semantic)
