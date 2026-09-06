@@ -10,6 +10,7 @@ import { DerivedSymbols } from "./components/DerivedSymbols";
 import { GraphBreadcrumb } from "./components/GraphBreadcrumb";
 import { LogicalDagSvg } from "./components/LogicalDagSvg";
 import { OperatorInspector } from "./components/OperatorInspector";
+import { OperatorRooflinePanel } from "./components/OperatorRooflinePanel";
 import { WorkloadControls } from "./components/WorkloadControls";
 import { adaptLogicalDag, incidentNodeRefs } from "./domain/adaptLogicalDag";
 import { adaptV1ModelGraph, isV1ModelGraphRecord } from "./domain/adaptV1ModelGraph";
@@ -20,6 +21,8 @@ import { resolveConnectorHints } from "./layout/routeConnectors";
 import { resolvePresentationProfile } from "./presentation/registry";
 import { ModelDisplayProvider, useModelText } from "./presentation/ModelDisplay";
 import { pi0PerformanceNavigationPatch } from "../runtime/domain/pi0PerformanceNavigation";
+import { serializeInteractiveWorkload } from "../roofline/data/materialize";
+import { materializeCurrentPi0Roofline } from "../roofline/presentation/buildOperatorRooflineSummary";
 
 interface ModelGraphWorkspaceProps {
   data: AtlasData;
@@ -90,6 +93,7 @@ function ResolvedModelGraph({
   navigate: (patch: RoutePatch, replace?: boolean) => void;
 }) {
   const t = useModelText();
+  const isPi0 = model.model_id === "pi0";
   const defaultGraph = useMemo(() => adaptV1ModelGraph(record), [record]);
   const workloadBinding = useMemo(
     () => model.model_id === "pi0" ? resolveWorkloadBinding(data, route) : route.workload,
@@ -138,6 +142,12 @@ function ResolvedModelGraph({
     () => resolveFocusViewport(dag, layout, operator?.ref ?? null, model.model_id === "pi0" ? "stage" : "canvas"),
     [dag, layout, model.model_id, operator?.ref],
   );
+  const pi0Roofline = useMemo(() => isPi0 && operator ? materializeCurrentPi0Roofline({
+    data,
+    workloadBinding: route.workload,
+    precisionPathId: route.precision,
+    hardwareId: route.hardware,
+  }) : null, [data, isPi0, operator, route.hardware, route.precision, route.workload]);
 
   const updateWorkload = (next: Record<string, number>) => {
     navigate(
@@ -145,7 +155,6 @@ function ResolvedModelGraph({
       true,
     );
   };
-  const isPi0 = model.model_id === "pi0";
   const workloadControls = (
     <WorkloadControls
       symbols={graph.editableSymbols}
@@ -230,6 +239,28 @@ function ResolvedModelGraph({
             operator={operator}
             resetKey={`${operator.ref}|${route.workload ?? "defaults"}`}
             onClose={() => navigate({ entity: null }, true)}
+            rooflinePanel={pi0Roofline ? <OperatorRooflinePanel
+              result={pi0Roofline}
+              logicalRef={operator.ref}
+              fullAnalysisLink={<RouteLink route={route} navigate={navigate} patch={{
+                tab: "roofline-kernels",
+                rooflineLevel: "atomic",
+                basis: null,
+                entity: logicalEntity(operator.ref),
+                workload: pi0Roofline.status === "available" ? serializeInteractiveWorkload({
+                  executedCameraViews: pi0Roofline.value.scenario.workload.executed_camera_views,
+                  executedPromptTokens: pi0Roofline.value.scenario.workload.executed_prompt_tokens,
+                  actionHorizon: pi0Roofline.value.scenario.workload.action_horizon,
+                  denoiseSteps: pi0Roofline.value.scenario.workload.denoise_steps,
+                }) : route.workload,
+                precision: pi0Roofline.status === "available"
+                  ? pi0Roofline.value.scenario.precision_path.precision_path_id
+                  : route.precision,
+                hardware: pi0Roofline.status === "available"
+                  ? pi0Roofline.value.atomicBasis.device_id
+                  : route.hardware,
+              }}>打开完整 Atomic 分析</RouteLink>}
+            /> : undefined}
             evidenceLinks={{
               roofline: <RouteLink route={route} navigate={navigate} patch={{
                 tab: "roofline-kernels", rooflineLevel: "atomic", basis: null, entity: logicalEntity(operator.ref),

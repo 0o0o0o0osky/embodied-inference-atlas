@@ -18,6 +18,7 @@ export interface OperatorDrawerProps {
   resetKey: string;
   onClose: () => void;
   evidenceLinks?: { roofline: ReactNode; kernel: ReactNode };
+  rooflinePanel?: ReactNode;
 }
 
 function ShapeRows({ ports, symbolic = false }: { ports: readonly MaterializedPort[]; symbolic?: boolean }) {
@@ -83,7 +84,7 @@ function OperatorOverview({ operator }: { operator: OperatorDetail }) {
 
 // Controlled presentation keeps panel selection testable without a browser environment.
 export function OperatorDrawerView({
-  operator, resetKey, onClose, evidenceLinks, activeTab, onTabChange,
+  operator, resetKey, onClose, evidenceLinks, rooflinePanel, activeTab, onTabChange,
 }: OperatorDrawerProps & {
   activeTab: OperatorDrawerTab;
   onTabChange: (tab: OperatorDrawerTab) => void;
@@ -122,7 +123,7 @@ export function OperatorDrawerView({
       >
         {activeTab === "overview" ? <OperatorOverview operator={operator} />
           : activeTab === "calculation" ? <OperatorVisualizer operator={operator} resetKey={resetKey} />
-          : activeTab === "roofline" ? (
+          : activeTab === "roofline" ? rooflinePanel ?? (
             <div className="drawer-availability">
               <h3>当前抽屉未绑定精确 Roofline 证据</h3>
               <p>逻辑公式不能单独确定 Roofline 点位。前往分析页核对工作负载、精度、硬件与统计口径。</p>

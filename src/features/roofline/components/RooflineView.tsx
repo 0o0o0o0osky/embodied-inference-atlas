@@ -19,7 +19,7 @@ import {
   type CrossViewEntityKey,
 } from "../../workbench/entityKeys";
 import { createRooflineIndex, indexRoofline } from "../data/indexRoofline";
-import type { RooflineBasisRecord } from "../domain/types";
+import { rooflineBasisContract } from "../domain/basisContract";
 import {
   materializeInteractiveRoofline,
   interactiveSourceBasisIsLossless,
@@ -126,25 +126,6 @@ function sparseObservedRunIds(data: AtlasData) {
   });
 }
 
-function basisContract(basis: RooflineBasisRecord) {
-  return JSON.stringify([
-    basis.precision_path_id,
-    basis.ceiling_id,
-    basis.bandwidth_ceiling_id,
-    basis.device_id,
-    basis.operating_point_id,
-    basis.time_basis,
-    basis.traffic_basis,
-    basis.work_basis,
-    basis.runtime_overhead,
-    basis.runtime_id,
-    basis.realization_id,
-    basis.run_id,
-    basis.capture_id,
-    basis.comparison_mode,
-  ]);
-}
-
 export function RooflineView(props: RooflineViewProps) {
   const capabilities = useMemo(() => createModelCapabilityRegistry(props.data), [props.data]);
   const modelCapabilities = capabilities.get(props.model.model_id);
@@ -197,16 +178,16 @@ function CoreRooflineView({
       && scenarioBases.some((basis) => basis.basis_id === requestedBasis.basis_id)
       ? requestedBasis
       : null;
-    const contracts = new Set(scenarioBases.map(basisContract));
+    const contracts = new Set(scenarioBases.map(rooflineBasisContract));
     if (!requestedSourceBasis && contracts.size !== 1) return null;
     const sourceContract = requestedSourceBasis
-      ? basisContract(requestedSourceBasis)
+      ? rooflineBasisContract(requestedSourceBasis)
       : [...contracts][0];
     const stageBasis = scenarioBases.find((basis) =>
-      basis.level === "stage" && basisContract(basis) === sourceContract,
+      basis.level === "stage" && rooflineBasisContract(basis) === sourceContract,
     );
     const atomicBasis = scenarioBases.find((basis) =>
-      basis.level === "atomic" && basisContract(basis) === sourceContract,
+      basis.level === "atomic" && rooflineBasisContract(basis) === sourceContract,
     );
     if (!stageBasis || !atomicBasis) return null;
     const ceiling = canonical.ceilingById.get(atomicBasis.ceiling_id);

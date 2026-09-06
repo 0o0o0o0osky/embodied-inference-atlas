@@ -756,6 +756,151 @@
   color: var(--signal-blue-dark);
 }
 
+.operator-roofline > header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--line);
+}
+
+.operator-roofline > header > div {
+  display: grid;
+  gap: 2px;
+}
+
+.operator-roofline > header strong {
+  font-size: 17px;
+}
+
+.operator-roofline > header span,
+.operator-roofline > header code {
+  color: var(--slate);
+  font-size: 12px;
+}
+
+.operator-roofline > header code {
+  white-space: nowrap;
+}
+
+.operator-roofline-rows article {
+  padding: 15px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.operator-roofline-row-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.operator-roofline-row-heading h3 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 650;
+}
+
+.operator-roofline-row-heading span {
+  flex: none;
+  color: #23645f;
+  font-size: 11px;
+}
+
+.operator-roofline-row-heading span.is-partial {
+  color: var(--roofline-partial);
+}
+
+.operator-roofline-rows dl {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 16px;
+  margin: 12px 0 0;
+}
+
+.operator-roofline-rows dl > div {
+  min-width: 0;
+}
+
+.operator-roofline-rows dt {
+  color: var(--slate);
+  font-size: 11px;
+}
+
+.operator-roofline-rows dd {
+  margin: 2px 0 0;
+  font-family: var(--mono-face);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.operator-roofline-ceiling {
+  display: grid;
+  gap: 3px;
+  margin: 11px 0 0 !important;
+  color: #4d6070;
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.operator-roofline-provenance {
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line);
+  color: var(--slate);
+  font-size: 12px;
+}
+
+.operator-roofline-provenance summary {
+  color: var(--signal-blue-dark);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.operator-roofline-provenance dl {
+  margin: 10px 0 0;
+}
+
+.operator-roofline-provenance dl > div {
+  display: grid;
+  grid-template-columns: 3rem minmax(0, 1fr);
+  gap: 8px;
+  padding: 6px 0;
+}
+
+.operator-roofline-provenance dd {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+  margin: 0;
+}
+
+.operator-roofline-provenance code {
+  overflow-wrap: anywhere;
+}
+
+.operator-roofline-provenance small {
+  color: #758493;
+  overflow-wrap: anywhere;
+}
+
+.operator-roofline-action {
+  margin-top: 16px;
+}
+
+.operator-roofline-action a {
+  display: inline-flex;
+  min-height: 34px;
+  align-items: center;
+  padding: 6px 10px;
+  border: 1px solid var(--signal-blue-dark);
+  border-radius: 3px;
+  color: var(--signal-blue-dark);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
 .operator-drawer .operator-visualizer {
   margin-top: 0;
   padding: 0;

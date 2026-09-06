@@ -5,6 +5,8 @@ import type { AtlasData, ModelRecord } from "../../types/atlas";
 import { adaptProfilerEvidence } from "../profiler/domain/adaptProfilerEvidence";
 import { indexProfilerEvidence } from "../profiler/domain/indexProfilerEvidence";
 import { RooflineView } from "../roofline/components/RooflineView";
+import { Pi0RooflineOverview } from "../roofline/components/Pi0RooflineOverview";
+import { materializeCurrentPi0Roofline } from "../roofline/presentation/buildOperatorRooflineSummary";
 import {
   runtimeProfilerSlice,
   scopeRuntimeProfiler,
@@ -30,6 +32,14 @@ export function PerformanceView({ data, model, route, navigate }: PerformanceVie
   const performanceOverview = useMemo(() => model.model_id === "pi0"
     ? buildPi0PerformanceOverview({ data, hardwareId: route.hardware })
     : null, [data, model.model_id, route.hardware]);
+  const pi0Analytical = useMemo(() => model.model_id === "pi0"
+    ? materializeCurrentPi0Roofline({
+      data,
+      workloadBinding: route.workload,
+      precisionPathId: route.precision,
+      hardwareId: route.hardware,
+    })
+    : null, [data, model.model_id, route.hardware, route.precision, route.workload]);
   const selectedFacet = useMemo(() => {
     const matching = performanceOverview?.facets.filter((facet) => facet.runtimeId === route.runtime
       && facet.precisionId === route.runtimePrecision) ?? [];
@@ -90,7 +100,7 @@ export function PerformanceView({ data, model, route, navigate }: PerformanceVie
           </header>
           <Pi0RooflineLevelNavigation route={route} navigate={navigate} />
           {route.rooflineLevel === "overview" ? (
-            <p className="pi0-funnel-note">默认理论精度为 BF16。模型阶段、逻辑算子、融合算子和实测 Kernel 使用各自独立的证据口径，缺失不会补零。</p>
+            <Pi0RooflineOverview data={data} result={pi0Analytical!} navigate={navigate} />
           ) : (
             <div className="pi0-roofline-active-level">
               <RooflineView data={data} model={model} route={route} navigate={navigate} />
