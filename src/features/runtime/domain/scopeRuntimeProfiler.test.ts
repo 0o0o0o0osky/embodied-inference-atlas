@@ -376,7 +376,7 @@ it("retains an independently warmed capture with unknown workload context as par
   expect([...scoped.partialContextRunIds]).toEqual(["independent-profiler"]);
 });
 
-it("keeps the default timeline and Kernel summary on the same node capture", () => {
+it("defaults to the graph system capture and keeps node history explicitly selectable", () => {
   const graph = capture(run({ id: "graph" }), "graph");
   const node = capture(run({ id: "node" }), "node");
   const profiler: ProfilerEvidence = {
@@ -390,20 +390,20 @@ it("keeps the default timeline and Kernel summary on the same node capture", () 
   };
 
   expect(selectRuntimeProfilerCaptures(profiler, null)).toEqual({
-    timelineCaptureId: node.captureId,
-    kernelCaptureId: node.captureId,
-    requestedCaptureUnavailable: false,
-    suppressTimelineFallback: false,
-  });
-  expect(selectRuntimeProfilerCaptures(profiler, graph.captureId)).toEqual({
     timelineCaptureId: graph.captureId,
     kernelCaptureId: null,
     requestedCaptureUnavailable: false,
     suppressTimelineFallback: false,
   });
+  expect(selectRuntimeProfilerCaptures(profiler, node.captureId)).toEqual({
+    timelineCaptureId: node.captureId,
+    kernelCaptureId: node.captureId,
+    requestedCaptureUnavailable: false,
+    suppressTimelineFallback: false,
+  });
 });
 
-it("keeps node evidence missing instead of falling back to an available graph capture", () => {
+it("shows a graph-only system capture without claiming kernel evidence", () => {
   const graph = capture(run({ id: "graph-only" }), "graph");
   const profiler: ProfilerEvidence = {
     captures: [graph],
@@ -416,9 +416,9 @@ it("keeps node evidence missing instead of falling back to an available graph ca
   };
 
   expect(selectRuntimeProfilerCaptures(profiler, null)).toEqual({
-    timelineCaptureId: null,
+    timelineCaptureId: graph.captureId,
     kernelCaptureId: null,
     requestedCaptureUnavailable: false,
-    suppressTimelineFallback: true,
+    suppressTimelineFallback: false,
   });
 });

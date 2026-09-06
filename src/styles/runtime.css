@@ -1323,3 +1323,19 @@
     border-left: 0;
   }
 }
+.pi0-ncu-focus {
+  padding: 1rem 1.5rem;
+  max-width: 70rem;
+}
+.pi0-ncu-focus label { display: flex; align-items: center; gap: 1rem; font-weight: 650; }
+.pi0-ncu-focus select { max-width: 100%; min-width: 0; padding: 0.5rem; font: inherit; }
+.pi0-ncu-focus > p { color: #526679; font-size: 0.9rem; }
+.pi0-ncu-bars { display: grid; gap: 1rem; margin: 1.5rem 0; }
+.pi0-ncu-bar-row { display: grid; grid-template-columns: 19rem minmax(4rem, 1fr) 6rem; gap: 1rem; align-items: center; font-size: 0.92rem; }
+.pi0-ncu-meter { height: 0.7rem; background: #edf2f7; border-radius: 4px; overflow: hidden; }
+.pi0-ncu-meter i { display: block; height: 100%; background: #15899a; }
+@media (max-width: 700px) {
+  .pi0-ncu-focus label { align-items: stretch; flex-direction: column; }
+  .pi0-ncu-bar-row { grid-template-columns: minmax(0, 1fr) 6rem; }
+  .pi0-ncu-bar-row > span { grid-column: 1 / -1; }
+}

@@ -2,6 +2,39 @@
   padding-top: 1rem;
 }
 
+.timeline-viewport-tools {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  color: #587187;
+  border-bottom: 1px solid #dbe5ee;
+  font-size: 0.85rem;
+}
+.timeline-viewport-tools > span { margin-right: auto; }
+.timeline-viewport-tools button {
+  border: 1px solid #c5d5e3;
+  border-radius: 7px;
+  background: #fff;
+  color: #25475f;
+  padding: 0.35rem 0.7rem;
+  cursor: pointer;
+}
+.timeline-viewport-tools output { min-width: 3rem; text-align: center; }
+.pi0-nsys-instrument .timeline-viewport-tools { color: #bdd4df; border-color: #34535d; }
+.pi0-nsys-instrument .timeline-ruler-row text { font-size: 13px; }
+.timeline-pan-surface svg { cursor: grab; touch-action: none; user-select: none; }
+.timeline-pan-surface svg:active { cursor: grabbing; }
+.timeline-capture-archive {
+  margin: 0.8rem 0;
+  padding: 0.65rem 0.8rem;
+  color: #587187;
+  font-size: 0.85rem;
+}
+.timeline-capture-archive summary { cursor: pointer; }
+.timeline-capture-archive label { display: flex; align-items: center; gap: 1rem; margin-top: 1rem; }
+.timeline-capture-archive select { padding: 0.5rem; border: 1px solid #c5d5e3; border-radius: 7px; background: #fff; }
+
 .timeline-intro {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;

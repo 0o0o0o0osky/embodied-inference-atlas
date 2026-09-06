@@ -37,7 +37,19 @@ export function Pi0KernelSection({ view: model, realization, partialContextRunId
 
   return (
     <section className="pi0-funnel-section pi0-kernel-section" aria-labelledby="pi0-kernel-title">
-      <header className="pi0-funnel-heading"><h3 id="pi0-kernel-title">Kernel 与实现</h3><button className="pi0-funnel-detail" type="button" onClick={onOpenDetails}>Kernel / Roofline 详情</button></header>
+      <header className="pi0-funnel-heading"><h3 id="pi0-kernel-title">融合实现与 Kernel 性能</h3><button className="pi0-funnel-detail" type="button" onClick={onOpenDetails}>查看 Roofline</button></header>
+      <div className="pi0-implementation-summary">
+        <p>{mappings.length
+          ? `已审计 ${groups.length} 个执行组，${fusedGroupIds.size} 个融合组。`
+          : "当前推理栈尚未建立算子实现映射。"} {ncu.length ? `有 ${ncu.length} 条 NCU 单次回放记录。` : "尚无 NCU 实测。"}</p>
+        <div className="pi0-funnel-controls">
+          {activeRealization ? <button className="pi0-funnel-detail" type="button" aria-expanded={dagOpen} onClick={onOpenDag}>{dagOpen ? "收起融合实现图" : "查看融合实现图"}</button> : null}
+          {onOpenNcuContext ? <button className="pi0-funnel-detail" type="button" onClick={onOpenNcuContext}>分析 NCU 指标</button> : null}
+        </div>
+        <p className="pi0-funnel-note">从执行组看融合与精度，从 NCU 看计算、访存与停顿；当前源码映射与实测 Kernel 尚未精确关联。</p>
+      </div>
+      <details className="pi0-runtime-mapping-disclosure">
+        <summary>采集依据与实现摘要</summary>
       <div className="pi0-profiler-context-ledger is-single" aria-label="NCU 采集关系">
         <p>
           <span>NCU replay</span>
@@ -54,6 +66,8 @@ export function Pi0KernelSection({ view: model, realization, partialContextRunId
             : null}
         </p>
       </div>
+      <details className="pi0-runtime-mapping-disclosure">
+        <summary>历史侵入式节点采集 · Kernel 调用统计</summary>
       {hotspots.length ? <>
         <p className="pi0-funnel-note">同一节点 trace 的 Nsys aggregate 累计时长 Top 3；占比以该 capture 已记录 Kernel 累计时长为分母。</p>
         <div className="pi0-funnel-table-wrap"><table className="pi0-kernel-hotspots" aria-label="Nsys Kernel 热点">
@@ -65,8 +79,6 @@ export function Pi0KernelSection({ view: model, realization, partialContextRunId
           </tr>)}</tbody>
         </table></div>
       </> : <p className="pi0-funnel-empty">当前选择暂无节点 trace 的 Kernel 热点。</p>}
-      <details className="pi0-runtime-mapping-disclosure">
-        <summary>展开 Kernel 摘要</summary>
         {hotspots.length ? <div className="pi0-funnel-table-wrap"><table className="pi0-kernel-hotspots" aria-label="Kernel 调用与 NCU 状态">
           <thead><tr><th scope="col">Kernel 签名</th><th scope="col">调用数</th><th scope="col">NCU 状态</th></tr></thead>
           <tbody>{hotspots.map((row) => <tr key={row.observation.observationId}>
@@ -75,6 +87,7 @@ export function Pi0KernelSection({ view: model, realization, partialContextRunId
             <td>{ncu.some((replay) => replay.signature.kernelSignatureId === row.signature.kernelSignatureId) ? "独立 replay" : "未采集"}</td>
           </tr>)}</tbody>
         </table></div> : null}
+      </details>
         <dl className="pi0-kernel-status">
           <div><dt>NCU</dt><dd>{ncu.length ? `${ncu.length} 条独立单 launch replay` : "未采集"}</dd></div>
           <div><dt>Kernel Roofline</dt><dd>{hasScopedEvidence && model.inventory.rooflineEligibleKernelPoints > 0 ? `${model.inventory.rooflineEligibleKernelPoints} 个证据点，口径见详情` : "未建立"}</dd></div>
@@ -88,7 +101,6 @@ export function Pi0KernelSection({ view: model, realization, partialContextRunId
             <p><strong>精度与量化</strong> {paths.length ? paths.map((path) => pi0PrecisionLabel(path.precisionPathId, path.label)).join("；") : "当前源码映射未建立精度路径"}。</p>
             <p className="pi0-funnel-note">以上仅对应当前实现的源码审计映射，不将 Kernel 热点关联到逻辑算子。</p>
           </> : <p>当前选择暂无源码审计实现映射。</p>}
-          {activeRealization ? <button className="pi0-funnel-detail" type="button" aria-expanded={dagOpen} onClick={onOpenDag}>{dagOpen ? "关闭完整实现图" : "查看完整实现图"}</button> : null}
         </div>
       </details>
     </section>

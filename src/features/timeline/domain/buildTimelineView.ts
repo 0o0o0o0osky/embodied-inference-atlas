@@ -57,7 +57,6 @@ export interface TimelineViewModel {
   } | null;
 }
 
-const ENCODER_LARGE_GEMM = "kernel-signature-pi0-encoder-large-gemm";
 
 function captureLabel(capture: ProfilerCapture): string {
   if (capture.nsys?.reportMode === "node") return "Intrusive node trace";
@@ -130,19 +129,14 @@ export function buildTimelineView(
     }];
   }).sort((left, right) => {
     const rank = (item: TimelineCaptureOption) => item.capture.nsys?.reportMode === "node"
-      ? 0
-      : item.capture.nsys?.schedulerScope === "system_wide" ? 2 : 1;
+      ? 2
+      : item.capture.nsys?.schedulerScope === "system_wide" ? 1 : 0;
     return rank(left) - rank(right) || left.capture.captureId.localeCompare(right.capture.captureId);
   });
   const requested = query.captureId
     ? options.find((option) => option.capture.captureId === query.captureId) ?? null
     : null;
-  const preferredNode = options.find((option) =>
-    option.run.model_id === "pi0"
-    && option.run.runtime_id === "flashrt"
-    && option.capture.nsys?.reportMode === "node",
-  ) ?? null;
-  const active = requested ?? preferredNode ?? options[0] ?? null;
+  const active = requested ?? options.find((option) => option.capture.nsys?.reportMode === "graph") ?? null;
   if (!active) {
     const filters = [query.runtimeId ? `runtime ${query.runtimeId}` : null, query.hardwareId ? `hardware ${query.hardwareId}` : null]
       .filter((value): value is string => value !== null)
@@ -183,10 +177,6 @@ export function buildTimelineView(
       selectedEvent = firstEventForSignature(timeline, observation.kernelSignatureId);
     }
   }
-  selectedEvent ??= firstEventForSignature(timeline, ENCODER_LARGE_GEMM)
-    ?? timeline.events.find((event) => event.eventKind !== "scheduler")
-    ?? timeline.events[0]
-    ?? null;
   const signatureId = selectedObservation?.kernelSignatureId ?? selectedEvent?.kernelSignatureId ?? null;
   const selectedSignature = signatureId ? index.signatureById.get(signatureId) ?? null : null;
   if (!selectedObservation && signatureId) {

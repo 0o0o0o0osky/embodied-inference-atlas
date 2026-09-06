@@ -89,12 +89,15 @@ export function PerformanceView({ data, model, route, navigate }: PerformanceVie
     entity: route.entity,
   }), [kernelScope, index, model.model_id, route.entity, route.hardware, route.runtime]);
   const inventory = view.inventory;
+  const profilerSection = <Pi0ProfilerEvidenceSection model={view} partialContextRunIds={partialContextRunIds}
+    anchorRunId={slice.anchorRunId} independentNcu={independentNcu} route={route} navigate={navigate} />;
 
   if (model.model_id === "pi0") {
     return (
       <div className="performance-workspace performance-workspace--pi0">
         <Pi0PerformanceNavigation route={route} navigate={navigate}
           surface={route.rooflineLevel === "kernel" ? "kernel" : "roofline"} />
+        {route.rooflineLevel === "kernel" ? profilerSection : null}
         <section className="pi0-funnel-section pi0-roofline-summary" aria-labelledby="pi0-roofline-title">
           <header className="pi0-funnel-heading">
             <div><h3 id="pi0-roofline-title">理论 Roofline</h3><p>先选分析层级，再看对应上限；理论、融合实现与实测 Kernel 不混算。</p></div>
@@ -102,15 +105,16 @@ export function PerformanceView({ data, model, route, navigate }: PerformanceVie
           <Pi0RooflineLevelNavigation route={route} navigate={navigate} />
           {route.rooflineLevel === "overview" ? (
             <Pi0RooflineOverview data={data} result={pi0Analytical!} navigate={navigate} />
+          ) : route.rooflineLevel === "kernel" && inventory.rooflineEligibleKernelPoints === 0 ? (
+            <p className="pi0-funnel-note">尚无满足计算量、内存流量与实测时长关联要求的 Kernel Roofline 点。上方 NCU 指标可独立查看；逻辑算子与融合算子的理论分析可在对应标签中打开。</p>
           ) : (
             <div className="pi0-roofline-active-level">
               <RooflineView data={data} model={model} route={route} navigate={navigate} />
             </div>
           )}
         </section>
-        {route.runtime || route.rooflineLevel !== "overview" ? (
-          <Pi0ProfilerEvidenceSection model={view} partialContextRunIds={partialContextRunIds}
-            anchorRunId={slice.anchorRunId} independentNcu={independentNcu} route={route} navigate={navigate} />
+        {route.rooflineLevel !== "kernel" && (route.runtime || route.rooflineLevel !== "overview") ? (
+          profilerSection
         ) : null}
       </div>
     );

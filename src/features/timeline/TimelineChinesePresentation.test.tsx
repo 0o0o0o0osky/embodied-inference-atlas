@@ -32,6 +32,8 @@ it("keeps the Pi0 Nsys detail focused on a localized timeline and folds evidence
   expect(markup).toContain("已记录时间线");
   expect(markup).toContain("空白为未观测区间，不代表空闲。");
   expect(markup).not.toContain("Prediction timing instrument");
-  expect(markup).toContain('<details class="timeline-capture-details">');
+  expect(markup).toContain('<details class="timeline-capture-archive">');
+  expect(markup).not.toContain('type="range"');
+  expect(markup).not.toContain('timeline-replay');
   expect(markup).toContain('<details class="timeline-summary timeline-summary--disclosure">');
 });

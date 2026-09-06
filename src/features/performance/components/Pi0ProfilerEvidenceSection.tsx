@@ -1,9 +1,10 @@
 import type { RoutePatch, RouteState } from "../../../app/routes";
+import type { ProfilerMetricName } from "../../profiler/domain/types";
 import type { IndependentNcuReplayEvidence } from "../../runtime/domain/scopeRuntimeProfiler";
 import { kernelEntity } from "../../workbench/entityKeys";
 import type { KernelRow, KernelRowsModel } from "../domain/buildKernelRows";
 import { KernelInspector } from "./KernelInspector";
-import { KernelTable, formatDuration } from "./KernelTable";
+import { KernelTable, formatDuration, formatMetric, preferredProfilerMetric, TENSOR_ACTIVE_METRIC_NAMES } from "./KernelTable";
 
 interface Pi0ProfilerEvidenceSectionProps {
   model: KernelRowsModel;
@@ -26,15 +27,45 @@ export function Pi0ProfilerEvidenceSection({ model, partialContextRunIds, anchor
   const firstIndependentNcu = independentNcuRows[0] ?? null;
   const selectedIndependentNcu = independentNcuRows.find((row) =>
     route.entity === kernelEntity(row.capture.captureId, row.observation.observationId)) ?? null;
+  const activeNcu = ncuRows.find((row) =>
+    route.entity === kernelEntity(row.capture.captureId, row.observation.observationId)) ?? ncuRows[0] ?? null;
 
   return (
     <section className="pi0-funnel-section pi0-profiler-section" aria-labelledby="pi0-profiler-title">
       <header className="pi0-funnel-heading">
         <div>
-          <h3 id="pi0-profiler-title">Kernel 观测</h3>
-          <p>先看同一份 Nsys node capture 的累计热点；NCU replay 与理论 Roofline 保持独立口径。</p>
+          <h3 id="pi0-profiler-title">NCU · Kernel 性能</h3>
+          <p>选择一个实测 Kernel，查看计算与缓存指标；融合实现与理论上限按各自口径分析。</p>
         </div>
       </header>
+      {activeNcu ? <section className="pi0-ncu-focus">
+        <label>实测 Kernel
+          <select value={activeNcu.observation.observationId} onChange={(event) => {
+            const row = ncuRows.find((candidate) => candidate.observation.observationId === event.target.value);
+            if (row) navigate({ entity: kernelEntity(row.capture.captureId, row.observation.observationId), rooflineLevel: "kernel", basis: null }, true);
+          }}>
+            {ncuRows.map((row, index) => <option key={row.observation.observationId} value={row.observation.observationId}>{row.signature.labelSanitized} · 回放 {index + 1}</option>)}
+          </select>
+        </label>
+        <p>单次回放 {formatDuration(activeNcu.observation.duration.valueNs)} · {ncuRows.length} 条可选记录</p>
+        <div className="pi0-ncu-bars">
+          {NCU_SUMMARY_METRICS.map(([label, name]) => {
+            const isTensor = name === "tensor_cycles_active_pct_of_peak_sustained_active";
+            const metric = isTensor ? preferredProfilerMetric(activeNcu.metrics, TENSOR_ACTIVE_METRIC_NAMES) : activeNcu.metrics.get(name);
+            const metricLabel = isTensor && metric?.metricName === "tensor_cycles_active_pct_of_peak_sustained_elapsed"
+              ? "Tensor 活跃 / sustained elapsed" : label;
+            const value = metric?.value;
+            return <div key={name} className="pi0-ncu-bar-row">
+              <span>{metricLabel}</span>
+              <div className="pi0-ncu-meter">{value != null ? <i style={{ width: `${Math.min(100, Math.max(0, value))}%` }} /> : null}</div>
+              <strong>{metric && value != null ? formatMetric(metric) : "未采集"}</strong>
+            </div>;
+          })}
+        </div>
+        <p className="pi0-funnel-note">指标分母采用各自 counter 定义；L2 吞吐不代表 LPDDR 带宽。融合组归属及完整内存流量尚缺，暂不能计算 Kernel 与理论上限的差距。</p>
+      </section> : <p className="pi0-funnel-empty">当前推理栈尚无 NCU 实测。</p>}
+      <details className="pi0-runtime-mapping-disclosure">
+        <summary>采集上下文与历史节点统计</summary>
       <dl className="pi0-kernel-status" aria-label="当前 Profiler 摘要">
         <SummaryMetric label="观测" value={inventory.observations.toLocaleString("zh-CN")} />
         <SummaryMetric label="NCU replay" value={inventory.ncuReplays.toLocaleString("zh-CN")} />
@@ -98,13 +129,13 @@ export function Pi0ProfilerEvidenceSection({ model, partialContextRunIds, anchor
         )}
         <p className="pi0-funnel-note">这里的排序只描述已记录 Kernel 累计时长，不据此判定计算、访存或 scoreboard 瓶颈。</p>
       </section>
+      </details>
 
       <details key={selectedIndependentNcu?.observation.observationId ?? "profiler-evidence"}
-        open={selectedIndependentNcu !== null ? true : undefined}
         className="pi0-profiler-evidence-disclosure pi0-runtime-mapping-disclosure">
         <summary>
           <span>完整 Profiler 证据</span>
-          <small>Capture 库存、13 列 KernelTable、NCU counter 与证据缺口</small>
+          <small>完整计数器与来源</small>
         </summary>
         <div className="pi0-profiler-evidence-body">
           <section className="pi0-profiler-inventory-section" aria-labelledby="pi0-profiler-inventory-title">
@@ -149,6 +180,13 @@ export function Pi0ProfilerEvidenceSection({ model, partialContextRunIds, anchor
     </section>
   );
 }
+
+const NCU_SUMMARY_METRICS: readonly [string, ProfilerMetricName][] = [
+  ["SM 吞吐 / sustained elapsed", "sm_throughput_pct_of_peak_sustained_elapsed"],
+  ["Tensor 活跃 / sustained active", "tensor_cycles_active_pct_of_peak_sustained_active"],
+  ["L2 吞吐 / sustained elapsed", "l2_throughput_pct_of_peak_sustained_elapsed"],
+  ["实际 Occupancy", "achieved_occupancy_percent"],
+];
 
 function topKernelAggregates(rows: readonly KernelRow[]) {
   const aggregates = rows.filter((row) =>

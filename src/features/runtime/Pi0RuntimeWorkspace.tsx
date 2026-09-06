@@ -127,9 +127,7 @@ export function Pi0RuntimeWorkspace({ data, model, record, route, navigate }: Pi
   const profilerCaptureSelection = useMemo(() =>
     selectRuntimeProfilerCaptures(scopedProfiler, route.timelineCapture), [scopedProfiler, route.timelineCapture]);
   const nsys = useMemo(() => {
-    const timelineProfiler = profilerCaptureSelection.suppressTimelineFallback
-      ? { ...scopedProfiler, captures: scopedProfiler.captures.filter((capture) => capture.tool !== "nsys") }
-      : scopedProfiler;
+    const timelineProfiler = scopedProfiler;
     const view = buildTimelineView(scopedData, timelineProfiler, profilerIndex, {
       modelId: model.model_id, runtimeId: route.runtime, hardwareId: route.hardware,
       captureId: profilerCaptureSelection.timelineCaptureId, entity: route.entity,

@@ -45,7 +45,7 @@ export function TimelineTracks({
       events: eventsByLane.get(lane.laneId) ?? [],
       missing: null,
     }));
-  if (timeline.missing.gpu_kernel_lane && !timeline.lanes.some((lane) => lane.kind === "gpu_kernel")) {
+  if (!zh && timeline.missing.gpu_kernel_lane && !timeline.lanes.some((lane) => lane.kind === "gpu_kernel")) {
     const copyIndex = rows.findIndex((row) => row.lane?.kind === "gpu_memcpy");
     rows.splice(copyIndex < 0 ? rows.length : copyIndex, 0, {
       id: "missing-gpu-kernel-lane",

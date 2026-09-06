@@ -99,8 +99,10 @@ export function selectRuntimeProfilerCaptures(profiler: ProfilerEvidence, reques
   const captures = profiler.captures.filter((capture) =>
     capture.tool === "nsys" && timelineCaptureIds.has(capture.captureId));
   const requested = captures.find((capture) => capture.captureId === requestedCaptureId) ?? null;
-  const node = captures.find((capture) => capture.nsys?.reportMode === "node") ?? null;
-  const timeline = requested ?? node;
+  const graph = captures.find((capture) => capture.nsys?.reportMode === "graph"
+    && capture.nsys?.schedulerScope !== "system_wide")
+    ?? captures.find((capture) => capture.nsys?.reportMode === "graph") ?? null;
+  const timeline = requested ?? graph;
   return {
     timelineCaptureId: timeline?.captureId ?? null,
     kernelCaptureId: timeline?.nsys?.reportMode === "node" ? timeline.captureId : null,

@@ -9,14 +9,14 @@ const PI0_PRECISION_LABELS: Readonly<Record<string, string>> = {
   "mixed-fp8-e4m3-fp16": "选择性 FP8 E4M3 / FP16",
   "flashrt-fp16-control": "FP16 控制路径（组内）",
   "mixed-bf16-fp32": "BF16 / FP32 混合执行",
-  "q8_0-weight-only": "Q8_0 仅权重量化 / FP16 执行（非 INT8 计算）",
+  "q8_0-weight-only": "Q8_0 仅权重量化 / FP32 激活",
 };
 
 const PI0_SHORT_PRECISION_LABELS: Readonly<Record<string, string>> = {
   "mixed-fp8-e4m3-fp16": "FP8/FP16",
   "flashrt-fp16-control": "FP16",
   "mixed-bf16-fp32": "BF16/FP32",
-  "q8_0-weight-only": "Q8_0 权重/FP16",
+  "q8_0-weight-only": "Q8_0 权重/FP32",
 };
 
 const PI0_GROUP_LABELS: Readonly<Record<string, string>> = {

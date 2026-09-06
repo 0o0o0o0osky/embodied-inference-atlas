@@ -35,18 +35,14 @@ it("keeps the Pi0 profiler overview concise while retaining evidence in disclosu
     onOpenDag={() => undefined}
   />);
 
-  const nsysDisclosure = nsysMarkup.match(/<details[\s\S]*?<\/details>/)?.[0] ?? "";
-  expect(nsysMarkup.slice(0, nsysMarkup.indexOf("<details"))).toContain("预测窗口");
-  expect(nsysDisclosure).toContain("展开 Nsys 摘要");
-  expect(nsysDisclosure).toContain("CPU 调度核时");
+  expect(nsysMarkup).toContain("预测窗口");
+  expect(nsysMarkup).toContain("CPU 调度核时");
 
-  const primaryKernelTable = kernelMarkup.match(/<table[\s\S]*?<\/table>/)?.[0] ?? "";
-  expect(primaryKernelTable).not.toContain("调用数");
-  expect(primaryKernelTable).not.toContain("NCU 状态");
-  expect(primaryKernelTable.match(/<tr/g)).toHaveLength(4);
-  const kernelDisclosure = kernelMarkup.match(/<details[\s\S]*?<\/details>/)?.[0] ?? "";
-  expect(kernelDisclosure).toContain("展开 Kernel 摘要");
+  const primary = kernelMarkup.slice(0, kernelMarkup.indexOf("<details"));
+  expect(primary).not.toContain("<table");
+  expect(primary).toContain("查看融合实现图");
+  const kernelDisclosure = kernelMarkup.slice(kernelMarkup.indexOf("<details"));
+  expect(kernelDisclosure).toContain("历史侵入式节点采集");
   expect(kernelDisclosure).toContain("调用数");
   expect(kernelDisclosure).toContain("精度与量化");
-  expect(kernelDisclosure).toContain("查看完整实现图");
 });

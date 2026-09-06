@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 
 import type { RoutePatch, RouteState } from "../../app/routes";
 import type { AtlasData, ModelRecord } from "../../types/atlas";
@@ -7,7 +7,7 @@ import { indexProfilerEvidence } from "../profiler/domain/indexProfilerEvidence"
 import { timelineEventEntity } from "../workbench/entityKeys";
 import { TimelineInspector } from "./components/TimelineInspector";
 import { TimelineToolbar } from "./components/TimelineToolbar";
-import { TimelineTracks } from "./components/TimelineTracks";
+import { TimelineViewport } from "./components/TimelineViewport";
 import { buildTimelineView } from "./domain/buildTimelineView";
 import { Pi0PerformanceNavigation } from "../runtime/components/Pi0PerformanceNavigation";
 import { buildPi0PerformanceOverview } from "../runtime/domain/buildPi0PerformanceOverview";
@@ -49,9 +49,7 @@ export function TimelineView({ data, model, route, navigate }: TimelineViewProps
   const captureSelection = useMemo(() => isPi0
     ? selectRuntimeProfilerCaptures(evidence, route.timelineCapture)
     : null, [evidence, isPi0, route.timelineCapture]);
-  const timelineEvidence = useMemo(() => captureSelection?.suppressTimelineFallback
-    ? { ...evidence, captures: evidence.captures.filter((capture) => capture.tool !== "nsys") }
-    : evidence, [captureSelection, evidence]);
+  const timelineEvidence = evidence;
   const index = useMemo(() => indexProfilerEvidence(timelineEvidence), [timelineEvidence]);
   const view = useMemo(() => buildTimelineView(scope.data, timelineEvidence, index, {
     modelId: model.model_id,
@@ -60,14 +58,6 @@ export function TimelineView({ data, model, route, navigate }: TimelineViewProps
     captureId: captureSelection?.timelineCaptureId ?? route.timelineCapture,
     entity: route.entity,
   }), [scope.data, timelineEvidence, index, model.model_id, route.entity, route.hardware, route.runtime, route.timelineCapture, captureSelection]);
-  const [zoom, setZoom] = useState(1);
-  const [panPercent, setPanPercent] = useState(0);
-  const captureId = view.active?.capture.captureId ?? null;
-
-  useEffect(() => {
-    setZoom(1);
-    setPanPercent(0);
-  }, [captureId]);
 
   if (!view.active) {
     return (
@@ -80,6 +70,11 @@ export function TimelineView({ data, model, route, navigate }: TimelineViewProps
           <strong>{isPi0
             ? "不会借用其他推理栈或模型的 capture、区间或 CPU / GPU 数据。"
             : "No capture, interval, or CPU/GPU arithmetic is borrowed from another runtime or model."}</strong>
+          {captureSelection?.suppressTimelineFallback && evidence.captures.some((capture) => capture.tool === "nsys") ? <details>
+            <summary>历史采集 · 非默认系统基线</summary>
+            {evidence.captures.filter((capture) => capture.tool === "nsys").map((capture) => <button type="button" key={capture.captureId}
+              onClick={() => navigate({ timelineCapture: capture.captureId, entity: null })}>查看历史节点追踪（较高侵入）</button>)}
+          </details> : null}
         </section>
       </>
     );
@@ -87,15 +82,10 @@ export function TimelineView({ data, model, route, navigate }: TimelineViewProps
 
   const timeline = view.active.timeline;
   const partialCaptureContext = isPi0 && scope.partialContextRunIds.has(view.active.run.run_id);
-  const windowDurationNs = timeline.window.durationNs / zoom;
-  const maximumStart = timeline.window.durationNs - windowDurationNs;
-  const windowStartNs = timeline.window.startNs + maximumStart * (panPercent / 100);
   const tracks = (
-    <TimelineTracks
+    <TimelineViewport
       locale={isPi0 ? "zh" : "en"}
       timeline={timeline}
-      windowStartNs={windowStartNs}
-      windowDurationNs={windowDurationNs}
       selectedEventId={view.selectedEvent?.eventId ?? null}
       onSelect={(event) => navigate({ entity: timelineEventEntity(timeline.timelineId, event.eventId) }, true)}
     />
@@ -135,17 +125,7 @@ export function TimelineView({ data, model, route, navigate }: TimelineViewProps
 
       <TimelineToolbar
         view={view}
-        locale={isPi0 ? "zh" : "en"}
-        zoom={zoom}
-        panPercent={panPercent}
-        windowStartNs={windowStartNs}
-        windowDurationNs={windowDurationNs}
         onCapture={(nextCaptureId) => navigate({ timelineCapture: nextCaptureId, entity: null })}
-        onZoom={(nextZoom) => {
-          setZoom(nextZoom);
-          setPanPercent(nextZoom === 1 ? 0 : panPercent);
-        }}
-        onPan={setPanPercent}
       />
 
       <div className={`timeline-analysis-grid ${isPi0 ? "is-pi0" : ""}`}>
@@ -155,7 +135,7 @@ export function TimelineView({ data, model, route, navigate }: TimelineViewProps
             <div className="timeline-secondary-grid">
               <details className="timeline-inspector-disclosure">
                 <summary>
-                  <span><strong>区间与 Kernel 详情</strong><small>当前选中区间、Nsys 聚合与匹配的 NCU 重放</small></span>
+                  <span><strong>系统区间详情</strong><small>CPU、CUDA 与 GPU 活动的时间位置</small></span>
                   <b>展开</b>
                 </summary>
                 <TimelineInspector view={view} route={route} navigate={navigate} locale="zh" />
@@ -210,14 +190,6 @@ function TimelineSummary({
           <div><dt>{zh ? "已观测调度容量占比" : "Observed scheduled capacity share"}</dt><dd>{formatOptionalSummary(summary("non_profiler_scheduled_capacity_share_during_graph_spans"), "percent", locale)}</dd><small>{zh ? "Graph 包络内相对 14 核容量" : "of 14-core capacity during graph spans"}</small></div>
         </> : null}
       </dl>
-      {view.kernelCoverage ? (
-        <p className="timeline-coverage-note">
-          <strong>{view.kernelCoverage.classifiedLaunches.toLocaleString()} / {view.kernelCoverage.totalLaunches.toLocaleString()} {zh ? "次 Kernel launch 已分类" : "kernel launches classified"}</strong>
-          <span>{zh
-            ? `已分类 ${formatDuration(view.kernelCoverage.classifiedDurationNs)}（时长占比 ${((view.kernelCoverage.classifiedDurationNs / view.kernelCoverage.totalDurationNs) * 100).toFixed(2)}%）；仍有 ${view.kernelCoverage.unclassifiedLaunches.toLocaleString()} 次 / ${formatDuration(view.kernelCoverage.unclassifiedDurationNs)} 未分类。`
-            : `${formatDuration(view.kernelCoverage.classifiedDurationNs)} classified (${((view.kernelCoverage.classifiedDurationNs / view.kernelCoverage.totalDurationNs) * 100).toFixed(2)}% duration); ${view.kernelCoverage.unclassifiedLaunches.toLocaleString()} launches / ${formatDuration(view.kernelCoverage.unclassifiedDurationNs)} remain unclassified.`}</span>
-        </p>
-      ) : null}
     </>
   );
 
