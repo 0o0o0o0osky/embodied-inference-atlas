@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import type { RoutePatch, RouteState } from "../../app/routes";
 import type { AtlasData, CanonicalRecord, ModelRecord } from "../../types/atlas";
 import { adaptV1ModelGraph } from "../model-graph/domain/adaptV1ModelGraph";
@@ -13,7 +13,10 @@ import { Pi0ImplementationDagSection } from "./components/Pi0ImplementationDagSe
 import { Pi0KernelSection } from "./components/Pi0KernelSection";
 import { Pi0NsysSection } from "./components/Pi0NsysSection";
 import { Pi0PerformanceNavigation } from "./components/Pi0PerformanceNavigation";
-import { Pi0PerformanceOverviewChart } from "./components/Pi0PerformanceOverviewChart";
+import {
+  Pi0PerformanceOverviewChart,
+  type Pi0RoutablePerformanceSelection,
+} from "./components/Pi0PerformanceOverviewChart";
 import { Pi0SelectedRuntimeSummary } from "./components/Pi0SelectedRuntimeSummary";
 import { pi0PrecisionLabel } from "./components/runtimePresentation";
 import { adaptRuntimeRealization, isRuntimeRealizationRecord } from "./domain/adaptRuntimeRealization";
@@ -150,44 +153,67 @@ export function Pi0RuntimeWorkspace({ data, model, record, route, navigate }: Pi
   const precisionFallback = summaries.find((item) => item.runtimeId === route.runtime)?.actualPrecisions
     .find((precision) => precision.id === actualPrecision)?.label ?? actualPrecision ?? "未记录";
   const precisionLabel = pi0PrecisionLabel(actualPrecision ?? "unknown", precisionFallback);
+  const selectedTargetMeasurement = useMemo(() => performanceOverview.facets
+    .flatMap((facet) => facet.series.flatMap((series) => series.cells.flatMap((cell) =>
+      cell.state === "measured" ? [cell.selection] : [],
+    )))
+    .find((selection) => selection.configurationId === route.workload
+      && selection.runtimeId === route.runtime
+      && selection.precisionId === actualPrecision
+      && selection.hardwareId === route.hardware) ?? null,
+  [actualPrecision, performanceOverview.facets, route.hardware, route.runtime, route.workload]);
+  const selectedNativeEvidence = useMemo(() => performanceOverview.facets
+    .flatMap((facet) => facet.nativeEvidenceSelection ? [facet.nativeEvidenceSelection] : [])
+    .find((selection) => selection.configurationId === route.workload
+      && selection.runtimeId === route.runtime
+      && selection.precisionId === actualPrecision
+      && selection.hardwareId === route.hardware) ?? null,
+  [actualPrecision, performanceOverview.facets, route.hardware, route.runtime, route.workload]);
   const selectedWorkload = selectedRun?.workload.vla ?? {
     camera_views: overrides.V ?? 2,
     executed_prompt_tokens: overrides.L_PROMPT ?? 48,
     action_chunk: overrides.T_ACTION ?? 50,
     denoise_steps: overrides.N_DENOISE ?? 10,
   };
+  const selectedWorkloadIncomplete = selectedRun !== null && [
+    selectedWorkload.camera_views,
+    selectedWorkload.executed_prompt_tokens,
+    selectedWorkload.action_chunk,
+    selectedWorkload.denoise_steps,
+  ].some((item) => item === null);
+  const workloadStatus = selectedTargetMeasurement
+    ? "complete"
+    : selectedNativeEvidence?.workloadStatus
+      ?? (selectedWorkloadIncomplete ? "partial" : "complete");
+  const selectionKind = selectedTargetMeasurement
+    ? "target_measurement"
+    : selectedRun
+      ? "native_evidence"
+      : "symbolic_target";
+  const openPerformanceEvidence = useCallback((selection: Pi0RoutablePerformanceSelection) => navigate({
+    runtime: selection.runtimeId,
+    runtimePrecision: selection.precisionId,
+    runtimeFacet: selection.facetId,
+    hardware: selection.hardwareId,
+    workload: selection.configurationId,
+    entity: null,
+    timelineCapture: null,
+    basis: null,
+    rooflineLevel: "overview",
+  }), [navigate]);
 
   return (
     <section className="model-graph-workspace pi0-workspace pi0-runtime-workspace" aria-labelledby="pi0-runtime-title">
       <h2 id="pi0-runtime-title" className="visually-hidden">Pi0 性能对比</h2>
       <Pi0PerformanceNavigation route={route} navigate={navigate} surface="runtime" />
       {!route.runtime ? <Pi0PerformanceOverviewChart model={performanceOverview} selectedRunId={null}
-        onSelectPoint={(selection) => navigate({
-          runtime: selection.runtimeId,
-          runtimePrecision: selection.precisionId,
-          runtimeFacet: selection.facetId,
-          hardware: selection.hardwareId,
-          workload: selection.configurationId,
-          entity: null,
-          timelineCapture: null,
-          basis: null,
-          rooflineLevel: "overview",
-        })}
-        onSelectFacet={(selection) => navigate({
-          runtime: selection.runtimeId,
-          runtimePrecision: selection.precisionId,
-          runtimeFacet: selection.facetId,
-          hardware: selection.hardwareId,
-          workload: PI0_TARGET_WORKLOAD,
-          entity: null,
-          timelineCapture: null,
-          basis: null,
-          rooflineLevel: "overview",
-        })} /> : <Pi0SelectedRuntimeSummary
+        onSelectEvidence={openPerformanceEvidence} /> : <Pi0SelectedRuntimeSummary
           runtimeLabel={runtimeLabel}
           precisionLabel={precisionLabel}
           latency={selectedEvidence?.selected ?? null}
           workload={selectedWorkload}
+          workloadStatus={workloadStatus}
+          selectionKind={selectionKind}
         />}
       {route.runtime ? <><Pi0NsysSection view={nsys}
         onCaptureChange={(timelineCapture) => navigate({ ...scopePatch, timelineCapture, entity: null })}

@@ -1,6 +1,7 @@
 import type { KeyboardEvent } from "react";
 
 import type {
+  Pi0NativeEvidenceSelection,
   Pi0PerformanceCell,
   Pi0PerformanceFacet,
   Pi0PerformanceMeasuredCell,
@@ -10,17 +11,15 @@ import type {
 } from "../domain/buildPi0PerformanceOverview";
 import "./pi0PerformanceOverviewChart.css";
 
+export type Pi0RoutablePerformanceSelection =
+  | Pi0PerformanceSelection
+  | Pi0NativeEvidenceSelection;
+
 export interface Pi0PerformanceOverviewChartProps {
   model: Pi0PerformanceOverviewModel;
   selectedRunId: string | null;
-  onSelectPoint: (selection: Pi0PerformanceSelection) => void;
-  onSelectFacet: (selection: Pick<Pi0PerformanceSelection, "facetId" | "runtimeId" | "precisionId" | "hardwareId">) => void;
+  onSelectEvidence: (selection: Pi0RoutablePerformanceSelection) => void;
 }
-
-const SERIES_COLOR: Readonly<Record<number, string>> = {
-  20: "#0E8EA0",
-  50: "#D85B2B",
-};
 
 const CONTRACT_LABELS: Readonly<Record<string, string>> = {
   "deterministic-preprocessed-observation": "确定性预处理观测",
@@ -53,13 +52,12 @@ const STATISTIC_LABELS: Readonly<Record<string, string>> = {
 };
 
 const WIDTH = 600;
-const HEIGHT = 286;
-const PLOT_LEFT = 70;
+const HEIGHT = 166;
+const PLOT_LEFT = 68;
 const PLOT_RIGHT = 574;
-const PLOT_TOP = 38;
-const PLOT_BOTTOM = 170;
+const PLOT_TOP = 34;
+const PLOT_BOTTOM = 120;
 const VIEW_X = [176, 350, 524] as const;
-const PENDING_Y: Readonly<Record<number, number>> = { 20: 226, 50: 256 };
 
 function label(value: string): string {
   return CONTRACT_LABELS[value] ?? value.replaceAll("_", " ");
@@ -122,17 +120,31 @@ function pointLabel(facet: Pi0PerformanceFacet, cell: Pi0PerformanceMeasuredCell
 function activatePoint(
   event: KeyboardEvent<SVGGElement>,
   selection: Pi0PerformanceSelection,
-  onSelectPoint: (selection: Pi0PerformanceSelection) => void,
+  onSelectEvidence: (selection: Pi0RoutablePerformanceSelection) => void,
 ) {
   if (event.key !== "Enter" && event.key !== " ") return;
   event.preventDefault();
-  onSelectPoint(selection);
+  onSelectEvidence(selection);
 }
 
-function pendingLabel(cell: Pi0PerformanceCell): string {
-  if (cell.state === "measured") return "";
-  if (cell.reason === "multiple_exact_measurements") return "待复核";
-  return "待测";
+function statusLabel(cell: Pi0PerformanceCell): string {
+  if (cell.state === "measured") return "已测";
+  if (cell.state === "unsupported") return "不支持";
+  return cell.reason === "multiple_exact_measurements" ? "待复核" : "待测";
+}
+
+function statusTitle(cell: Pi0PerformanceCell): string {
+  if (cell.state === "measured") {
+    return `${statusLabel(cell)}：${cell.latency.value.toLocaleString("zh-CN", { maximumFractionDigits: 2 })} ${cell.latency.unit}`;
+  }
+  if (cell.state === "unsupported") {
+    return cell.reason === "fixed_action_horizon"
+      ? "源码审计表明该实现的固定动作长度与此目标点不兼容"
+      : "源码审计表明该实现的固定去噪步数与此目标点不兼容";
+  }
+  return cell.reason === "multiple_exact_measurements"
+    ? "存在多个精确记录，需要先复核口径"
+    : "此目标点尚无精确本地测量";
 }
 
 function contractSummary(facet: Pi0PerformanceFacet): string {
@@ -158,132 +170,180 @@ function observedScopeSummary(facet: Pi0PerformanceFacet): string {
     ...scope.denoiseSteps.map(String),
     ...(scope.hasMissingDenoise ? ["未记录"] : []),
   ].join("/") || "未记录";
-  return `已有证据：P=${scope.promptTokens.join("/") || "未记录"} · 动作块=${scope.actionChunks.join("/") || "未记录"} · 去噪=${denoise}`;
+  return `原生证据 P=${scope.promptTokens.join("/") || "未记录"} · A=${scope.actionChunks.join("/") || "未记录"} · N=${denoise}`;
+}
+
+function TargetMatrix({
+  facet,
+  selectedRunId,
+  onSelectEvidence,
+}: {
+  facet: Pi0PerformanceFacet;
+  selectedRunId: string | null;
+  onSelectEvidence: (selection: Pi0RoutablePerformanceSelection) => void;
+}) {
+  return (
+    <table className="pi0-target-matrix">
+      <caption className="visually-hidden">{facet.runtimeLabel} 的目标采样状态；行为动作块，列为视角数</caption>
+      <thead>
+        <tr>
+          <th scope="col">动作块</th>
+          {facet.series[0]?.cells.map((cell) => <th key={cell.cameraViews} scope="col">V={cell.cameraViews}</th>)}
+        </tr>
+      </thead>
+      <tbody>
+        {facet.series.map((series) => (
+          <tr key={series.actionChunk}>
+            <th scope="row">A={series.actionChunk}</th>
+            {series.cells.map((cell) => {
+              const selected = cell.state === "measured" && selectedRunId === cell.selection.runId;
+              const contents = <>
+                <i className="pi0-target-state-mark" aria-hidden="true" />
+                <span>{statusLabel(cell)}</span>
+                {cell.state === "measured" ? <small>{cell.latency.value.toLocaleString("zh-CN", { maximumFractionDigits: 1 })} {cell.latency.unit}</small> : null}
+              </>;
+              return (
+                <td key={cell.cameraViews} className={`is-${cell.state}${selected ? " is-selected" : ""}`} title={statusTitle(cell)}>
+                  {cell.state === "measured" ? (
+                    <button type="button" onClick={() => onSelectEvidence(cell.selection)}>{contents}</button>
+                  ) : <div>{contents}</div>}
+                </td>
+              );
+            })}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+}
+
+function CompactMeasuredPlot({
+  facet,
+  measured,
+  selectedRunId,
+  onSelectEvidence,
+}: {
+  facet: Pi0PerformanceFacet;
+  measured: readonly Pi0PerformanceMeasuredCell[];
+  selectedRunId: string | null;
+  onSelectEvidence: (selection: Pi0RoutablePerformanceSelection) => void;
+}) {
+  const maximum = niceCeiling(Math.max(...measured.map((cell) => cell.latency.value)));
+  const unit = facet.contract.unit ?? measured[0]?.latency.unit ?? "未记录";
+  const ticks = [maximum, maximum / 2, 0];
+  return (
+    <svg className="pi0-overview-svg" viewBox={`0 0 ${WIDTH} ${HEIGHT}`} role="img" aria-label={`${facet.runtimeLabel} 目标采样格中的已测端到端延时`}>
+      <text className="pi0-overview-axis-title" x={PLOT_LEFT} y={18}>端到端延时 / {unit}</text>
+      {ticks.map((tick) => {
+        const y = yFor(tick, maximum);
+        return <g key={tick} className="pi0-overview-gridline">
+          <line x1={PLOT_LEFT} x2={PLOT_RIGHT} y1={y} y2={y} />
+          <text x={PLOT_LEFT - 10} y={y + 4}>{formatTick(tick)}</text>
+        </g>;
+      })}
+      {facet.series.flatMap((series) => contiguousSegments(series).map((segment, index) =>
+        segment.length > 1 ? <path
+          key={`${series.actionChunk}/segment/${index}`}
+          className={`pi0-overview-series-line is-a-${series.actionChunk}`}
+          d={linePath(segment, maximum)}
+          pathLength={1}
+        /> : null,
+      ))}
+      {facet.series.flatMap((series) => series.cells.flatMap((cell) => {
+        if (cell.state !== "measured") return [];
+        const x = VIEW_X[cell.cameraViews - 1] ?? PLOT_LEFT;
+        const y = yFor(cell.latency.value, maximum);
+        const selected = selectedRunId === cell.selection.runId;
+        return [<g
+          key={`${series.actionChunk}/${cell.cameraViews}`}
+          className={`pi0-overview-point is-a-${series.actionChunk}${selected ? " is-selected" : ""}`}
+          role="button"
+          tabIndex={0}
+          aria-label={pointLabel(facet, cell)}
+          onClick={() => onSelectEvidence(cell.selection)}
+          onKeyDown={(event) => activatePoint(event, cell.selection, onSelectEvidence)}
+        >
+          <title>{pointLabel(facet, cell)}</title>
+          <circle className="pi0-overview-point-halo" cx={x} cy={y} r={10} />
+          {series.actionChunk === 50
+            ? <rect className="pi0-overview-point-shape" x={x - 4.5} y={y - 4.5} width={9} height={9} rx={1} />
+            : <circle className="pi0-overview-point-shape" cx={x} cy={y} r={4.75} />}
+          <text x={x} y={Math.max(PLOT_TOP + 12, y - 12)}>{cell.latency.value.toLocaleString("zh-CN", { maximumFractionDigits: 1 })}</text>
+        </g>];
+      }))}
+      {VIEW_X.map((x, index) => <text key={x} className="pi0-overview-view-label" x={x} y={151}>V={index + 1}</text>)}
+    </svg>
+  );
 }
 
 function FacetChart({
   facet,
   selectedRunId,
-  onSelectPoint,
-  onSelectFacet,
+  onSelectEvidence,
 }: {
   facet: Pi0PerformanceFacet;
   selectedRunId: string | null;
-  onSelectPoint: (selection: Pi0PerformanceSelection) => void;
-  onSelectFacet: (selection: Pick<Pi0PerformanceSelection, "facetId" | "runtimeId" | "precisionId" | "hardwareId">) => void;
+  onSelectEvidence: (selection: Pi0RoutablePerformanceSelection) => void;
 }) {
   const measured = finiteMeasuredCells(facet);
-  const maximum = niceCeiling(Math.max(0, ...measured.map((cell) => cell.latency.value)));
-  const unit = measured.length ? facet.contract.unit ?? measured[0]?.latency.unit ?? "未记录" : "待测";
-  const ticks = measured.length ? [maximum, maximum / 2, 0] : [];
+  const nativeEvidence = facet.nativeEvidenceSelection;
 
   return (
     <article className="pi0-overview-facet" aria-labelledby={`pi0-overview-${encodeURIComponent(facet.id)}`}>
       <header>
-        <div>
+        <div className="pi0-overview-facet-identity">
           <h4 id={`pi0-overview-${encodeURIComponent(facet.id)}`}>{facet.runtimeLabel}</h4>
           <span>{precisionLabel(facet.precisionId)}</span>
         </div>
-        <div className="pi0-overview-facet-actions">
-          <strong>{facet.measuredCellCount} / 6 已实测</strong>
-          <button type="button" onClick={() => onSelectFacet({ facetId: facet.id, runtimeId: facet.runtimeId, precisionId: facet.precisionId, hardwareId: facet.hardwareId })}>查看分析</button>
-        </div>
+        <button
+          className="pi0-overview-evidence-action"
+          type="button"
+          disabled={!nativeEvidence}
+          onClick={() => nativeEvidence && onSelectEvidence(nativeEvidence)}
+        >
+          {nativeEvidence ? "查看已有原生证据" : "暂无可下钻证据"}
+        </button>
       </header>
       <p className="pi0-overview-contract" title={contractTitle(facet)}>{contractSummary(facet)}</p>
-      {facet.measuredCellCount === 0 ? <p className="pi0-overview-observed">{observedScopeSummary(facet)}</p> : null}
-      <svg className="pi0-overview-svg" viewBox={`0 0 ${WIDTH} ${HEIGHT}`} role="img" aria-label={`${facet.runtimeLabel} 在目标采样格的端到端延时`}>
-        <text className="pi0-overview-axis-title" x={PLOT_LEFT} y={19}>端到端延时 / {unit}</text>
-        {ticks.map((tick) => {
-          const y = yFor(tick, maximum);
-          return <g key={tick} className="pi0-overview-gridline">
-            <line x1={PLOT_LEFT} x2={PLOT_RIGHT} y1={y} y2={y} />
-            <text x={PLOT_LEFT - 10} y={y + 4}>{formatTick(tick)}</text>
-          </g>;
-        })}
-        {!measured.length ? <text className="pi0-overview-no-data" x={(PLOT_LEFT + PLOT_RIGHT) / 2} y={110}>目标格暂无实测值</text> : null}
-        {facet.series.flatMap((series) => contiguousSegments(series).map((segment, index) =>
-          segment.length > 1 ? <path
-            key={`${series.actionChunk}/segment/${index}`}
-            className="pi0-overview-series-line"
-            d={linePath(segment, maximum)}
-            pathLength={1}
-            style={{ stroke: SERIES_COLOR[series.actionChunk] ?? "#657483" }}
-          /> : null,
-        ))}
-        {facet.series.flatMap((series) => series.cells.flatMap((cell) => {
-          if (cell.state !== "measured") return [];
-          const x = VIEW_X[cell.cameraViews - 1] ?? PLOT_LEFT;
-          const y = yFor(cell.latency.value, maximum);
-          const selected = selectedRunId === cell.selection.runId;
-          return [<g
-            key={`${series.actionChunk}/${cell.cameraViews}`}
-            className={`pi0-overview-point${selected ? " is-selected" : ""}`}
-            role="button"
-            tabIndex={0}
-            aria-label={pointLabel(facet, cell)}
-            onClick={() => onSelectPoint(cell.selection)}
-            onKeyDown={(event) => activatePoint(event, cell.selection, onSelectPoint)}
-          >
-            <title>{pointLabel(facet, cell)}</title>
-            <circle className="pi0-overview-point-halo" cx={x} cy={y} r={10} />
-            <circle cx={x} cy={y} r={5.5} style={{ fill: SERIES_COLOR[series.actionChunk] ?? "#657483" }} />
-            <text x={x} y={Math.max(PLOT_TOP + 12, y - 13)}>{cell.latency.value.toLocaleString("zh-CN", { maximumFractionDigits: 1 })}</text>
-          </g>];
-        }))}
-        {VIEW_X.map((x, index) => <text key={x} className="pi0-overview-view-label" x={x} y={192}>{index + 1} 视角</text>)}
-        <line className="pi0-overview-status-rule" x1={PLOT_LEFT} x2={PLOT_RIGHT} y1={205} y2={205} />
-        {facet.series.map((series) => {
-          const y = PENDING_Y[series.actionChunk] ?? 226;
-          return <g key={`${series.actionChunk}/status`}>
-            <text className="pi0-overview-status-series" x={PLOT_LEFT} y={y + 4}>块 {series.actionChunk}</text>
-            {series.cells.map((cell) => {
-              const x = VIEW_X[cell.cameraViews - 1] ?? PLOT_LEFT;
-              const measuredCell = cell.state === "measured";
-              return <g key={cell.cameraViews} className={measuredCell ? "is-measured" : "is-pending"}>
-                <circle cx={x - 21} cy={y} r={4} style={{ fill: measuredCell ? SERIES_COLOR[series.actionChunk] ?? "#657483" : undefined }} />
-                <text x={x - 13} y={y + 4}>{measuredCell ? "已测" : pendingLabel(cell)}</text>
-              </g>;
-            })}
-          </g>;
-        })}
-      </svg>
+      {measured.length ? <CompactMeasuredPlot facet={facet} measured={measured} selectedRunId={selectedRunId} onSelectEvidence={onSelectEvidence} /> : null}
+      <TargetMatrix facet={facet} selectedRunId={selectedRunId} onSelectEvidence={onSelectEvidence} />
+      <p className="pi0-overview-observed">{observedScopeSummary(facet)}</p>
     </article>
   );
 }
 
-export function Pi0PerformanceOverviewChart({ model, selectedRunId, onSelectPoint, onSelectFacet }: Pi0PerformanceOverviewChartProps) {
+export function Pi0PerformanceOverviewChart({ model, selectedRunId, onSelectEvidence }: Pi0PerformanceOverviewChartProps) {
+  const cells = model.facets.flatMap((facet) => facet.series.flatMap((series) => series.cells));
+  const measured = cells.filter((cell) => cell.state === "measured").length;
+  const pending = cells.filter((cell) => cell.state === "pending_supported").length;
+  const unsupported = cells.filter((cell) => cell.state === "unsupported").length;
+
   return (
     <section className="pi0-performance-overview" aria-labelledby="pi0-performance-overview-title">
       <header className="pi0-overview-heading">
         <div>
           <h3 id="pi0-performance-overview-title">端到端总体表现</h3>
-          <p>{model.hardwareLabel} · 提示长度 48 · 去噪 10 步</p>
+          <p>{model.hardwareLabel} · P=48 · N=10 · V=1/2/3 · A=20/50</p>
         </div>
-        <div className="pi0-overview-progress" aria-label={`目标格已实测 ${model.measuredCellCount}，共 ${model.targetCellCount}`}>
-          <strong>{model.measuredCellCount}</strong>
-          <span>/ {model.targetCellCount} 个目标点</span>
-        </div>
+        <p className="pi0-overview-progress" aria-label={`目标格已测 ${measured}，待测 ${pending}，不支持 ${unsupported}`}>
+          <span><strong>{measured}</strong> 已测</span>
+          <span><strong>{pending}</strong> 待测</span>
+          <span><strong>{unsupported}</strong> 不支持</span>
+        </p>
       </header>
-      <div className="pi0-overview-key" aria-label="动作块图例">
-        {model.target.actionChunks.map((chunk) => <span key={chunk}>
-          <i style={{ background: SERIES_COLOR[chunk] ?? "#657483" }} />动作块 {chunk}
-        </span>)}
-        <small>各面板口径独立，不计算跨栈速度比</small>
-      </div>
       {model.facets.length ? (
         <div className="pi0-overview-facets">
           {model.facets.map((facet) => <FacetChart
             key={facet.id}
             facet={facet}
             selectedRunId={selectedRunId}
-            onSelectPoint={onSelectPoint}
-            onSelectFacet={onSelectFacet}
+            onSelectEvidence={onSelectEvidence}
           />)}
         </div>
       ) : (
         <p className="pi0-overview-empty">当前硬件尚无本地端到端证据，无法建立推理栈分面；目标采样格保持待测。</p>
       )}
-      <footer>只接受 canonical measured_local 的精确匹配；历史提示长度、原生动作块或缺失去噪步数不会填入目标格。</footer>
+      <footer>目标格只接受精确匹配的本地实测；原生 workload 单独下钻，不填入 P=48、N=10、A=20/50 目标点。</footer>
     </section>
   );
 }

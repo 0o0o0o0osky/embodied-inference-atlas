@@ -41,10 +41,15 @@ export function ContextBar({ data, model, route, navigate, compact = false }: Co
   const showWorkload = route.tab !== "end-to-end" && route.tab !== "timeline";
   const showRuntimePrecision = route.tab === "runtime";
   const showRooflinePrecision = route.tab === "roofline-kernels";
+  const compactActualPrecision = compact && model.model_id === "pi0" && (
+    (route.tab === "runtime" && route.runtime !== null)
+    || route.tab === "timeline"
+    || route.tab === "roofline-kernels"
+  );
   const precisionIds = [...new Set(scopedRuns
     .filter((run) => (
       isInferenceRuntimeId(run.runtime_id)
-      && (!showRuntimePrecision || model.model_id !== "pi0" || run.evidence === "measured_local")
+      && (!(showRuntimePrecision || compactActualPrecision) || model.model_id !== "pi0" || run.evidence === "measured_local")
       && (!route.runtime || run.runtime_id === route.runtime)
       && (!route.hardware || run.device_id === route.hardware)
     ))
@@ -53,30 +58,39 @@ export function ContextBar({ data, model, route, navigate, compact = false }: Co
   const fieldCount = 2 + Number(showWorkload) + Number(showRuntimePrecision || showRooflinePrecision);
 
   if (compact) {
-    const runtimeComparison = route.tab === "runtime";
-    const compactRuntimePrecision = runtimeComparison && Boolean(route.runtime);
+    const runtimeOverview = route.tab === "runtime" && route.runtime === null;
+    const compactRooflinePrecision = route.tab === "logical" || route.tab === "roofline-kernels";
     const displayedRuntimePrecision = runtimeKnown
       ? route.runtimePrecision ?? (precisionIds.length === 1 ? precisionIds[0]! : "")
       : "";
     return (
-      <div className="atlas-context" aria-label={runtimeComparison ? "推理性能场景" : "模型分析场景"}>
+      <div className="atlas-context" aria-label={runtimeOverview ? "推理性能场景" : "模型分析场景"}>
         <label>
           <span>硬件</span>
-          <select value={route.hardware ?? ""} onChange={(event) => navigate(runtimeComparison
-            ? { hardware: event.target.value || null, runtimePrecision: null, runtimeFacet: null, timelineCapture: null, entity: null }
-            : { hardware: event.target.value || null, timelineCapture: null })}>
+          <select value={route.hardware ?? ""} onChange={(event) => navigate({
+            hardware: event.target.value || null,
+            runtimePrecision: null,
+            runtimeFacet: null,
+            timelineCapture: null,
+            entity: null,
+          })}>
             <option value="">未选择</option>
             {route.hardware && !hardwareKnown ? <option value={route.hardware}>{route.hardware}</option> : null}
             {devices.map((device) => <option key={device.device_id} value={device.device_id}>{device.display_name}</option>)}
           </select>
         </label>
-        {compactRuntimePrecision ? (
+        {compactActualPrecision ? (
           <label>
             <span>实际精度</span>
             <select
               value={displayedRuntimePrecision}
               disabled={!runtimeKnown}
-              onChange={(event) => navigate({ runtimePrecision: event.target.value || null, runtimeFacet: null, entity: null }, true)}
+              onChange={(event) => navigate({
+                runtimePrecision: event.target.value || null,
+                runtimeFacet: null,
+                timelineCapture: null,
+                entity: null,
+              }, true)}
             >
               <option value="">
                 {runtimeKnown ? "请选择实测配置" : route.runtime ? "不是可选推理栈" : "请先选择推理栈"}
@@ -89,10 +103,15 @@ export function ContextBar({ data, model, route, navigate, compact = false }: Co
               ))}
             </select>
           </label>
-        ) : !runtimeComparison ? (
+        ) : null}
+        {compactRooflinePrecision ? (
           <label>
             <span>理论精度</span>
-            <select value={route.precision ?? ""} onChange={(event) => navigate({ precision: event.target.value || null, basis: null }, true)}>
+            <select value={route.precision ?? ""} onChange={(event) => navigate({
+              precision: event.target.value || null,
+              basis: null,
+              entity: route.tab === "roofline-kernels" ? null : route.entity,
+            }, true)}>
               <option value="">场景默认</option>
               {route.precision && !rooflinePrecisionIds.includes(route.precision) ? <option value={route.precision}>{precisionLabel(route.precision)}</option> : null}
               {rooflinePrecisionIds.map((precisionId) => <option key={precisionId} value={precisionId}>{precisionLabel(precisionId)}</option>)}

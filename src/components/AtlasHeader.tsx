@@ -56,7 +56,7 @@ export function AtlasHeader({ data, route, navigate }: AtlasHeaderProps) {
           {models.map((item) => <option key={item.model_id} value={item.model_id}>{item.display_name}</option>)}
         </select>
       </label>
-      {model && route.model === "pi0" && (route.tab === "logical" || route.tab === "runtime") ? (
+      {model && route.model === "pi0" && ["logical", "runtime", "timeline", "roofline-kernels"].includes(route.tab) ? (
         <ContextBar data={data} model={model} route={route} navigate={navigate} compact />
       ) : null}
       <nav className="atlas-navigation" aria-label="主要视图">
