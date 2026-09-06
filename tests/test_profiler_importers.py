@@ -143,6 +143,13 @@ class ProfilerImporterTests(unittest.TestCase):
         except SourceFormatError as error:
             self.fail(f"controlled fixture was rejected: {error}")
 
+        ordered_policy = copy.deepcopy(policy)
+        ordered_policy["warnings"].extend(["work_id_unavailable", "same_input_order_association"])
+        ordered = parse_ncu_exports(fixture["session_csv"], fixture["details_csv"], fixture["raw_csv"], context, ordered_policy)
+        self.assertIn("same_input_order_association", ordered["datasets"]["profiler_captures"][0]["warnings"])
+        self.assertIn("same_input_order_association", ordered["datasets"]["kernel_observations"][0]["quality"])
+        self.assertNotIn("same_input_order_association", bundle["datasets"]["profiler_captures"][0]["warnings"])
+
         self.assertEqual(bundle["source_label"], safe_label)
         self.assertEqual(
             set(bundle["datasets"]),

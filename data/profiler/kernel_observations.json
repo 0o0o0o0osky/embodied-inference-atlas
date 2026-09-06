@@ -1324,6 +1324,47 @@
     },
     {
       "calls": 1,
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-1024x51x4096-001",
+      "duration": {
+        "sample_count": 1,
+        "statistic": "single",
+        "value_ns": 77088
+      },
+      "duration_share": null,
+      "kernel_signature_id": "kernel-signature-pi0-vlacpp-bf16-gemm-1024x51x4096",
+      "launch": {
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 229800,
+        "grid": [
+          16,
+          1,
+          1
+        ],
+        "registers_per_thread": 255,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": 0.8
+      },
+      "missing": {
+        "duration_share": "not_applicable"
+      },
+      "observation_id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-1024x51x4096-001",
+      "observation_kind": "ncu_replayed_launch",
+      "population": "one_name_filtered_selected_match_replayed_launch",
+      "quality": [
+        "replayed_launch",
+        "gpu_frequency_not_fixed",
+        "work_id_unavailable",
+        "same_input_order_association"
+      ],
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-1024x51x4096-001",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 1,
       "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
       "duration": {
         "sample_count": 1,
@@ -1359,6 +1400,47 @@
         "gpu_frequency_not_fixed"
       ],
       "run_id": "run-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 1,
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-2048x304x16384-001",
+      "duration": {
+        "sample_count": 1,
+        "statistic": "single",
+        "value_ns": 709280
+      },
+      "duration_share": null,
+      "kernel_signature_id": "kernel-signature-pi0-vlacpp-bf16-gemm-2048x304x16384",
+      "launch": {
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 217304,
+        "grid": [
+          20,
+          1,
+          1
+        ],
+        "registers_per_thread": 255,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": 1.0
+      },
+      "missing": {
+        "duration_share": "not_applicable"
+      },
+      "observation_id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-2048x304x16384-001",
+      "observation_kind": "ncu_replayed_launch",
+      "population": "one_name_filtered_selected_match_replayed_launch",
+      "quality": [
+        "replayed_launch",
+        "gpu_frequency_not_fixed",
+        "work_id_unavailable",
+        "same_input_order_association"
+      ],
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-2048x304x16384-001",
       "source_id": "source-local-thor"
     },
     {

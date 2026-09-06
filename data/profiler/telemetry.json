@@ -419,6 +419,21 @@
     },
     {
       "alignment": "same_run_unaligned",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-1024x51x4096-001",
+      "evidence_semantics": "observed_samples",
+      "metric_name": "throttle_status",
+      "missing_reason": "not_collected",
+      "operating_point_id": "unknown",
+      "record_kind": "sampled_series",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-1024x51x4096-001",
+      "samples": [],
+      "source_id": "source-local-thor",
+      "summary": null,
+      "telemetry_id": "telemetry-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-1024x51x4096-001",
+      "window": null
+    },
+    {
+      "alignment": "same_run_unaligned",
       "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
       "evidence_semantics": "observed_samples",
       "metric_name": "throttle_status",
@@ -430,6 +445,21 @@
       "source_id": "source-local-thor",
       "summary": null,
       "telemetry_id": "telemetry-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
+      "window": null
+    },
+    {
+      "alignment": "same_run_unaligned",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-2048x304x16384-001",
+      "evidence_semantics": "observed_samples",
+      "metric_name": "throttle_status",
+      "missing_reason": "not_collected",
+      "operating_point_id": "unknown",
+      "record_kind": "sampled_series",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-2048x304x16384-001",
+      "samples": [],
+      "source_id": "source-local-thor",
+      "summary": null,
+      "telemetry_id": "telemetry-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-2048x304x16384-001",
       "window": null
     },
     {

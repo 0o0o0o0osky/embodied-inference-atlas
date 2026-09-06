@@ -114,6 +114,101 @@
       "status": "partial"
     },
     {
+      "confidence": "medium",
+      "coverage": {
+        "mapped_launches": 1,
+        "population_launches": 1,
+        "unit": "launch"
+      },
+      "evidence_ids": [
+        "capture-pi0-vla-cpp-nsys-node-021",
+        "capture-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-1024x51x4096-001"
+      ],
+      "execution_group_ids": [
+        "action-mlp-down"
+      ],
+      "kernel_signature_id": "kernel-signature-pi0-vlacpp-bf16-gemm-1024x51x4096",
+      "link_id": "operator-kernel-link-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-1024x51x4096-001-001",
+      "logical_targets": [
+        {
+          "ref": "action-flow-decoder/action-expert-blocks/feed-forward/down-projection",
+          "repeat_selectors": [
+            {
+              "indices": [],
+              "scope_ref": "action-flow-decoder/action-flow-loop",
+              "selection": "all"
+            },
+            {
+              "indices": [],
+              "scope_ref": "action-flow-decoder/action-expert-blocks",
+              "selection": "all"
+            }
+          ]
+        }
+      ],
+      "mapping_method": "geometry_and_order",
+      "model_graph_id": "pi0-logical-v1",
+      "observation_id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-1024x51x4096-001",
+      "realization_id": "rr-vla-cpp-pi0-thor-bf16-f32-v1",
+      "reason_code": "ambiguous_attribution",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-1024x51x4096-001",
+      "status": "partial"
+    },
+    {
+      "confidence": "medium",
+      "coverage": {
+        "mapped_launches": 1,
+        "population_launches": 1,
+        "unit": "launch"
+      },
+      "evidence_ids": [
+        "capture-pi0-vla-cpp-nsys-node-021",
+        "capture-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-2048x304x16384-001"
+      ],
+      "execution_group_ids": [
+        "prefix-mlp-down"
+      ],
+      "kernel_signature_id": "kernel-signature-pi0-vlacpp-bf16-gemm-2048x304x16384",
+      "link_id": "operator-kernel-link-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-2048x304x16384-001-001",
+      "logical_targets": [
+        {
+          "ref": "prefix-encoder/prefix-blocks/feed-forward/down-projection",
+          "repeat_selectors": [
+            {
+              "indices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15,
+                16
+              ],
+              "scope_ref": "prefix-encoder/prefix-blocks",
+              "selection": "indices"
+            }
+          ]
+        }
+      ],
+      "mapping_method": "geometry_and_order",
+      "model_graph_id": "pi0-logical-v1",
+      "observation_id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-2048x304x16384-001",
+      "realization_id": "rr-vla-cpp-pi0-thor-bf16-f32-v1",
+      "reason_code": "ambiguous_attribution",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-2048x304x16384-001",
+      "status": "partial"
+    },
+    {
       "confidence": "high",
       "coverage": {
         "mapped_launches": 34,
@@ -157,6 +252,99 @@
       "reason_code": "ambiguous_attribution",
       "run_id": "run-pi0-vla-cpp-nsys-node-021",
       "status": "partial"
+    },
+    {
+      "confidence": "high",
+      "coverage": {
+        "mapped_launches": 17,
+        "population_launches": 17,
+        "unit": "launch"
+      },
+      "evidence_ids": [
+        "capture-pi0-vla-cpp-nsys-node-021"
+      ],
+      "execution_group_ids": [
+        "prefix-mlp-down"
+      ],
+      "kernel_signature_id": "kernel-signature-pi0-vlacpp-bf16-gemm-2048x304x16384",
+      "link_id": "operator-kernel-link-pi0-vla-cpp-nsys-node_r021_002_001",
+      "logical_targets": [
+        {
+          "ref": "prefix-encoder/prefix-blocks/feed-forward/down-projection",
+          "repeat_selectors": [
+            {
+              "indices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15,
+                16
+              ],
+              "scope_ref": "prefix-encoder/prefix-blocks",
+              "selection": "indices"
+            }
+          ]
+        }
+      ],
+      "mapping_method": "combined",
+      "model_graph_id": "pi0-logical-v1",
+      "observation_id": "kernel-observation-pi0-vla-cpp-nsys-node_r021_002",
+      "realization_id": "rr-vla-cpp-pi0-thor-bf16-f32-v1",
+      "reason_code": null,
+      "run_id": "run-pi0-vla-cpp-nsys-node-021",
+      "status": "resolved"
+    },
+    {
+      "confidence": "high",
+      "coverage": {
+        "mapped_launches": 180,
+        "population_launches": 180,
+        "unit": "launch"
+      },
+      "evidence_ids": [
+        "capture-pi0-vla-cpp-nsys-node-021"
+      ],
+      "execution_group_ids": [
+        "action-mlp-down"
+      ],
+      "kernel_signature_id": "kernel-signature-pi0-vlacpp-bf16-gemm-1024x51x4096",
+      "link_id": "operator-kernel-link-pi0-vla-cpp-nsys-node_r021_007_001",
+      "logical_targets": [
+        {
+          "ref": "action-flow-decoder/action-expert-blocks/feed-forward/down-projection",
+          "repeat_selectors": [
+            {
+              "indices": [],
+              "scope_ref": "action-flow-decoder/action-flow-loop",
+              "selection": "all"
+            },
+            {
+              "indices": [],
+              "scope_ref": "action-flow-decoder/action-expert-blocks",
+              "selection": "all"
+            }
+          ]
+        }
+      ],
+      "mapping_method": "combined",
+      "model_graph_id": "pi0-logical-v1",
+      "observation_id": "kernel-observation-pi0-vla-cpp-nsys-node_r021_007",
+      "realization_id": "rr-vla-cpp-pi0-thor-bf16-f32-v1",
+      "reason_code": null,
+      "run_id": "run-pi0-vla-cpp-nsys-node-021",
+      "status": "resolved"
     },
     {
       "confidence": "high",

@@ -117,7 +117,8 @@
             "intrusive_node_trace",
             "profiler_scheduler_activity_present",
             "work_id_unavailable",
-            "partial_kernel_signature_coverage"
+            "partial_kernel_signature_coverage",
+            "same_input_order_association"
           ]
         }
       },

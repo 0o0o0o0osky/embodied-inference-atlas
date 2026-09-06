@@ -48,7 +48,7 @@
       },
       "quality": {
         "type": "array",
-        "items": {"type": "string", "enum": ["replayed_launch", "intrusive_node_trace", "gpu_frequency_not_fixed", "work_id_unavailable"]}
+        "items": {"type": "string", "enum": ["replayed_launch", "intrusive_node_trace", "gpu_frequency_not_fixed", "work_id_unavailable", "same_input_order_association"]}
       },
       "missing": {
         "type": "object",

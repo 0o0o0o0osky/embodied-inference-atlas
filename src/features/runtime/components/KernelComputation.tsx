@@ -28,6 +28,7 @@ export function KernelComputation({row,point}:{row:KernelRow;point?:RooflinePoin
  const conversion=isVerifiedConversion(row),strideCopy=isVerifiedStrideCopy(row);
  const dimensions=point?.entity.shape_or_coverage.match(/M\s*=\s*(\d+).*N\s*=\s*(\d+).*K\s*=\s*(\d+)/);
  const projection=['kernel-signature-pi0-vlacpp-bf16-gemm-4096x51x1024','kernel-signature-pi0-vlacpp-bf16-gemm-16384x304x2048'].includes(row.signature.kernelSignatureId);
+ const downProjection=['kernel-signature-pi0-vlacpp-bf16-gemm-2048x304x16384','kernel-signature-pi0-vlacpp-bf16-gemm-1024x51x4096'].includes(row.signature.kernelSignatureId);
  return <section className="kernel-computation" aria-label="计算与数据流"><h4>计算与数据流</h4>
  <KernelPrecisionSummary row={row} />
  {dimensions?<><div className="kernel-matrix-flow" aria-label="GEMM 数学维度"><div><strong>A</strong><span>{dimensions[1]} × {dimensions[3]}</span><small>{dtype(precision.inputDtypeClass)}</small></div><b>×</b><div><strong>B</strong><span>{dimensions[3]} × {dimensions[2]}</span><small>{dtype(precision.inputDtypeClass)}</small></div><b>→</b><div><strong>C</strong><span>{dimensions[1]} × {dimensions[2]}</span><small>{dtype(precision.outputDtypeClass)}</small></div></div><p>Cᵢⱼ = Σₖ Aᵢₖ Bₖⱼ；维度为数学视图，未表示物理 stride 或实际线程 tile。</p></>:conversion?<>
@@ -41,6 +42,7 @@ export function KernelComputation({row,point}:{row:KernelRow;point?:RooflinePoin
   <p>在「执行与资源」查看独立回放的缓存、内存和调度指标；调用的耗时仍来自当前 trace。</p>
  </>:<p>当前证据未给出可核验的逐步计算公式；保留已确认的实现关联与执行耗时。</p>}
  {projection&&dimensions?<p>输出通道 {dimensions[1]}，序列位置 {dimensions[2]}，输入通道 {dimensions[3]}。A 是投影权重，B 是当前输入；Gate 与 Up 使用相同形状，各自执行。</p>:null}
+ {downProjection&&dimensions?<p>Down 投影将中间通道 {dimensions[3]} 映射回隐藏通道 {dimensions[1]}，处理 {dimensions[2]} 个序列位置。A 是投影权重，B 是门控后的中间激活。</p>:null}
  {point?<><h5>Kernel 存储边界</h5><div className="kernel-boundary-flow">{point.traffic.components.map(component=><div key={component.component_id}><strong>{component.tensor_ref ?? component.component_id}</strong><span>{component.kind.includes('write')?'写出':'读入'} · {(component.byte/1e6).toFixed(3)} MB</span></div>)}</div><p>单次工作量和字节量来自当前窗口已确认同形状的调用集合。边界流量按输入读取与输出写出建模，并非实测 DRAM 流量；L2、shared memory 与寄存器中的实际复用尚待证据。</p></>:null}
  </section>;
 }

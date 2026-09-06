@@ -7,8 +7,25 @@ from tools.lib.site import load_validated_datasets
 from tools.lib.jsonio import write_json_atomic
 from tools.lib.promotion import plan_promotion
 
+# Both symbols also execute another K dimension with identical launch resources.
+# The association is an audited same-harness/steady-window ordinal, not M/N/K
+# measured by NCU. Keep work_id_unavailable on these independent replays.
+SELECTED_GEMMS = {
+    'gemm-prefix-down': ('nvjet_tss_512x64_64x3_2x1_2cta_v_bz_TNT', 2, 'kernel-signature-pi0-vlacpp-bf16-gemm-2048x304x16384'),
+    'gemm-action-down': ('nvjet_tss_128x32_64x12_2x2_2cta_h_bz_TNT', 1, 'kernel-signature-pi0-vlacpp-bf16-gemm-1024x51x4096'),
+}
+
+def validate_gemm_selection(label, symbol, skip, signature_id, population_ids):
+    if label in SELECTED_GEMMS:
+        if (symbol, skip, signature_id) != SELECTED_GEMMS[label]:
+            raise ValueError('GEMM selection does not match the audited fixed-window ordinal')
+        return True
+    if len(population_ids) != 1 or 'gemm-' not in signature_id:
+        raise ValueError('Symbol does not prove one exact GEMM shape population')
+    return False
+
 def main():
-    p=argparse.ArgumentParser(description=__doc__);p.add_argument('directory',type=Path);p.add_argument('--labels',nargs='+',choices=['gemm-action','gemm-prefix','conversion','conversion-055','stride-copy-036'],default=['gemm-action','gemm-prefix','conversion']);p.add_argument('--output',type=Path,default=Path('.local/staging/pi0-instance-ncu.json'));a=p.parse_args();root=Path.cwd()
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('directory',type=Path);p.add_argument('--labels',nargs='+',choices=['gemm-action','gemm-prefix','conversion','conversion-055','stride-copy-036','gemm-prefix-down','gemm-action-down'],default=['gemm-action','gemm-prefix','conversion']);p.add_argument('--output',type=Path,default=Path('.local/staging/pi0-instance-ncu.json'));a=p.parse_args();root=Path.cwd()
     if not a.output.resolve().is_relative_to(root/'.local/staging'):p.error('staging output required')
     datasets=load_validated_datasets(root/'data',root)
     signatures={s['kernel_signature_id']:s for s in datasets['kernel_signatures']}
@@ -36,16 +53,21 @@ def main():
         if skip>=len(rr):raise ValueError('Selected launch outside fixed-window population')
         first=rr[skip];event=next(e for e in timeline['events'] if e['event_kind']=='kernel' and e['start_ns']==first['start']-start and e['duration_ns']==first['end']-first['start'])
         signature=copy.deepcopy(signatures[event['kernel_signature_id']]);signature.pop('runtime_id');signature.pop('model_id')
+        ordinal_association=False
         if label.startswith('gemm'):
             ids={e['kernel_signature_id'] for e in timeline['events'] if e['event_kind']=='kernel' and any(e['start_ns']==r['start']-start for r in rr)}
-            if len(ids)!=1 or 'gemm-' not in signature['kernel_signature_id']:raise ValueError('Symbol does not prove one exact GEMM shape population')
+            ordinal_association=validate_gemm_selection(label,symbol,skip,signature['kernel_signature_id'],ids)
         suffix=signature['kernel_signature_id'].removeprefix('kernel-signature-pi0-');controlled='pi0-vla-cpp-ncu-'+suffix
         run=copy.deepcopy(template);run.pop('analysis_batch',None);run.update(run_id='run-'+controlled+'-001',configuration_id='config-'+controlled+'-001',capture_method='ncu')
         run['operating_point']={'operating_point_id':'unknown','power_mode':None,'clock_policy':None,'throttle_status':None};run['comparison_context']['platform']['operating_point_id']='unknown';run['missing']={f'operating_point.{k}':'not_collected' for k in ['power_mode','clock_policy','throttle_status']}
         context=ProfilerImportContext(source_label=controlled,source_id=run['source_id'],system_id=run['system_id'],run=run,capture_label=controlled,signature_policy_id='pi0-instance-representatives-v1',window_policy_id='not-applicable')
         origins={k:'session_command' for k in ['selection_policy','replay_mode','cache_control_request','clock_control_request']};origins.update(replay_passes='collection_log_manual_audit',warmup_count='harness_source_audit',backing_store_bytes='unavailable',gpu_frequency_not_fixed='collection_log_manual_audit')
-        policy=dict(policy_id=context.signature_policy_id,section_mode='section_set',replay_mode='kernel',replay_passes=int(re.search(r'- (\d+) passes',log).group(1)),cache_control_request='none',clock_control_request='none',warmup_count=5,backing_store_bytes=None,warnings=['gpu_frequency_not_fixed'],origins=origins,expected_result_identity=identity,expected_geometry={k:event['launch'][k] for k in ['grid','block']},signature=signature)
+        policy=dict(policy_id=context.signature_policy_id,section_mode='section_set',replay_mode='kernel',replay_passes=int(re.search(r'- (\d+) passes',log).group(1)),cache_control_request='none',clock_control_request='none',warmup_count=5,backing_store_bytes=None,warnings=['gpu_frequency_not_fixed']+(['work_id_unavailable','same_input_order_association'] if ordinal_association else []),origins=origins,expected_result_identity=identity,expected_geometry={k:event['launch'][k] for k in ['grid','block']},signature=signature)
         bundle=import_ncu_report(report,context,policy)
+        if label in SELECTED_GEMMS:
+            actual=bundle['datasets']['kernel_observations'][0]['launch']
+            if any(actual[k]!=event['launch'][k] for k in ['grid','block','registers_per_thread','static_shared_memory_bytes','dynamic_shared_memory_bytes']):
+                raise ValueError('Selected GEMM launch resources do not match the native trace')
         if label=='stride-copy-036':
             launch=bundle['datasets']['kernel_observations'][0]['launch']
             if (launch['grid'],launch['block'],launch['registers_per_thread']) != ([1632,1,1],[64,1,1],32):

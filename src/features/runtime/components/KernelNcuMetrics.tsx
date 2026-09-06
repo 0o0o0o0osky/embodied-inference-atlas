@@ -93,6 +93,7 @@ export function KernelNcuMetrics({ rows }: { rows: readonly KernelRow[] }) {
             {capture.ncu ? ` · ${capture.ncu.replayPasses} 轮采集` : ''}</span>
         </header>
         <KernelPrecisionSummary row={row} />
+        {capture.warnings.includes('work_id_unavailable') ? <p className="kernel-ncu-note">{capture.warnings.includes('same_input_order_association') ? '按相同输入下的调用顺序关联；NCU 未直接记录矩阵维度。' : 'NCU 未直接记录工作量标识；同名 Kernel 不足以确认矩阵维度一致。'}</p> : null}
         <details className="kernel-ncu-launch"><summary>本次 NCU 回放的启动配置</summary><KernelResources launch={observation.launch} label="本次 NCU 回放的执行资源" /></details>
         {measuredGroups.length ? measuredGroups.map(group => <section className="kernel-ncu-group" key={group.title} aria-label={group.title}>
           <h5>{group.title}</h5><dl>{group.entries.map(({ metric, label, basis }) => <div key={metric.metricId}>

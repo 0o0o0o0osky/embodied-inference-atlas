@@ -44,3 +44,35 @@ it('keeps measured zero, omits unavailable summary metrics, and handles no match
   expect(markup).toContain('未采集该指标组');
   expect(renderToStaticMarkup(<KernelNcuMetrics rows={[]} />)).toContain('暂无同一 Kernel 签名的 NCU 回放');
 });
+
+it('qualifies audited order associations without assigning that claim to other missing-work reports', () => {
+  const nativeRun = data.datasets.runs.find(item => item.run_id === 'run-pi0-vlacpp-w5-r10-001')!;
+  const nativeRoute = readRoute(`?model=pi0&runtime=vla-cpp&hardware=${nativeRun.device_id}&runtimePrecision=${nativeRun.precision.precision_id}&workload=${nativeRun.configuration_id}`);
+  const native = resolveAnalysisContext({data, model, record, route: nativeRoute});
+  for (const [shape, tensor, occupancy, cache] of [
+    ['2048x304x16384', '13.33%', '11.45%', '76.23%'],
+    ['1024x51x4096', '3.07%', '12.05%', '99.75%'],
+  ]) {
+    const row = native.kernels.rows.find(item => item.capture.tool === 'ncu'
+      && item.signature.kernelSignatureId === `kernel-signature-pi0-vlacpp-bf16-gemm-${shape}`)!;
+    expect(row).toBeDefined();
+    expect(row.capture.warnings).toEqual(expect.arrayContaining(['same_input_order_association', 'work_id_unavailable']));
+    const primary = renderToStaticMarkup(<KernelNcuMetrics rows={[row]} />).split('<details class="kernel-ncu-raw">')[0]!;
+    expect(primary).toContain('调用顺序关联');
+    expect(primary).toContain('NCU 未直接记录矩阵维度');
+    expect(primary).toContain('Tensor 活跃');
+    expect(primary).toContain(tensor);
+    expect(primary).toContain(occupancy);
+    expect(primary).toContain('L2 sector 命中率');
+    expect(primary).toContain(cache);
+  }
+  const legacy = context.kernels.rows.filter(row => row.capture.tool === 'ncu'
+    && row.capture.warnings.includes('work_id_unavailable')
+    && !row.capture.warnings.includes('same_input_order_association'));
+  expect(legacy.length).toBeGreaterThan(0);
+  for (const row of legacy) {
+    const primary = renderToStaticMarkup(<KernelNcuMetrics rows={[row]} />).split('<details class="kernel-ncu-raw">')[0]!;
+    expect(primary).toContain('NCU 未直接记录工作量标识');
+    expect(primary).not.toContain('调用顺序关联');
+  }
+});

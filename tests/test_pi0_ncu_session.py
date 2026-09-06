@@ -26,3 +26,15 @@ class NcuQuotedSessionTests(unittest.TestCase):
   self.assertEqual(by_name['l2_sector_hit_rate_percent']['value'],97.48593)
   self.assertEqual(by_name['l1tex_sector_hit_rate_percent']['value'],0)
   self.assertIsNone(by_name['system_memory_bytes']['value'])
+
+class SelectedGemmTests(unittest.TestCase):
+ def test_shared_symbol_requires_exact_audited_selector_and_target_signature(self):
+  from extractors.pi0_instance_ncu import validate_gemm_selection
+  symbol='nvjet_tss_512x64_64x3_2x1_2cta_v_bz_TNT'
+  target='kernel-signature-pi0-vlacpp-bf16-gemm-2048x304x16384'
+  ids={target,'kernel-signature-pi0-vlacpp-bf16-gemm-2048x304x2048'}
+  self.assertTrue(validate_gemm_selection('gemm-prefix-down',symbol,2,target,ids))
+  with self.assertRaises(ValueError):validate_gemm_selection('gemm-prefix-down',symbol,0,target,ids)
+  with self.assertRaises(ValueError):validate_gemm_selection('gemm-prefix-down',symbol,2,'wrong-shape',ids)
+  with self.assertRaises(ValueError):validate_gemm_selection('gemm-prefix',symbol,2,target,ids)
+  self.assertFalse(validate_gemm_selection('gemm-prefix',symbol,0,target,{target}))

@@ -804,6 +804,52 @@
       ]
     },
     {
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-1024x51x4096-001",
+      "collection_scope": "representative_kernel_launch",
+      "coverage": {
+        "is_complete_for_population": true,
+        "observed_count": 1,
+        "population": "one_replayed_launch"
+      },
+      "evidence": "measured_local",
+      "missing": {
+        "ncu.backing_store_bytes": "unavailable",
+        "nsys": "not_applicable",
+        "target_window_label": "not_applicable"
+      },
+      "ncu": {
+        "backing_store_bytes": null,
+        "cache_control_request": "none",
+        "clock_control_request": "none",
+        "origins": {
+          "backing_store_bytes": "unavailable",
+          "cache_control_request": "session_command",
+          "clock_control_request": "session_command",
+          "gpu_frequency_not_fixed": "collection_log_manual_audit",
+          "replay_mode": "session_command",
+          "replay_passes": "collection_log_manual_audit",
+          "selection_policy": "session_command",
+          "warmup_count": "harness_source_audit"
+        },
+        "replay_mode": "kernel",
+        "replay_passes": 13,
+        "warmup_count": 5
+      },
+      "nsys": null,
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-1024x51x4096-001",
+      "selection_policy": "name_filter_selected_match",
+      "source_id": "source-local-thor",
+      "target_window_count": 1,
+      "target_window_label": null,
+      "tool": "ncu",
+      "tool_version": "2025.3.0.0",
+      "warnings": [
+        "gpu_frequency_not_fixed",
+        "work_id_unavailable",
+        "same_input_order_association"
+      ]
+    },
+    {
       "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
       "collection_scope": "representative_kernel_launch",
       "coverage": {
@@ -845,6 +891,52 @@
       "tool_version": "2025.3.0.0",
       "warnings": [
         "gpu_frequency_not_fixed"
+      ]
+    },
+    {
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-2048x304x16384-001",
+      "collection_scope": "representative_kernel_launch",
+      "coverage": {
+        "is_complete_for_population": true,
+        "observed_count": 1,
+        "population": "one_replayed_launch"
+      },
+      "evidence": "measured_local",
+      "missing": {
+        "ncu.backing_store_bytes": "unavailable",
+        "nsys": "not_applicable",
+        "target_window_label": "not_applicable"
+      },
+      "ncu": {
+        "backing_store_bytes": null,
+        "cache_control_request": "none",
+        "clock_control_request": "none",
+        "origins": {
+          "backing_store_bytes": "unavailable",
+          "cache_control_request": "session_command",
+          "clock_control_request": "session_command",
+          "gpu_frequency_not_fixed": "collection_log_manual_audit",
+          "replay_mode": "session_command",
+          "replay_passes": "collection_log_manual_audit",
+          "selection_policy": "session_command",
+          "warmup_count": "harness_source_audit"
+        },
+        "replay_mode": "kernel",
+        "replay_passes": 13,
+        "warmup_count": 5
+      },
+      "nsys": null,
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-2048x304x16384-001",
+      "selection_policy": "name_filter_selected_match",
+      "source_id": "source-local-thor",
+      "target_window_count": 1,
+      "target_window_label": null,
+      "tool": "ncu",
+      "tool_version": "2025.3.0.0",
+      "warnings": [
+        "gpu_frequency_not_fixed",
+        "work_id_unavailable",
+        "same_input_order_association"
       ]
     },
     {
@@ -1065,6 +1157,22 @@
             "id": "kernel-signature-pi0-vlacpp-fp32-to-bf16-conversion-055|[[19456,1,1],[256,1,1],40,0,0]",
             "label": "vlacpp FP32 to BF16 conversion 055",
             "median_ns": 4674576.0
+          },
+          {
+            "calls": 17,
+            "counts_match": true,
+            "cv": 0.012494582244524564,
+            "id": "kernel-signature-pi0-vlacpp-bf16-gemm-2048x304x16384|[[20,1,1],[256,1,1],255,0,217304]",
+            "label": "vlacpp BF16 GEMM 2048x304x16384",
+            "median_ns": 10720816.0
+          },
+          {
+            "calls": 180,
+            "counts_match": true,
+            "cv": 0.006107615498189184,
+            "id": "kernel-signature-pi0-vlacpp-bf16-gemm-1024x51x4096|[[16,1,1],[256,1,1],255,0,229800]",
+            "label": "vlacpp BF16 GEMM 1024x51x4096",
+            "median_ns": 7887376.0
           }
         ],
         "input_case_id": "input-pi0-synthetic-v1-p48-c50-d10",

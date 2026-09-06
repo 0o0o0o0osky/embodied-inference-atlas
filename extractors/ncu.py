@@ -121,7 +121,7 @@ _SCHEDULER_MODE = "scheduler_stats_with_sysmem_sectors"
 _WARP_MODE = "warp_state_stats"
 _LOCKED_SECTION_MODES = {_SCHEDULER_MODE, _WARP_MODE}
 _SECTION_MODES = _LEGACY_SECTION_MODES | _LOCKED_SECTION_MODES
-_WARNINGS = {"gpu_frequency_not_fixed", "work_id_unavailable"}
+_WARNINGS = {"gpu_frequency_not_fixed", "work_id_unavailable", "same_input_order_association"}
 _LEGACY_SECTION_SET = {
     "LaunchStats", "Occupancy", "SpeedOfLight", "MemoryWorkloadAnalysis",
     "SpeedOfLight_HierarchicalTensorRooflineChart",
@@ -393,7 +393,7 @@ def parse_ncu_exports(
     }
     quality = ["replayed_launch"] + [
         warning for warning in policy["warnings"]
-        if warning in {"gpu_frequency_not_fixed", "work_id_unavailable"}
+        if warning in {"gpu_frequency_not_fixed", "work_id_unavailable", "same_input_order_association"}
     ]
     observation = {
         "observation_id": observation_id,
