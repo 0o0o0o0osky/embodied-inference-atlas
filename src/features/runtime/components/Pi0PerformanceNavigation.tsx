@@ -8,6 +8,14 @@ interface Pi0PerformanceNavigationProps {
   surface: "runtime" | "timeline" | "roofline" | "kernel";
 }
 
+const ROOFLINE_LEVEL_LABELS: Record<RouteState["rooflineLevel"], string> = {
+  overview: "总览",
+  stage: "模型阶段",
+  atomic: "逻辑算子",
+  fused: "融合算子",
+  kernel: "实测 Kernel",
+};
+
 export function Pi0PerformanceNavigation({ route, navigate, surface }: Pi0PerformanceNavigationProps) {
   const comparison = pi0PerformanceNavigationPatch("comparison");
   const isDetail = surface !== "runtime";
@@ -21,7 +29,7 @@ export function Pi0PerformanceNavigation({ route, navigate, surface }: Pi0Perfor
         {surface === "roofline" ? (
           <>
             <li><span aria-hidden="true">/</span><span>理论 Roofline</span></li>
-            <li><span aria-hidden="true">/</span><span aria-current="page">总览</span></li>
+            <li><span aria-hidden="true">/</span><span aria-current="page">{ROOFLINE_LEVEL_LABELS[route.rooflineLevel]}</span></li>
           </>
         ) : isDetail ? <li><span aria-hidden="true">/</span><span aria-current="page">{surface === "timeline" ? "Nsys 详情" : "Kernel 详情"}</span></li> : null}
       </ol>

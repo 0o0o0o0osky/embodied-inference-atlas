@@ -94,7 +94,7 @@ export function PerformanceView({ data, model, route, navigate }: PerformanceVie
     return (
       <div className="performance-workspace performance-workspace--pi0">
         <Pi0PerformanceNavigation route={route} navigate={navigate}
-          surface={route.rooflineLevel === "overview" ? "roofline" : "kernel"} />
+          surface={route.rooflineLevel === "kernel" ? "kernel" : "roofline"} />
         <section className="pi0-funnel-section pi0-roofline-summary" aria-labelledby="pi0-roofline-title">
           <header className="pi0-funnel-heading">
             <div><h3 id="pi0-roofline-title">理论 Roofline</h3><p>先选分析层级，再看对应上限；理论、融合实现与实测 Kernel 不混算。</p></div>
