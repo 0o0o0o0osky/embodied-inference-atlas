@@ -93,7 +93,8 @@ export function PerformanceView({ data, model, route, navigate }: PerformanceVie
   if (model.model_id === "pi0") {
     return (
       <div className="performance-workspace performance-workspace--pi0">
-        <Pi0PerformanceNavigation route={route} navigate={navigate} surface="kernel" />
+        <Pi0PerformanceNavigation route={route} navigate={navigate}
+          surface={route.rooflineLevel === "overview" ? "roofline" : "kernel"} />
         <section className="pi0-funnel-section pi0-roofline-summary" aria-labelledby="pi0-roofline-title">
           <header className="pi0-funnel-heading">
             <div><h3 id="pi0-roofline-title">理论 Roofline</h3><p>先选分析层级，再看对应上限；理论、融合实现与实测 Kernel 不混算。</p></div>
@@ -107,8 +108,10 @@ export function PerformanceView({ data, model, route, navigate }: PerformanceVie
             </div>
           )}
         </section>
-        <Pi0ProfilerEvidenceSection model={view} partialContextRunIds={partialContextRunIds}
-          anchorRunId={slice.anchorRunId} independentNcu={independentNcu} route={route} navigate={navigate} />
+        {route.runtime || route.rooflineLevel !== "overview" ? (
+          <Pi0ProfilerEvidenceSection model={view} partialContextRunIds={partialContextRunIds}
+            anchorRunId={slice.anchorRunId} independentNcu={independentNcu} route={route} navigate={navigate} />
+        ) : null}
       </div>
     );
   }

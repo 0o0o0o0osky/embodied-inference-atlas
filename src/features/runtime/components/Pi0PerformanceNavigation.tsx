@@ -5,7 +5,7 @@ import { pi0PerformanceNavigationPatch } from "../domain/pi0PerformanceNavigatio
 interface Pi0PerformanceNavigationProps {
   route: RouteState;
   navigate: (patch: RoutePatch, replace?: boolean) => void;
-  surface: "runtime" | "timeline" | "kernel";
+  surface: "runtime" | "timeline" | "roofline" | "kernel";
 }
 
 export function Pi0PerformanceNavigation({ route, navigate, surface }: Pi0PerformanceNavigationProps) {
@@ -18,7 +18,12 @@ export function Pi0PerformanceNavigation({ route, navigate, surface }: Pi0Perfor
         <li><span aria-hidden="true">/</span>{isDetail || route.runtime ? (
           <RouteLink route={route} navigate={navigate} patch={comparison}>性能对比</RouteLink>
         ) : <span aria-current="page">性能对比</span>}</li>
-        {isDetail ? <li><span aria-hidden="true">/</span><span aria-current="page">{surface === "timeline" ? "Nsys 详情" : "Kernel 详情"}</span></li> : null}
+        {surface === "roofline" ? (
+          <>
+            <li><span aria-hidden="true">/</span><span>理论 Roofline</span></li>
+            <li><span aria-hidden="true">/</span><span aria-current="page">总览</span></li>
+          </>
+        ) : isDetail ? <li><span aria-hidden="true">/</span><span aria-current="page">{surface === "timeline" ? "Nsys 详情" : "Kernel 详情"}</span></li> : null}
       </ol>
       {isDetail || route.runtime ? <div className="pi0-performance-navigation-actions">
         {isDetail && route.runtime ? <RouteLink route={route} navigate={navigate} patch={pi0PerformanceNavigationPatch("stack")}>← 返回当前推理栈</RouteLink> : null}

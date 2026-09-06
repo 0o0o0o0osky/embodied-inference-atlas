@@ -44,9 +44,13 @@ export function AtlasApp() {
       document.title = "Pi0 性能对比 — Atlas";
       return;
     }
+    if (route.model === "pi0" && route.tab === "roofline-kernels" && route.rooflineLevel === "overview") {
+      document.title = "Pi0 理论 Roofline / 总览 — Atlas";
+      return;
+    }
     const view = route.model ? `${route.model} / ${route.tab}` : "Model register";
     document.title = `${view} — Embodied Inference Atlas`;
-  }, [route.model, route.tab]);
+  }, [route.model, route.rooflineLevel, route.tab]);
 
   if (loadState.kind === "loading") {
     return <main className="boot-state">Reading the validated Atlas snapshot…</main>;

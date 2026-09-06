@@ -40,6 +40,21 @@ function rowLabel(point: RooflinePointRecord) {
   return "逻辑算子总计";
 }
 
+function computeClassLabel(computeClass: string) {
+  switch (computeClass) {
+    case "tensor_bf16_dense": return "BF16";
+    case "tensor_fp16_dense": return "FP16";
+    case "tensor_fp16_sparse": return "FP16 稀疏";
+    case "tensor_fp8_e4m3_dense": return "FP8 E4M3";
+    case "tensor_fp4_e2m1_dense": return "FP4 E2M1";
+    case "tensor_fp4_e2m1_sparse": return "FP4 E2M1 稀疏";
+    case "tensor_nvfp4_e2m1_dense": return "NVFP4 E2M1";
+    case "scalar_fp32": return "FP32 标量";
+    case "sfu_exp_reciprocal": return "SFU 指数 / 倒数";
+    default: return "其他计算路径";
+  }
+}
+
 function valueOrDash(value: number | null, format: (value: number) => string) {
   return value === null ? "—" : format(value);
 }
@@ -73,11 +88,14 @@ export function OperatorRooflinePanel({
   const computeCeilings = [...new Map(summary.rows.flatMap((row) => row.computeCeilings)
     .map((ceiling) => [ceiling.compute_ceiling_id, ceiling])).values()];
   const bandwidth = summary.rows[0]!.bandwidthCeiling;
+  const primaryPoint = summary.rows.find((row) => row.point.entity.entity_id.endsWith("#composite"))?.point
+    ?? summary.rows[0]!.point;
   return (
     <section className="operator-roofline" aria-label="所选算子的解析 Roofline">
       <header>
         <div>
-          <strong>解析下界</strong>
+          <span>理论结论</span>
+          <strong>{valueOrDash(primaryPoint.derived.roof_second, formatTime)} · {LIMITERS[primaryPoint.derived.limiter]}</strong>
           <span>不含运行时开销，也不代表实测效率</span>
         </div>
         <code>V{scenario.executed_camera_views} / P{scenario.executed_prompt_tokens} / A{scenario.action_horizon} / N{scenario.denoise_steps}</code>
@@ -92,8 +110,8 @@ export function OperatorRooflinePanel({
               || !row.computeCeilings.some((ceiling) =>
                 ceiling.compute_class === component.compute_class && ceiling.flop_per_second !== null)));
           const computeCeiling = row.computeCeilings.map((ceiling) => ceiling.flop_per_second === null
-            ? `${ceiling.compute_class}（速率缺失）`
-            : `${ceiling.compute_class} ${formatNumber(ceiling.flop_per_second / 1e12)} TFLOP/s`).join("；");
+            ? `${computeClassLabel(ceiling.compute_class)}（速率缺失）`
+            : `${computeClassLabel(ceiling.compute_class)} ${formatNumber(ceiling.flop_per_second / 1e12)} TFLOP/s`).join("；");
           return (
             <article key={point.point_id}>
               <div className="operator-roofline-row-heading">
@@ -125,7 +143,7 @@ export function OperatorRooflinePanel({
             <div key={ceiling.compute_ceiling_id}>
               <dt>计算</dt>
               <dd>
-                <code>{ceiling.compute_ceiling_id}</code>
+                <code>{ceiling.compute_ceiling_id} · {ceiling.compute_class}</code>
                 <span>{provenanceLabel(ceiling.provenance)}；{ceiling.provenance.condition ?? "无附加条件"}</span>
                 <small>{ceiling.provenance.source_ids.join(" · ") || "未声明来源"}</small>
               </dd>

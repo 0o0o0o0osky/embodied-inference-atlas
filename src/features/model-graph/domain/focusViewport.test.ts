@@ -103,9 +103,7 @@ describe("resolveFocusViewport", () => {
     expect(focus.scopeId).toBe(scope.id);
     expect(focus.width / focus.height).toBeCloseTo(layout.width / layout.height, 8);
     expect(focus.x).toBeLessThanOrEqual(scopeBox.x);
-    expect(focus.y).toBeLessThanOrEqual(scopeBox.y);
     expect(focus.x + focus.width).toBeGreaterThanOrEqual(scopeBox.x + scopeBox.width);
-    expect(focus.y + focus.height).toBeGreaterThanOrEqual(scopeBox.y + scopeBox.height);
     for (const box of contextBoxes) {
       expect(focus.x).toBeLessThanOrEqual(box.x);
       expect(focus.y).toBeLessThanOrEqual(box.y);
@@ -116,5 +114,18 @@ describe("resolveFocusViewport", () => {
     expect(focus.y).toBeGreaterThanOrEqual(0);
     expect(focus.x + focus.width).toBeLessThanOrEqual(layout.width);
     expect(focus.y + focus.height).toBeLessThanOrEqual(layout.height);
+  });
+
+  it("places a selected Pi0 operator in the initial upper viewport", () => {
+    const dag = adaptLogicalDag(adaptV1ModelGraph(pi0GraphDocument.records[0] as CanonicalRecord));
+    const layout = layoutLogicalDag(dag, pi0Presentation);
+    const selectedRef = "action-flow-decoder/action-expert-blocks/feed-forward/gate-projection";
+    const selected = layout.nodeBoxes.get(selectedRef)!;
+
+    const focus = resolveFocusViewport(dag, layout, selectedRef, "stage");
+    const selectedCenterRatio = (selected.y + selected.height / 2 - focus.y) / focus.height;
+
+    expect(selectedCenterRatio).toBeGreaterThan(0);
+    expect(selectedCenterRatio).toBeLessThanOrEqual(0.45);
   });
 });

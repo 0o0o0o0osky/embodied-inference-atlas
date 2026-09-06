@@ -758,7 +758,7 @@
 
 .operator-roofline > header {
   display: flex;
-  align-items: flex-end;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
   padding-bottom: 14px;
@@ -767,11 +767,15 @@
 
 .operator-roofline > header > div {
   display: grid;
-  gap: 2px;
+  gap: 3px;
 }
 
 .operator-roofline > header strong {
-  font-size: 17px;
+  color: #0b474e;
+  font-family: var(--mono-face);
+  font-size: 21px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.025em;
 }
 
 .operator-roofline > header span,

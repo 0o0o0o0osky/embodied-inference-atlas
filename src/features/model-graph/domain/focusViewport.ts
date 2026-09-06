@@ -124,6 +124,8 @@ export function resolveFocusViewport(
 
   const scopeBox = smallestScope(dag, layout, selectedRef);
   if (!scopeBox) return overview(layout);
+  const selectedBox = layout.nodeBoxes.get(selectedRef);
+  if (!selectedBox) return overview(layout);
 
   const contextRefs = dag.edges
     .filter((edge) => edge.source === selectedRef || edge.target === selectedRef)
@@ -131,6 +133,20 @@ export function resolveFocusViewport(
   const contextBoxes = contextRefs
     .map((ref) => layout.nodeBoxes.get(ref))
     .filter((box): box is NonNullable<typeof box> => Boolean(box));
+  const contextBounds = contextBoxes.reduce(
+    (current, box) => ({
+      left: Math.min(current.left, box.x),
+      top: Math.min(current.top, box.y),
+      right: Math.max(current.right, box.x + box.width),
+      bottom: Math.max(current.bottom, box.y + box.height),
+    }),
+    {
+      left: selectedBox.x,
+      top: selectedBox.y,
+      right: selectedBox.x + selectedBox.width,
+      bottom: selectedBox.y + selectedBox.height,
+    },
+  );
   const bounds = contextBoxes.reduce(
     (current, box) => ({
       left: Math.min(current.left, box.x),
@@ -155,6 +171,10 @@ export function resolveFocusViewport(
     const maximumX = Math.min(layout.width - viewport.width, bounds.left);
     const stageCenteredX = stage.x + stage.width / 2 - viewport.width / 2;
     viewport.x = Math.max(minimumX, Math.min(maximumX, stageCenteredX));
+    const minimumY = Math.max(0, contextBounds.bottom - viewport.height);
+    const maximumY = Math.min(layout.height - viewport.height, contextBounds.top);
+    const selectedUpperY = selectedBox.y + selectedBox.height / 2 - viewport.height * 0.4;
+    viewport.y = Math.max(minimumY, Math.min(maximumY, selectedUpperY));
   }
   return { ...viewport, scopeId: scopeBox.scopeId };
 }
