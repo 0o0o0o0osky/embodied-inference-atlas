@@ -127,11 +127,50 @@ export interface Pi0PerformanceFacet {
   };
 }
 
+export interface Pi0PerformanceCoordinate {
+  cameraViews: number;
+  actionChunk: number;
+}
+
+export interface Pi0PerformanceDefaultCoordinate extends Pi0PerformanceCoordinate {
+  measuredGroupCount: number;
+}
+
+export type Pi0PerformanceGroupComparison =
+  | {
+    state: "measured";
+    facet: Pi0PerformanceFacet;
+    cell: Pi0PerformanceMeasuredCell;
+  }
+  | {
+    state: "multiple_contracts";
+    measurements: readonly {
+      facet: Pi0PerformanceFacet;
+      cell: Pi0PerformanceMeasuredCell;
+    }[];
+  }
+  | {
+    state: "unavailable";
+  };
+
+export interface Pi0PerformanceGroup {
+  id: string;
+  runtimeId: string;
+  runtimeLabel: string;
+  hardwareId: string;
+  precisionId: string;
+  facets: readonly Pi0PerformanceFacet[];
+  primaryFacetId: string;
+  comparison: Pi0PerformanceGroupComparison;
+}
+
 export interface Pi0PerformanceOverviewModel {
   target: typeof PI0_PERFORMANCE_TARGET;
   hardwareId: string | null;
   hardwareLabel: string;
   facets: readonly Pi0PerformanceFacet[];
+  groups: readonly Pi0PerformanceGroup[];
+  defaultCoordinate: Pi0PerformanceDefaultCoordinate;
   measuredCellCount: number;
   targetCellCount: number;
 }
@@ -384,6 +423,59 @@ function cellFor(
   };
 }
 
+function measuredAt(
+  facet: Pi0PerformanceFacet,
+  coordinate: Pi0PerformanceCoordinate,
+): Pi0PerformanceMeasuredCell | null {
+  const series = facet.series.find((candidate) => candidate.actionChunk === coordinate.actionChunk);
+  const cell = series?.cells.find((candidate) => candidate.cameraViews === coordinate.cameraViews);
+  return cell?.state === "measured" ? cell : null;
+}
+
+function groupComparison(
+  facets: readonly Pi0PerformanceFacet[],
+  coordinate: Pi0PerformanceCoordinate,
+): Pi0PerformanceGroupComparison {
+  const measurements = facets.flatMap((facet) => {
+    const cell = measuredAt(facet, coordinate);
+    return cell ? [{ facet, cell }] : [];
+  });
+  if (measurements.length === 1) {
+    return { state: "measured", ...measurements[0]! };
+  }
+  if (measurements.length > 1) return { state: "multiple_contracts", measurements };
+  return { state: "unavailable" };
+}
+
+function defaultCoordinate(groups: readonly { facets: readonly Pi0PerformanceFacet[] }[]): Pi0PerformanceDefaultCoordinate {
+  const coordinates = PI0_PERFORMANCE_TARGET.cameraViews.flatMap((cameraViews) =>
+    PI0_PERFORMANCE_TARGET.actionChunks.map((actionChunk) => ({ cameraViews, actionChunk })),
+  );
+  return coordinates
+    .map((coordinate) => ({
+      ...coordinate,
+      measuredGroupCount: groups.filter((group) =>
+        groupComparison(group.facets, coordinate).state === "measured").length,
+    }))
+    .sort((left, right) =>
+      right.measuredGroupCount - left.measuredGroupCount
+      || right.actionChunk - left.actionChunk
+      || left.cameraViews - right.cameraViews,
+    )[0] ?? { cameraViews: 1, actionChunk: 50, measuredGroupCount: 0 };
+}
+
+function primaryFacet(
+  facets: readonly Pi0PerformanceFacet[],
+  comparison: Pi0PerformanceGroupComparison,
+): Pi0PerformanceFacet {
+  if (comparison.state === "measured") return comparison.facet;
+  return [...facets].sort((left, right) =>
+    right.measuredCellCount - left.measuredCellCount
+    || Number(Boolean(right.nativeEvidenceSelection)) - Number(Boolean(left.nativeEvidenceSelection))
+    || left.id.localeCompare(right.id),
+  )[0]!;
+}
+
 export function buildPi0PerformanceOverview({
   data,
   hardwareId,
@@ -472,6 +564,27 @@ export function buildPi0PerformanceOverview({
     * PI0_PERFORMANCE_TARGET.cameraViews.length
     * PI0_PERFORMANCE_TARGET.actionChunks.length;
   const measuredCellCount = builtFacets.reduce((count, facet) => count + facet.measuredCellCount, 0);
+  const groupedFacets = new Map<string, Pi0PerformanceFacet[]>();
+  builtFacets.forEach((facet) => {
+    const key = `${facet.runtimeId}\u0000${facet.precisionId}`;
+    groupedFacets.set(key, [...(groupedFacets.get(key) ?? []), facet]);
+  });
+  const groupedEntries = [...groupedFacets.values()];
+  const selectedCoordinate = defaultCoordinate(groupedEntries.map((facets) => ({ facets })));
+  const groups = groupedEntries.map((facets): Pi0PerformanceGroup => {
+    const first = facets[0]!;
+    const comparison = groupComparison(facets, selectedCoordinate);
+    return {
+      id: `pi0-group-${first.runtimeId}-${first.precisionId}`,
+      runtimeId: first.runtimeId,
+      runtimeLabel: first.runtimeLabel,
+      hardwareId: first.hardwareId,
+      precisionId: first.precisionId,
+      facets,
+      primaryFacetId: primaryFacet(facets, comparison).id,
+      comparison,
+    };
+  });
   const hardwareLabel = hardwareId === null
     ? "全部硬件"
     : data.datasets.devices.find((device) => device.device_id === hardwareId)?.display_name ?? hardwareId;
@@ -481,6 +594,8 @@ export function buildPi0PerformanceOverview({
     hardwareId,
     hardwareLabel,
     facets: builtFacets,
+    groups,
+    defaultCoordinate: selectedCoordinate,
     measuredCellCount,
     targetCellCount,
   };

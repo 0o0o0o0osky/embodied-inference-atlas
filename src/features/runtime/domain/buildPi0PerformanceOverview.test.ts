@@ -327,6 +327,24 @@ it("builds exact six-cell Pi0 target grids without borrowing mismatched evidence
   expect(overview.facets.some((facet) => facet.runtimeId === "flashrt"
     && facet.contract.inputContractId === "synthetic-observation"
     && facet.contract.timingBoundaryId === "predict-with-preprocess")).toBe(true);
+  expect(overview.defaultCoordinate).toEqual({
+    cameraViews: 1,
+    actionChunk: 50,
+    measuredGroupCount: 2,
+  });
+  expect(overview.groups.map((group) => [
+    group.runtimeId,
+    group.precisionId,
+    group.facets.length,
+    group.comparison.state,
+  ])).toEqual([
+    ["duplicate-target", "fp16", 1, "unavailable"],
+    ["flashrt", "mixed-fp8-e4m3-fp16", 3, "unavailable"],
+    ["vla-cpp", "mixed-bf16-fp32", 1, "measured"],
+    ["vla-cpp", "q8_0-weight-only", 1, "measured"],
+  ]);
+  expect(new Set(overview.groups.map((group) => `${group.runtimeId}/${group.precisionId}`)).size)
+    .toBe(overview.groups.length);
   for (const [precisionId, runId] of [
     ["mixed-bf16-fp32", "vlacpp-bf16-exact"],
     ["q8_0-weight-only", "vlacpp-q8-exact"],

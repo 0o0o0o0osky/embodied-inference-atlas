@@ -1,13 +1,13 @@
-import type { KeyboardEvent } from "react";
+import type { CSSProperties } from "react";
 
 import type {
   Pi0NativeEvidenceSelection,
   Pi0PerformanceCell,
   Pi0PerformanceFacet,
+  Pi0PerformanceGroup,
   Pi0PerformanceMeasuredCell,
   Pi0PerformanceOverviewModel,
   Pi0PerformanceSelection,
-  Pi0PerformanceSeries,
 } from "../domain/buildPi0PerformanceOverview";
 import "./pi0PerformanceOverviewChart.css";
 
@@ -51,26 +51,12 @@ const STATISTIC_LABELS: Readonly<Record<string, string>> = {
   p50: "中位数",
 };
 
-const WIDTH = 600;
-const HEIGHT = 166;
-const PLOT_LEFT = 68;
-const PLOT_RIGHT = 574;
-const PLOT_TOP = 34;
-const PLOT_BOTTOM = 120;
-const VIEW_X = [176, 350, 524] as const;
-
 function label(value: string): string {
   return CONTRACT_LABELS[value] ?? value.replaceAll("_", " ");
 }
 
 function precisionLabel(value: string): string {
   return PRECISION_LABELS[value] ?? value;
-}
-
-function finiteMeasuredCells(facet: Pi0PerformanceFacet): Pi0PerformanceMeasuredCell[] {
-  return facet.series.flatMap((series) => series.cells.flatMap((cell) =>
-    cell.state === "measured" && Number.isFinite(cell.latency.value) ? [cell] : [],
-  ));
 }
 
 function niceCeiling(value: number): number {
@@ -81,33 +67,6 @@ function niceCeiling(value: number): number {
   return ceiling * magnitude;
 }
 
-function yFor(value: number, maximum: number): number {
-  const normalized = Math.max(0, Math.min(1, value / maximum));
-  return PLOT_BOTTOM - normalized * (PLOT_BOTTOM - PLOT_TOP);
-}
-
-function contiguousSegments(series: Pi0PerformanceSeries): Pi0PerformanceMeasuredCell[][] {
-  const segments: Pi0PerformanceMeasuredCell[][] = [];
-  let current: Pi0PerformanceMeasuredCell[] = [];
-  series.cells.forEach((cell) => {
-    if (cell.state === "measured") {
-      current.push(cell);
-      return;
-    }
-    if (current.length) segments.push(current);
-    current = [];
-  });
-  if (current.length) segments.push(current);
-  return segments;
-}
-
-function linePath(segment: readonly Pi0PerformanceMeasuredCell[], maximum: number): string {
-  return segment.map((cell, index) => {
-    const x = VIEW_X[cell.cameraViews - 1] ?? PLOT_LEFT;
-    return `${index ? "L" : "M"} ${x} ${yFor(cell.latency.value, maximum)}`;
-  }).join(" ");
-}
-
 function formatTick(value: number): string {
   return value.toLocaleString("zh-CN", { maximumFractionDigits: value < 10 ? 1 : 0 });
 }
@@ -115,16 +74,6 @@ function formatTick(value: number): string {
 function pointLabel(facet: Pi0PerformanceFacet, cell: Pi0PerformanceMeasuredCell): string {
   const statistic = STATISTIC_LABELS[cell.latency.statistic] ?? cell.latency.statistic;
   return `${facet.runtimeLabel}，${cell.cameraViews} 个视角，动作块 ${cell.actionChunk}，端到端${statistic} ${cell.latency.value.toLocaleString("zh-CN", { maximumFractionDigits: 2 })} ${cell.latency.unit}，查看详情`;
-}
-
-function activatePoint(
-  event: KeyboardEvent<SVGGElement>,
-  selection: Pi0PerformanceSelection,
-  onSelectEvidence: (selection: Pi0RoutablePerformanceSelection) => void,
-) {
-  if (event.key !== "Enter" && event.key !== " ") return;
-  event.preventDefault();
-  onSelectEvidence(selection);
 }
 
 function statusLabel(cell: Pi0PerformanceCell): string {
@@ -175,10 +124,12 @@ function observedScopeSummary(facet: Pi0PerformanceFacet): string {
 
 function TargetMatrix({
   facet,
+  focus,
   selectedRunId,
   onSelectEvidence,
 }: {
   facet: Pi0PerformanceFacet;
+  focus: { cameraViews: number; actionChunk: number };
   selectedRunId: string | null;
   onSelectEvidence: (selection: Pi0RoutablePerformanceSelection) => void;
 }) {
@@ -197,13 +148,14 @@ function TargetMatrix({
             <th scope="row">A={series.actionChunk}</th>
             {series.cells.map((cell) => {
               const selected = cell.state === "measured" && selectedRunId === cell.selection.runId;
+              const focused = cell.cameraViews === focus.cameraViews && cell.actionChunk === focus.actionChunk;
               const contents = <>
                 <i className="pi0-target-state-mark" aria-hidden="true" />
                 <span>{statusLabel(cell)}</span>
                 {cell.state === "measured" ? <small>{cell.latency.value.toLocaleString("zh-CN", { maximumFractionDigits: 1 })} {cell.latency.unit}</small> : null}
               </>;
               return (
-                <td key={cell.cameraViews} className={`is-${cell.state}${selected ? " is-selected" : ""}`} title={statusTitle(cell)}>
+                <td key={cell.cameraViews} className={`is-${cell.state}${selected ? " is-selected" : ""}${focused ? " is-focus" : ""}`} title={statusTitle(cell)}>
                   {cell.state === "measured" ? (
                     <button type="button" onClick={() => onSelectEvidence(cell.selection)}>{contents}</button>
                   ) : <div>{contents}</div>}
@@ -217,83 +169,105 @@ function TargetMatrix({
   );
 }
 
-function CompactMeasuredPlot({
-  facet,
-  measured,
-  selectedRunId,
+function firstMeasuredCell(facet: Pi0PerformanceFacet): Pi0PerformanceMeasuredCell | null {
+  return facet.series.flatMap((series) => series.cells)
+    .find((cell): cell is Pi0PerformanceMeasuredCell => cell.state === "measured") ?? null;
+}
+
+function cellAt(
+  facet: Pi0PerformanceFacet,
+  coordinate: Pi0PerformanceOverviewModel["defaultCoordinate"],
+): Pi0PerformanceCell | null {
+  return facet.series.find((series) => series.actionChunk === coordinate.actionChunk)
+    ?.cells.find((cell) => cell.cameraViews === coordinate.cameraViews) ?? null;
+}
+
+function ComparisonBars({
+  groups,
+  coordinate,
   onSelectEvidence,
 }: {
-  facet: Pi0PerformanceFacet;
-  measured: readonly Pi0PerformanceMeasuredCell[];
-  selectedRunId: string | null;
+  groups: readonly Pi0PerformanceGroup[];
+  coordinate: Pi0PerformanceOverviewModel["defaultCoordinate"];
   onSelectEvidence: (selection: Pi0RoutablePerformanceSelection) => void;
 }) {
-  const maximum = niceCeiling(Math.max(...measured.map((cell) => cell.latency.value)));
-  const unit = facet.contract.unit ?? measured[0]?.latency.unit ?? "未记录";
-  const ticks = [maximum, maximum / 2, 0];
+  const measured = groups.flatMap((group) => group.comparison.state === "measured"
+    && Number.isFinite(group.comparison.cell.latency.value) ? [group.comparison] : []);
+  const unit = measured[0]?.cell.latency.unit ?? "ms";
+  const scaled = measured.filter((comparison) => comparison.cell.latency.unit === unit);
+  const maximum = niceCeiling(Math.max(...scaled.map((comparison) => comparison.cell.latency.value), 0));
+  const statistics = [...new Set(measured.map((comparison) => comparison.cell.latency.statistic))];
+  const statistic = statistics.length === 1
+    ? STATISTIC_LABELS[statistics[0]!] ?? statistics[0]!
+    : "各口径统计量";
+
   return (
-    <svg className="pi0-overview-svg" viewBox={`0 0 ${WIDTH} ${HEIGHT}`} role="img" aria-label={`${facet.runtimeLabel} 目标采样格中的已测端到端延时`}>
-      <text className="pi0-overview-axis-title" x={PLOT_LEFT} y={18}>端到端延时 / {unit}</text>
-      {ticks.map((tick) => {
-        const y = yFor(tick, maximum);
-        return <g key={tick} className="pi0-overview-gridline">
-          <line x1={PLOT_LEFT} x2={PLOT_RIGHT} y1={y} y2={y} />
-          <text x={PLOT_LEFT - 10} y={y + 4}>{formatTick(tick)}</text>
-        </g>;
-      })}
-      {facet.series.flatMap((series) => contiguousSegments(series).map((segment, index) =>
-        segment.length > 1 ? <path
-          key={`${series.actionChunk}/segment/${index}`}
-          className={`pi0-overview-series-line is-a-${series.actionChunk}`}
-          d={linePath(segment, maximum)}
-          pathLength={1}
-        /> : null,
-      ))}
-      {facet.series.flatMap((series) => series.cells.flatMap((cell) => {
-        if (cell.state !== "measured") return [];
-        const x = VIEW_X[cell.cameraViews - 1] ?? PLOT_LEFT;
-        const y = yFor(cell.latency.value, maximum);
-        const selected = selectedRunId === cell.selection.runId;
-        return [<g
-          key={`${series.actionChunk}/${cell.cameraViews}`}
-          className={`pi0-overview-point is-a-${series.actionChunk}${selected ? " is-selected" : ""}`}
-          role="button"
-          tabIndex={0}
-          aria-label={pointLabel(facet, cell)}
-          onClick={() => onSelectEvidence(cell.selection)}
-          onKeyDown={(event) => activatePoint(event, cell.selection, onSelectEvidence)}
-        >
-          <title>{pointLabel(facet, cell)}</title>
-          <circle className="pi0-overview-point-halo" cx={x} cy={y} r={10} />
-          {series.actionChunk === 50
-            ? <rect className="pi0-overview-point-shape" x={x - 4.5} y={y - 4.5} width={9} height={9} rx={1} />
-            : <circle className="pi0-overview-point-shape" cx={x} cy={y} r={4.75} />}
-          <text x={x} y={Math.max(PLOT_TOP + 12, y - 12)}>{cell.latency.value.toLocaleString("zh-CN", { maximumFractionDigits: 1 })}</text>
-        </g>];
-      }))}
-      {VIEW_X.map((x, index) => <text key={x} className="pi0-overview-view-label" x={x} y={151}>V={index + 1}</text>)}
-    </svg>
+    <section className="pi0-overview-comparison" aria-labelledby="pi0-overview-comparison-title">
+      <header>
+        <div>
+          <h4 id="pi0-overview-comparison-title">同坐标实测</h4>
+          <p>V={coordinate.cameraViews} · A={coordinate.actionChunk} · P=48 · N=10 · {statistic}</p>
+        </div>
+        <p>统一横轴读取绝对延时；不同测量口径不合并，也不计算加速比。</p>
+      </header>
+      <div className="pi0-comparison-axis" aria-hidden="true">
+        <span>0</span><span>{formatTick(maximum / 2)}</span><span>{formatTick(maximum)} {unit}</span>
+      </div>
+      <div className="pi0-comparison-rows">
+        {groups.map((group) => {
+          const comparison = group.comparison;
+          const primaryFacet = group.facets.find((facet) => facet.id === group.primaryFacetId) ?? group.facets[0]!;
+          const focusedCell = cellAt(primaryFacet, coordinate);
+          const canScale = comparison.state === "measured" && comparison.cell.latency.unit === unit;
+          const width = canScale ? Math.max(2, comparison.cell.latency.value / maximum * 100) : 0;
+          return (
+            <div className="pi0-comparison-row" key={group.id}>
+              <div className="pi0-comparison-identity">
+                <strong>{group.runtimeLabel}</strong>
+                <span>{precisionLabel(group.precisionId)}</span>
+              </div>
+              <div className="pi0-comparison-track">
+                {canScale ? <button
+                  type="button"
+                  className="pi0-comparison-bar"
+                  style={{ "--pi0-bar-width": `${width}%` } as CSSProperties}
+                  title={pointLabel(comparison.facet, comparison.cell)}
+                  onClick={() => onSelectEvidence(comparison.cell.selection)}
+                ><span>{comparison.cell.latency.value.toLocaleString("zh-CN", { maximumFractionDigits: 1 })} {unit}</span></button>
+                  : <span className="pi0-comparison-missing">{comparison.state === "multiple_contracts"
+                    ? `${comparison.measurements.length} 个独立口径，展开查看`
+                    : comparison.state === "measured" ? `单位 ${comparison.cell.latency.unit}，未纳入横轴`
+                      : focusedCell?.state === "unsupported" ? "当前坐标不支持" : "此坐标暂无精确实测"}</span>}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </section>
   );
 }
 
-function FacetChart({
-  facet,
+function GroupPanel({
+  group,
+  coordinate,
   selectedRunId,
   onSelectEvidence,
 }: {
-  facet: Pi0PerformanceFacet;
+  group: Pi0PerformanceGroup;
+  coordinate: Pi0PerformanceOverviewModel["defaultCoordinate"];
   selectedRunId: string | null;
   onSelectEvidence: (selection: Pi0RoutablePerformanceSelection) => void;
 }) {
-  const measured = finiteMeasuredCells(facet);
-  const nativeEvidence = facet.nativeEvidenceSelection;
+  const facet = group.facets.find((candidate) => candidate.id === group.primaryFacetId) ?? group.facets[0]!;
+  const nativeEvidence = [facet, ...group.facets.filter((candidate) => candidate.id !== facet.id)]
+    .find((candidate) => candidate.nativeEvidenceSelection)?.nativeEvidenceSelection ?? null;
 
   return (
-    <article className="pi0-overview-facet" aria-labelledby={`pi0-overview-${encodeURIComponent(facet.id)}`}>
+    <article className="pi0-overview-facet" aria-labelledby={`pi0-overview-${encodeURIComponent(group.id)}`}>
       <header>
         <div className="pi0-overview-facet-identity">
-          <h4 id={`pi0-overview-${encodeURIComponent(facet.id)}`}>{facet.runtimeLabel}</h4>
-          <span>{precisionLabel(facet.precisionId)}</span>
+          <h4 id={`pi0-overview-${encodeURIComponent(group.id)}`}>{group.runtimeLabel}</h4>
+          <span>{precisionLabel(group.precisionId)}</span>
         </div>
         <button
           className="pi0-overview-evidence-action"
@@ -304,20 +278,29 @@ function FacetChart({
           {nativeEvidence ? "查看已有原生证据" : "暂无可下钻证据"}
         </button>
       </header>
-      <p className="pi0-overview-contract" title={contractTitle(facet)}>{contractSummary(facet)}</p>
-      {measured.length ? <CompactMeasuredPlot facet={facet} measured={measured} selectedRunId={selectedRunId} onSelectEvidence={onSelectEvidence} /> : null}
-      <TargetMatrix facet={facet} selectedRunId={selectedRunId} onSelectEvidence={onSelectEvidence} />
+      <p className="pi0-overview-contract" title={contractTitle(facet)}>当前口径：{contractSummary(facet)}</p>
+      <TargetMatrix facet={facet} focus={coordinate} selectedRunId={selectedRunId} onSelectEvidence={onSelectEvidence} />
       <p className="pi0-overview-observed">{observedScopeSummary(facet)}</p>
+      {group.facets.length > 1 ? (
+        <details className="pi0-overview-contracts">
+          <summary>{group.facets.length} 个独立测量口径</summary>
+          <div>
+            {group.facets.map((candidate, index) => {
+              const measured = firstMeasuredCell(candidate);
+              const evidence = measured?.selection ?? candidate.nativeEvidenceSelection;
+              return <section key={candidate.id}>
+                <p title={contractTitle(candidate)}><strong>口径 {index + 1}</strong><span>{contractSummary(candidate)}</span></p>
+                {evidence ? <button type="button" onClick={() => onSelectEvidence(evidence)}>查看证据</button> : <span>暂无证据入口</span>}
+              </section>;
+            })}
+          </div>
+        </details>
+      ) : null}
     </article>
   );
 }
 
 export function Pi0PerformanceOverviewChart({ model, selectedRunId, onSelectEvidence }: Pi0PerformanceOverviewChartProps) {
-  const cells = model.facets.flatMap((facet) => facet.series.flatMap((series) => series.cells));
-  const measured = cells.filter((cell) => cell.state === "measured").length;
-  const pending = cells.filter((cell) => cell.state === "pending_supported").length;
-  const unsupported = cells.filter((cell) => cell.state === "unsupported").length;
-
   return (
     <section className="pi0-performance-overview" aria-labelledby="pi0-performance-overview-title">
       <header className="pi0-overview-heading">
@@ -325,25 +308,23 @@ export function Pi0PerformanceOverviewChart({ model, selectedRunId, onSelectEvid
           <h3 id="pi0-performance-overview-title">端到端总体表现</h3>
           <p>{model.hardwareLabel} · P=48 · N=10 · V=1/2/3 · A=20/50</p>
         </div>
-        <p className="pi0-overview-progress" aria-label={`目标格已测 ${measured}，待测 ${pending}，不支持 ${unsupported}`}>
-          <span><strong>{measured}</strong> 已测</span>
-          <span><strong>{pending}</strong> 待测</span>
-          <span><strong>{unsupported}</strong> 不支持</span>
-        </p>
+        <p className="pi0-overview-progress"><strong>{model.defaultCoordinate.measuredGroupCount}</strong> 个推理栈/精度组在默认坐标有精确实测</p>
       </header>
-      {model.facets.length ? (
+      {model.groups.length ? (<>
+        <ComparisonBars groups={model.groups} coordinate={model.defaultCoordinate} onSelectEvidence={onSelectEvidence} />
         <div className="pi0-overview-facets">
-          {model.facets.map((facet) => <FacetChart
-            key={facet.id}
-            facet={facet}
+          {model.groups.map((group) => <GroupPanel
+            key={group.id}
+            group={group}
+            coordinate={model.defaultCoordinate}
             selectedRunId={selectedRunId}
             onSelectEvidence={onSelectEvidence}
           />)}
         </div>
-      ) : (
+      </>) : (
         <p className="pi0-overview-empty">当前硬件尚无本地端到端证据，无法建立推理栈分面；目标采样格保持待测。</p>
       )}
-      <footer>目标格只接受精确匹配的本地实测；原生 workload 单独下钻，不填入 P=48、N=10、A=20/50 目标点。</footer>
+      <footer>每个推理栈与实际精度只出现一次；目标格只接受精确匹配的本地实测，其他 workload 与不同 comparison contract 均在组内下钻。</footer>
     </section>
   );
 }
