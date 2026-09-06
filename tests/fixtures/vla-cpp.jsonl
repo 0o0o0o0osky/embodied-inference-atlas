@@ -1,6 +1,6 @@
-{"record":"run_config","repetitions":50,"path":"/home/example/run-config"}
+{"record":"run_config","repetitions":10,"warmups":3,"path":"/home/example/run-config"}
 {"record":"artifact","model_family":"pi0","variant":"source_bf16_f32","path":"/home/example/pi0.gguf","sha256":"secret"}
 {"record":"artifact","model_family":"pi0","variant":"q8_0_vlm_vit_weight_only","path":"/home/example/pi0-q8.gguf","sha256":"secret"}
-{"record":"timing","model_family":"pi0","variant":"source_bf16_f32","views":1,"synthetic_tokens":4,"output_shape":[50,32],"repetitions":50,"min_ms":198.0,"p50_ms":200.0,"p95_ms":202.0}
-{"record":"timing","model_family":"pi0","variant":"q8_0_vlm_vit_weight_only","views":1,"synthetic_tokens":4,"output_shape":[50,32],"repetitions":50,"min_ms":218.0,"p50_ms":220.0,"p95_ms":222.0}
+{"record":"timing","model_family":"pi0","variant":"source_bf16_f32","views":1,"input_side":224,"synthetic_tokens":48,"configured_action_chunk":50,"denoise_steps":10,"output_shape":[50,32],"repetitions":10,"min_ms":198.0,"p50_ms":200.0,"p95_ms":202.0}
+{"record":"timing","model_family":"pi0","variant":"q8_0_vlm_vit_weight_only","views":1,"input_side":224,"synthetic_tokens":48,"configured_action_chunk":50,"denoise_steps":10,"output_shape":[50,32],"repetitions":10,"min_ms":218.0,"p50_ms":220.0,"p95_ms":222.0}
 {"record":"load_failure","model_family":"smolvla","variant":"q8_0_vlm_vit_attempt","path":"/home/example/failed.gguf","raw_log":"private.log","error":"raw error"}

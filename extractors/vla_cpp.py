@@ -85,6 +85,17 @@ def _timing(
     if not isinstance(output_shape, list) or len(output_shape) < 2:
         raise SourceFormatError(f"{context.source_label}: invalid timing record")
     input_side = nonnegative_integer(source.get("input_side", 224), context, "timing")
+    action_chunk = nonnegative_integer(output_shape[0], context, "timing")
+    configured_action_chunk = source.get("configured_action_chunk")
+    if configured_action_chunk is not None:
+        configured_action_chunk = _positive_integer(
+            configured_action_chunk, context, "timing"
+        )
+        if configured_action_chunk != action_chunk:
+            raise SourceFormatError(f"{context.source_label}: invalid timing record")
+    denoise_steps = source.get("denoise_steps")
+    if denoise_steps is not None:
+        denoise_steps = _positive_integer(denoise_steps, context, "timing")
     workload = {
         "common": {
             "batch_size": 1,
@@ -102,8 +113,8 @@ def _timing(
                 source.get("synthetic_tokens"), context, "timing"
             ),
             "action_dimension": nonnegative_integer(output_shape[-1], context, "timing"),
-            "action_chunk": nonnegative_integer(output_shape[0], context, "timing"),
-            "denoise_steps": None,
+            "action_chunk": action_chunk,
+            "denoise_steps": denoise_steps,
         },
     }
     precision, precision_missing = _precision(
@@ -117,10 +128,11 @@ def _timing(
     }
     run_id = record_id("run", context, index)
     missing = {
-        "workload.vla.denoise_steps": "unavailable_from_source",
         "operating_point.throttle_status": "not_collected",
         **precision_missing,
     }
+    if denoise_steps is None:
+        missing["workload.vla.denoise_steps"] = "unavailable_from_source"
     if warmup_iterations is None:
         missing["timing.warmup_iterations"] = "unavailable_from_source"
     if operating_point["power_mode"] is None:
@@ -191,7 +203,7 @@ def _precision(
             "precision_id": "mixed-bf16-fp32",
             "requested": "bf16",
             "weight_dtype": "mixed-bf16-fp32",
-            "activation_dtype": "mixed-bf16-fp32",
+            "activation_dtype": "fp32",
             "accumulation_dtype": "fp32",
             "execution_dtype": "mixed-bf16-fp32",
             "quant_scheme": "none",
@@ -215,15 +227,24 @@ def _precision(
         "precision_id": "q8_0-weight-only",
         "requested": "q8_0",
         "weight_dtype": "q8_0",
-        "activation_dtype": "fp16",
+        "activation_dtype": "fp32",
         "accumulation_dtype": "fp32",
-        "execution_dtype": "fp16",
+        "execution_dtype": "mixed-q8_0-fp32",
         "quant_scheme": "q8_0_weight_only",
         "granularity": "blockwise",
         "scale_zero_point_bytes": overhead,
         "dequant_strategy": "matmul_path",
         "fused": False,
     }, missing
+
+
+def _positive_integer(
+    value: object, context: ImportContext, record_type: str,
+) -> int:
+    parsed = nonnegative_integer(value, context, record_type)
+    if parsed == 0:
+        raise SourceFormatError(f"{context.source_label}: invalid {record_type} record")
+    return parsed
 
 
 def _operating_point(source: Mapping[str, object], context: ImportContext) -> dict[str, object]:

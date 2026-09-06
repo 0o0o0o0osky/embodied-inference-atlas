@@ -1443,6 +1443,66 @@
     },
     {
       "evidence": "measured_local",
+      "measurement_id": "e2e-pi0-vlacpp-target-v1-001",
+      "measurement_method": "wall_clock",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": "source_reported",
+      "run_id": "run-pi0-vlacpp-target-v1-001",
+      "sample_count": 10,
+      "source_id": "source-local-thor",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 148.8
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 149.7
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 168.5
+        }
+      ],
+      "timing_boundary_id": "vlacpp_engine_predict_synthetic",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "measured_local",
+      "measurement_id": "e2e-pi0-vlacpp-target-v1-002",
+      "measurement_method": "wall_clock",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": "source_reported",
+      "run_id": "run-pi0-vlacpp-target-v1-002",
+      "sample_count": 10,
+      "source_id": "source-local-thor",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 175.9
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 176.0
+        },
+        {
+          "statistic": "p95",
+          "unit": "ms",
+          "value": 178.2
+        }
+      ],
+      "timing_boundary_id": "vlacpp_engine_predict_synthetic",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "measured_local",
       "measurement_id": "e2e-vla-cpp-controls-001",
       "measurement_method": "wall_clock",
       "metric": "latency",

@@ -236,7 +236,8 @@
       "configuration_ids": [
         "cfg-vla-cpp-controls-010", "cfg-vla-cpp-controls-011", "cfg-vla-cpp-controls-012",
         "cfg-vla-cpp-controls-013", "cfg-vla-cpp-controls-014", "cfg-vla-cpp-controls-015",
-        "cfg-vla-cpp-controls-016", "cfg-vla-cpp-controls-017", "cfg-vla-cpp-controls-018"
+        "cfg-vla-cpp-controls-016", "cfg-vla-cpp-controls-017", "cfg-vla-cpp-controls-018",
+        "cfg-pi0-vlacpp-target-v1-001"
       ],
       "device_ids": ["nvidia-jetson-agx-thor"],
       "launch": {
@@ -256,11 +257,11 @@
       },
       "precision_paths": [{
         "precision_path_id": "mixed-bf16-fp32",
-        "label": "BF16 weights / mixed BF16-FP32",
+        "label": "BF16/F32 weights / F32 activations",
         "weight_dtype": "mixed_bf16_fp32",
-        "activation_dtype": "mixed_bf16_fp32",
+        "activation_dtype": "fp32",
         "accumulation_dtype": "fp32",
-        "output_dtype": "mixed_bf16_fp32",
+        "output_dtype": "fp32",
         "quant_scheme": "none",
         "missing_fields": [],
         "missing_reason_code": null,
@@ -303,7 +304,8 @@
           "run_ids": [
             "run-vla-cpp-controls-010", "run-vla-cpp-controls-011", "run-vla-cpp-controls-012",
             "run-vla-cpp-controls-013", "run-vla-cpp-controls-014", "run-vla-cpp-controls-015",
-            "run-vla-cpp-controls-016", "run-vla-cpp-controls-017", "run-vla-cpp-controls-018"
+            "run-vla-cpp-controls-016", "run-vla-cpp-controls-017", "run-vla-cpp-controls-018",
+            "run-pi0-vlacpp-target-v1-001"
           ],
           "observation_ids": []
         }
@@ -440,7 +442,8 @@
       "configuration_ids": [
         "cfg-vla-cpp-controls-019", "cfg-vla-cpp-controls-020", "cfg-vla-cpp-controls-021",
         "cfg-vla-cpp-controls-022", "cfg-vla-cpp-controls-023", "cfg-vla-cpp-controls-024",
-        "cfg-vla-cpp-controls-025", "cfg-vla-cpp-controls-026", "cfg-vla-cpp-controls-027"
+        "cfg-vla-cpp-controls-025", "cfg-vla-cpp-controls-026", "cfg-vla-cpp-controls-027",
+        "cfg-pi0-vlacpp-target-v1-002"
       ],
       "device_ids": ["nvidia-jetson-agx-thor"],
       "launch": {
@@ -461,11 +464,11 @@
       "precision_paths": [
         {
           "precision_path_id": "q8_0-weight-only",
-          "label": "Q8_0 weights / FP16 execution",
+          "label": "Q8_0 weight-only / F32 activations",
           "weight_dtype": "q8_0",
-          "activation_dtype": "fp16",
+          "activation_dtype": "fp32",
           "accumulation_dtype": "fp32",
-          "output_dtype": "fp16",
+          "output_dtype": "fp32",
           "quant_scheme": "q8_0_weight_only",
           "missing_fields": [],
           "missing_reason_code": null,
@@ -500,7 +503,8 @@
           "run_ids": [
             "run-vla-cpp-controls-019", "run-vla-cpp-controls-020", "run-vla-cpp-controls-021",
             "run-vla-cpp-controls-022", "run-vla-cpp-controls-023", "run-vla-cpp-controls-024",
-            "run-vla-cpp-controls-025", "run-vla-cpp-controls-026", "run-vla-cpp-controls-027"
+            "run-vla-cpp-controls-025", "run-vla-cpp-controls-026", "run-vla-cpp-controls-027",
+            "run-pi0-vlacpp-target-v1-002"
           ],
           "observation_ids": []
         }

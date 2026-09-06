@@ -246,12 +246,19 @@ it("builds exact six-cell Pi0 target grids without borrowing mismatched evidence
     taskId: "alternate-vla-task",
     workload: { views: 2, prompt: 48, chunk: 20, denoise: 10 },
   });
-  const vlaCpp = run({
-    runId: "vlacpp-exact",
+  const vlaCppBf16 = run({
+    runId: "vlacpp-bf16-exact",
     runtimeId: "vla-cpp",
-    precisionId: "q8_0",
+    precisionId: "mixed-bf16-fp32",
     inputContractId: "synthetic-observation",
-    workload: { views: 3, prompt: 48, chunk: 50, denoise: 10 },
+    workload: { views: 1, prompt: 48, chunk: 50, denoise: 10 },
+  });
+  const vlaCppQ8 = run({
+    runId: "vlacpp-q8-exact",
+    runtimeId: "vla-cpp",
+    precisionId: "q8_0-weight-only",
+    inputContractId: "synthetic-observation",
+    workload: { views: 1, prompt: 48, chunk: 50, denoise: 10 },
   });
   const duplicateTargetOne = run({
     runId: "duplicate-target-one",
@@ -280,7 +287,8 @@ it("builds exact six-cell Pi0 target grids without borrowing mismatched evidence
     otherHardware,
     otherContract,
     otherTask,
-    vlaCpp,
+    vlaCppBf16,
+    vlaCppQ8,
     duplicateTargetOne,
     duplicateTargetTwo,
     duplicateNative,
@@ -312,15 +320,24 @@ it("builds exact six-cell Pi0 target grids without borrowing mismatched evidence
     cameraViews: [1, 2, 3],
     actionChunks: [20, 50],
   });
-  expect(overview.facets).toHaveLength(5);
+  expect(overview.facets).toHaveLength(6);
   expect(overview.facets.filter((facet) => facet.runtimeId === "flashrt"
     && facet.contract.inputContractId === "deterministic-observation"
     && facet.contract.timingBoundaryId === "predict")).toHaveLength(2);
   expect(overview.facets.some((facet) => facet.runtimeId === "flashrt"
     && facet.contract.inputContractId === "synthetic-observation"
     && facet.contract.timingBoundaryId === "predict-with-preprocess")).toBe(true);
-  expect(overview.facets.some((facet) => facet.runtimeId === "vla-cpp"
-    && facet.precisionId === "q8_0")).toBe(true);
+  for (const [precisionId, runId] of [
+    ["mixed-bf16-fp32", "vlacpp-bf16-exact"],
+    ["q8_0-weight-only", "vlacpp-q8-exact"],
+  ] as const) {
+    const facet = overview.facets.find((candidate) => candidate.runtimeId === "vla-cpp"
+      && candidate.precisionId === precisionId)!;
+    const targetCell = facet.series.find((series) => series.actionChunk === 50)!.cells[0]!;
+    expect(targetCell.state).toBe("measured");
+    if (targetCell.state !== "measured") throw new Error("target cell must be measured");
+    expect(targetCell.selection.runId).toBe(runId);
+  }
 
   const primary = overview.facets.find((facet) => facet.series.some((series) => series.cells.some((cell) =>
     cell.state === "measured" && cell.selection.runId === "flash-exact")))!;
