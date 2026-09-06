@@ -2,10 +2,11 @@ import type { AtlasData, ComparisonContextRecord } from "../../../types/atlas";
 import type { ProfilerEvidence } from "../../profiler/domain/types";
 
 export interface RuntimeSystemSlice {
-  cameraViews: number;
-  promptTokens: number;
-  actionChunk: number;
-  denoiseSteps: number;
+  cameraViews: number | null;
+  promptTokens: number | null;
+  semanticPromptTokens: number | null;
+  actionChunk: number | null;
+  denoiseSteps: number | null;
   anchorRunId: string | null;
   facetContext: ComparisonContextRecord | null;
 }
@@ -72,7 +73,7 @@ function profilerCompatibility(
     knownField(candidateVla.action_dimension, expectedVla.action_dimension),
     knownField(candidateVla.image_height, expectedVla.image_height),
     knownField(candidateVla.image_width, expectedVla.image_width),
-    knownField(candidateVla.semantic_prompt_tokens, expectedVla.semantic_prompt_tokens),
+    knownField(candidateVla.semantic_prompt_tokens, slice.semanticPromptTokens),
     operatingPointField(run.operating_point.operating_point_id, expected.platform.operating_point_id),
   ]);
 }
@@ -100,21 +101,24 @@ export function runtimeProfilerSlice(
   const configuration = data.datasets.runs.find((run) => run.configuration_id === workload);
   const vla = configuration?.workload.vla;
   const slice: RuntimeSystemSlice = {
-    cameraViews: vla?.camera_views ?? 2,
-    promptTokens: vla?.executed_prompt_tokens ?? 48,
-    actionChunk: vla?.action_chunk ?? 50,
-    denoiseSteps: vla?.denoise_steps ?? 10,
+    cameraViews: configuration ? vla?.camera_views ?? null : 2,
+    promptTokens: configuration ? vla?.executed_prompt_tokens ?? null : 48,
+    semanticPromptTokens: configuration ? vla?.semantic_prompt_tokens ?? null : null,
+    actionChunk: configuration ? vla?.action_chunk ?? null : 50,
+    denoiseSteps: configuration ? vla?.denoise_steps ?? null : 10,
     anchorRunId: configuration?.run_id ?? null,
     facetContext: configuration?.comparison_context ?? facetContext,
   };
-  for (const part of (workload ?? "").split(",")) {
-    const [name, encoded] = part.split("=", 2);
-    const value = Number(encoded);
-    if (!Number.isSafeInteger(value)) continue;
-    if ((name?.trim() === "v" || name?.trim() === "V") && value >= 1) slice.cameraViews = value;
-    if ((name?.trim() === "p" || name?.trim() === "L_PROMPT") && value >= 0) slice.promptTokens = value;
-    if ((name?.trim() === "a" || name?.trim() === "T_ACTION") && value >= 1) slice.actionChunk = value;
-    if ((name?.trim() === "n" || name?.trim() === "N_DENOISE") && value >= 1) slice.denoiseSteps = value;
+  if (!configuration) {
+    for (const part of (workload ?? "").split(",")) {
+      const [name, encoded] = part.split("=", 2);
+      const value = Number(encoded);
+      if (!Number.isSafeInteger(value)) continue;
+      if ((name?.trim() === "v" || name?.trim() === "V") && value >= 1) slice.cameraViews = value;
+      if ((name?.trim() === "p" || name?.trim() === "L_PROMPT") && value >= 0) slice.promptTokens = value;
+      if ((name?.trim() === "a" || name?.trim() === "T_ACTION") && value >= 1) slice.actionChunk = value;
+      if ((name?.trim() === "n" || name?.trim() === "N_DENOISE") && value >= 1) slice.denoiseSteps = value;
+    }
   }
   return slice;
 }
@@ -133,10 +137,10 @@ export function scopeRuntimeProfiler(data: AtlasData, profiler: ProfilerEvidence
     if (!query.runtimeId || !query.hardwareId || !actualPrecision
       || run.model_id !== query.modelId || run.runtime_id !== query.runtimeId || run.device_id !== query.hardwareId
       || run.precision.precision_id !== actualPrecision || !vla
-      || vla.camera_views !== null && vla.camera_views !== query.slice.cameraViews
-      || vla.executed_prompt_tokens !== null && vla.executed_prompt_tokens !== query.slice.promptTokens
-      || vla.action_chunk !== null && vla.action_chunk !== query.slice.actionChunk
-      || vla.denoise_steps !== null && vla.denoise_steps !== query.slice.denoiseSteps) return false;
+      || !knownField(vla.camera_views, query.slice.cameraViews).matches
+      || !knownField(vla.executed_prompt_tokens, query.slice.promptTokens).matches
+      || !knownField(vla.action_chunk, query.slice.actionChunk).matches
+      || !knownField(vla.denoise_steps, query.slice.denoiseSteps).matches) return false;
     if (expectedFacetContext === null) return false;
     const match = profilerCompatibility(run, expectedFacetContext, query.slice);
     if (match.matches) contextMatches.set(run.run_id, match);

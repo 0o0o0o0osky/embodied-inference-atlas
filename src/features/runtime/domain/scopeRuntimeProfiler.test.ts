@@ -10,6 +10,7 @@ function run({
   id,
   configurationId = `configuration-${id}`,
   prompt = 48,
+  semanticPrompt = prompt,
   action = 50,
   denoise = 10,
   inputContract = "deterministic-observation",
@@ -23,6 +24,7 @@ function run({
   id: string;
   configurationId?: string;
   prompt?: number | null;
+  semanticPrompt?: number | null;
   action?: number | null;
   denoise?: number | null;
   inputContract?: string;
@@ -43,7 +45,7 @@ function run({
       executed_prompt_tokens: prompt,
       image_height: 224,
       image_width: 224,
-      semantic_prompt_tokens: prompt,
+      semantic_prompt_tokens: semanticPrompt,
     },
   };
   const precision: RunRecord["precision"] = {
@@ -253,6 +255,49 @@ it("marks a compatible independent run partial while the anchor run remains exac
 
   expect(scoped.evidence.captures.map((item) => item.runId)).toEqual(["anchor", "independent"]);
   expect([...scoped.partialContextRunIds]).toEqual(["independent"]);
+});
+
+it("preserves a canonical unknown denoise count when scoping an independent capture", () => {
+  const selected = run({
+    id: "selected-unknown-denoise",
+    configurationId: "cfg-selected-unknown-denoise",
+    captureMethod: "wall_clock",
+    denoise: null,
+  });
+  const independent = run({ id: "independent-denoise-8", denoise: 8 });
+  const data = atlas([selected, independent]);
+  const slice = runtimeProfilerSlice(data, selected.configuration_id);
+
+  const scoped = scopeRuntimeProfiler(data, evidence([independent]), {
+    modelId: "pi0",
+    runtimeId: "flashrt",
+    hardwareId: "thor",
+    precisionId: PRECISION_ID,
+    slice,
+  });
+
+  expect(slice.denoiseSteps).toBeNull();
+  expect(scoped.evidence.captures.map((item) => item.runId)).toEqual(["independent-denoise-8"]);
+  expect([...scoped.partialContextRunIds]).toContain("independent-denoise-8");
+});
+
+it("does not borrow a facet row's semantic prompt for a symbolic target", () => {
+  const facet = run({ id: "facet-semantic-4", prompt: 4, semanticPrompt: 4 });
+  const candidate = run({ id: "capture-semantic-48", prompt: 48, semanticPrompt: 48 });
+  const data = atlas([candidate]);
+  const slice = runtimeProfilerSlice(data, "v=2,p=48,a=50,n=10", facet.comparison_context);
+
+  const scoped = scopeRuntimeProfiler(data, evidence([candidate]), {
+    modelId: "pi0",
+    runtimeId: "flashrt",
+    hardwareId: "thor",
+    precisionId: PRECISION_ID,
+    slice,
+  });
+
+  expect(slice.semanticPromptTokens).toBeNull();
+  expect(scoped.evidence.captures.map((item) => item.runId)).toEqual(["capture-semantic-48"]);
+  expect([...scoped.partialContextRunIds]).toEqual(["capture-semantic-48"]);
 });
 
 it("retains an independently warmed capture with unknown workload context as partial", () => {
