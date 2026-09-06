@@ -63,7 +63,7 @@
 
 .pi0-overview-facets {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   border-bottom: 1px solid var(--pi0-chart-line);
 }
 
@@ -74,7 +74,7 @@
   background: #fff;
 }
 
-.pi0-overview-facet:nth-child(odd) {
+.pi0-overview-facet:not(:nth-child(3n)) {
   border-right: 1px solid var(--pi0-chart-line);
 }
 
@@ -370,7 +370,21 @@
   to { stroke-dashoffset: 0; }
 }
 
-@media (max-width: 74rem) {
+@media (max-width: 79.99rem) {
+  .pi0-overview-facets {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .pi0-overview-facet {
+    border-right: 0;
+  }
+
+  .pi0-overview-facet:nth-child(odd) {
+    border-right: 1px solid var(--pi0-chart-line);
+  }
+}
+
+@media (max-width: 52rem) {
   .pi0-overview-facets {
     grid-template-columns: 1fr;
   }

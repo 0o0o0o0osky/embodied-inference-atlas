@@ -995,6 +995,21 @@
   font-size: 11px;
   line-height: 1.4;
 }
+.pi0-profiler-context-action {
+  grid-column: 1 / -1;
+  justify-self: start;
+  margin-top: 3px;
+  padding: 0;
+  border: 0;
+  border-bottom: 1px solid #78AAB3;
+  color: var(--funnel-accent);
+  background: transparent;
+  font: inherit;
+  font-size: 11px;
+  cursor: pointer;
+}
+.pi0-profiler-context-action:hover,
+.pi0-profiler-context-action:focus-visible { color: var(--graphite); border-bottom-color: var(--graphite); }
 .pi0-implementation-summary { padding: 12px 24px 16px; border-top: 1px solid var(--line); }
 .pi0-implementation-summary h4 { margin: 0 0 8px; font-size: 14px; font-weight: 600; }
 .pi0-implementation-summary h4 span { margin-left: 12px; color: #76500F; font-size: 12px; font-weight: 400; }

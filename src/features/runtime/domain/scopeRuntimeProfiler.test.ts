@@ -1,8 +1,13 @@
 import { expect, it } from "vitest";
 
 import type { AtlasData, RunRecord } from "../../../types/atlas";
-import type { ProfilerCapture, ProfilerEvidence, TimelineRecord } from "../../profiler/domain/types";
-import { runtimeProfilerSlice, scopeRuntimeProfiler, selectRuntimeProfilerCaptures } from "./scopeRuntimeProfiler";
+import type { KernelObservation, ProfilerCapture, ProfilerEvidence, TimelineRecord } from "../../profiler/domain/types";
+import {
+  runtimeProfilerSlice,
+  scopeRuntimeProfiler,
+  selectIndependentNcuReplayEvidence,
+  selectRuntimeProfilerCaptures,
+} from "./scopeRuntimeProfiler";
 
 const PRECISION_ID = "mixed-fp8-e4m3-fp16";
 
@@ -237,6 +242,42 @@ it("uses an exact configuration's contracts and timing facet when one is availab
   });
   expect(slice.anchorRunId).toBe("selected");
   expect(scoped.evidence.captures.map((item) => item.runId)).toEqual(["partial"]);
+});
+
+it("keeps strict timing scope closed while exposing compatible independent NCU replay context", () => {
+  const wallClock = run({ id: "wall-clock", configurationId: "cfg-wall-clock",
+    captureMethod: "wall_clock", timingBoundary: "predict_cached_graph_sync" });
+  const replayRun = run({ id: "independent-ncu", prompt: null, denoise: null,
+    captureMethod: "ncu", timingBoundary: "representative_kernel_replay" });
+  const replayCapture = {
+    ...capture(replayRun), tool: "ncu", collectionScope: "representative_kernel_launch", nsys: null,
+  } as ProfilerCapture;
+  const profiler: ProfilerEvidence = {
+    ...evidence([]), captures: [replayCapture],
+    observations: [{
+      observationId: "observation-independent-ncu",
+      captureId: replayCapture.captureId,
+      runId: replayRun.run_id,
+      kernelSignatureId: "signature-gemm",
+      observationKind: "ncu_replayed_launch",
+    } as KernelObservation],
+  };
+  const data = atlas([wallClock, replayRun]);
+  const query = { modelId: "pi0", runtimeId: "flashrt", hardwareId: "thor", precisionId: PRECISION_ID,
+    slice: runtimeProfilerSlice(data, wallClock.configuration_id),
+  };
+  const strict = scopeRuntimeProfiler(data, profiler, query);
+  const independent = selectIndependentNcuReplayEvidence(data, profiler, query);
+
+  expect([
+    strict.evidence.captures.map((item) => item.captureId),
+    independent.evidence.captures.map((item) => item.captureId),
+    independent.evidence.observations.map((item) => item.observationId),
+    [...independent.partialContextRunIds],
+    independent.wallClockTimingBoundaryId,
+    independent.timingBoundaryIds,
+  ]).toEqual([[], ["capture-independent-ncu"], ["observation-independent-ncu"],
+    ["independent-ncu"], "predict_cached_graph_sync", ["representative_kernel_replay"]]);
 });
 
 it("marks a compatible independent run partial while the anchor run remains exact", () => {

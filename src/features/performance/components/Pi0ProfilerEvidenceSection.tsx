@@ -1,4 +1,5 @@
 import type { RoutePatch, RouteState } from "../../../app/routes";
+import type { IndependentNcuReplayEvidence } from "../../runtime/domain/scopeRuntimeProfiler";
 import { kernelEntity } from "../../workbench/entityKeys";
 import type { KernelRow, KernelRowsModel } from "../domain/buildKernelRows";
 import { KernelInspector } from "./KernelInspector";
@@ -7,16 +8,24 @@ import { KernelTable, formatDuration } from "./KernelTable";
 interface Pi0ProfilerEvidenceSectionProps {
   model: KernelRowsModel;
   partialContextRunIds: ReadonlySet<string>;
+  anchorRunId: string | null;
+  independentNcu: IndependentNcuReplayEvidence | null;
   route: RouteState;
   navigate: (patch: RoutePatch, replace?: boolean) => void;
 }
 
-export function Pi0ProfilerEvidenceSection({ model, partialContextRunIds, route, navigate }: Pi0ProfilerEvidenceSectionProps) {
+export function Pi0ProfilerEvidenceSection({ model, partialContextRunIds, anchorRunId, independentNcu, route, navigate }: Pi0ProfilerEvidenceSectionProps) {
   const inventory = model.inventory;
   const hotspots = topKernelAggregates(model.rows);
   const ncuRows = model.rows.filter((row) => row.observation.observationKind === "ncu_replayed_launch");
   const nsysPartial = hotspots.some((row) => partialContextRunIds.has(row.run.run_id));
   const partialNcuCount = ncuRows.filter((row) => partialContextRunIds.has(row.run.run_id)).length;
+  const nsysRunId = hotspots[0]?.run.run_id ?? null;
+  const nsysIsAnchorRun = nsysRunId !== null && nsysRunId === anchorRunId;
+  const independentNcuRows = ncuRows.filter((row) => independentNcu?.runIds.has(row.run.run_id));
+  const firstIndependentNcu = independentNcuRows[0] ?? null;
+  const selectedIndependentNcu = independentNcuRows.find((row) =>
+    route.entity === kernelEntity(row.capture.captureId, row.observation.observationId)) ?? null;
 
   return (
     <section className="pi0-funnel-section pi0-profiler-section" aria-labelledby="pi0-profiler-title">
@@ -34,17 +43,33 @@ export function Pi0ProfilerEvidenceSection({ model, partialContextRunIds, route,
       <div className="pi0-profiler-context-ledger" aria-label="Profiler 采集关系">
         <EvidenceScope
           label="Nsys aggregate"
-          status={hotspots.length ? `独立采集${nsysPartial ? " · 部分上下文" : " · 已知上下文匹配"}` : "未显示"}
+          status={hotspots.length ? `${nsysIsAnchorRun ? "同一 run capture" : "独立采集"}${nsysPartial ? " · 部分上下文" : " · 已知上下文匹配"}` : "未显示"}
           note={hotspots.length
-            ? "不是当前选中的 wall-clock run；只解释该 Nsys capture。"
+            ? anchorRunId === null
+              ? "当前选择没有 wall-clock run identity；只解释该 Nsys capture。"
+              : nsysIsAnchorRun
+                ? "与当前选中的 wall-clock run identity 一致；只解释该 Nsys capture。"
+                : "不是当前选中的 wall-clock run；只解释该 Nsys capture。"
             : "当前范围没有匹配的 node aggregate。"}
         />
         <EvidenceScope
           label="NCU replay"
-          status={ncuRows.length ? `独立 replay${partialNcuCount ? " · 含部分上下文" : " · 已知上下文匹配"}` : "未采集"}
-          note={ncuRows.length
-            ? `${ncuRows.length} 条单 launch replay，其中 ${partialNcuCount} 条为部分上下文；不与 Nsys aggregate 合并。`
+          status={independentNcuRows.length
+            ? `${independentNcuRows.length} 条独立 replay · 部分上下文`
+            : ncuRows.length ? `独立 replay${partialNcuCount ? " · 含部分上下文" : " · 已知上下文匹配"}` : "未采集"}
+          note={independentNcuRows.length
+            ? `与当前 wall-clock timing boundary（${independentNcu?.wallClockTimingBoundaryId}）不同：${independentNcu?.timingBoundaryIds.join("、")}；不合并时长或视为同一次运行。`
+            : ncuRows.length
+              ? `${ncuRows.length} 条单 launch replay，其中 ${partialNcuCount} 条为部分上下文；不与 Nsys aggregate 合并。`
             : "当前范围没有 NCU replay。"}
+          action={firstIndependentNcu ? {
+            label: "查看独立 NCU replay",
+            onClick: () => navigate({
+              entity: kernelEntity(firstIndependentNcu.capture.captureId, firstIndependentNcu.observation.observationId),
+              rooflineLevel: "kernel",
+              basis: null,
+            }, true),
+          } : null}
         />
       </div>
 
@@ -74,7 +99,9 @@ export function Pi0ProfilerEvidenceSection({ model, partialContextRunIds, route,
         <p className="pi0-funnel-note">这里的排序只描述已记录 Kernel 累计时长，不据此判定计算、访存或 scoreboard 瓶颈。</p>
       </section>
 
-      <details className="pi0-profiler-evidence-disclosure pi0-runtime-mapping-disclosure">
+      <details key={selectedIndependentNcu?.observation.observationId ?? "profiler-evidence"}
+        open={selectedIndependentNcu !== null ? true : undefined}
+        className="pi0-profiler-evidence-disclosure pi0-runtime-mapping-disclosure">
         <summary>
           <span>完整 Profiler 证据</span>
           <small>Capture 库存、13 列 KernelTable、NCU counter 与证据缺口</small>
@@ -139,8 +166,15 @@ function SummaryMetric({ label, value }: { label: string; value: string }) {
   return <div><dt>{label}</dt><dd>{value}</dd></div>;
 }
 
-function EvidenceScope({ label, status, note }: { label: string; status: string; note: string }) {
-  return <p><span>{label}</span><strong>{status}</strong><small>{note}</small></p>;
+function EvidenceScope({ label, status, note, action }: {
+  label: string;
+  status: string;
+  note: string;
+  action?: { label: string; onClick: () => void } | null;
+}) {
+  return <p><span>{label}</span><strong>{status}</strong><small>{note}</small>{action
+    ? <button className="pi0-profiler-context-action" type="button" onClick={action.onClick}>{action.label}</button>
+    : null}</p>;
 }
 
 function Inventory({ label, value }: { label: string; value: string }) {

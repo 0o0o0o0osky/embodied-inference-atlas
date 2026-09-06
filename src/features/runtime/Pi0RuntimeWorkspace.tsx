@@ -8,7 +8,7 @@ import { buildEvidenceRows } from "../end-to-end/domain/buildEvidenceRows";
 import { adaptProfilerEvidence } from "../profiler/domain/adaptProfilerEvidence";
 import { indexProfilerEvidence } from "../profiler/domain/indexProfilerEvidence";
 import { buildTimelineView } from "../timeline/domain/buildTimelineView";
-import { timelineEventEntity } from "../workbench/entityKeys";
+import { kernelEntity, timelineEventEntity } from "../workbench/entityKeys";
 import { Pi0ImplementationDagSection } from "./components/Pi0ImplementationDagSection";
 import { Pi0KernelSection } from "./components/Pi0KernelSection";
 import { Pi0NsysSection } from "./components/Pi0NsysSection";
@@ -21,7 +21,12 @@ import { Pi0SelectedRuntimeSummary } from "./components/Pi0SelectedRuntimeSummar
 import { pi0PrecisionLabel } from "./components/runtimePresentation";
 import { adaptRuntimeRealization, isRuntimeRealizationRecord } from "./domain/adaptRuntimeRealization";
 import { buildPi0PerformanceOverview, PI0_PERFORMANCE_TARGET } from "./domain/buildPi0PerformanceOverview";
-import { runtimeProfilerSlice, scopeRuntimeProfiler, selectRuntimeProfilerCaptures } from "./domain/scopeRuntimeProfiler";
+import {
+  runtimeProfilerSlice,
+  scopeRuntimeProfiler,
+  selectIndependentNcuReplayEvidence,
+  selectRuntimeProfilerCaptures,
+} from "./domain/scopeRuntimeProfiler";
 import { pi0EmbeddedTimelineSelectionPatch } from "./domain/pi0PerformanceNavigation";
 import { buildRuntimeStackSummaries, resolveRuntimeCandidates } from "./domain/resolveRuntimeRealization";
 
@@ -92,6 +97,28 @@ export function Pi0RuntimeWorkspace({ data, model, record, route, navigate }: Pi
     modelId: model.model_id, runtimeId: route.runtime, hardwareId: route.hardware,
     precisionId: route.runtimePrecision, slice,
   }), [data, profiler, model.model_id, route.runtime, route.hardware, route.runtimePrecision, slice]);
+  const independentNcu = useMemo(() => !scopedProfiler.captures.some((capture) => capture.tool === "ncu")
+    ? selectIndependentNcuReplayEvidence(data, profiler, {
+      modelId: model.model_id, runtimeId: route.runtime, hardwareId: route.hardware,
+      precisionId: route.runtimePrecision, slice,
+    }) : null,
+  [data, model.model_id, profiler, route.hardware, route.runtime, route.runtimePrecision, scopedProfiler.captures, slice]);
+  const kernelData = useMemo(() => independentNcu && independentNcu.runIds.size ? {
+    ...scopedData,
+    datasets: { ...scopedData.datasets, runs: [...scopedData.datasets.runs, ...independentNcu.data.datasets.runs] },
+  } : scopedData, [independentNcu, scopedData]);
+  const profilerWithIndependentNcu = useMemo(() => independentNcu && independentNcu.runIds.size ? {
+    ...scopedProfiler,
+    captures: [...scopedProfiler.captures, ...independentNcu.evidence.captures],
+    observations: [...scopedProfiler.observations, ...independentNcu.evidence.observations],
+    metrics: [...scopedProfiler.metrics, ...independentNcu.evidence.metrics],
+    links: [...scopedProfiler.links, ...independentNcu.evidence.links],
+    telemetry: [...scopedProfiler.telemetry, ...independentNcu.evidence.telemetry],
+  } : scopedProfiler, [independentNcu, scopedProfiler]);
+  const kernelPartialContextRunIds = useMemo(() => new Set([
+    ...partialContextRunIds,
+    ...(independentNcu?.partialContextRunIds ?? []),
+  ]), [independentNcu, partialContextRunIds]);
   const activeRealization = activeCandidate?.actualPrecisionId === actualPrecision ? activeCandidate.realization : null;
   const realizationId = activeRealization?.realizationId ?? null;
   useEffect(() => setDagOpen(false), [realizationId]);
@@ -110,25 +137,25 @@ export function Pi0RuntimeWorkspace({ data, model, record, route, navigate }: Pi
     return { ...view, requestedCaptureUnavailable: profilerCaptureSelection.requestedCaptureUnavailable };
   }, [scopedData, scopedProfiler, profilerIndex, model.model_id, route.runtime, route.hardware, route.entity, profilerCaptureSelection]);
   const kernelProfiler = useMemo(() => {
-    const captureIds = new Set(scopedProfiler.captures.filter((capture) =>
+    const captureIds = new Set(profilerWithIndependentNcu.captures.filter((capture) =>
       capture.tool === "ncu" || capture.captureId === profilerCaptureSelection.kernelCaptureId)
       .map((capture) => capture.captureId));
-    const observations = scopedProfiler.observations.filter((item) => captureIds.has(item.captureId));
+    const observations = profilerWithIndependentNcu.observations.filter((item) => captureIds.has(item.captureId));
     const observationIds = new Set(observations.map((item) => item.observationId));
     return {
-      ...scopedProfiler,
-      captures: scopedProfiler.captures.filter((capture) => captureIds.has(capture.captureId)),
-      timelines: scopedProfiler.timelines.filter((timeline) => captureIds.has(timeline.captureId)),
+      ...profilerWithIndependentNcu,
+      captures: profilerWithIndependentNcu.captures.filter((capture) => captureIds.has(capture.captureId)),
+      timelines: profilerWithIndependentNcu.timelines.filter((timeline) => captureIds.has(timeline.captureId)),
       observations,
-      metrics: scopedProfiler.metrics.filter((item) => captureIds.has(item.captureId)),
-      links: scopedProfiler.links.filter((item) => observationIds.has(item.observationId)),
-      telemetry: scopedProfiler.telemetry.filter((item) => captureIds.has(item.captureId)),
+      metrics: profilerWithIndependentNcu.metrics.filter((item) => captureIds.has(item.captureId)),
+      links: profilerWithIndependentNcu.links.filter((item) => observationIds.has(item.observationId)),
+      telemetry: profilerWithIndependentNcu.telemetry.filter((item) => captureIds.has(item.captureId)),
     };
-  }, [profilerCaptureSelection.kernelCaptureId, scopedProfiler]);
+  }, [profilerCaptureSelection.kernelCaptureId, profilerWithIndependentNcu]);
   const kernelProfilerIndex = useMemo(() => indexProfilerEvidence(kernelProfiler), [kernelProfiler]);
-  const kernels = useMemo(() => buildKernelRows(scopedData, kernelProfiler, kernelProfilerIndex, {
+  const kernels = useMemo(() => buildKernelRows(kernelData, kernelProfiler, kernelProfilerIndex, {
     modelId: model.model_id, runtimeId: route.runtime, hardwareId: route.hardware, entity: null,
-  }), [scopedData, kernelProfiler, kernelProfilerIndex, model.model_id, route.runtime, route.hardware]);
+  }), [kernelData, kernelProfiler, kernelProfilerIndex, model.model_id, route.runtime, route.hardware]);
   const scopePatch = {
     workload,
     runtime: route.runtime,
@@ -218,10 +245,19 @@ export function Pi0RuntimeWorkspace({ data, model, record, route, navigate }: Pi
         }), true)}
         onOpenDetails={() => navigate({ ...scopePatch, tab: "timeline", timelineCapture: nsys.active?.capture.captureId ?? null, entity: null })} />
       {nsys.active && partialContextRunIds.has(nsys.active.run.run_id)
-        ? <p className="pi0-funnel-note"><strong>Nsys：独立采集 · 部分上下文。</strong> 该 capture 不是当前选中的 wall-clock run；未记录的 workload 字段保持未知。</p>
+        ? <p className="pi0-funnel-note"><strong>Nsys：独立采集 · 部分上下文。</strong> {slice.anchorRunId === nsys.active.run.run_id
+          ? "该 capture 与当前 wall-clock run identity 一致；未记录的 workload 字段保持未知。"
+          : "该 capture 不是当前选中的 wall-clock run；未记录的 workload 字段保持未知。"}</p>
         : null}
-      <Pi0KernelSection view={kernels} realization={activeRealization} partialContextRunIds={partialContextRunIds} dagOpen={renderedDagOpen}
+      <Pi0KernelSection view={kernels} realization={activeRealization} partialContextRunIds={kernelPartialContextRunIds}
+        independentNcu={independentNcu} dagOpen={renderedDagOpen}
         onOpenDetails={() => navigate({ ...scopePatch, tab: "roofline-kernels", rooflineLevel: "overview", entity: null, basis: null })}
+        onOpenNcuContext={independentNcu && kernels.rows.find((row) => independentNcu.runIds.has(row.run.run_id))
+          ? () => {
+            const row = kernels.rows.find((item) => independentNcu.runIds.has(item.run.run_id))!;
+            navigate({ ...scopePatch, tab: "roofline-kernels", rooflineLevel: "kernel",
+              entity: kernelEntity(row.capture.captureId, row.observation.observationId), basis: null });
+          } : null}
         onOpenDag={() => setDagOpen((open) => !open)} />
       {renderedDagOpen ? <section className="pi0-funnel-section" aria-labelledby="pi0-dag-title">
         <header className="pi0-funnel-heading">

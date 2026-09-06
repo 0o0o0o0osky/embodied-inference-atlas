@@ -11,12 +11,21 @@ export interface RuntimeSystemSlice {
   facetContext: ComparisonContextRecord | null;
 }
 
-interface RuntimeProfilerScope {
+export interface RuntimeProfilerScope {
   modelId: string;
   runtimeId: string | null;
   hardwareId: string | null;
   precisionId: string | null;
   slice: RuntimeSystemSlice;
+}
+
+export interface IndependentNcuReplayEvidence {
+  data: AtlasData;
+  evidence: ProfilerEvidence;
+  runIds: ReadonlySet<string>;
+  partialContextRunIds: ReadonlySet<string>;
+  wallClockTimingBoundaryId: string | null;
+  timingBoundaryIds: readonly string[];
 }
 
 interface ContextMatch {
@@ -78,6 +87,13 @@ function profilerCompatibility(
   ]);
 }
 
+function actualPrecisionFor(data: AtlasData, query: RuntimeProfilerScope) {
+  const precisions = [...new Set(data.datasets.runs.filter((run) =>
+    run.model_id === query.modelId && run.runtime_id === query.runtimeId && run.device_id === query.hardwareId
+    && run.evidence === "measured_local").map((run) => run.precision.precision_id))];
+  return query.precisionId ?? (precisions.length === 1 ? precisions[0]! : null);
+}
+
 export function selectRuntimeProfilerCaptures(profiler: ProfilerEvidence, requestedCaptureId: string | null) {
   const timelineCaptureIds = new Set(profiler.timelines.map((timeline) => timeline.captureId));
   const captures = profiler.captures.filter((capture) =>
@@ -123,12 +139,64 @@ export function runtimeProfilerSlice(
   return slice;
 }
 
+/**
+ * Selects canonical NCU replays that are compatible with the active execution
+ * context except for their intentionally different replay timing boundary.
+ * These records remain a separate evidence plane and are always partial context.
+ */
+export function selectIndependentNcuReplayEvidence(
+  data: AtlasData,
+  profiler: ProfilerEvidence,
+  query: RuntimeProfilerScope,
+): IndependentNcuReplayEvidence {
+  const expected = query.slice.facetContext;
+  const wallClockTimingBoundaryId = expected?.timing.timing_boundary_id ?? null;
+  const actualPrecision = actualPrecisionFor(data, query);
+  const ncuRunIds = new Set(profiler.captures.filter((capture) =>
+    capture.tool === "ncu" && capture.collectionScope === "representative_kernel_launch").map((capture) => capture.runId));
+  const runs = !query.runtimeId || !query.hardwareId || !expected || !wallClockTimingBoundaryId || !actualPrecision
+    ? [] : data.datasets.runs.filter((run) => ncuRunIds.has(run.run_id)
+    && run.model_id === query.modelId
+    && run.runtime_id === query.runtimeId
+    && run.device_id === query.hardwareId
+    && run.precision.precision_id === actualPrecision
+    && run.timing.timing_boundary_id !== wallClockTimingBoundaryId
+    && profilerCompatibility(run, {
+      ...expected,
+      timing: { ...expected.timing, timing_boundary_id: run.timing.timing_boundary_id },
+    }, query.slice).matches);
+  const runIds = new Set(runs.map((run) => run.run_id));
+  const captures = profiler.captures.filter((capture) => capture.tool === "ncu"
+    && capture.collectionScope === "representative_kernel_launch" && runIds.has(capture.runId));
+  const captureIds = new Set(captures.map((capture) => capture.captureId));
+  const observations = profiler.observations.filter((item) =>
+    item.observationKind === "ncu_replayed_launch"
+    && runIds.has(item.runId)
+    && captureIds.has(item.captureId));
+  const observationIds = new Set(observations.map((item) => item.observationId));
+  const signatureIds = new Set(observations.map((item) => item.kernelSignatureId));
+  return {
+    data: { ...data, datasets: { ...data.datasets, runs } },
+    evidence: {
+      ...profiler,
+      captures,
+      timelines: profiler.timelines.filter((timeline) => captureIds.has(timeline.captureId)),
+      signatures: profiler.signatures.filter((signature) => signatureIds.has(signature.kernelSignatureId)),
+      observations,
+      metrics: profiler.metrics.filter((item) => runIds.has(item.runId) && captureIds.has(item.captureId)),
+      links: profiler.links.filter((item) => runIds.has(item.runId) && observationIds.has(item.observationId)),
+      telemetry: profiler.telemetry.filter((item) => captureIds.has(item.captureId)),
+    },
+    runIds,
+    partialContextRunIds: new Set(runIds),
+    wallClockTimingBoundaryId,
+    timingBoundaryIds: [...new Set(runs.map((run) => run.timing.timing_boundary_id))].sort(),
+  };
+}
+
 /** Exact execution scope; unknown capture workload fields allow partial matching. */
 export function scopeRuntimeProfiler(data: AtlasData, profiler: ProfilerEvidence, query: RuntimeProfilerScope) {
-  const precisions = [...new Set(data.datasets.runs.filter((run) =>
-    run.model_id === query.modelId && run.runtime_id === query.runtimeId && run.device_id === query.hardwareId
-    && run.evidence === "measured_local").map((run) => run.precision.precision_id))];
-  const actualPrecision = query.precisionId ?? (precisions.length === 1 ? precisions[0]! : null);
+  const actualPrecision = actualPrecisionFor(data, query);
   const expectedFacetContext = query.slice.facetContext;
   // Missing selections are empty, never wildcard filters in the shared builders.
   const contextMatches = new Map<string, ContextMatch>();

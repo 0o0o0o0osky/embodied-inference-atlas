@@ -5,7 +5,11 @@ import type { AtlasData, ModelRecord } from "../../types/atlas";
 import { adaptProfilerEvidence } from "../profiler/domain/adaptProfilerEvidence";
 import { indexProfilerEvidence } from "../profiler/domain/indexProfilerEvidence";
 import { RooflineView } from "../roofline/components/RooflineView";
-import { runtimeProfilerSlice, scopeRuntimeProfiler } from "../runtime/domain/scopeRuntimeProfiler";
+import {
+  runtimeProfilerSlice,
+  scopeRuntimeProfiler,
+  selectIndependentNcuReplayEvidence,
+} from "../runtime/domain/scopeRuntimeProfiler";
 import { buildPi0PerformanceOverview } from "../runtime/domain/buildPi0PerformanceOverview";
 import { kernelEntity } from "../workbench/entityKeys";
 import { KernelInspector } from "./components/KernelInspector";
@@ -42,13 +46,38 @@ export function PerformanceView({ data, model, route, navigate }: PerformanceVie
     precisionId: route.runtimePrecision, slice,
   }) : { data, evidence, actualPrecision: route.runtimePrecision, partialContextRunIds: new Set<string>() },
   [data, evidence, model.model_id, route.runtime, route.hardware, route.runtimePrecision, slice]);
-  const index = useMemo(() => indexProfilerEvidence(scope.evidence), [scope.evidence]);
-  const view = useMemo(() => buildKernelRows(scope.data, scope.evidence, index, {
+  const independentNcu = useMemo(() => model.model_id === "pi0"
+    && !scope.evidence.captures.some((capture) => capture.tool === "ncu")
+    ? selectIndependentNcuReplayEvidence(data, evidence, {
+      modelId: model.model_id, runtimeId: route.runtime, hardwareId: route.hardware,
+      precisionId: route.runtimePrecision, slice,
+    }) : null,
+  [data, evidence, model.model_id, route.hardware, route.runtime, route.runtimePrecision, scope.evidence.captures, slice]);
+  const kernelScope = useMemo(() => independentNcu && independentNcu.runIds.size ? {
+    data: { ...scope.data, datasets: {
+      ...scope.data.datasets,
+      runs: [...scope.data.datasets.runs, ...independentNcu.data.datasets.runs],
+    } },
+    evidence: {
+      ...scope.evidence,
+      captures: [...scope.evidence.captures, ...independentNcu.evidence.captures],
+      observations: [...scope.evidence.observations, ...independentNcu.evidence.observations],
+      metrics: [...scope.evidence.metrics, ...independentNcu.evidence.metrics],
+      links: [...scope.evidence.links, ...independentNcu.evidence.links],
+      telemetry: [...scope.evidence.telemetry, ...independentNcu.evidence.telemetry],
+    },
+  } : scope, [independentNcu, scope]);
+  const partialContextRunIds = useMemo(() => new Set([
+    ...scope.partialContextRunIds,
+    ...(independentNcu?.partialContextRunIds ?? []),
+  ]), [independentNcu, scope.partialContextRunIds]);
+  const index = useMemo(() => indexProfilerEvidence(kernelScope.evidence), [kernelScope.evidence]);
+  const view = useMemo(() => buildKernelRows(kernelScope.data, kernelScope.evidence, index, {
     modelId: model.model_id,
     runtimeId: route.runtime,
     hardwareId: route.hardware,
     entity: route.entity,
-  }), [scope, index, model.model_id, route.entity, route.hardware, route.runtime]);
+  }), [kernelScope, index, model.model_id, route.entity, route.hardware, route.runtime]);
   const inventory = view.inventory;
 
   if (model.model_id === "pi0") {
@@ -68,7 +97,8 @@ export function PerformanceView({ data, model, route, navigate }: PerformanceVie
             </div>
           )}
         </section>
-        <Pi0ProfilerEvidenceSection model={view} partialContextRunIds={scope.partialContextRunIds} route={route} navigate={navigate} />
+        <Pi0ProfilerEvidenceSection model={view} partialContextRunIds={partialContextRunIds}
+          anchorRunId={slice.anchorRunId} independentNcu={independentNcu} route={route} navigate={navigate} />
       </div>
     );
   }
