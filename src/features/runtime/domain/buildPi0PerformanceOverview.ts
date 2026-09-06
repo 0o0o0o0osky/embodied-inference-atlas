@@ -4,6 +4,8 @@ import {
   type EvidenceRow,
   type TimingStatistic,
 } from "../../end-to-end/domain/buildEvidenceRows";
+import { adaptRuntimeRealization, isRuntimeRealizationRecord } from "./adaptRuntimeRealization";
+import type { RuntimeRealizationRecord } from "./types";
 
 export const PI0_PERFORMANCE_TARGET = {
   promptTokens: 48,
@@ -41,10 +43,18 @@ export type Pi0PerformancePendingReason =
   | "multiple_exact_measurements";
 
 export interface Pi0PerformancePendingCell {
-  state: "pending";
+  state: "pending_supported";
   cameraViews: number;
   actionChunk: number;
   reason: Pi0PerformancePendingReason;
+}
+
+export interface Pi0PerformanceUnsupportedCell {
+  state: "unsupported";
+  cameraViews: number;
+  actionChunk: number;
+  reason: "fixed_action_horizon" | "fixed_denoise_steps";
+  realizationIds: readonly string[];
 }
 
 export interface Pi0PerformanceMeasuredCell {
@@ -55,7 +65,14 @@ export interface Pi0PerformanceMeasuredCell {
   selection: Pi0PerformanceSelection;
 }
 
-export type Pi0PerformanceCell = Pi0PerformancePendingCell | Pi0PerformanceMeasuredCell;
+export type Pi0PerformanceCell =
+  | Pi0PerformancePendingCell
+  | Pi0PerformanceUnsupportedCell
+  | Pi0PerformanceMeasuredCell;
+
+export interface Pi0NativeEvidenceSelection extends Pi0PerformanceSelection {
+  latency: Pi0PerformanceLatency;
+}
 
 export interface Pi0PerformanceSeries {
   actionChunk: number;
@@ -91,6 +108,7 @@ export interface Pi0PerformanceFacet {
   comparisonContext: ComparisonContextRecord;
   contract: Pi0PerformanceContract;
   series: readonly Pi0PerformanceSeries[];
+  nativeEvidenceSelection: Pi0NativeEvidenceSelection | null;
   measuredCellCount: number;
   observedScope: {
     promptTokens: readonly number[];
@@ -217,15 +235,82 @@ function pendingCell(
   actionChunk: number,
 ): Pi0PerformancePendingCell {
   return {
-    state: "pending",
+    state: "pending_supported",
     cameraViews,
     actionChunk,
     reason: rows.length ? "latency_missing" : "not_measured",
   };
 }
 
+function unsupportedCell(
+  realizations: readonly RuntimeRealizationRecord[],
+  cameraViews: number,
+  actionChunk: number,
+): Pi0PerformanceUnsupportedCell | null {
+  if (realizations.length === 0) return null;
+  const mismatches = realizations.map((realization) => {
+    const applicability = realization.workloadApplicability;
+    const fixedActionHorizon = applicability.publicActionHorizon ?? applicability.runtimeActionHorizon;
+    if (fixedActionHorizon !== null && fixedActionHorizon !== actionChunk) return "fixed_action_horizon" as const;
+    if (applicability.denoiseSteps !== null
+      && applicability.denoiseSteps !== PI0_PERFORMANCE_TARGET.denoiseSteps) return "fixed_denoise_steps" as const;
+    return null;
+  });
+  if (mismatches.some((mismatch) => mismatch === null)) return null;
+  return {
+    state: "unsupported",
+    cameraViews,
+    actionChunk,
+    reason: mismatches.includes("fixed_action_horizon") ? "fixed_action_horizon" : "fixed_denoise_steps",
+    realizationIds: realizations.map((realization) => realization.realizationId),
+  };
+}
+
+function selectionForRow(row: EvidenceRow, facetId: string): Pi0NativeEvidenceSelection | null {
+  const vla = row.run.workload.vla;
+  const selected = row.selected;
+  if (!vla || !selected || selected.value === null
+    || vla.camera_views === null || vla.executed_prompt_tokens === null
+    || vla.action_chunk === null || vla.denoise_steps === null) return null;
+  return {
+    facetId,
+    runtimeId: row.run.runtime_id,
+    precisionId: row.run.precision.precision_id,
+    hardwareId: row.run.device_id,
+    runId: row.run.run_id,
+    configurationId: row.run.configuration_id,
+    workload: {
+      cameraViews: vla.camera_views,
+      promptTokens: vla.executed_prompt_tokens,
+      actionChunk: vla.action_chunk,
+      denoiseSteps: vla.denoise_steps,
+    },
+    latency: {
+      statistic: selected.statistic,
+      value: selected.value,
+      unit: selected.unit,
+    },
+  };
+}
+
+function nativeEvidenceSelection(rows: readonly EvidenceRow[], facetId: string): Pi0NativeEvidenceSelection | null {
+  return rows
+    .flatMap((row) => {
+      const selection = selectionForRow(row, facetId);
+      return selection ? [selection] : [];
+    })
+    .sort((left, right) =>
+      Math.abs(left.workload.promptTokens - PI0_PERFORMANCE_TARGET.promptTokens)
+        - Math.abs(right.workload.promptTokens - PI0_PERFORMANCE_TARGET.promptTokens)
+      || Math.abs(left.workload.cameraViews - 2) - Math.abs(right.workload.cameraViews - 2)
+      || left.configurationId.localeCompare(right.configurationId)
+      || left.runId.localeCompare(right.runId),
+    )[0] ?? null;
+}
+
 function cellFor(
   rows: readonly EvidenceRow[],
+  realizations: readonly RuntimeRealizationRecord[],
   facetId: string,
   cameraViews: number,
   actionChunk: number,
@@ -234,8 +319,10 @@ function cellFor(
   const measuredRows = exactRows.filter((row) => row.selected?.value !== null && row.selected?.value !== undefined);
   if (measuredRows.length !== 1) {
     if (measuredRows.length > 1) {
-      return { state: "pending", cameraViews, actionChunk, reason: "multiple_exact_measurements" };
+      return { state: "pending_supported", cameraViews, actionChunk, reason: "multiple_exact_measurements" };
     }
+    const unsupported = unsupportedCell(realizations, cameraViews, actionChunk);
+    if (unsupported) return unsupported;
     return pendingCell(exactRows, cameraViews, actionChunk);
   }
 
@@ -271,10 +358,15 @@ function cellFor(
 export function buildPi0PerformanceOverview({
   data,
   hardwareId,
+  realizations,
 }: {
   data: AtlasData;
   hardwareId: string | null;
+  realizations?: readonly RuntimeRealizationRecord[];
 }): Pi0PerformanceOverviewModel {
+  const availableRealizations = realizations ?? (data.datasets.runtime_realizations ?? [])
+    .filter((record) => isRuntimeRealizationRecord(record, "pi0"))
+    .map(adaptRuntimeRealization);
   const measuredRows = buildEvidenceRows(data, "pi0", {
     runtimeId: null,
     hardwareId,
@@ -311,10 +403,15 @@ export function buildPi0PerformanceOverview({
       || left.id.localeCompare(right.id),
     )
     .map((facet): Pi0PerformanceFacet => {
+      const facetRealizations = availableRealizations.filter((realization) =>
+        realization.modelId === "pi0"
+        && realization.runtimeId === facet.runtimeId
+        && realization.precisionPaths.some((path) => path.precisionPathId === facet.precisionId),
+      );
       const series = PI0_PERFORMANCE_TARGET.actionChunks.map((actionChunk): Pi0PerformanceSeries => ({
         actionChunk,
         cells: PI0_PERFORMANCE_TARGET.cameraViews.map((cameraViews) =>
-          cellFor(facet.rows, facet.id, cameraViews, actionChunk),
+          cellFor(facet.rows, facetRealizations, facet.id, cameraViews, actionChunk),
         ),
       }));
       return {
@@ -326,6 +423,7 @@ export function buildPi0PerformanceOverview({
         comparisonContext: facet.comparisonContext,
         contract: facet.contract,
         series,
+        nativeEvidenceSelection: nativeEvidenceSelection(facet.rows, facet.id),
         measuredCellCount: series.reduce(
           (count, item) => count + item.cells.filter((cell) => cell.state === "measured").length,
           0,

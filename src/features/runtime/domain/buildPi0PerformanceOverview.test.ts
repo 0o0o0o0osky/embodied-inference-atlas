@@ -2,6 +2,7 @@ import { expect, it } from "vitest";
 
 import type { AtlasData, RunRecord } from "../../../types/atlas";
 import { buildPi0PerformanceOverview } from "./buildPi0PerformanceOverview";
+import type { RuntimeRealizationRecord } from "./types";
 
 type WorkloadFixture = {
   views: number;
@@ -136,6 +137,73 @@ function measurement(run: RunRecord, value: number) {
   };
 }
 
+function realization({
+  id,
+  runtimeId,
+  precisionId,
+  actionHorizon,
+  denoiseSteps = 10,
+}: {
+  id: string;
+  runtimeId: string;
+  precisionId: string;
+  actionHorizon: number | null;
+  denoiseSteps?: number | null;
+}): RuntimeRealizationRecord {
+  return {
+    realizationId: id,
+    modelId: "pi0",
+    modelGraphId: "pi0-logical-v1",
+    runtimeId,
+    runtimeRevision: "source-audited-revision",
+    availability: "source_audited",
+    availabilityReasonCode: "source_audited_workload_contract",
+    mappingLevel: "custom_runtime",
+    mappingCoverage: "partial",
+    modelArtifactIds: ["pi0-artifact"],
+    configurationIds: [],
+    deviceIds: ["thor"],
+    launch: {
+      submissionMode: "eager_dispatch",
+      cudaGraphState: "unknown",
+      captureScope: "whole_prediction",
+      evidenceIds: [`evidence-${id}`],
+    },
+    workloadApplicability: {
+      runtimeActionHorizon: actionHorizon,
+      runtimeInternalActionDimension: 32,
+      publicActionHorizon: actionHorizon,
+      publicActionDimension: 7,
+      denoiseSteps,
+      missingReasonCode: actionHorizon === null ? "not_established_by_source" : null,
+      evidenceIds: [`evidence-${id}`],
+    },
+    precisionPaths: [{
+      precisionPathId: precisionId,
+      label: precisionId,
+      weightDtype: "fp16",
+      activationDtype: "fp16",
+      accumulationDtype: "fp32",
+      outputDtype: "fp16",
+      quantScheme: "none",
+      missingFields: [],
+      missingReasonCode: null,
+      evidenceIds: [`evidence-${id}`],
+    }],
+    evidence: [{
+      evidenceId: `evidence-${id}`,
+      kind: "source_code",
+      sourceId: `source-${id}`,
+      revision: "source-audited-revision",
+      locator: "runtime/source#predict",
+      runIds: [],
+      observationIds: [],
+    }],
+    executionGroups: [],
+    mappings: [],
+  };
+}
+
 it("builds exact six-cell Pi0 target grids without borrowing mismatched evidence", () => {
   const exactFlash = run({
     runId: "flash-exact",
@@ -260,4 +328,81 @@ it("builds exact six-cell Pi0 target grids without borrowing mismatched evidence
       denoiseSteps: 10,
     },
   });
+});
+
+it("uses source-audited action horizons to distinguish unsupported targets from pending measurements", () => {
+  const horizon10Native = run({
+    runId: "horizon-10-native",
+    runtimeId: "fixed-10",
+    precisionId: "fp16",
+    workload: { views: 2, prompt: 42, chunk: 10, denoise: 10 },
+  });
+  const horizon10CloserPrompt = run({
+    runId: "horizon-10-closer-prompt",
+    runtimeId: "fixed-10",
+    precisionId: "fp16",
+    workload: { views: 1, prompt: 47, chunk: 10, denoise: 10 },
+  });
+  const horizon10PreferredView = run({
+    runId: "horizon-10-preferred-view",
+    runtimeId: "fixed-10",
+    precisionId: "fp16",
+    workload: { views: 2, prompt: 49, chunk: 10, denoise: 10 },
+  });
+  const horizon50Native = run({
+    runId: "horizon-50-native",
+    runtimeId: "fixed-50",
+    precisionId: "bf16",
+    workload: { views: 2, prompt: 42, chunk: 50, denoise: 10 },
+  });
+  const unknownNative = run({
+    runId: "unknown-native",
+    runtimeId: "no-realization",
+    precisionId: "fp16",
+    workload: { views: 2, prompt: 42, chunk: 10, denoise: 10 },
+  });
+  const runs = [horizon10Native, horizon10CloserPrompt, horizon10PreferredView, horizon50Native, unknownNative];
+  const data = {
+    format_version: "1.0.0",
+    datasets: {
+      runs,
+      end_to_end: runs.map((item, index) => measurement(item, 60 + index)),
+      stages: [],
+      models: [],
+      devices: [{ device_id: "thor", display_name: "NVIDIA Jetson AGX Thor", accelerator_architecture: "blackwell" }],
+      runtimes: [
+        { runtime_id: "fixed-10", display_name: "Fixed 10", backend: "custom", model_support: [] },
+        { runtime_id: "fixed-50", display_name: "Fixed 50", backend: "custom", model_support: [] },
+        { runtime_id: "no-realization", display_name: "Unknown", backend: "custom", model_support: [] },
+      ],
+    },
+  } as unknown as AtlasData;
+  const realizations = [
+    realization({ id: "fixed-10", runtimeId: "fixed-10", precisionId: "fp16", actionHorizon: 10 }),
+    realization({ id: "fixed-50", runtimeId: "fixed-50", precisionId: "bf16", actionHorizon: 50 }),
+  ];
+
+  const overview = buildPi0PerformanceOverview({ data, hardwareId: "thor", realizations });
+  const fixed10 = overview.facets.find((facet) => facet.runtimeId === "fixed-10")!;
+  const fixed50 = overview.facets.find((facet) => facet.runtimeId === "fixed-50")!;
+  const unknown = overview.facets.find((facet) => facet.runtimeId === "no-realization")!;
+
+  expect(fixed10.series.map((series) => [series.actionChunk, series.cells.map((cell) => cell.state)])).toEqual([
+    [20, ["unsupported", "unsupported", "unsupported"]],
+    [50, ["unsupported", "unsupported", "unsupported"]],
+  ]);
+  expect(fixed50.series.map((series) => [series.actionChunk, series.cells.map((cell) => cell.state)])).toEqual([
+    [20, ["unsupported", "unsupported", "unsupported"]],
+    [50, ["pending_supported", "pending_supported", "pending_supported"]],
+  ]);
+  expect(unknown.series.flatMap((series) => series.cells.map((cell) => cell.state))).toEqual([
+    "pending_supported", "pending_supported", "pending_supported",
+    "pending_supported", "pending_supported", "pending_supported",
+  ]);
+  expect(fixed10.nativeEvidenceSelection).toMatchObject({
+    runId: "horizon-10-preferred-view",
+    configurationId: "configuration-horizon-10-preferred-view",
+    workload: { cameraViews: 2, promptTokens: 49, actionChunk: 10, denoiseSteps: 10 },
+  });
+  expect(fixed10.series.flatMap((series) => series.cells).some((cell) => cell.state === "measured")).toBe(false);
 });

@@ -16,6 +16,9 @@ function run({
   outputContract = "action-chunk",
   timingBoundary = "predict",
   stateReuse = "cached-prompt",
+  warmupIterations = 3,
+  captureMethod = "nsys",
+  operatingPointId = "thor-max",
 }: {
   id: string;
   configurationId?: string;
@@ -26,6 +29,9 @@ function run({
   outputContract?: string;
   timingBoundary?: string;
   stateReuse?: string;
+  warmupIterations?: number | null;
+  captureMethod?: RunRecord["capture_method"];
+  operatingPointId?: string;
 }): RunRecord {
   const workload: RunRecord["workload"] = {
     common: { batch_size: 1, input_contract_id: inputContract, output_contract_id: outputContract },
@@ -57,7 +63,7 @@ function run({
     timing_boundary_id: timingBoundary,
     state_reuse: stateReuse,
     warm_policy: "steady_state",
-    warmup_iterations: 3,
+    warmup_iterations: warmupIterations,
   };
   return {
     schema_version: "1.0.0",
@@ -70,14 +76,14 @@ function run({
     system_id: "thor-system",
     source_id: `source-${id}`,
     evidence: "measured_local",
-    capture_method: "nsys",
+    capture_method: captureMethod,
     workload,
     precision,
     timing,
     operating_point: {
-      operating_point_id: "thor-max",
-      power_mode: "max",
-      clock_policy: "locked",
+      operating_point_id: operatingPointId,
+      power_mode: operatingPointId === "unknown" ? null : "max",
+      clock_policy: operatingPointId === "unknown" ? null : "locked",
       throttle_status: "not_observed",
     },
     correctness: { status: "not_assessed", criterion: "not assessed" },
@@ -86,7 +92,7 @@ function run({
       model_artifact_id: "pi0-artifact",
       runtime_id: "flashrt",
       evidence: "measured_local",
-      platform: { device_id: "thor", system_id: "thor-system", operating_point_id: "thor-max" },
+      platform: { device_id: "thor", system_id: "thor-system", operating_point_id: operatingPointId },
       task: {
         task_id: "vla-action-chunk-inference",
         input_contract_id: inputContract,
@@ -227,6 +233,41 @@ it("uses an exact configuration's contracts and timing facet when one is availab
     },
   });
   expect(scoped.evidence.captures.map((item) => item.runId)).toEqual(["partial"]);
+});
+
+it("retains an independently warmed capture with unknown workload context as partial", () => {
+  const wallClock = run({
+    id: "wall-clock",
+    configurationId: "cfg-wall-clock",
+    captureMethod: "wall_clock",
+    warmupIterations: 3,
+  });
+  const independentProfiler = run({
+    id: "independent-profiler",
+    prompt: null,
+    warmupIterations: 0,
+    operatingPointId: "unknown",
+  });
+  const wrongAction = run({
+    id: "independent-wrong-action",
+    prompt: null,
+    action: 20,
+    warmupIterations: 0,
+    operatingPointId: "unknown",
+  });
+  const candidates = [independentProfiler, wrongAction];
+  const data = atlas([wallClock, ...candidates]);
+
+  const scoped = scopeRuntimeProfiler(data, evidence(candidates), {
+    modelId: "pi0",
+    runtimeId: "flashrt",
+    hardwareId: "thor",
+    precisionId: PRECISION_ID,
+    slice: runtimeProfilerSlice(data, wallClock.configuration_id),
+  });
+
+  expect(scoped.evidence.captures.map((item) => item.runId)).toEqual(["independent-profiler"]);
+  expect([...scoped.partialContextRunIds]).toEqual(["independent-profiler"]);
 });
 
 it("keeps the default timeline and Kernel summary on the same node capture", () => {

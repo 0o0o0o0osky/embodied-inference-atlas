@@ -1,6 +1,5 @@
 import type { AtlasData, ComparisonContextRecord } from "../../../types/atlas";
 import type { ProfilerEvidence } from "../../profiler/domain/types";
-import { pi0PerformanceFacetContext } from "./buildPi0PerformanceOverview";
 
 export interface RuntimeSystemSlice {
   cameraViews: number;
@@ -23,30 +22,58 @@ interface ContextMatch {
   partial: boolean;
 }
 
-function matchKnownContext(candidate: unknown, expected: unknown): ContextMatch {
-  if (candidate === null) return { matches: true, partial: expected !== null };
-  if (Array.isArray(candidate) || Array.isArray(expected)) {
-    if (!Array.isArray(candidate) || !Array.isArray(expected) || candidate.length !== expected.length) {
-      return { matches: false, partial: false };
-    }
-    return candidate.reduce<ContextMatch>((result, item, index) => {
-      if (!result.matches) return result;
-      const nested = matchKnownContext(item, expected[index]);
-      return { matches: nested.matches, partial: result.partial || nested.partial };
-    }, { matches: true, partial: false });
-  }
-  if (typeof candidate === "object" || typeof expected === "object") {
-    if (typeof candidate !== "object" || typeof expected !== "object" || expected === null) {
-      return { matches: false, partial: false };
-    }
-    const candidateRecord = candidate as Record<string, unknown>;
-    return Object.entries(expected as Record<string, unknown>).reduce<ContextMatch>((result, [key, item]) => {
-      if (!result.matches || !(key in candidateRecord)) return { matches: false, partial: result.partial };
-      const nested = matchKnownContext(candidateRecord[key], item);
-      return { matches: nested.matches, partial: result.partial || nested.partial };
-    }, { matches: true, partial: false });
-  }
+function combineMatches(matches: readonly ContextMatch[]): ContextMatch {
+  return {
+    matches: matches.every((match) => match.matches),
+    partial: matches.some((match) => match.partial),
+  };
+}
+
+function exactField(candidate: unknown, expected: unknown): ContextMatch {
   return { matches: Object.is(candidate, expected), partial: false };
+}
+
+function knownField(candidate: unknown, expected: unknown): ContextMatch {
+  if (candidate === null || expected === null) return { matches: true, partial: true };
+  return exactField(candidate, expected);
+}
+
+function operatingPointField(candidate: string, expected: string): ContextMatch {
+  if (candidate === "unknown" || expected === "unknown") return { matches: true, partial: true };
+  return exactField(candidate, expected);
+}
+
+function profilerCompatibility(
+  run: AtlasData["datasets"]["runs"][number],
+  expected: ComparisonContextRecord,
+  slice: RuntimeSystemSlice,
+): ContextMatch {
+  const candidateVla = run.workload.vla;
+  const expectedVla = expected.workload.vla;
+  if (!candidateVla || !expectedVla) return { matches: false, partial: false };
+  return combineMatches([
+    exactField(run.model_id, expected.model_id),
+    exactField(run.model_artifact_id, expected.model_artifact_id),
+    exactField(run.runtime_id, expected.runtime_id),
+    exactField(run.device_id, expected.platform.device_id),
+    knownField(run.system_id, expected.platform.system_id),
+    exactField(run.precision.precision_id, expected.precision.precision_id),
+    exactField(run.comparison_context.task.task_id, expected.task.task_id),
+    exactField(run.workload.common.input_contract_id, expected.task.input_contract_id),
+    exactField(run.workload.common.output_contract_id, expected.task.output_contract_id),
+    exactField(run.timing.timing_boundary_id, expected.timing.timing_boundary_id),
+    exactField(run.timing.state_reuse, expected.timing.state_reuse),
+    exactField(run.workload.common.batch_size, expected.workload.common.batch_size),
+    knownField(candidateVla.camera_views, slice.cameraViews),
+    knownField(candidateVla.executed_prompt_tokens, slice.promptTokens),
+    knownField(candidateVla.action_chunk, slice.actionChunk),
+    knownField(candidateVla.denoise_steps, slice.denoiseSteps),
+    knownField(candidateVla.action_dimension, expectedVla.action_dimension),
+    knownField(candidateVla.image_height, expectedVla.image_height),
+    knownField(candidateVla.image_width, expectedVla.image_width),
+    knownField(candidateVla.semantic_prompt_tokens, expectedVla.semantic_prompt_tokens),
+    operatingPointField(run.operating_point.operating_point_id, expected.platform.operating_point_id),
+  ]);
 }
 
 export function selectRuntimeProfilerCaptures(profiler: ProfilerEvidence, requestedCaptureId: string | null) {
@@ -96,9 +123,7 @@ export function scopeRuntimeProfiler(data: AtlasData, profiler: ProfilerEvidence
     run.model_id === query.modelId && run.runtime_id === query.runtimeId && run.device_id === query.hardwareId
     && run.evidence === "measured_local").map((run) => run.precision.precision_id))];
   const actualPrecision = query.precisionId ?? (precisions.length === 1 ? precisions[0]! : null);
-  const expectedFacetContext = query.slice.facetContext
-    ? pi0PerformanceFacetContext(query.slice.facetContext)
-    : null;
+  const expectedFacetContext = query.slice.facetContext;
   // Missing selections are empty, never wildcard filters in the shared builders.
   const contextMatches = new Map<string, ContextMatch>();
   const runs = data.datasets.runs.filter((run) => {
@@ -111,7 +136,7 @@ export function scopeRuntimeProfiler(data: AtlasData, profiler: ProfilerEvidence
       || vla.action_chunk !== null && vla.action_chunk !== query.slice.actionChunk
       || vla.denoise_steps !== null && vla.denoise_steps !== query.slice.denoiseSteps) return false;
     if (expectedFacetContext === null) return false;
-    const match = matchKnownContext(pi0PerformanceFacetContext(run.comparison_context), expectedFacetContext);
+    const match = profilerCompatibility(run, expectedFacetContext, query.slice);
     if (match.matches) contextMatches.set(run.run_id, match);
     return match.matches;
   });
