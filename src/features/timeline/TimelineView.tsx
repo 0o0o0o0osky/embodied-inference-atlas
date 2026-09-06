@@ -43,7 +43,8 @@ export function TimelineView({ data, model, route, navigate }: TimelineViewProps
     hardwareId: route.hardware,
     precisionId: route.runtimePrecision,
     slice,
-  }) : { data, evidence: rawEvidence }, [data, isPi0, model.model_id, rawEvidence, route.hardware, route.runtime, route.runtimePrecision, slice]);
+  }) : { data, evidence: rawEvidence, partialContextRunIds: new Set<string>() },
+  [data, isPi0, model.model_id, rawEvidence, route.hardware, route.runtime, route.runtimePrecision, slice]);
   const evidence = scope.evidence;
   const captureSelection = useMemo(() => isPi0
     ? selectRuntimeProfilerCaptures(evidence, route.timelineCapture)
@@ -85,6 +86,7 @@ export function TimelineView({ data, model, route, navigate }: TimelineViewProps
   }
 
   const timeline = view.active.timeline;
+  const partialCaptureContext = isPi0 && scope.partialContextRunIds.has(view.active.run.run_id);
   const windowDurationNs = timeline.window.durationNs / zoom;
   const maximumStart = timeline.window.durationNs - windowDurationNs;
   const windowStartNs = timeline.window.startNs + maximumStart * (panPercent / 100);
@@ -117,6 +119,13 @@ export function TimelineView({ data, model, route, navigate }: TimelineViewProps
           <div><dt>{isPi0 ? "区间" : "Intervals"}</dt><dd>{timeline.events.length.toLocaleString()}</dd></div>
         </dl>
       </header>
+
+      {partialCaptureContext ? (
+        <p className="pi0-capture-context-status" role="status">
+          <strong>独立采集 · 部分上下文</strong>
+          <span>此 Nsys capture 不是当前选中的 wall-clock run；未知 workload 字段保持未知。</span>
+        </p>
+      ) : null}
 
       {view.requestedCaptureUnavailable ? (
         <p className="timeline-route-warning" role="status">{isPi0

@@ -40,7 +40,7 @@ export function PerformanceView({ data, model, route, navigate }: PerformanceVie
   const scope = useMemo(() => model.model_id === "pi0" ? scopeRuntimeProfiler(data, evidence, {
     modelId: model.model_id, runtimeId: route.runtime, hardwareId: route.hardware,
     precisionId: route.runtimePrecision, slice,
-  }) : { data, evidence, actualPrecision: route.runtimePrecision },
+  }) : { data, evidence, actualPrecision: route.runtimePrecision, partialContextRunIds: new Set<string>() },
   [data, evidence, model.model_id, route.runtime, route.hardware, route.runtimePrecision, slice]);
   const index = useMemo(() => indexProfilerEvidence(scope.evidence), [scope.evidence]);
   const view = useMemo(() => buildKernelRows(scope.data, scope.evidence, index, {
@@ -68,7 +68,7 @@ export function PerformanceView({ data, model, route, navigate }: PerformanceVie
             </div>
           )}
         </section>
-        <Pi0ProfilerEvidenceSection model={view} route={route} navigate={navigate} />
+        <Pi0ProfilerEvidenceSection model={view} partialContextRunIds={scope.partialContextRunIds} route={route} navigate={navigate} />
       </div>
     );
   }

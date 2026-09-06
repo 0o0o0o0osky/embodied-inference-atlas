@@ -20,7 +20,7 @@ import {
 import { Pi0SelectedRuntimeSummary } from "./components/Pi0SelectedRuntimeSummary";
 import { pi0PrecisionLabel } from "./components/runtimePresentation";
 import { adaptRuntimeRealization, isRuntimeRealizationRecord } from "./domain/adaptRuntimeRealization";
-import { buildPi0PerformanceOverview } from "./domain/buildPi0PerformanceOverview";
+import { buildPi0PerformanceOverview, PI0_PERFORMANCE_TARGET } from "./domain/buildPi0PerformanceOverview";
 import { runtimeProfilerSlice, scopeRuntimeProfiler, selectRuntimeProfilerCaptures } from "./domain/scopeRuntimeProfiler";
 import { pi0EmbeddedTimelineSelectionPatch } from "./domain/pi0PerformanceNavigation";
 import { buildRuntimeStackSummaries, resolveRuntimeCandidates } from "./domain/resolveRuntimeRealization";
@@ -153,22 +153,6 @@ export function Pi0RuntimeWorkspace({ data, model, record, route, navigate }: Pi
   const precisionFallback = summaries.find((item) => item.runtimeId === route.runtime)?.actualPrecisions
     .find((precision) => precision.id === actualPrecision)?.label ?? actualPrecision ?? "未记录";
   const precisionLabel = pi0PrecisionLabel(actualPrecision ?? "unknown", precisionFallback);
-  const selectedTargetMeasurement = useMemo(() => performanceOverview.facets
-    .flatMap((facet) => facet.series.flatMap((series) => series.cells.flatMap((cell) =>
-      cell.state === "measured" ? [cell.selection] : [],
-    )))
-    .find((selection) => selection.configurationId === route.workload
-      && selection.runtimeId === route.runtime
-      && selection.precisionId === actualPrecision
-      && selection.hardwareId === route.hardware) ?? null,
-  [actualPrecision, performanceOverview.facets, route.hardware, route.runtime, route.workload]);
-  const selectedNativeEvidence = useMemo(() => performanceOverview.facets
-    .flatMap((facet) => facet.nativeEvidenceSelection ? [facet.nativeEvidenceSelection] : [])
-    .find((selection) => selection.configurationId === route.workload
-      && selection.runtimeId === route.runtime
-      && selection.precisionId === actualPrecision
-      && selection.hardwareId === route.hardware) ?? null,
-  [actualPrecision, performanceOverview.facets, route.hardware, route.runtime, route.workload]);
   const selectedWorkload = selectedRun?.workload.vla ?? {
     camera_views: overrides.V ?? 2,
     executed_prompt_tokens: overrides.L_PROMPT ?? 48,
@@ -181,15 +165,24 @@ export function Pi0RuntimeWorkspace({ data, model, record, route, navigate }: Pi
     selectedWorkload.action_chunk,
     selectedWorkload.denoise_steps,
   ].some((item) => item === null);
-  const workloadStatus = selectedTargetMeasurement
-    ? "complete"
-    : selectedNativeEvidence?.workloadStatus
-      ?? (selectedWorkloadIncomplete ? "partial" : "complete");
-  const selectionKind = selectedTargetMeasurement
+  const selectedCoordinatesAreTarget = selectedRun !== null
+    && selectedWorkload.executed_prompt_tokens === PI0_PERFORMANCE_TARGET.promptTokens
+    && selectedWorkload.denoise_steps === PI0_PERFORMANCE_TARGET.denoiseSteps
+    && PI0_PERFORMANCE_TARGET.cameraViews.some((cameraViews) => cameraViews === selectedWorkload.camera_views)
+    && PI0_PERFORMANCE_TARGET.actionChunks.some((actionChunk) => actionChunk === selectedWorkload.action_chunk);
+  const selectedHasMeasuredLatency = selectedRun?.evidence === "measured_local"
+    && selectedEvidence?.measurement.evidence === "measured_local"
+    && selectedEvidence.measurement.metric === "latency"
+    && selectedEvidence.selected?.value !== null
+    && selectedEvidence.selected?.value !== undefined;
+  const selectionKind = selectedHasMeasuredLatency && selectedCoordinatesAreTarget
     ? "target_measurement"
-    : selectedRun
+    : selectedHasMeasuredLatency && selectedRun && !selectedCoordinatesAreTarget
       ? "native_evidence"
       : "symbolic_target";
+  const workloadStatus = selectionKind === "symbolic_target" || !selectedWorkloadIncomplete
+    ? "complete"
+    : "partial";
   const openPerformanceEvidence = useCallback((selection: Pi0RoutablePerformanceSelection) => navigate({
     runtime: selection.runtimeId,
     runtimePrecision: selection.precisionId,
@@ -225,9 +218,9 @@ export function Pi0RuntimeWorkspace({ data, model, record, route, navigate }: Pi
         }), true)}
         onOpenDetails={() => navigate({ ...scopePatch, tab: "timeline", timelineCapture: nsys.active?.capture.captureId ?? null, entity: null })} />
       {nsys.active && partialContextRunIds.has(nsys.active.run.run_id)
-        ? <p className="pi0-funnel-note">Profiler 可信边界：该 capture 仅与当前目标部分上下文匹配；未记录的 workload 字段保持未知，不能视为同一次执行。</p>
+        ? <p className="pi0-funnel-note"><strong>Nsys：独立采集 · 部分上下文。</strong> 该 capture 不是当前选中的 wall-clock run；未记录的 workload 字段保持未知。</p>
         : null}
-      <Pi0KernelSection view={kernels} realization={activeRealization} dagOpen={renderedDagOpen}
+      <Pi0KernelSection view={kernels} realization={activeRealization} partialContextRunIds={partialContextRunIds} dagOpen={renderedDagOpen}
         onOpenDetails={() => navigate({ ...scopePatch, tab: "roofline-kernels", rooflineLevel: "overview", entity: null, basis: null })}
         onOpenDag={() => setDagOpen((open) => !open)} />
       {renderedDagOpen ? <section className="pi0-funnel-section" aria-labelledby="pi0-dag-title">

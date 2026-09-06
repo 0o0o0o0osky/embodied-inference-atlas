@@ -970,6 +970,31 @@
 
 .pi0-kernel-hotspots th[scope="row"] { max-width: 350px; font-weight: 500; }
 .pi0-kernel-status { grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 12px; }
+.pi0-profiler-context-ledger {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0 24px 12px;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  background: var(--cold-plate);
+}
+.pi0-profiler-context-ledger.is-single { grid-template-columns: minmax(0, 1fr); }
+.pi0-profiler-context-ledger p {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 2px 10px;
+  margin: 0;
+  padding: 9px 12px;
+}
+.pi0-profiler-context-ledger p + p { border-left: 1px solid var(--line); }
+.pi0-profiler-context-ledger p > span { color: var(--funnel-muted); font-size: 11px; }
+.pi0-profiler-context-ledger p > strong { color: #174651; font-size: 12px; font-weight: 650; }
+.pi0-profiler-context-ledger p > small {
+  grid-column: 1 / -1;
+  color: var(--funnel-muted);
+  font-size: 11px;
+  line-height: 1.4;
+}
 .pi0-implementation-summary { padding: 12px 24px 16px; border-top: 1px solid var(--line); }
 .pi0-implementation-summary h4 { margin: 0 0 8px; font-size: 14px; font-weight: 600; }
 .pi0-implementation-summary h4 span { margin-left: 12px; color: #76500F; font-size: 12px; font-weight: 400; }
@@ -999,11 +1024,14 @@
   .pi0-kernel-hotspots { min-width: 620px; }
   .pi0-nsys-ledger,
   .pi0-kernel-status,
-  .pi0-nsys-instrument { margin-right: 16px; margin-left: 16px; }
+  .pi0-nsys-instrument,
+  .pi0-profiler-context-ledger { margin-right: 16px; margin-left: 16px; }
   .pi0-nsys-ledger dd { font-size: 16px; }
   .pi0-kernel-status { grid-template-columns: minmax(0, 1fr); }
   .pi0-kernel-status > div { padding-left: 0; border-right: 0; }
   .pi0-kernel-status > div + div { border-top: 1px solid var(--line); }
+  .pi0-profiler-context-ledger { grid-template-columns: minmax(0, 1fr); }
+  .pi0-profiler-context-ledger p + p { border-top: 1px solid var(--line); border-left: 0; }
   .pi0-implementation-summary h4 span { display: block; margin: 4px 0 0; }
 }
 

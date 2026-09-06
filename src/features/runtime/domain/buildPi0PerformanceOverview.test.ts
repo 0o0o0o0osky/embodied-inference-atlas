@@ -219,11 +219,11 @@ it("builds exact six-cell Pi0 target grids without borrowing mismatched evidence
   });
   const wrongChunk = run({
     runId: "flash-native-chunk",
-    workload: { views: 3, prompt: 48, chunk: 10, denoise: 10 },
+    workload: { views: 3, prompt: 46, chunk: 10, denoise: 10 },
   });
   const wrongDenoise = run({
     runId: "flash-denoise-missing",
-    workload: { views: 2, prompt: 48, chunk: 50, denoise: null },
+    workload: { views: 2, prompt: 47, chunk: 50, denoise: null },
   });
   const analyticalExact = run({
     runId: "analytical-exact",
@@ -253,6 +253,24 @@ it("builds exact six-cell Pi0 target grids without borrowing mismatched evidence
     inputContractId: "synthetic-observation",
     workload: { views: 3, prompt: 48, chunk: 50, denoise: 10 },
   });
+  const duplicateTargetOne = run({
+    runId: "duplicate-target-one",
+    runtimeId: "duplicate-target",
+    precisionId: "fp16",
+    workload: { views: 2, prompt: 48, chunk: 20, denoise: 10 },
+  });
+  const duplicateTargetTwo = run({
+    runId: "duplicate-target-two",
+    runtimeId: "duplicate-target",
+    precisionId: "fp16",
+    workload: { views: 2, prompt: 48, chunk: 20, denoise: 10 },
+  });
+  const duplicateNative = run({
+    runId: "duplicate-native",
+    runtimeId: "duplicate-target",
+    precisionId: "fp16",
+    workload: { views: 2, prompt: 47, chunk: 10, denoise: 10 },
+  });
   const runs = [
     exactFlash,
     wrongPrompt,
@@ -263,6 +281,9 @@ it("builds exact six-cell Pi0 target grids without borrowing mismatched evidence
     otherContract,
     otherTask,
     vlaCpp,
+    duplicateTargetOne,
+    duplicateTargetTwo,
+    duplicateNative,
   ];
   const data = {
     format_version: "1.0.0",
@@ -278,6 +299,7 @@ it("builds exact six-cell Pi0 target grids without borrowing mismatched evidence
       runtimes: [
         { runtime_id: "flashrt", display_name: "FlashRT", backend: "TensorRT", model_support: [] },
         { runtime_id: "vla-cpp", display_name: "vla.cpp", backend: "ggml", model_support: [] },
+        { runtime_id: "duplicate-target", display_name: "Duplicate target", backend: "custom", model_support: [] },
       ],
     },
   } as unknown as AtlasData;
@@ -290,7 +312,7 @@ it("builds exact six-cell Pi0 target grids without borrowing mismatched evidence
     cameraViews: [1, 2, 3],
     actionChunks: [20, 50],
   });
-  expect(overview.facets).toHaveLength(4);
+  expect(overview.facets).toHaveLength(5);
   expect(overview.facets.filter((facet) => facet.runtimeId === "flashrt"
     && facet.contract.inputContractId === "deterministic-observation"
     && facet.contract.timingBoundaryId === "predict")).toHaveLength(2);
@@ -303,7 +325,7 @@ it("builds exact six-cell Pi0 target grids without borrowing mismatched evidence
   const primary = overview.facets.find((facet) => facet.series.some((series) => series.cells.some((cell) =>
     cell.state === "measured" && cell.selection.runId === "flash-exact")))!;
   expect(primary.observedScope).toEqual({
-    promptTokens: [42, 48],
+    promptTokens: [42, 46, 47, 48],
     actionChunks: [10, 20, 50],
     denoiseSteps: [10],
     hasMissingDenoise: true,
@@ -337,13 +359,14 @@ it("builds exact six-cell Pi0 target grids without borrowing mismatched evidence
     configurationId: "configuration-flash-denoise-missing",
     workload: {
       cameraViews: 2,
-      promptTokens: 48,
+      promptTokens: 47,
       actionChunk: 50,
       denoiseSteps: null,
     },
     workloadStatus: "partial",
   });
   expect(primary.series[1]!.cells[1]!.state).toBe("pending_supported");
+  expect(overview.facets.find((facet) => facet.runtimeId === "duplicate-target")?.nativeEvidenceSelection?.runId).toBe("duplicate-native");
 });
 
 it("uses source-audited action horizons to distinguish unsupported targets from pending measurements", () => {

@@ -73,6 +73,7 @@ export function ContextBar({ data, model, route, navigate, compact = false }: Co
             runtimeFacet: null,
             timelineCapture: null,
             entity: null,
+            workload: null,
           })}>
             <option value="">未选择</option>
             {route.hardware && !hardwareKnown ? <option value={route.hardware}>{route.hardware}</option> : null}
@@ -90,6 +91,7 @@ export function ContextBar({ data, model, route, navigate, compact = false }: Co
                 runtimeFacet: null,
                 timelineCapture: null,
                 entity: null,
+                workload: null,
               }, true)}
             >
               <option value="">

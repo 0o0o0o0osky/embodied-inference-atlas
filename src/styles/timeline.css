@@ -706,6 +706,25 @@
   font-size: 13px;
 }
 
+.pi0-capture-context-status {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin: 0 24px;
+  padding: 8px 12px;
+  border-left: 3px solid #087b8b;
+  color: #526774;
+  background: #eef7f8;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.pi0-capture-context-status strong {
+  flex: 0 0 auto;
+  color: #174651;
+  font-size: 13px;
+}
+
 .timeline-toolbar.is-pi0 {
   grid-template-columns: minmax(14rem, 0.85fr) minmax(24rem, 1.4fr) minmax(18rem, 1fr);
   margin: 14px 24px 0;
@@ -823,4 +842,5 @@
   .timeline-toolbar.is-pi0 > :nth-child(3) { grid-column: auto; }
   .timeline-analysis-grid.is-pi0 { padding-right: 16px; padding-left: 16px; overflow-x: auto; }
   .timeline-workspace.is-pi0 .timeline-route-warning { margin-right: 16px; margin-left: 16px; }
+  .pi0-capture-context-status { align-items: flex-start; flex-direction: column; gap: 2px; margin-right: 16px; margin-left: 16px; }
 }

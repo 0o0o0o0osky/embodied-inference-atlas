@@ -6,13 +6,17 @@ import { KernelTable, formatDuration } from "./KernelTable";
 
 interface Pi0ProfilerEvidenceSectionProps {
   model: KernelRowsModel;
+  partialContextRunIds: ReadonlySet<string>;
   route: RouteState;
   navigate: (patch: RoutePatch, replace?: boolean) => void;
 }
 
-export function Pi0ProfilerEvidenceSection({ model, route, navigate }: Pi0ProfilerEvidenceSectionProps) {
+export function Pi0ProfilerEvidenceSection({ model, partialContextRunIds, route, navigate }: Pi0ProfilerEvidenceSectionProps) {
   const inventory = model.inventory;
   const hotspots = topKernelAggregates(model.rows);
+  const ncuRows = model.rows.filter((row) => row.observation.observationKind === "ncu_replayed_launch");
+  const nsysPartial = hotspots.some((row) => partialContextRunIds.has(row.run.run_id));
+  const partialNcuCount = ncuRows.filter((row) => partialContextRunIds.has(row.run.run_id)).length;
 
   return (
     <section className="pi0-funnel-section pi0-profiler-section" aria-labelledby="pi0-profiler-title">
@@ -27,6 +31,22 @@ export function Pi0ProfilerEvidenceSection({ model, route, navigate }: Pi0Profil
         <SummaryMetric label="NCU replay" value={inventory.ncuReplays.toLocaleString("zh-CN")} />
         <SummaryMetric label="Kernel Roofline 点" value={inventory.rooflineEligibleKernelPoints.toLocaleString("zh-CN")} />
       </dl>
+      <div className="pi0-profiler-context-ledger" aria-label="Profiler 采集关系">
+        <EvidenceScope
+          label="Nsys aggregate"
+          status={hotspots.length ? `独立采集${nsysPartial ? " · 部分上下文" : " · 已知上下文匹配"}` : "未显示"}
+          note={hotspots.length
+            ? "不是当前选中的 wall-clock run；只解释该 Nsys capture。"
+            : "当前范围没有匹配的 node aggregate。"}
+        />
+        <EvidenceScope
+          label="NCU replay"
+          status={ncuRows.length ? `独立 replay${partialNcuCount ? " · 含部分上下文" : " · 已知上下文匹配"}` : "未采集"}
+          note={ncuRows.length
+            ? `${ncuRows.length} 条单 launch replay，其中 ${partialNcuCount} 条为部分上下文；不与 Nsys aggregate 合并。`
+            : "当前范围没有 NCU replay。"}
+        />
+      </div>
 
       <section aria-labelledby="pi0-kernel-top-title">
         <header className="pi0-funnel-heading">
@@ -117,6 +137,10 @@ function topKernelAggregates(rows: readonly KernelRow[]) {
 
 function SummaryMetric({ label, value }: { label: string; value: string }) {
   return <div><dt>{label}</dt><dd>{value}</dd></div>;
+}
+
+function EvidenceScope({ label, status, note }: { label: string; status: string; note: string }) {
+  return <p><span>{label}</span><strong>{status}</strong><small>{note}</small></p>;
 }
 
 function Inventory({ label, value }: { label: string; value: string }) {

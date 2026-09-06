@@ -5,18 +5,22 @@ import { pi0GroupLabel, pi0PrecisionLabel } from "./runtimePresentation";
 export interface Pi0KernelSectionProps {
   view: KernelRowsModel;
   realization: RuntimeRealizationRecord | null;
+  partialContextRunIds?: ReadonlySet<string>;
   dagOpen?: boolean;
   onOpenDetails: () => void;
   onOpenDag: () => void;
 }
 
-export function Pi0KernelSection({ view: model, realization, dagOpen = false, onOpenDetails, onOpenDag }: Pi0KernelSectionProps) {
+const EMPTY_PARTIAL_RUN_IDS: ReadonlySet<string> = new Set();
+
+export function Pi0KernelSection({ view: model, realization, partialContextRunIds = EMPTY_PARTIAL_RUN_IDS, dagOpen = false, onOpenDetails, onOpenDag }: Pi0KernelSectionProps) {
   const rows = model.rows;
   const aggregates = rows.filter((row) => row.observation.observationKind === "nsys_window_aggregate" && row.capture.nsys?.reportMode === "node");
   const captureId = aggregates[0]?.capture.captureId;
   const hotspots = aggregates.filter((row) => row.capture.captureId === captureId)
     .sort((left, right) => right.observation.duration.valueNs - left.observation.duration.valueNs).slice(0, 3);
   const ncu = rows.filter((row) => row.observation.observationKind === "ncu_replayed_launch");
+  const partialNcuCount = ncu.filter((row) => partialContextRunIds.has(row.run.run_id)).length;
   const hasScopedEvidence = rows.length > 0;
   const activeRealization = realization;
   const mappings = activeRealization?.mappings.filter((mapping) => mapping.method === "source_audit") ?? [];
@@ -30,6 +34,15 @@ export function Pi0KernelSection({ view: model, realization, dagOpen = false, on
   return (
     <section className="pi0-funnel-section pi0-kernel-section" aria-labelledby="pi0-kernel-title">
       <header className="pi0-funnel-heading"><h3 id="pi0-kernel-title">Kernel 与实现</h3><button className="pi0-funnel-detail" type="button" onClick={onOpenDetails}>Kernel / Roofline 详情</button></header>
+      <div className="pi0-profiler-context-ledger is-single" aria-label="NCU 采集关系">
+        <p>
+          <span>NCU replay</span>
+          <strong>{ncu.length ? `独立 replay${partialNcuCount ? " · 含部分上下文" : " · 已知上下文匹配"}` : "未采集"}</strong>
+          <small>{ncu.length
+            ? `${ncu.length} 条单 launch replay，其中 ${partialNcuCount} 条为部分上下文；与 Nsys aggregate 不是同一次采集，不合并时长。`
+            : "当前范围没有 NCU replay。"}</small>
+        </p>
+      </div>
       {hotspots.length ? <>
         <p className="pi0-funnel-note">同一节点 trace 的 Nsys aggregate 累计时长 Top 3；占比以该 capture 已记录 Kernel 累计时长为分母。</p>
         <div className="pi0-funnel-table-wrap"><table className="pi0-kernel-hotspots" aria-label="Nsys Kernel 热点">

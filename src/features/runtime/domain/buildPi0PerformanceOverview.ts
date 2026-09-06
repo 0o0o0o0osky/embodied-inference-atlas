@@ -238,6 +238,15 @@ function workloadMatches(row: EvidenceRow, cameraViews: number, actionChunk: num
     && workload.denoise_steps === PI0_PERFORMANCE_TARGET.denoiseSteps;
 }
 
+function isTargetWorkload(row: EvidenceRow): boolean {
+  const workload = row.run.workload.vla;
+  return workload !== undefined
+    && workload.executed_prompt_tokens === PI0_PERFORMANCE_TARGET.promptTokens
+    && workload.denoise_steps === PI0_PERFORMANCE_TARGET.denoiseSteps
+    && PI0_PERFORMANCE_TARGET.cameraViews.some((cameraViews) => cameraViews === workload.camera_views)
+    && PI0_PERFORMANCE_TARGET.actionChunks.some((actionChunk) => actionChunk === workload.action_chunk);
+}
+
 function pendingCell(
   rows: readonly EvidenceRow[],
   cameraViews: number,
@@ -314,6 +323,7 @@ function distanceFrom(value: number | null, target: number): number {
 
 function nativeEvidenceSelection(rows: readonly EvidenceRow[], facetId: string): Pi0NativeEvidenceSelection | null {
   return rows
+    .filter((row) => !isTargetWorkload(row))
     .flatMap((row) => {
       const selection = selectionForRow(row, facetId);
       return selection ? [selection] : [];
