@@ -27,6 +27,7 @@ interface LogicalDagSvgProps {
   onSelect: (ref: string) => void;
   ariaLabel: string;
   overlay?: ReactNode;
+  underlay?: ReactNode;
   compactControls?: boolean;
   toolbar?: ReactNode;
   scenario?: ReactNode;
@@ -168,6 +169,7 @@ export function LogicalDagSvg({
   onSelect,
   ariaLabel,
   overlay,
+  underlay,
   compactControls = false,
   toolbar,
   scenario,
@@ -396,6 +398,7 @@ export function LogicalDagSvg({
           );
         })}
 
+        {underlay}
         <g className="logical-edges" aria-hidden="true">
           {connectors.connectors.flatMap((connector) =>
             connector.paths.map((path) => {

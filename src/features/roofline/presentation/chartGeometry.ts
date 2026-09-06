@@ -57,8 +57,8 @@ export function decadeTicks(domain: LogDomain): number[] {
 }
 
 export function chartGeometry(
-  points: readonly RooflinePointVM[],
-  curves: readonly RooflineCurveVM[],
+  points: readonly Pick<RooflinePointVM, "xFlopPerByte" | "yFlopPerSecond">[],
+  curves: readonly Pick<RooflineCurveVM, "ridgeFlopPerByte" | "computeFlopPerSecond" | "bandwidthBytePerSecond">[],
 ): RooflineChartGeometry {
   const x = decadeDomain(
     [...points.map((point) => point.xFlopPerByte), ...curves.map((curve) => curve.ridgeFlopPerByte)],
@@ -81,7 +81,7 @@ export function logY(value: number, domain: LogDomain, box: PlotBox) {
   return box.top + Math.log10(domain.max / value) / Math.log10(domain.max / domain.min) * box.height;
 }
 
-export function roofPath(curve: RooflineCurveVM, x: LogDomain, y: LogDomain, box: PlotBox) {
+export function roofPath(curve: Pick<RooflineCurveVM, "ridgeFlopPerByte" | "computeFlopPerSecond" | "bandwidthBytePerSecond">, x: LogDomain, y: LogDomain, box: PlotBox) {
   const ridge = Math.min(x.max, Math.max(x.min, curve.ridgeFlopPerByte));
   const atLow = Math.min(curve.computeFlopPerSecond, curve.bandwidthBytePerSecond * x.min);
   return `M ${logX(x.min, x, box)} ${logY(atLow, y, box)} L ${logX(ridge, x, box)} ${logY(Math.min(curve.computeFlopPerSecond, curve.bandwidthBytePerSecond * ridge), y, box)} L ${logX(x.max, x, box)} ${logY(curve.computeFlopPerSecond, y, box)}`;

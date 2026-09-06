@@ -1,0 +1,53 @@
+.kernel-roofline-comparison { margin: 24px 24px 32px; color: #243d53; }
+.kernel-roofline-comparison > header { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-bottom: 20px; }
+.kernel-roofline-comparison h3 { margin: 0; font-size: 21px; font-weight: 600; }
+.kernel-roofline-comparison > header p { color: #62798d; font-size: 14px; margin: 8px 0 0; }
+.roofline-comparison-levels { display: flex; padding: 3px; background: #edf3f8; border-radius: 8px; }
+.roofline-comparison-levels button { border: 0; background: transparent; padding: 9px 16px; border-radius: 6px; cursor: pointer; color: #546e84; white-space: nowrap; }
+.roofline-comparison-levels button[aria-pressed="true"] { background: #fff; color: #235eaa; box-shadow: 0 1px 4px #12334b19; }
+.roofline-comparison-empty { padding: 26px; background: #f5f8fc; border: 1px solid #dce6ef; border-radius: 10px; }
+.roofline-comparison-empty > strong { font-size: 17px; font-weight: 500; }
+.roofline-comparison-empty p { margin: 12px 0 20px; color: #567085; font-size: 14px; line-height: 1.7; }
+.roofline-comparison-empty > small { display: block; margin-top: 20px; color: #677e91; font-size: 13px; line-height: 1.6; }
+.roofline-comparison-picker { display: flex; align-items: center; gap: 12px; font-size: 14px; margin: 16px 0; }
+.roofline-comparison-picker select { max-width: min(600px, 80%); padding: 9px 12px; color: #244660; background: #fff; border: 1px solid #c8d8e5; border-radius: 6px; }
+.roofline-pair-chart { border: 1px solid #dae5ef; background: #fff; border-radius: 10px; overflow: hidden; }
+.roofline-pair-summary { display: flex; justify-content: space-between; gap: 12px; padding: 18px 24px; border-bottom: 1px solid #e3ebf2; font-size: 14px; color: #58768c; }
+.roofline-pair-summary strong { color: #275ea2; font-size: 17px; font-weight: 600; }
+.roofline-pair-canvas { width: 100%; }
+.roofline-pair-canvas svg { display: block; width: 100%; }
+.pair-grid { stroke: #e9eff5; stroke-width: 1; }
+.pair-tick { fill: #61788d; font: 12px system-ui, sans-serif; }
+.pair-axis { fill: #3e5c72; font: 14px system-ui, sans-serif; }
+.pair-roof { stroke: #467d77; stroke-width: 2.5; fill: none; }
+.pair-guide { stroke: #c8d8e7; stroke-dasharray: 3 5; }
+.pair-gap { stroke: #3776c9; stroke-width: 2; stroke-dasharray: 5 4; }
+.pair-point { cursor: pointer; outline: none; }
+.pair-point-hit { fill: transparent; stroke: none; }
+.pair-point-glyph { stroke-width: 2.5; }
+.pair-point.is-theory .pair-point-glyph { fill: white; stroke: #467d77; }
+.pair-point.is-actual .pair-point-glyph { fill: #3776c9; stroke: white; }
+.pair-point:focus-visible .pair-point-hit { stroke: #204e8b; stroke-width: 2; }
+.roofline-pair-legend { display: flex; align-items: center; flex-wrap: wrap; gap: 12px 28px; font-size: 14px; padding: 0 24px 16px; }
+.roofline-comparison-empty .roofline-pair-legend { padding: 0; }
+.roofline-pair-legend > span { display: inline-flex; align-items: center; gap: 8px; }
+.roofline-pair-legend i { width: 11px; height: 11px; border-radius: 50%; display: inline-block; }
+.roofline-pair-legend i.is-theory { border: 2px solid #467d77; background: white; }
+.roofline-pair-legend i.is-actual { background: #3776c9; }
+.roofline-pair-legend small { color: #647c90; font-size: 12px; }
+.roofline-pair-hint, .roofline-comparison-missing { color: #61798e; font-size: 13px; line-height: 1.7; padding: 14px 24px; margin: 0; border-top: 1px solid #e3ebf2; }
+.roofline-pair-inspector { background: #f5f8fc; padding: 20px 24px; border-top: 1px solid #dbe6ef; }
+.roofline-pair-inspector > header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.roofline-pair-inspector > header strong { font-size: 17px; font-weight: 500; }
+.roofline-pair-inspector button { background: transparent; color: #416c94; border: 0; cursor: pointer; }
+.roofline-pair-inspector dl { display: flex; flex-wrap: wrap; gap: 18px 48px; margin: 22px 0; }
+.roofline-pair-inspector dt { color: #627d93; font-size: 13px; margin-bottom: 6px; }
+.roofline-pair-inspector dd { font: 500 20px/1.4 system-ui, sans-serif; margin: 0; font-variant-numeric: tabular-nums; }
+.roofline-pair-inspector p { color: #526f86; font-size: 14px; line-height: 1.7; overflow-wrap: anywhere; }
+.roofline-pair-inspector details { font-size: 14px; margin-top: 16px; }
+.roofline-pair-inspector summary { cursor: pointer; }
+@media (max-width: 650px) {
+  .kernel-roofline-comparison > header { flex-wrap: wrap; }
+  .roofline-pair-summary { padding: 14px; flex-wrap: wrap; }
+  .roofline-pair-inspector { padding: 16px; }
+}

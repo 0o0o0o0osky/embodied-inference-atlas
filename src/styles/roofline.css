@@ -869,6 +869,14 @@
   font-size: 0.72rem;
 }
 
+.roofline-point-picker { padding: 4px 16px 16px; }
+.roofline-point-picker label { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; font-size: 14px; }
+.roofline-point-picker select { max-width: 100%; min-width: 220px; padding: 8px 12px; font: inherit; border: 1px solid #c8d8e2; border-radius: 6px; background: #fff; color: #233c52; }
+.roofline-stage-picker { display: flex; flex-wrap: wrap; gap: 8px; }
+.roofline-stage-picker button { padding: 8px 14px; border: 1px solid #dce5ee; border-radius: 6px; background: #fff; color: #526b80; font: inherit; font-size: 14px; cursor: pointer; }
+.roofline-stage-picker button[aria-pressed="true"] { background: #eaf5f8; border-color: #13899d; color: #076779; }
+.roofline-point-picker :is(button, select):focus-visible { outline: 2px solid #13899d; outline-offset: 3px; }
+
 .roofline-curve-ledger {
   display: grid;
   border-top: 1px solid var(--line);

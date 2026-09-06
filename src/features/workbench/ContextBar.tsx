@@ -57,6 +57,11 @@ export function ContextBar({ data, model, route, navigate, compact = false }: Co
     ))
     .map((run) => run.precision.precision_id))].sort();
   const rooflinePrecisionIds = rooflinePrecisions(data, model.model_id);
+  const runtimeBoundPrecision = data.datasets.roofline_scenarios.some((record) => {
+    const path = record.precision_path as Record<string, unknown> | null;
+    return record.model_id === model.model_id && path !== null && typeof path === "object"
+      && !Array.isArray(path) && path.kind === "mapped_mixed" && path.precision_path_id === route.precision;
+  });
   const fieldCount = 2 + Number(showWorkload) + Number(showRuntimePrecision || showRooflinePrecision);
 
   if (compact) {
@@ -109,7 +114,7 @@ export function ContextBar({ data, model, route, navigate, compact = false }: Co
             </select>
           </label>
         ) : null}
-        {compactRooflinePrecision ? (
+        {compactRooflinePrecision && route.rooflineLevel !== "kernel" ? (
           <label>
             <span>理论精度</span>
             <select value={route.precision ?? ""} onChange={(event) => navigate({
@@ -118,7 +123,8 @@ export function ContextBar({ data, model, route, navigate, compact = false }: Co
               entity: modelTheory ? route.entity : route.tab === "roofline-kernels" ? null : route.entity,
             }, true)}>
               <option value="">场景默认</option>
-              {route.precision && !rooflinePrecisionIds.includes(route.precision) ? <option value={route.precision}>{precisionLabel(route.precision)}</option> : null}
+              {runtimeBoundPrecision ? <option value={route.precision!} disabled>推理栈绑定配置（只读）</option>
+                : route.precision && !rooflinePrecisionIds.includes(route.precision) ? <option value={route.precision}>{precisionLabel(route.precision)}</option> : null}
               {rooflinePrecisionIds.map((precisionId) => <option key={precisionId} value={precisionId}>{precisionLabel(precisionId)}</option>)}
             </select>
           </label>
@@ -207,7 +213,8 @@ export function ContextBar({ data, model, route, navigate, compact = false }: Co
           <span>Analytical roofline precision</span>
           <select value={route.precision ?? ""} onChange={(event) => navigate({ precision: event.target.value || null, basis: null, entity: null }, true)}>
             <option value="">Basis default</option>
-            {route.precision && !rooflinePrecisionIds.includes(route.precision) ? <option value={route.precision}>{route.precision} (outside model scenarios)</option> : null}
+            {runtimeBoundPrecision ? <option value={route.precision!} disabled>Runtime-bound configuration (read-only)</option>
+              : route.precision && !rooflinePrecisionIds.includes(route.precision) ? <option value={route.precision}>{route.precision} (outside model scenarios)</option> : null}
             {rooflinePrecisionIds.map((precisionId) => <option key={precisionId} value={precisionId}>{precisionId}</option>)}
           </select>
         </label>
@@ -243,7 +250,9 @@ function scopedEvidenceRunIds(data: AtlasData, tab: RouteState["tab"]): Set<stri
 function rooflinePrecisions(data: AtlasData, modelId: string): string[] {
   return [...new Set(data.datasets.roofline_scenarios.flatMap((record) => {
     if (record.model_id !== modelId || typeof record.precision_path !== "object" || record.precision_path === null || Array.isArray(record.precision_path)) return [];
-    const precisionId = (record.precision_path as Record<string, unknown>).precision_path_id;
+    const path = record.precision_path as Record<string, unknown>;
+    if (path.kind === "mapped_mixed") return [];
+    const precisionId = path.precision_path_id;
     return typeof precisionId === "string" ? [precisionId] : [];
   }))].sort();
 }

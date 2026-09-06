@@ -37,7 +37,7 @@ function rowLabel(point: RooflinePointRecord) {
   if (point.entity.entity_id.endsWith("#softmax")) return "缩放、掩码与 Softmax";
   if (point.entity.entity_id.endsWith("#value")) return "加权求和 P @ V";
   if (point.entity.entity_id.endsWith("#composite")) return "Attention 组合包络";
-  return "逻辑算子总计";
+  return "模型算子总计";
 }
 
 function computeClassLabel(computeClass: string) {
@@ -77,7 +77,7 @@ export function OperatorRooflinePanel({
   if (!summary) {
     return (
       <div className="drawer-availability">
-        <h3>该逻辑算子尚无解析点</h3>
+        <h3>该模型算子尚无理论估计</h3>
         <p>当前公式层只覆盖可物化的 GEMM 与 Attention 组成；缺失不会补成零。</p>
         {fullAnalysisLink}
       </div>

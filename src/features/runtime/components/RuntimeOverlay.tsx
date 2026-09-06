@@ -12,6 +12,8 @@ interface RuntimeOverlayProps {
   onSelectGroup: (groupId: string) => void;
   pi0?: boolean;
   avoidPaths?: readonly Pick<RoutedPath, "path" | "arrow">[];
+  layer?: "all" | "background" | "labels";
+  showPrecision?: boolean;
 }
 
 function precisionMark(precision: PrecisionPath | undefined) {
@@ -213,6 +215,8 @@ export function RuntimeOverlay({
   onSelectGroup,
   pi0 = false,
   avoidPaths = [],
+  layer = "all",
+  showPrecision = true,
 }: RuntimeOverlayProps) {
   const index = indexRuntimeRealization(realization);
   const occupied: LabelBox[] = [
@@ -236,14 +240,14 @@ export function RuntimeOverlay({
     const group = index.groupById.get(boundary.groupId);
     const precision = index.precisionById.get(boundary.precisionPathId);
     const labels = pi0
-      ? [`${pi0RelationLabel(boundary.relation)} · ${pi0ShortPrecisionLabel(precision?.precisionPathId ?? "", precision?.label ?? "精度未建立")}`]
+      ? [showPrecision ? `${pi0RelationLabel(boundary.relation)} · ${pi0ShortPrecisionLabel(precision?.precisionPathId ?? "", precision?.label ?? "精度未建立")}` : "融合"]
       : [...new Set([
           `Fused · ${precisionMark(precision)}`,
           `Fused · ${shortPrecisionMark(precision)}`,
     ])];
     for (const label of labels) {
       const width = pi0
-        ? pi0LabelWidth(label, 92)
+        ? pi0LabelWidth(label, showPrecision ? 92 : 42)
         : Math.max(106, label.length * 8.1 + 18);
       const box = pi0
         ? placePi0BoundaryLabel(boundary.box, width, layout, occupied)
@@ -264,7 +268,10 @@ export function RuntimeOverlay({
         const key = badge.mappingId ?? `${ref}/eliminated`;
         if (eliminatedMappings.has(key)) return;
         eliminatedMappings.add(key);
-        compactBadgeEntries.push({ ref, badge: { ...badge, label: "已消除" } });
+        const mapping = realization.mappings.find((item) => item.mappingId === badge.mappingId);
+        const label = mapping?.reasonCode === "precomputed_outside_prediction" ? "预计算"
+          : mapping?.reasonCode === "pointer_offset_view" ? "视图" : "已消除";
+        compactBadgeEntries.push({ ref, badge: { ...badge, label } });
       });
       const byGroup = new Map<string, RuntimeBadge[]>();
       badges.filter((badge) => badge.groupId).forEach((badge) => {
@@ -281,8 +288,16 @@ export function RuntimeOverlay({
           ?? groupBadges.find((badge) => badge.kind === "ambiguous")
           ?? groupBadges[0];
         if (!chosen) return;
-        const label = chosen.kind === "preserved" ? "保留"
-          : chosen.kind === "split" ? "拆分"
+        if (chosen.kind === "preserved" || chosen.kind === "precision") {
+          if (!showPrecision) return;
+          const group = index.groupById.get(groupId);
+          const precision = group ? index.precisionById.get(group.precisionPathId) : undefined;
+          if (!precision) return;
+          compactGroups.add(groupId);
+          compactBadgeEntries.push({ ref, badge: { ...chosen, kind: "precision", label: pi0ShortPrecisionLabel(precision.precisionPathId, precision.label) } });
+          return;
+        }
+        const label = chosen.kind === "split" ? "拆分"
           : chosen.kind === "opaque" ? "不透明"
           : chosen.kind === "fallback" ? "备用路径"
           : chosen.kind === "ambiguous" ? "映射有歧义"
@@ -317,12 +332,18 @@ export function RuntimeOverlay({
   });
   return (
     <g className="runtime-overlay" data-runtime-realization={realization.realizationId}>
-      {overlay.boundaries.map((boundary) => {
+      {layer !== "labels" && overlay.boundaries.map((boundary) => {
         const selected = overlay.highlightedGroupIds.has(boundary.groupId);
         return (
           <g
             key={boundary.fragmentId}
             className={["runtime-boundary", selected ? "is-selected" : ""].filter(Boolean).join(" ")}
+            data-group-id={boundary.groupId}
+            role="button"
+            tabIndex={0}
+            aria-label={`查看融合执行组：${pi0GroupLabel(index.groupById.get(boundary.groupId)?.label ?? boundary.groupId)}`}
+            onClick={() => onSelectGroup(boundary.groupId)}
+            onKeyDown={(event) => activate(event, () => onSelectGroup(boundary.groupId))}
           >
             <rect
               className="runtime-boundary-frame"
@@ -336,7 +357,7 @@ export function RuntimeOverlay({
         );
       })}
 
-      {boundaryLabels.map(({ boundary, group, label, box }) => (
+      {layer !== "background" && boundaryLabels.map(({ boundary, group, label, box }) => (
         <g
           key={`${boundary.groupId}/label`}
           className="runtime-boundary-label"
@@ -353,7 +374,7 @@ export function RuntimeOverlay({
         </g>
       ))}
 
-      {positionedBadges.map(({ ref, badge, group, label, box }, badgeIndex) => {
+      {layer !== "background" && positionedBadges.map(({ ref, badge, group, label, box }, badgeIndex) => {
           const selected = badge.groupId ? overlay.highlightedGroupIds.has(badge.groupId) : false;
           const action = badge.groupId ? () => onSelectGroup(badge.groupId!) : null;
           return (
@@ -378,13 +399,12 @@ export function RuntimeOverlay({
           );
       })}
 
-      {[...overlay.badgesByNode].flatMap(([ref, badges]) => {
+      {layer !== "background" && [...overlay.badgesByNode].flatMap(([ref, badges]) => {
         if (!badges.some((badge) => badge.kind === "eliminated")) return [];
         const box = layout.nodeBoxes.get(ref);
         return box ? [(
           <g className="runtime-eliminated-mark" key={`${ref}/eliminated`} aria-hidden="true">
             <rect x={box.x - 3} y={box.y - 3} width={box.width + 6} height={box.height + 6} rx={8} />
-            <path d={`M ${box.x - 2} ${box.y + box.height + 2} L ${box.x + box.width + 2} ${box.y - 2}`} />
           </g>
         )] : [];
       })}

@@ -34,17 +34,17 @@ export function Pi0ProfilerEvidenceSection({ model, partialContextRunIds, anchor
     <section className="pi0-funnel-section pi0-profiler-section" aria-labelledby="pi0-profiler-title">
       <header className="pi0-funnel-heading">
         <div>
-          <h3 id="pi0-profiler-title">NCU · Kernel 性能</h3>
-          <p>选择一个实测 Kernel，查看计算与缓存指标；融合实现与理论上限按各自口径分析。</p>
+          <h3 id="pi0-profiler-title">NCU · Kernel 诊断</h3>
+          <p>诊断计算与访存利用情况；回放耗时不用于计算实际性能差距。</p>
         </div>
       </header>
       {activeNcu ? <section className="pi0-ncu-focus">
-        <label>实测 Kernel
+        <label>诊断 Kernel
           <select value={activeNcu.observation.observationId} onChange={(event) => {
             const row = ncuRows.find((candidate) => candidate.observation.observationId === event.target.value);
             if (row) navigate({ entity: kernelEntity(row.capture.captureId, row.observation.observationId), rooflineLevel: "kernel", basis: null }, true);
           }}>
-            {ncuRows.map((row, index) => <option key={row.observation.observationId} value={row.observation.observationId}>{row.signature.labelSanitized} · 回放 {index + 1}</option>)}
+            {ncuRows.map((row, index) => <option key={row.observation.observationId} value={row.observation.observationId}>{row.signature.labelSanitized.replace("representative GEMM", "代表性 GEMM")} · 回放 {index + 1}</option>)}
           </select>
         </label>
         <p>单次回放 {formatDuration(activeNcu.observation.duration.valueNs)} · {ncuRows.length} 条可选记录</p>
@@ -53,16 +53,16 @@ export function Pi0ProfilerEvidenceSection({ model, partialContextRunIds, anchor
             const isTensor = name === "tensor_cycles_active_pct_of_peak_sustained_active";
             const metric = isTensor ? preferredProfilerMetric(activeNcu.metrics, TENSOR_ACTIVE_METRIC_NAMES) : activeNcu.metrics.get(name);
             const metricLabel = isTensor && metric?.metricName === "tensor_cycles_active_pct_of_peak_sustained_elapsed"
-              ? "Tensor 活跃 / sustained elapsed" : label;
+              ? "Tensor 活跃（全程周期）" : label;
             const value = metric?.value;
             return <div key={name} className="pi0-ncu-bar-row">
-              <span>{metricLabel}</span>
+              <span title={metric?.metricName}>{metricLabel}</span>
               <div className="pi0-ncu-meter">{value != null ? <i style={{ width: `${Math.min(100, Math.max(0, value))}%` }} /> : null}</div>
               <strong>{metric && value != null ? formatMetric(metric) : "未采集"}</strong>
             </div>;
           })}
         </div>
-        <p className="pi0-funnel-note">指标分母采用各自 counter 定义；L2 吞吐不代表 LPDDR 带宽。融合组归属及完整内存流量尚缺，暂不能计算 Kernel 与理论上限的差距。</p>
+        <p className="pi0-funnel-note">吞吐相对持续峰值，周期口径见指标名称；L2 吞吐不是 LPDDR 带宽。缺少融合组关联和完整流量，暂不判定理论差距。</p>
       </section> : <p className="pi0-funnel-empty">当前推理栈尚无 NCU 实测。</p>}
       <details className="pi0-runtime-mapping-disclosure">
         <summary>采集上下文与历史节点统计</summary>
@@ -182,10 +182,10 @@ export function Pi0ProfilerEvidenceSection({ model, partialContextRunIds, anchor
 }
 
 const NCU_SUMMARY_METRICS: readonly [string, ProfilerMetricName][] = [
-  ["SM 吞吐 / sustained elapsed", "sm_throughput_pct_of_peak_sustained_elapsed"],
-  ["Tensor 活跃 / sustained active", "tensor_cycles_active_pct_of_peak_sustained_active"],
-  ["L2 吞吐 / sustained elapsed", "l2_throughput_pct_of_peak_sustained_elapsed"],
-  ["实际 Occupancy", "achieved_occupancy_percent"],
+  ["SM 吞吐（全程周期）", "sm_throughput_pct_of_peak_sustained_elapsed"],
+  ["Tensor 活跃（活跃周期）", "tensor_cycles_active_pct_of_peak_sustained_active"],
+  ["L2 吞吐（全程周期）", "l2_throughput_pct_of_peak_sustained_elapsed"],
+  ["实际占用率", "achieved_occupancy_percent"],
 ];
 
 function topKernelAggregates(rows: readonly KernelRow[]) {

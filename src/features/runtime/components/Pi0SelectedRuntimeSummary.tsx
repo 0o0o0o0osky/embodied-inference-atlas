@@ -31,8 +31,8 @@ const SELECTION_LABELS: Readonly<Record<Pi0RuntimeSelectionKind, string>> = {
 };
 
 const SELECTION_NOTES: Readonly<Record<Pi0RuntimeSelectionKind, string>> = {
-  target_measurement: "与 P=48、N=10、A=20/50 目标坐标精确匹配的本地实测。",
-  native_evidence: "这是该推理栈已有的原生 workload 证据，不是 P=48、A=20/50 目标点。",
+  target_measurement: "与 P=48、N=10、A=20/50 目标坐标匹配；预热 5 次，正式测量 10 次。",
+  native_evidence: "这是该推理栈已有的原生测量，未完全匹配当前输入形状或 5+10 采样口径。",
   symbolic_target: "当前只是待采集的目标坐标；没有借用其他输入配置的延时。",
 };
 
@@ -65,13 +65,14 @@ export function Pi0SelectedRuntimeSummary({
           <small>{latency ? STATISTIC_LABELS[latency.statistic] ?? latency.statistic : "无匹配实测"}</small>
         </div>
       </header>
-      <p className="pi0-selected-runtime-note">{SELECTION_NOTES[selectionKind]}</p>
+      {workloadStatus === "partial" ? <p className="pi0-selected-runtime-note">部分输入信息未记录，不能视为严格匹配。</p> : null}
       <dl>
         <div><dt>视角</dt><dd>{value(workload.camera_views)}</dd></div>
         <div><dt>提示长度</dt><dd>{value(workload.executed_prompt_tokens)}</dd></div>
         <div><dt>动作块</dt><dd>{value(workload.action_chunk)}</dd></div>
         <div><dt>去噪</dt><dd>{value(workload.denoise_steps, " 步")}</dd></div>
       </dl>
+      <details className="pi0-selected-measurement-note"><summary>测量说明</summary><p>{SELECTION_NOTES[selectionKind]}</p></details>
     </section>
   );
 }

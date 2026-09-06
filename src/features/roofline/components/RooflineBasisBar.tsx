@@ -3,6 +3,7 @@ import type { InteractiveWorkload, InteractiveWorkloadBounds } from "../data/mat
 import type { RooflineViewModel } from "../presentation/viewModel";
 import { formatNumber, humanize, provenanceLabel } from "../presentation/viewModel";
 import { isPi0ModelTheory } from "../../runtime/domain/pi0PerformanceNavigation";
+import { IntegerInput } from "../../../components/IntegerInput";
 
 function deviceLabel(deviceId: string) {
   return deviceId === "nvidia-jetson-agx-thor" ? "Jetson AGX Thor T5000" : deviceId;
@@ -26,15 +27,10 @@ export function RooflineBasisBar({
   const basis = model.activeBasis;
   const scenario = model.activeScenario;
   if (!basis || !scenario) return null;
-  const precisionOptions = [...new Map(model.availableBases.map((item) => [item.precisionPathId, item])).values()];
-  const update = (field: keyof InteractiveWorkload, value: string) => {
+  const precisionOptions = [...new Map(model.availableBases.filter((item) => !item.runtimeBound).map((item) => [item.precisionPathId, item])).values()];
+  const update = (field: keyof InteractiveWorkload, value: number) => {
     if (!workload) return;
-    const parsed = Number(value);
-    const minimum = field === "executedPromptTokens" ? workloadBounds.promptMinimum : 1;
-    const maximum = field === "executedPromptTokens" ? workloadBounds.promptMaximum : null;
-    if (Number.isSafeInteger(parsed) && parsed >= minimum && (maximum === null || parsed <= maximum)) {
-      onWorkload({ ...workload, [field]: parsed });
-    }
+    onWorkload({ ...workload, [field]: value });
   };
   const runtimeState = basis.realization_id
     ? `Exact realization · ${basis.realization_id}`
@@ -45,10 +41,10 @@ export function RooflineBasisBar({
   const modelTheory = isPi0ModelTheory(route);
   if (modelTheory) return <section className="theory-basis-controls">
     {workload ? <div className="roofline-workload-controls">
-      <label><span>视角数</span><input aria-label="视角数" type="number" min="1" value={workload.executedCameraViews} onChange={(event) => update("executedCameraViews", event.target.value)} /></label>
-      <label><span>提示词长度</span><input aria-label="提示词长度" type="number" min={workloadBounds.promptMinimum} max={workloadBounds.promptMaximum ?? undefined} value={workload.executedPromptTokens} onChange={(event) => update("executedPromptTokens", event.target.value)} /></label>
-      <label><span>动作块长度</span><input aria-label="动作块长度" type="number" min="1" value={workload.actionHorizon} onChange={(event) => update("actionHorizon", event.target.value)} /></label>
-      <label><span>去噪步数</span><input aria-label="去噪步数" type="number" min="1" value={workload.denoiseSteps} onChange={(event) => update("denoiseSteps", event.target.value)} /></label>
+      <label><span>视角数</span><IntegerInput aria-label="视角数" min={1} value={workload.executedCameraViews} onValueChange={(value) => update("executedCameraViews", value)} /></label>
+      <label><span>提示词长度</span><IntegerInput aria-label="提示词长度" min={workloadBounds.promptMinimum} max={workloadBounds.promptMaximum ?? undefined} value={workload.executedPromptTokens} onValueChange={(value) => update("executedPromptTokens", value)} /></label>
+      <label><span>动作块长度</span><IntegerInput aria-label="动作块长度" min={1} value={workload.actionHorizon} onValueChange={(value) => update("actionHorizon", value)} /></label>
+      <label><span>去噪步数</span><IntegerInput aria-label="去噪步数" min={1} value={workload.denoiseSteps} onValueChange={(value) => update("denoiseSteps", value)} /></label>
     </div> : null}
     <p>计算上限：{model.curves.map((curve) => `${formatNumber(curve.computeFlopPerSecond / 1e12)} TFLOP/s`).join("；") || "未建立"}；带宽上限：{bandwidth ? `${formatNumber(bandwidth.bandwidthBytePerSecond / 1e9)} GB/s` : "未建立"}。</p>
     <p>这些是所选硬件条件下的理论值，运行时频率与实测利用率需另行验证。</p>
@@ -78,15 +74,16 @@ export function RooflineBasisBar({
               const selected = precisionOptions.find((item) => item.precisionPathId === event.target.value);
               navigate({ precision: event.target.value, basis: selected?.basisId ?? null, workload: null, entity: null });
             }}>
+              {scenario.precision_path.kind === "mapped_mixed" ? <option value={scenario.precision_path.precision_path_id} disabled>Runtime-bound configuration (read-only)</option> : null}
               {precisionOptions.map((item) => <option key={item.precisionPathId} value={item.precisionPathId}>{humanize(item.precisionPathId)}</option>)}
             </select>
           </label>
           {workload ? (
             <div className="roofline-workload-controls">
-              <label><span>Views</span><input aria-label="Executed camera views" type="number" min="1" value={workload.executedCameraViews} onChange={(event) => update("executedCameraViews", event.target.value)} /></label>
-              <label><span>Prompt</span><input aria-label="Executed prompt tokens" type="number" min={workloadBounds.promptMinimum} max={workloadBounds.promptMaximum ?? undefined} value={workload.executedPromptTokens} onChange={(event) => update("executedPromptTokens", event.target.value)} /></label>
-              <label><span>Action</span><input aria-label="Action horizon" type="number" min="1" value={workload.actionHorizon} onChange={(event) => update("actionHorizon", event.target.value)} /></label>
-              <label><span>Denoise</span><input aria-label="Denoise steps" type="number" min="1" value={workload.denoiseSteps} onChange={(event) => update("denoiseSteps", event.target.value)} /></label>
+              <label><span>Views</span><IntegerInput aria-label="Executed camera views" min={1} value={workload.executedCameraViews} onValueChange={(value) => update("executedCameraViews", value)} /></label>
+              <label><span>Prompt</span><IntegerInput aria-label="Executed prompt tokens" min={workloadBounds.promptMinimum} max={workloadBounds.promptMaximum ?? undefined} value={workload.executedPromptTokens} onValueChange={(value) => update("executedPromptTokens", value)} /></label>
+              <label><span>Action</span><IntegerInput aria-label="Action horizon" min={1} value={workload.actionHorizon} onValueChange={(value) => update("actionHorizon", value)} /></label>
+              <label><span>Denoise</span><IntegerInput aria-label="Denoise steps" min={1} value={workload.denoiseSteps} onValueChange={(value) => update("denoiseSteps", value)} /></label>
             </div>
           ) : <p className="roofline-control-note">{scenario.origin === "legacy_import" ? "Legacy inventory is a published migration snapshot; interactive rematerialization is intentionally disabled." : "Runtime-mixed allocation stays bound to its exact default realization."}</p>}
           <span className="roofline-origin">{humanize(scenario.origin)}</span>

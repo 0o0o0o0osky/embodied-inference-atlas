@@ -46,6 +46,8 @@ interface PositionedCluster extends PointCluster {
   marker: ClusterMarker;
 }
 
+const STAGE_ORDER = ["Model total", "Vision Encoder", "Prefix Encoder", "Action Flow Decoder"];
+
 function throughput(value: number) {
   return value >= 1e12 ? `${formatNumber(value / 1e12)}T` : value >= 1e9 ? `${formatNumber(value / 1e9)}G` : formatNumber(value);
 }
@@ -151,7 +153,7 @@ export function RooflineChart({
     return { ownershipRadius, radius };
   });
   const clusterByKey = new Map(positionedClusters.map((cluster) => [cluster.key, cluster]));
-  const countLabels = placeClusterCounts(
+  const countLabels = (modelTheory ? [] : placeClusterCounts(
     positionedClusters.map((cluster, index) => ({
       key: cluster.key,
       count: cluster.points.length,
@@ -161,7 +163,7 @@ export function RooflineChart({
       cellPolygon: hitPolygons[index]!,
     })),
     box,
-  ).map((placement) => ({ ...placement, cluster: clusterByKey.get(placement.key)! }));
+  )).map((placement) => ({ ...placement, cluster: clusterByKey.get(placement.key)! }));
   const nextClusterMember = (cluster: PositionedCluster) => {
     const focusedIndex = cluster.points.findIndex((point) => point.pointId === focusedPointId);
     return cluster.points[focusedIndex >= 0 ? (focusedIndex + 1) % cluster.points.length : 0]!;
@@ -191,7 +193,7 @@ export function RooflineChart({
         ) : null}
         <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-labelledby={`${uid}-svg-title ${uid}-svg-desc`}>
           <title id={`${uid}-svg-title`}>{title}</title>
-          <desc id={`${uid}-svg-desc`}>Logarithmic roofline chart. Hollow markers are analytical; half-filled markers combine observed time with modeled traffic; filled markers require observed time and measured traffic. Exact coincidences use one aggregate glyph at the true coordinate; activate it repeatedly or use the roster to select members. Dense singleton positions with a narrow local target receive an external 1 pt selector.</desc>
+          <desc id={`${uid}-svg-desc`}>{modelTheory ? "理论 Roofline，使用对数坐标。点保留真实坐标，坐标重合时可用图下的选择器分别查看阶段或算子。空心点是理论估计，不是实测性能。" : "Logarithmic roofline chart. Hollow markers are analytical; half-filled markers combine observed time with modeled traffic; filled markers require observed time and measured traffic. Coincident points retain their true coordinates; use the roster to select members."}</desc>
           <defs>
             <clipPath id={`${uid}-plot`}><rect x={box.left} y={box.top} width={box.width} height={box.height} /></clipPath>
             {positionedClusters.filter((cluster) => cluster.marker === "half").map((cluster) => (
@@ -282,7 +284,7 @@ export function RooflineChart({
                   }}
                 />
                 <circle className="roofline-marker-focus" r={Math.max(4, Math.min(radius + 4, 9))} />
-                {labelMember && !selectedLabelBlocked ? <text className="roofline-selected-label" textAnchor={rightFits ? "start" : "end"} x={selectedLabelX} y={selectedLabelY}>{pointLabel}</text> : null}
+                {!modelTheory && labelMember && !selectedLabelBlocked ? <text className="roofline-selected-label" textAnchor={rightFits ? "start" : "end"} x={selectedLabelX} y={selectedLabelY}>{pointLabel}</text> : null}
               </g>;
             })}
             {countLabels.map((placement) => {
@@ -326,7 +328,7 @@ export function RooflineChart({
             })}
           </g>
           {curves.map((curve, index) => {
-            if (curve.kind !== "uniform_roof") return null;
+            if (modelTheory || curve.kind !== "uniform_roof") return null;
             const ridgeX = logX(curve.ridgeFlopPerByte, geometry.x, box);
             const labelX = Math.min(box.left + box.width - 6, Math.max(box.left + 110, ridgeX - 7));
             return <text key={`${curve.curveId}-label`} className="roofline-ridge-label" x={labelX} y={box.top + 16 + index * 15} textAnchor="end">{formatNumber(curve.ridgeFlopPerByte)} FLOP/B</text>;
@@ -335,12 +337,24 @@ export function RooflineChart({
           <text className="roofline-axis-title" transform={`translate(22 ${box.top + box.height / 2}) rotate(-90)`} textAnchor="middle">{modelTheory ? "吞吐量 (FLOP/s)" : "Throughput (FLOP/s)"}</text>
         </svg>
       </div>
+      {modelTheory ? <div className="roofline-point-picker">
+        {labelAllPoints ? <div className="roofline-stage-picker" aria-label="选择模型阶段">{[...points].sort((a, b) => STAGE_ORDER.indexOf(a.label) - STAGE_ORDER.indexOf(b.label)).map((point) => <button
+          type="button" key={point.pointId} aria-pressed={point.pointId === focusedPointId || (focusedPointId === null && point.selected)}
+          onClick={() => onSelect(point.entityKey, point.pointId)}>{theoryPointLabel(point.label)}</button>)}</div>
+          : <label><span>选择模型算子</span><select value={focusedPointId ?? points.find((point) => point.selected)?.pointId ?? points[0]?.pointId ?? ""}
+            onChange={(event) => { const point = points.find((item) => item.pointId === event.target.value); if (point) onSelect(point.entityKey, point.pointId); }}>
+            {clusters.map((cluster) => <optgroup key={cluster.key} label={cluster.points.length > 1 ? `${cluster.points.length} 个算子坐标重合` : "独立坐标"}>
+              {cluster.points.map((point) => <option key={point.pointId} value={point.pointId}>{theoryPointLabel(point.label)}</option>)}
+            </optgroup>)}
+          </select></label>}
+      </div> : null}
       <details className="roofline-curve-details" open={modelTheory ? undefined : true}>
         {modelTheory ? <summary>计算与带宽上限依据</summary> : <summary hidden>Curve identities and provenance</summary>}
       <div className="roofline-curve-ledger" aria-label="Curve identities and provenance">
         {curves.map((curve) => (
           <article key={curve.curveId}>
             <strong><i className={`roof-swatch ${curve.kind === "reference_only" ? "is-reference" : ""}`} /> {curve.label}</strong>
+            {modelTheory && curve.kind === "uniform_roof" ? <span>计算 / 带宽分界：{formatNumber(curve.ridgeFlopPerByte)} FLOP/B</span> : null}
             <code>{curve.curveId}</code>
             <span>Compute · {curve.computeCeilingId} · {provenanceLabel(curve.computeProvenance)} · {curve.computeProvenance.condition ?? "no extra condition"}</span>
             <span>Bandwidth · {curve.bandwidthCeilingId} · {provenanceLabel(curve.bandwidthProvenance)} · {curve.bandwidthProvenance.condition ?? "no extra condition"}</span>
@@ -348,7 +362,7 @@ export function RooflineChart({
         ))}
       </div>
       </details>
-      {overlapping.length ? (
+      {!modelTheory && overlapping.length ? (
         <details className="roofline-cluster-roster">
           <summary>{modelTheory ? `${overlapping.length} 组重合点 · 展开选择算子` : `${overlapping.length} coincident clusters · open entity roster`}</summary>
           <div>{overlapping.map((cluster) => (
@@ -360,7 +374,7 @@ export function RooflineChart({
         </details>
       ) : null}
       <div className="roofline-chart-legend" aria-label="Marker legend">
-        {modelTheory ? <><span><i className="marker-swatch is-hollow" /> 理论时间与建模访存</span><strong>点大小表示同口径理论时间占比；重合点可点击选择。</strong></> : <>
+        {modelTheory ? <><span><i className="marker-swatch is-hollow" /> 理论估计，非实测</span><strong>图下选择阶段或算子；坐标重合的项仍可分别查看。</strong></> : <>
           <span><i className="marker-swatch is-hollow" /> Analytical time + traffic</span>
           <span><i className="marker-swatch is-half" /> Observed time + modeled traffic</span>
           <span><i className="marker-swatch is-filled" /> Observed time + measured traffic</span>

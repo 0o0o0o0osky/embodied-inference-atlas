@@ -20,6 +20,7 @@ import { Pi0ProfilerEvidenceSection } from "./components/Pi0ProfilerEvidenceSect
 import { buildKernelRows } from "./domain/buildKernelRows";
 import { Pi0PerformanceNavigation } from "../runtime/components/Pi0PerformanceNavigation";
 import { isPi0ModelTheory } from "../runtime/domain/pi0PerformanceNavigation";
+import { KernelRooflineComparison } from "../roofline/components/KernelRooflineComparison";
 
 interface PerformanceViewProps {
   data: AtlasData;
@@ -102,22 +103,23 @@ export function PerformanceView({ data, model, route, navigate }: PerformanceVie
       <div className="performance-workspace performance-workspace--pi0">
         <Pi0PerformanceNavigation route={route} navigate={navigate}
           surface={route.rooflineLevel === "kernel" ? "kernel" : "roofline"} />
-        {route.rooflineLevel === "kernel" ? profilerSection : null}
-        <section className="pi0-funnel-section pi0-roofline-summary" aria-labelledby="pi0-roofline-title">
+        {route.rooflineLevel === "kernel" ? <>
+          <KernelRooflineComparison data={data} runId={slice.anchorRunId} />
+          {profilerSection}
+        </> : null}
+        {route.rooflineLevel !== "kernel" ? <section className="pi0-funnel-section pi0-roofline-summary" aria-labelledby="pi0-roofline-title">
           <header className="pi0-funnel-heading">
             <div><h3 id="pi0-roofline-title">{modelTheory ? "模型理论 · Roofline" : "理论 Roofline"}</h3><p>{modelTheory ? "DAG 的展开分析视图。选择阶段或算子查看理论上限，返回时保留当前场景。" : "先选分析层级，再看对应上限；理论、融合实现与实测 Kernel 不混算。"}</p></div>
           </header>
           <Pi0RooflineLevelNavigation route={route} navigate={navigate} />
           {route.rooflineLevel === "overview" ? (
             <Pi0RooflineOverview data={data} result={pi0Analytical!} navigate={navigate} modelTheory={modelTheory} />
-          ) : route.rooflineLevel === "kernel" && inventory.rooflineEligibleKernelPoints === 0 ? (
-            <p className="pi0-funnel-note">尚无满足计算量、内存流量与实测时长关联要求的 Kernel Roofline 点。上方 NCU 指标可独立查看；逻辑算子与融合算子的理论分析可在对应标签中打开。</p>
           ) : (
             <div className="pi0-roofline-active-level">
               <RooflineView data={data} model={model} route={route} navigate={navigate} />
             </div>
           )}
-        </section>
+        </section> : null}
         {!modelTheory && route.rooflineLevel !== "kernel" && (route.runtime || route.rooflineLevel !== "overview") ? (
           profilerSection
         ) : null}
@@ -182,7 +184,7 @@ const PI0_ROOFLINE_LEVELS: readonly {
 }[] = [
   { id: "overview", label: "总览" },
   { id: "stage", label: "模型阶段" },
-  { id: "atomic", label: "逻辑算子" },
+  { id: "atomic", label: "模型算子" },
   { id: "fused", label: "融合算子" },
   { id: "kernel", label: "实测 Kernel" },
 ];

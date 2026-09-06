@@ -49,6 +49,12 @@ function knownField(candidate: unknown, expected: unknown): ContextMatch {
   return exactField(candidate, expected);
 }
 
+function promptField(candidate: number | null, expected: number | null): ContextMatch {
+  // A selected token count requires measured evidence of that count, not an
+  // unknown historical prompt. Other missing workload fields remain partial.
+  return expected === null ? knownField(candidate, expected) : exactField(candidate, expected);
+}
+
 function operatingPointField(candidate: string, expected: string): ContextMatch {
   if (candidate === "unknown" || expected === "unknown") return { matches: true, partial: true };
   return exactField(candidate, expected);
@@ -76,7 +82,7 @@ function profilerCompatibility(
     exactField(run.timing.state_reuse, expected.timing.state_reuse),
     exactField(run.workload.common.batch_size, expected.workload.common.batch_size),
     knownField(candidateVla.camera_views, slice.cameraViews),
-    knownField(candidateVla.executed_prompt_tokens, slice.promptTokens),
+    promptField(candidateVla.executed_prompt_tokens, slice.promptTokens),
     knownField(candidateVla.action_chunk, slice.actionChunk),
     knownField(candidateVla.denoise_steps, slice.denoiseSteps),
     knownField(candidateVla.action_dimension, expectedVla.action_dimension),
@@ -196,7 +202,7 @@ export function selectIndependentNcuReplayEvidence(
   };
 }
 
-/** Exact execution scope; unknown capture workload fields allow partial matching. */
+/** Selected prompt counts are exact; other unknown fields allow partial matching. */
 export function scopeRuntimeProfiler(data: AtlasData, profiler: ProfilerEvidence, query: RuntimeProfilerScope) {
   const actualPrecision = actualPrecisionFor(data, query);
   const expectedFacetContext = query.slice.facetContext;
@@ -208,7 +214,7 @@ export function scopeRuntimeProfiler(data: AtlasData, profiler: ProfilerEvidence
       || run.model_id !== query.modelId || run.runtime_id !== query.runtimeId || run.device_id !== query.hardwareId
       || run.precision.precision_id !== actualPrecision || !vla
       || !knownField(vla.camera_views, query.slice.cameraViews).matches
-      || !knownField(vla.executed_prompt_tokens, query.slice.promptTokens).matches
+      || !promptField(vla.executed_prompt_tokens, query.slice.promptTokens).matches
       || !knownField(vla.action_chunk, query.slice.actionChunk).matches
       || !knownField(vla.denoise_steps, query.slice.denoiseSteps).matches) return false;
     if (expectedFacetContext === null) return false;

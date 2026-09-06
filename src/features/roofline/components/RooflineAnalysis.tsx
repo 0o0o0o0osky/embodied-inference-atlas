@@ -53,7 +53,7 @@ export function RooflineAnalysis({
   return (
     <div className={`roofline-analysis-grid${modelTheory ? " is-model-theory" : ""}`}>
       <RooflineChart
-        title={modelTheory ? model.activeBasis.level === "stage" ? "模型与各阶段的理论上限" : "逻辑算子的理论上限" : model.activeBasis.label}
+        title={modelTheory ? model.activeBasis.level === "stage" ? "模型与各阶段的理论上限" : "模型算子的理论上限（融合前）" : model.activeBasis.label}
         modelTheory={modelTheory}
         labelAllPoints={modelTheory && model.activeBasis.level === "stage"}
         curves={model.curves}

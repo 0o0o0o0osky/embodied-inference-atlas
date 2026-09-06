@@ -1,0 +1,10 @@
+.runtime-bound-summary { padding: 14px 24px; border-top: 1px solid #e4ebf1; background: #fff; color: #233c52; }
+.runtime-bound-primary, .runtime-model-reference { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: baseline; font-size: 14px; }
+.runtime-bound-primary > strong { font-size: 16px; font-weight: 600; }
+.runtime-bound-summary button { border: 0; background: transparent; padding: 0; color: #176190; font: inherit; font-size: 13px; cursor: pointer; }
+.runtime-bound-summary details { margin-top: 12px; font-size: 14px; color: #62758a; max-width: 960px; }
+.runtime-bound-summary summary { cursor: pointer; }
+.runtime-bound-summary p { line-height: 1.8; margin: 12px 0; }
+.runtime-bound-rule { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; padding: 12px 0; }
+.runtime-bound-rule span:not([aria-hidden]) { padding: 10px 14px; background: #edf5f8; border-left: 2px solid #0e8ea0; color: #31536a; }
+.runtime-model-reference { padding-top: 12px; border-top: 1px solid #e4ebf1; }

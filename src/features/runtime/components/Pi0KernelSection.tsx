@@ -99,7 +99,7 @@ export function Pi0KernelSection({ view: model, realization, partialContextRunId
           {mappings.length ? <>
             <p><strong>融合与消除</strong> {fusedLabels.length ? fusedLabels.join("；") : "当前源码映射未声明融合"}；消除映射 {mappings.filter((mapping) => mapping.relation === "eliminated").length} 项。</p>
             <p><strong>精度与量化</strong> {paths.length ? paths.map((path) => pi0PrecisionLabel(path.precisionPathId, path.label)).join("；") : "当前源码映射未建立精度路径"}。</p>
-            <p className="pi0-funnel-note">以上仅对应当前实现的源码审计映射，不将 Kernel 热点关联到逻辑算子。</p>
+            <p className="pi0-funnel-note">以上仅对应当前实现的源码审计映射，不将 Kernel 热点关联到模型算子。</p>
           </> : <p>当前选择暂无源码审计实现映射。</p>}
         </div>
       </details>

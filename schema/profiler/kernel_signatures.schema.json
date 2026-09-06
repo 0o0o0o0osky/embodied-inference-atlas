@@ -8,7 +8,7 @@
       "kernel_signature_id": {"type": "string", "min_length": 1, "max_length": 120},
       "runtime_id": {"type": "string", "min_length": 1, "max_length": 80},
       "model_id": {"type": "string", "min_length": 1, "max_length": 80},
-      "label_sanitized": {"type": "string", "enum": ["decoder attention tensor-op", "decoder attention WMMA", "decoder NVJET 128x16", "decoder NVJET 512x16", "decoder NVJET 64x16", "encoder large GEMM", "encoder GEGLU", "encoder QKV split", "encoder residual RMS", "encoder second GEMM", "encoder third GEMM", "SigLIP broadcast add", "SigLIP FMHA", "SigLIP GELU+bias", "SigLIP layer norm", "SigLIP quantize"]},
+      "label_sanitized": {"type": "string", "enum": ["decoder attention tensor-op", "decoder attention WMMA", "decoder NVJET 128x16", "decoder NVJET 512x16", "decoder NVJET 64x16", "encoder large GEMM", "encoder GEGLU", "encoder QKV split", "encoder residual RMS", "encoder second GEMM", "encoder third GEMM", "SigLIP broadcast add", "SigLIP FMHA", "SigLIP GELU+bias", "SigLIP layer norm", "SigLIP quantize", "vla.cpp representative GEMM"]},
       "function_family": {"type": "string", "enum": ["gemm", "attention", "normalization", "elementwise", "quantize", "copy", "other"]},
       "implementation_family": {"type": "string", "enum": ["cutlass-tensor-core", "cutlass-wmma", "nvjet", "fmha", "fused-elementwise", "layer-normalization", "quantization", "other"]},
       "precision_path": {

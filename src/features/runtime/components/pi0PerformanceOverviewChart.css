@@ -24,6 +24,10 @@
 .pi0-runtime-bar { position: relative; width: min(46%, 122px); min-width: 36px; min-height: 2px; padding: 0; border: 0; border-radius: 6px 6px 0 0; background: var(--pi0-bar-color); cursor: pointer; transition: filter 150ms; }
 .pi0-runtime-bar:hover { filter: brightness(1.1); }
 .pi0-runtime-bar.is-selected { box-shadow: 0 0 0 3px #b5c9e6; }
+.pi0-repeat-measurements { flex-basis: 100%; color: var(--pi0-chart-muted); font-size: 14px; }
+.pi0-repeat-measurements summary { cursor: pointer; margin-bottom: 10px; }
+.pi0-repeat-measurements p { max-width: 760px; line-height: 1.6; }
+.pi0-repeat-measurements button { margin: 6px 10px 0 0; }
 .pi0-runtime-bar strong { position: absolute; bottom: calc(100% + 10px); left: 50%; transform: translateX(-50%); color: var(--pi0-chart-ink); font-size: 22px; font-weight: 650; font-variant-numeric: tabular-nums; }
 .pi0-runtime-missing { display: flex; align-items: center; justify-content: center; width: 100%; min-height: 74px; margin: 0 0 16px; color: var(--pi0-chart-muted); font-size: 14px; text-align: center; }
 .pi0-runtime-column-label { min-height: 62px; padding-top: 17px; display: flex; flex-direction: column; gap: 7px; text-align: center; }
@@ -36,7 +40,7 @@
 .pi0-runtime-evidence-list section { padding: 16px 0; border-top: 1px solid var(--pi0-chart-line); }
 .pi0-runtime-evidence-list h4 { margin: 0 0 12px; font-size: 16px; }
 .pi0-runtime-evidence-list h4 span { margin-left: 12px; font-size: 13px; font-weight: 400; color: var(--pi0-chart-muted); }
-.pi0-runtime-evidence-row { display: flex; gap: 24px; justify-content: space-between; align-items: center; padding: 10px 0; }
+.pi0-runtime-evidence-row { display: flex; flex-wrap: wrap; gap: 16px 24px; justify-content: space-between; align-items: center; padding: 10px 0; }
 .pi0-runtime-evidence-row p { margin: 0 0 6px; font-size: 14px; }
 .pi0-runtime-evidence-row span { color: var(--pi0-chart-muted); font-size: 13px; }
 .pi0-runtime-evidence-row button { flex-shrink: 0; border: 1px solid #c7d6e6; background: #f6f9fc; border-radius: 6px; color: #2457a7; padding: 8px 12px; font: inherit; font-size: 13px; cursor: pointer; }

@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import type { TimelineEvent, TimelineRecord } from "../../profiler/domain/types";
 import { TimelineTracks } from "./TimelineTracks";
+import { TimelineEventDetails } from "./TimelineEventDetails";
+import "./timelineGrouped.css";
 
 /** One viewport shared by the system preview and the full timeline. */
 export function TimelineViewport({ timeline, selectedEventId, onSelect, locale = "zh" }: {
@@ -65,5 +67,11 @@ export function TimelineViewport({ timeline, selectedEventId, onSelect, locale =
         windowStartNs={timeline.window.startNs + window.start * timeline.window.durationNs}
         windowDurationNs={window.span * timeline.window.durationNs} />
     </div>
+    <TimelineEventDetails timeline={timeline} event={timeline.events.find((event) => event.eventId === selectedEventId) ?? null}
+      onFocus={(event) => {
+        const span = Math.min(1, Math.max(1 / 128, event.durationNs / timeline.window.durationNs * 1.3));
+        const center = (event.startNs - timeline.window.startNs + event.durationNs / 2) / timeline.window.durationNs;
+        setWindow({ span, start: Math.max(0, Math.min(1 - span, center - span / 2)) });
+      }} />
   </div>;
 }

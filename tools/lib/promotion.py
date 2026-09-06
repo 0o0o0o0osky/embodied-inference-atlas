@@ -39,6 +39,7 @@ class PromotionPlan:
     diff: str
     additions: int
     updates: int
+    removals: int = 0
 
 
 def plan_promotion(bundle: Mapping, repo_root: Path) -> PromotionPlan:
@@ -49,8 +50,9 @@ def plan_promotion(bundle: Mapping, repo_root: Path) -> PromotionPlan:
     _validate_bundle(bundle, manifest)
     incoming_sets = bundle["datasets"]
     assert isinstance(incoming_sets, Mapping)
+    removals = bundle.get("removals", {})
 
-    unknown = sorted(set(incoming_sets) - set(datasets))
+    unknown = sorted((set(incoming_sets) | set(removals)) - set(datasets))
     if unknown:
         raise PromotionError(f"unknown dataset: {unknown[0]}")
     _validate_profiler_bundle(bundle, incoming_sets, datasets, repo_root, manifest)
@@ -58,9 +60,11 @@ def plan_promotion(bundle: Mapping, repo_root: Path) -> PromotionPlan:
     planned: list[PromotionChange] = []
     additions = 0
     updates = 0
-    for dataset in sorted(incoming_sets):
+    removed = 0
+    for dataset in sorted(set(incoming_sets) | set(removals)):
         entry = datasets[dataset]
-        incoming = incoming_sets[dataset]
+        incoming = incoming_sets.get(dataset, [])
+        removed_keys = set(removals.get(dataset, []))
         if not isinstance(entry, Mapping):
             raise PromotionError(f"dataset manifest entry is invalid: {dataset}")
         if not isinstance(incoming, list) or not all(
@@ -72,6 +76,8 @@ def plan_promotion(bundle: Mapping, repo_root: Path) -> PromotionPlan:
             raise PromotionError(f"dataset primary key is invalid: {dataset}")
         copied = [copy.deepcopy(dict(record)) for record in incoming]
         _validate_incoming_keys(copied, primary_key)
+        if removed_keys & {record[primary_key] for record in copied}:
+            raise PromotionError(f"cannot remove and upsert the same key: {dataset}")
 
         if isinstance(entry.get("data"), str):
             path = repo_root / entry["data"]
@@ -80,12 +86,18 @@ def plan_promotion(bundle: Mapping, repo_root: Path) -> PromotionPlan:
             _validate_current_privacy(dataset, current)
             current_records = current.get("records")
             current_keys = _record_keys(current_records, primary_key)
+            if removed_keys - current_keys:
+                raise PromotionError(f"removal key does not exist: {dataset}")
             assert isinstance(current_records, list)
             current_by_key = {
                 record[primary_key]: record for record in current_records
             }
             candidate = dict(current)
-            candidate["records"] = _merge_records(current_records, copied, primary_key)
+            candidate["records"] = _merge_records(
+                [record for record in current_records if record[primary_key] not in removed_keys],
+                copied, primary_key,
+            )
+            removed += len(removed_keys)
             additions += sum(record[primary_key] not in current_keys for record in copied)
             updates += sum(
                 record[primary_key] in current_keys
@@ -99,6 +111,8 @@ def plan_promotion(bundle: Mapping, repo_root: Path) -> PromotionPlan:
                     PromotionChange(dataset, path, candidate, original, safe_before)
                 )
         elif isinstance(entry.get("data_glob"), str):
+            if removed_keys:
+                raise PromotionError(f"removals require a single-file dataset: {dataset}")
             changes, added, updated = _plan_glob_dataset(
                 dataset, entry["data_glob"], primary_key, copied, repo_root, manifest
             )
@@ -110,7 +124,7 @@ def plan_promotion(bundle: Mapping, repo_root: Path) -> PromotionPlan:
 
     planned.sort(key=lambda change: change.path.as_posix())
     diff = "".join(_change_diff(change, repo_root) for change in planned)
-    return PromotionPlan(repo_root, tuple(planned), diff, additions, updates)
+    return PromotionPlan(repo_root, tuple(planned), diff, additions, updates, removed)
 
 
 def apply_promotion(plan: PromotionPlan) -> None:
@@ -163,9 +177,9 @@ def _merge_records(
 
 def _validate_bundle(bundle: Mapping, manifest: Mapping[str, object]) -> None:
     allowed = {"bundle_version", "source_label", "datasets"}
-    if set(bundle) != allowed:
+    if not allowed <= set(bundle) or set(bundle) - (allowed | {"removals"}):
         raise PromotionError(
-            "bundle must contain only bundle_version, source_label, and datasets"
+            "bundle requires bundle_version, source_label, datasets, and optional removals"
         )
     if bundle.get("bundle_version") != manifest.get("schema_version"):
         raise PromotionError("bundle_version does not match the repository schema")
@@ -174,6 +188,16 @@ def _validate_bundle(bundle: Mapping, manifest: Mapping[str, object]) -> None:
         raise PromotionError("source_label must be lowercase kebab-case")
     if not isinstance(bundle.get("datasets"), Mapping):
         raise PromotionError("bundle datasets must be an object")
+    removals = bundle.get("removals", {})
+    if not isinstance(removals, Mapping):
+        raise PromotionError("bundle removals must be an object")
+    for dataset, keys in removals.items():
+        if not isinstance(keys, list) or not all(isinstance(key, str) and key for key in keys):
+            raise PromotionError(f"removals must be explicit primary-key arrays: {dataset}")
+        if len(keys) != len(set(keys)):
+            raise PromotionError(f"duplicate removal key: {dataset}")
+        if keys and dataset in PROFILER_DATASETS:
+            raise PromotionError("profiler evidence is append-only and cannot be removed")
 
 
 def _validate_incoming_keys(records: list[dict], primary_key: str) -> None:
@@ -201,6 +225,8 @@ def _validate_profiler_bundle(
         "runs", "end_to_end", "stages", "model_graphs",
         "runtime_realizations", *PROFILER_DATASETS,
     }
+    if bundle.get("removals"):
+        required.update(manifest_entries)
     for dataset in required:
         entry = manifest_entries.get(dataset)
         if not isinstance(entry, Mapping):
@@ -232,6 +258,11 @@ def _validate_profiler_bundle(
             for record in incoming:
                 if isinstance(record, Mapping) and isinstance(record.get(primary_key), str):
                     merged[record[primary_key]] = copy.deepcopy(dict(record))
+            for key in bundle.get("removals", {}).get(dataset, []):
+                previous = merged.get(key)
+                if dataset == "runs" and previous and previous.get("capture_method") in {"ncu", "nsys"}:
+                    raise PromotionError("profiler runs are append-only and cannot be removed")
+                merged.pop(key, None)
             combined[dataset] = list(merged.values())
         else:
             combined[dataset] = current
@@ -304,6 +335,12 @@ def _validate_profiler_bundle(
     semantic = profiler_semantic_issues(combined)
     if semantic:
         raise PromotionError("profiler bundle failed semantic validation", semantic)
+    if bundle.get("removals"):
+        from tools.validate import validate_references
+
+        references = validate_references(combined)
+        if references:
+            raise PromotionError("removal candidate has invalid references", references)
 
 
 def _record_keys(records: object, primary_key: str) -> set[str]:

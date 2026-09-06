@@ -133,13 +133,6 @@ export function TimelineView({ data, model, route, navigate }: TimelineViewProps
           {isPi0 ? <div className="pi0-nsys-instrument timeline-detail-instrument">{tracks}</div> : tracks}
           {isPi0 ? (
             <div className="timeline-secondary-grid">
-              <details className="timeline-inspector-disclosure">
-                <summary>
-                  <span><strong>系统区间详情</strong><small>CPU、CUDA 与 GPU 活动的时间位置</small></span>
-                  <b>展开</b>
-                </summary>
-                <TimelineInspector view={view} route={route} navigate={navigate} locale="zh" />
-              </details>
               <TimelineSummary view={view} locale="zh" disclosure />
             </div>
           ) : <TimelineSummary view={view} />}
@@ -169,10 +162,10 @@ function TimelineSummary({
     [zh ? "目标线程墙钟重叠" : "Target wall overlap", summary("target_wall_overlap_with_recorded_gpu_activity"), zh ? "目标线程墙钟并集与已记录活动相交" : "wall union intersected with represented activity"],
     [zh ? "窗口内目标线程调度核时" : "Target scheduled core-time / window", summary("target_scheduled_core_time_over_full_window"), zh ? "调度运行证据，不等于有效工作或空闲" : "scheduler-running evidence; not useful-work or idle proof"],
   ] as const : [
-    [zh ? "CUDA Graph 执行跨度" : "CUDA Graph execution span", summary("cuda_graph_span_union"), zh ? "执行包络，不等于 GPU 忙碌" : "execution envelope; not GPU busy"],
-    [zh ? "Graph 包络内目标线程调度核时" : "Target scheduled core-time overlap", summary("target_scheduled_core_time_overlapping_graph_spans"), zh ? "Graph 包络内的调度运行时长" : "scheduler-running time during graph envelopes"],
+    [zh ? "CUDA Graph 执行跨度" : "CUDA Graph execution span", summary("cuda_graph_span_union"), zh ? "执行范围，不等于 GPU 忙碌" : "execution envelope; not GPU busy"],
+    [zh ? "Graph 范围内目标线程调度核时" : "Target scheduled core-time overlap", summary("target_scheduled_core_time_overlapping_graph_spans"), zh ? "Graph 范围内的调度运行时长" : "scheduler-running time during graph envelopes"],
     [zh ? "已记录 copy 活动并集" : "Recorded copy activity union", summary("recorded_copy_activity_union"), zh ? "仅含 copy 区间，此模式没有 Kernel 并集" : "copy intervals only; no kernel union at this trace mode"],
-    [zh ? "Graph 包络外" : "Outside graph envelopes", summary("outside_graph_span_union"), zh ? "未观测 / 未知，不代表空闲" : "unobserved / unknown; not idle"],
+    [zh ? "Graph 范围外" : "Outside graph envelopes", summary("outside_graph_span_union"), zh ? "未观测 / 未知，不代表空闲" : "unobserved / unknown; not idle"],
   ] as const;
   const systemWide = active.capture.nsys?.schedulerScope === "system_wide";
   const ledger = (
@@ -186,8 +179,8 @@ function TimelineSummary({
           </div>
         ))}
         {systemWide ? <>
-          <div><dt>{zh ? "非 Profiler 等效调度核数" : "Non-profiler scheduled cores"}</dt><dd>{formatOptionalSummary(summary("non_profiler_equivalent_scheduled_cores_during_graph_spans"), "cores", locale)}</dd><small>{zh ? "Graph 包络内的等效调度核数，不代表可用余量" : "equivalent scheduled cores during graph spans; not headroom"}</small></div>
-          <div><dt>{zh ? "已观测调度容量占比" : "Observed scheduled capacity share"}</dt><dd>{formatOptionalSummary(summary("non_profiler_scheduled_capacity_share_during_graph_spans"), "percent", locale)}</dd><small>{zh ? "Graph 包络内相对 14 核容量" : "of 14-core capacity during graph spans"}</small></div>
+          <div><dt>{zh ? "非 Profiler 等效调度核数" : "Non-profiler scheduled cores"}</dt><dd>{formatOptionalSummary(summary("non_profiler_equivalent_scheduled_cores_during_graph_spans"), "cores", locale)}</dd><small>{zh ? "Graph 范围内的等效调度核数，不代表可用余量" : "equivalent scheduled cores during graph spans; not headroom"}</small></div>
+          <div><dt>{zh ? "已观测调度容量占比" : "Observed scheduled capacity share"}</dt><dd>{formatOptionalSummary(summary("non_profiler_scheduled_capacity_share_during_graph_spans"), "percent", locale)}</dd><small>{zh ? "Graph 范围内相对 14 核容量" : "of 14-core capacity during graph spans"}</small></div>
         </> : null}
       </dl>
     </>
@@ -226,7 +219,7 @@ function formatSummary(value: number, unit: string, locale: "en" | "zh" = "en") 
 
 function pi0CaptureMode(mode: "graph" | "node" | undefined, schedulerScope: string | undefined) {
   if (schedulerScope === "system_wide") return "全系统调度";
-  return mode === "node" ? "节点级 trace" : "Graph 包络";
+  return mode === "node" ? "节点级 trace" : "Graph 范围";
 }
 
 function formatDuration(valueNs: number) {

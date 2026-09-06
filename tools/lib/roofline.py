@@ -506,27 +506,33 @@ def roofline_problems(datasets: Mapping[str, list[Mapping]]) -> list[RooflinePro
             _validate_kernel_point(issues, point, basis, base)
     default_scenarios = [item for item in scenarios if item.get("origin") == "default_precomputed"]
     legacy_scenarios = [item for item in scenarios if item.get("origin") == "legacy_import"]
-    if len(default_scenarios) != 24:
-        issues.append(_problem("$.roofline_scenarios", "scenario_count", "exactly 24 default precomputed scenarios are required"))
     expected_default_keys = {
         (model_id, precision_path_id)
         for model_id in ("pi0", "pi05", "smolvla")
         for precision_path_id in (
             "bf16_dense", "fp16_dense", "fp8_w8a8", "nvfp4_w4a4",
             "w8a16_bf16_compute", "w4a16_bf16_compute",
-            "q8_0_weight_only_bf16_compute", "runtime_mixed",
+            "q8_0_weight_only_bf16_compute",
         )
     }
     actual_default_keys = [
         (item.get("model_id"), item.get("precision_path", {}).get("precision_path_id"))
-        for item in default_scenarios
+        for item in default_scenarios if item.get("precision_path", {}).get("kind") != "mapped_mixed"
     ]
     if set(actual_default_keys) != expected_default_keys or len(actual_default_keys) != len(set(actual_default_keys)):
-        issues.append(_problem("$.roofline_scenarios", "scenario_matrix", "default scenarios must be the exact three-model by eight-precision matrix"))
-    if len(legacy_scenarios) != 54:
-        issues.append(_problem("$.roofline_scenarios", "legacy_count", "exactly 54 legacy import scenarios are required"))
-    if legacy_count != 162:
-        issues.append(_problem("$.roofline_points", "legacy_count", "exactly 162 one-to-one legacy component points are required"))
+        issues.append(_problem("$.roofline_scenarios", "scenario_matrix", "uniform default scenarios must cover the three-model by seven-precision matrix; mapped runtime scenarios require retained evidence"))
+    legacy_scenario_ids = {item.get("scenario_id") for item in legacy_scenarios}
+    legacy_bases = [item for item in bases if item.get("scenario_id") in legacy_scenario_ids]
+    expected_legacy_run_ids = {item.get("run_id") for item in operator_by_id.values()}
+    if (
+        {item.get("scenario_id") for item in legacy_bases} != legacy_scenario_ids
+        or {item.get("run_id") for item in legacy_bases} != expected_legacy_run_ids
+        or len(legacy_bases) != len(legacy_scenario_ids)
+        or len(legacy_scenarios) != len(expected_legacy_run_ids)
+    ):
+        issues.append(_problem("$.roofline_scenarios", "legacy_coverage", "legacy scenarios and bases must map one-to-one to retained component runs"))
+    if legacy_count != len(operator_by_id) or legacy_count != len(roofline_by_id):
+        issues.append(_problem("$.roofline_points", "legacy_count", "legacy points must map one-to-one to retained operator and roofline records"))
     expected_legacy_operator_ids = set(operator_by_id)
     expected_legacy_roofline_ids = set(roofline_by_id)
     if legacy_operator_ids != expected_legacy_operator_ids:

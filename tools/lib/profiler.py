@@ -166,7 +166,7 @@ def profiler_semantic_issues(datasets: Mapping[str, list[Mapping]]) -> list[Issu
                 and isinstance(warnings, list)
             )
             clock_control = ncu.get("clock_control_request")
-            if clock_control == "base":
+            if clock_control in {"base", "none"} and ncu.get("external_clock_control") is None:
                 clock_provenance_valid = (
                     isinstance(origins, Mapping)
                     and origins.get("gpu_frequency_not_fixed")
@@ -969,7 +969,7 @@ def _telemetry_issues(
             fixed_metadata[key] = value
     for capture_id, capture in captures.items():
         ncu = capture.get("ncu")
-        if not isinstance(ncu, Mapping) or ncu.get("clock_control_request") != "none":
+        if not isinstance(ncu, Mapping) or ncu.get("external_clock_control") is None:
             continue
         records = telemetry_by_capture.get(capture_id, [])
         by_name = {record.get("metric_name"): record for record in records}

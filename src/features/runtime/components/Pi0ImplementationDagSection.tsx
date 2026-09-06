@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import type { RoutePatch, RouteState } from "../../../app/routes";
 import type { CanonicalRecord } from "../../../types/atlas";
 import { LogicalDagSvg } from "../../model-graph/components/LogicalDagSvg";
@@ -14,9 +14,12 @@ import { logicalEntity, logicalRefFromEntity, parseEntityKey, runtimeGroupEntity
 import { Pi0ExecutionInspector } from "./Pi0ExecutionInspector";
 import { Pi0RuntimeMappingDisclosure } from "./Pi0RuntimeMappingDisclosure";
 import { RuntimeOverlay } from "./RuntimeOverlay";
+import { RuntimeReuseDiagram } from "./RuntimeReuseDiagram";
+import "./runtimeImplementation.css";
 import { indexRuntimeRealization } from "../domain/indexRuntimeRealization";
 import type { RuntimeRealizationRecord } from "../domain/types";
 import { buildRuntimeOverlay } from "../overlay/buildRuntimeOverlay";
+import type { RuntimeBounds } from "../domain/runtimeBounds";
 
 interface Pi0ImplementationDagSectionProps {
   record: CanonicalRecord;
@@ -24,6 +27,7 @@ interface Pi0ImplementationDagSectionProps {
   activeRealization: RuntimeRealizationRecord | null;
   selectedRuntimeName: string | null;
   navigate: (patch: RoutePatch, replace?: boolean) => void;
+  bounds?: RuntimeBounds;
 }
 
 function contains(viewport: GraphViewport, box: { x: number; y: number; width: number; height: number }) {
@@ -33,7 +37,9 @@ function contains(viewport: GraphViewport, box: { x: number; y: number; width: n
     && box.y + box.height <= viewport.y + viewport.height;
 }
 
-export function Pi0ImplementationDagSection({ record, route, activeRealization, selectedRuntimeName, navigate }: Pi0ImplementationDagSectionProps) {
+export function Pi0ImplementationDagSection({ record, route, activeRealization, selectedRuntimeName, navigate, bounds }: Pi0ImplementationDagSectionProps) {
+  const [display, setDisplay] = useState<"theory" | "implementation" | "reuse">("implementation");
+  const [showPrecision, setShowPrecision] = useState(false);
   const defaultGraph = useMemo(() => adaptV1ModelGraph(record), [record]);
   const overrides = useMemo(
     () => workloadOverrides(route.workload, defaultGraph.editableSymbols),
@@ -109,13 +115,26 @@ export function Pi0ImplementationDagSection({ record, route, activeRealization, 
 
   return (
     <section aria-label="完整实现 DAG 与映射">
+      <header className="runtime-implementation-header">
+        <div><h4>{selectedRuntimeName} 的执行方式</h4><p>原图位置不变，仅叠加已确认的实现差异。源码映射，不代表实测 kernel 关联。</p></div>
+        <div className="runtime-implementation-switch" aria-label="实现视图">
+          {([["theory", "理论原图"], ["implementation", "实现叠加"], ["reuse", "计算与复用"]] as const).map(([id, label]) =>
+            <button type="button" key={id} aria-pressed={display === id} onClick={() => setDisplay(id)}>{label}</button>)}
+        </div>
+      </header>
+      <div className="runtime-implementation-legend" aria-hidden={display !== "implementation"} style={{ visibility: display === "implementation" ? "visible" : "hidden" }}>
+        <span><i />融合组</span><span><i className="is-precomputed" />预计算 / 视图 / 消除</span>
+        <span>无标记：未标注实现差异</span>
+        <label><input type="checkbox" checked={showPrecision} onChange={(event) => setShowPrecision(event.target.checked)} />显示精度</label>
+      </div>
+      {display === "reuse" && activeRealization ? <RuntimeReuseDiagram dag={dag} realization={activeRealization} /> : null}
       {(layout.diagnostics.length || connectors.invalidHints.length || overlay?.diagnostics.length) ? (
         <div className="graph-diagnostics" role="status">
           {[...layout.diagnostics, ...connectors.invalidHints.map((hint) => `Invalid route hint: ${hint.id}`), ...(overlay?.diagnostics ?? [])].join(" ")}
         </div>
       ) : null}
 
-      <div className={`pi0-runtime-dag-grid${drawerOpen ? " is-focused" : ""}`}>
+      <div hidden={display === "reuse"} className={`runtime-implementation-canvas pi0-runtime-dag-grid${drawerOpen ? " is-focused" : ""}`}>
         <section className="logical-graph-panel" aria-label="Pi0 推理栈实现图">
           <LogicalDagSvg
             dag={dag}
@@ -130,28 +149,29 @@ export function Pi0ImplementationDagSection({ record, route, activeRealization, 
             onSelect={(ref) => {
               if (activeRealization) navigate({ entity: logicalEntity(ref) }, true);
             }}
-            ariaLabel="Pi0 逻辑算子图及推理栈实现覆盖层"
-            overlay={activeRealization && overlay ? (
+            ariaLabel="Pi0 模型算子图及推理栈实现覆盖层"
+            underlay={display === "implementation" && activeRealization && overlay ? <RuntimeOverlay
+              layout={layout} realization={activeRealization} overlay={overlay} onSelectGroup={selectGroup}
+              pi0 layer="background" showPrecision={showPrecision} /> : undefined}
+            overlay={display === "implementation" && activeRealization && overlay ? (
               <RuntimeOverlay
                 layout={layout}
                 realization={activeRealization}
                 overlay={overlay}
                 onSelectGroup={selectGroup}
                 pi0
+                layer="labels"
+                showPrecision={showPrecision}
                 avoidPaths={connectors.connectors.flatMap((connector) => connector.paths)}
               />
             ) : undefined}
             compactControls
             cameraResetKey={`pi0-runtime|${route.runtime ?? "none"}|${route.hardware ?? "none"}|${route.runtimePrecision ?? "none"}|${route.workload ?? "defaults"}`}
-            scenario={<p className="graph-scenario-summary">
-              {activeRealization
-                ? `覆盖层：${selectedRuntimeName} · 映射依据为源码审计，并非 profiler 关联。`
-                : "未生成实现覆盖层；逻辑 DAG 的节点、连线与坐标保持不变。"}
-            </p>}
           />
         </section>
         {drawerOpen && activeRealization && route.entity ? (
           <Pi0ExecutionInspector
+            {...(bounds ? { groupBounds: bounds.groups } : {})}
             dag={dag}
             realization={activeRealization}
             selectedEntity={route.entity}

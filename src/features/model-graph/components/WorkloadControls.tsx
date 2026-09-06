@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import type { EditableSymbol } from "../domain/types";
+import { IntegerInput } from "../../../components/IntegerInput";
 
 interface WorkloadControlsProps {
   symbols: readonly EditableSymbol[];
@@ -40,19 +41,12 @@ export function WorkloadControls({
         {symbols.map((symbol) => (
           <label key={symbol.symbol}>
             <span>{compact ? SCENARIO_LABELS[symbol.symbol] ?? symbol.label : symbol.label}</span>
-            <input
-              type="number"
-              inputMode="numeric"
+            <IntegerInput
               min={symbol.minimum}
               max={symbol.maximum ?? undefined}
               step={1}
               value={values[symbol.symbol] ?? symbol.defaultValue}
-              onChange={(event) => {
-                const value = Number(event.target.value);
-                if (Number.isSafeInteger(value) && value >= symbol.minimum && (symbol.maximum === null || value <= symbol.maximum)) {
-                  onChange(symbol.symbol, value);
-                }
-              }}
+              onValueChange={(value) => onChange(symbol.symbol, value)}
             />
             <small>
               {compact ? <>默认 {symbol.defaultValue}，最小 {symbol.minimum}</> : <><code>{symbol.symbol}</code> · default {symbol.defaultValue} · {symbol.minimum === 0 ? "zero allowed" : `minimum ${symbol.minimum}`}</>}

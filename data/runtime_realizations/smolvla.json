@@ -1,555 +1,827 @@
 {
-  "schema_version": "1.0.0",
   "dataset": "runtime_realizations",
   "records": [
     {
-      "realization_id": "rr-vla-cpp-smolvla-thor-bf16-f32-v1",
-      "model_id": "smolvla",
-      "model_graph_id": "smolvla-base-logical-v1",
-      "runtime_id": "vla-cpp",
-      "runtime_revision": "4c105b8711b86c60828844d244b48db20619bdf8",
       "availability": "measured",
       "availability_reason_code": "measured_configuration_source_mapping_not_profiler_correlated",
-      "mapping_level": "ggml_graph",
-      "mapping_coverage": "partial",
-      "model_artifact_ids": ["smolvla-vlacpp-source-01"],
       "configuration_ids": [
-        "cfg-vla-cpp-controls-001", "cfg-vla-cpp-controls-002", "cfg-vla-cpp-controls-003",
-        "cfg-vla-cpp-controls-004", "cfg-vla-cpp-controls-005", "cfg-vla-cpp-controls-006",
-        "cfg-vla-cpp-controls-007", "cfg-vla-cpp-controls-008", "cfg-vla-cpp-controls-009"
+        "cfg-lerobot-smolvla-matrix-001",
+        "cfg-lerobot-smolvla-matrix-002",
+        "cfg-lerobot-smolvla-matrix-003",
+        "cfg-lerobot-smolvla-matrix-004",
+        "cfg-lerobot-smolvla-matrix-005",
+        "cfg-lerobot-smolvla-matrix-006",
+        "cfg-lerobot-smolvla-matrix-007",
+        "cfg-lerobot-smolvla-matrix-008",
+        "cfg-lerobot-smolvla-matrix-009"
       ],
-      "device_ids": ["nvidia-jetson-agx-thor"],
-      "launch": {
-        "submission_mode": "backend_graph_compute",
-        "cuda_graph_state": "unknown",
-        "capture_scope": "backend_managed",
-        "evidence_ids": ["vlacpp-smol-compute-source"]
-      },
-      "workload_applicability": {
-        "runtime_action_horizon": 50,
-        "runtime_internal_action_dimension": 32,
-        "public_action_horizon": 50,
-        "public_action_dimension": 32,
-        "denoise_steps": 10,
-        "missing_reason_code": null,
-        "evidence_ids": ["vlacpp-smol-compute-source", "vlacpp-smol-runs"]
-      },
-      "precision_paths": [{
-        "precision_path_id": "mixed-bf16-fp32",
-        "label": "BF16 weights / mixed BF16-FP32",
-        "weight_dtype": "mixed_bf16_fp32",
-        "activation_dtype": "mixed_bf16_fp32",
-        "accumulation_dtype": "fp32",
-        "output_dtype": "mixed_bf16_fp32",
-        "quant_scheme": "none",
-        "missing_fields": [],
-        "missing_reason_code": null,
-        "evidence_ids": ["vlacpp-smol-runs"]
-      }],
-      "evidence": [
-        {
-          "evidence_id": "vlacpp-smol-attention-source",
-          "kind": "source_code",
-          "source_id": "source-vla-cpp",
-          "revision": "4c105b8711b86c60828844d244b48db20619bdf8",
-          "locator": "src/models/smolvla.cpp#ggml_flash_attn_ext",
-          "run_ids": [],
-          "observation_ids": []
-        },
-        {
-          "evidence_id": "vlacpp-smol-compute-source",
-          "kind": "source_code",
-          "source_id": "source-vla-cpp",
-          "revision": "4c105b8711b86c60828844d244b48db20619bdf8",
-          "locator": "src/models/smolvla.cpp#ggml_backend_graph_compute",
-          "run_ids": [],
-          "observation_ids": []
-        },
-        {
-          "evidence_id": "vlacpp-smol-runs",
-          "kind": "canonical_run",
-          "source_id": "source-local-thor",
-          "revision": null,
-          "locator": null,
-          "run_ids": [
-            "run-vla-cpp-controls-001", "run-vla-cpp-controls-002", "run-vla-cpp-controls-003",
-            "run-vla-cpp-controls-004", "run-vla-cpp-controls-005", "run-vla-cpp-controls-006",
-            "run-vla-cpp-controls-007", "run-vla-cpp-controls-008", "run-vla-cpp-controls-009"
-          ],
-          "observation_ids": []
-        }
-      ],
-      "execution_groups": [
-        {
-          "execution_group_id": "vision-attention-option-region",
-          "label": "Vision attention option region",
-          "kind": "opaque_region",
-          "implementation": "option-sensitive vision attention branch",
-          "precision_path_id": "mixed-bf16-fp32",
-          "repeat_selectors": [{"scope_ref": "vision-encoder/vision-blocks", "selection": "all", "indices": []}],
-          "dependency_group_ids": [],
-          "kernel_signature_ids": [],
-          "kernel_resolution": "not_collected",
-          "unmapped_reason_code": null,
-          "evidence_ids": ["vlacpp-smol-attention-source"]
-        },
-        {
-          "execution_group_id": "prefix-flash-attention",
-          "label": "Prefix ggml flash-attention op",
-          "kind": "backend_op",
-          "implementation": "ggml_flash_attn_ext",
-          "precision_path_id": "mixed-bf16-fp32",
-          "repeat_selectors": [{"scope_ref": "prefix-encoder/prefix-blocks", "selection": "all", "indices": []}],
-          "dependency_group_ids": [],
-          "kernel_signature_ids": [],
-          "kernel_resolution": "not_collected",
-          "unmapped_reason_code": null,
-          "evidence_ids": ["vlacpp-smol-attention-source"]
-        },
-        {
-          "execution_group_id": "expert-flash-attention",
-          "label": "Expert ggml flash-attention op",
-          "kind": "backend_op",
-          "implementation": "ggml_flash_attn_ext",
-          "precision_path_id": "mixed-bf16-fp32",
-          "repeat_selectors": [
-            {"scope_ref": "action-flow-decoder/action-flow-loop", "selection": "all", "indices": []},
-            {"scope_ref": "action-flow-decoder/expert-layer-pairs", "selection": "all", "indices": []}
-          ],
-          "dependency_group_ids": [],
-          "kernel_signature_ids": [],
-          "kernel_resolution": "not_collected",
-          "unmapped_reason_code": null,
-          "evidence_ids": ["vlacpp-smol-attention-source"]
-        },
-        {
-          "execution_group_id": "smol-velocity-projection",
-          "label": "ggml velocity projection",
-          "kind": "backend_op",
-          "implementation": "explicit output projection node",
-          "precision_path_id": "mixed-bf16-fp32",
-          "repeat_selectors": [{"scope_ref": "action-flow-decoder/action-flow-loop", "selection": "all", "indices": []}],
-          "dependency_group_ids": ["expert-flash-attention"],
-          "kernel_signature_ids": [],
-          "kernel_resolution": "not_collected",
-          "unmapped_reason_code": null,
-          "evidence_ids": ["vlacpp-smol-compute-source"]
-        },
-        {
-          "execution_group_id": "smol-euler-add",
-          "label": "ggml Euler add",
-          "kind": "backend_op",
-          "implementation": "explicit Euler update node",
-          "precision_path_id": "mixed-bf16-fp32",
-          "repeat_selectors": [{"scope_ref": "action-flow-decoder/action-flow-loop", "selection": "all", "indices": []}],
-          "dependency_group_ids": ["smol-velocity-projection"],
-          "kernel_signature_ids": [],
-          "kernel_resolution": "not_collected",
-          "unmapped_reason_code": null,
-          "evidence_ids": ["vlacpp-smol-compute-source"]
-        }
-      ],
-      "mappings": [
-        {
-          "mapping_id": "map-vision-attention-option",
-          "logical_targets": [{"ref": "vision-encoder/vision-blocks/self-attention/attention", "repeat_selectors": [{"scope_ref": "vision-encoder/vision-blocks", "selection": "all", "indices": []}]}],
-          "execution_group_ids": ["vision-attention-option-region"],
-          "relation": "opaque",
-          "path": "primary",
-          "certainty": "ambiguous",
-          "method": "source_audit",
-          "confidence": "medium",
-          "reason_code": "vision_flash_attention_option_not_recorded",
-          "evidence_ids": ["vlacpp-smol-attention-source"]
-        },
-        {
-          "mapping_id": "map-prefix-attention",
-          "logical_targets": [{"ref": "prefix-encoder/prefix-blocks/self-attention/attention", "repeat_selectors": [{"scope_ref": "prefix-encoder/prefix-blocks", "selection": "all", "indices": []}]}],
-          "execution_group_ids": ["prefix-flash-attention"],
-          "relation": "preserved",
-          "path": "primary",
-          "certainty": "exact",
-          "method": "source_audit",
-          "confidence": "high",
-          "reason_code": null,
-          "evidence_ids": ["vlacpp-smol-attention-source"]
-        },
-        {
-          "mapping_id": "map-expert-attention",
-          "logical_targets": [{"ref": "action-flow-decoder/expert-layer-pairs/self-attention/attention", "repeat_selectors": [{"scope_ref": "action-flow-decoder/expert-layer-pairs", "selection": "all", "indices": []}]}],
-          "execution_group_ids": ["expert-flash-attention"],
-          "relation": "preserved",
-          "path": "primary",
-          "certainty": "exact",
-          "method": "source_audit",
-          "confidence": "high",
-          "reason_code": null,
-          "evidence_ids": ["vlacpp-smol-attention-source"]
-        },
-        {
-          "mapping_id": "map-smol-velocity",
-          "logical_targets": [{"ref": "action-flow-decoder/velocity-projection/velocity-projection", "repeat_selectors": [{"scope_ref": "action-flow-decoder/action-flow-loop", "selection": "all", "indices": []}]}],
-          "execution_group_ids": ["smol-velocity-projection"],
-          "relation": "preserved",
-          "path": "primary",
-          "certainty": "exact",
-          "method": "source_audit",
-          "confidence": "high",
-          "reason_code": null,
-          "evidence_ids": ["vlacpp-smol-compute-source"]
-        },
-        {
-          "mapping_id": "map-smol-euler",
-          "logical_targets": [{"ref": "action-flow-decoder/euler-update/euler-update", "repeat_selectors": [{"scope_ref": "action-flow-decoder/action-flow-loop", "selection": "all", "indices": []}]}],
-          "execution_group_ids": ["smol-euler-add"],
-          "relation": "preserved",
-          "path": "primary",
-          "certainty": "exact",
-          "method": "source_audit",
-          "confidence": "high",
-          "reason_code": null,
-          "evidence_ids": ["vlacpp-smol-compute-source"]
-        }
-      ]
-    },
-    {
-      "realization_id": "rr-lerobot-smolvla-thor-eager-v1",
-      "model_id": "smolvla",
-      "model_graph_id": "smolvla-base-logical-v1",
-      "runtime_id": "lerobot",
-      "runtime_revision": "fbb811fca92504439792b97d216f0d00c2268382",
-      "availability": "measured",
-      "availability_reason_code": "measured_configuration_source_mapping_not_profiler_correlated",
-      "mapping_level": "pytorch_eager",
-      "mapping_coverage": "partial",
-      "model_artifact_ids": ["smolvla-lerobot-local-01"],
-      "configuration_ids": [
-        "cfg-lerobot-smolvla-matrix-001", "cfg-lerobot-smolvla-matrix-002", "cfg-lerobot-smolvla-matrix-003",
-        "cfg-lerobot-smolvla-matrix-004", "cfg-lerobot-smolvla-matrix-005", "cfg-lerobot-smolvla-matrix-006",
-        "cfg-lerobot-smolvla-matrix-007", "cfg-lerobot-smolvla-matrix-008", "cfg-lerobot-smolvla-matrix-009"
-      ],
-      "device_ids": ["nvidia-jetson-agx-thor"],
-      "launch": {
-        "submission_mode": "eager_dispatch",
-        "cuda_graph_state": "absent",
-        "capture_scope": "none",
-        "evidence_ids": ["lerobot-smol-config-source"]
-      },
-      "workload_applicability": {
-        "runtime_action_horizon": 50,
-        "runtime_internal_action_dimension": 32,
-        "public_action_horizon": 50,
-        "public_action_dimension": 6,
-        "denoise_steps": 10,
-        "missing_reason_code": null,
-        "evidence_ids": ["lerobot-smol-config-source", "lerobot-smol-runs"]
-      },
-      "precision_paths": [
-        {
-          "precision_path_id": "mixed-bf16-fp32",
-          "label": "BF16 weights / mixed BF16-FP32",
-          "weight_dtype": "mixed_bf16_fp32",
-          "activation_dtype": "mixed_bf16_fp32",
-          "accumulation_dtype": "fp32",
-          "output_dtype": "mixed_bf16_fp32",
-          "quant_scheme": "none",
-          "missing_fields": [],
-          "missing_reason_code": null,
-          "evidence_ids": ["lerobot-smol-runs"]
-        },
-        {
-          "precision_path_id": "lerobot-fp32-attention-control",
-          "label": "FP32 Q/K + softmax control",
-          "weight_dtype": null,
-          "activation_dtype": "fp32",
-          "accumulation_dtype": "fp32",
-          "output_dtype": "fp32",
-          "quant_scheme": "none",
-          "missing_fields": ["weight_dtype"],
-          "missing_reason_code": "not_applicable_to_attention_control",
-          "evidence_ids": ["lerobot-smol-attention-source"]
-        }
+      "device_ids": [
+        "nvidia-jetson-agx-thor"
       ],
       "evidence": [
         {
           "evidence_id": "lerobot-smol-config-source",
           "kind": "source_code",
-          "source_id": "source-lerobot",
-          "revision": "fbb811fca92504439792b97d216f0d00c2268382",
           "locator": "src/lerobot/policies/smolvla/configuration_smolvla.py#SmolVLAConfig",
+          "observation_ids": [],
+          "revision": "fbb811fca92504439792b97d216f0d00c2268382",
           "run_ids": [],
-          "observation_ids": []
+          "source_id": "source-lerobot"
         },
         {
           "evidence_id": "lerobot-smol-prefix-source",
           "kind": "source_code",
-          "source_id": "source-lerobot",
-          "revision": "fbb811fca92504439792b97d216f0d00c2268382",
           "locator": "src/lerobot/policies/smolvla/modeling_smolvla.py#VLAFlowMatching::embed_prefix",
+          "observation_ids": [],
+          "revision": "fbb811fca92504439792b97d216f0d00c2268382",
           "run_ids": [],
-          "observation_ids": []
+          "source_id": "source-lerobot"
         },
         {
           "evidence_id": "lerobot-smol-public-slice-source",
           "kind": "source_code",
-          "source_id": "source-lerobot",
-          "revision": "fbb811fca92504439792b97d216f0d00c2268382",
           "locator": "src/lerobot/policies/smolvla/modeling_smolvla.py#SmolVLAPolicy::_get_action_chunk",
+          "observation_ids": [],
+          "revision": "fbb811fca92504439792b97d216f0d00c2268382",
           "run_ids": [],
-          "observation_ids": []
+          "source_id": "source-lerobot"
         },
         {
           "evidence_id": "lerobot-smol-sampling-source",
           "kind": "source_code",
-          "source_id": "source-lerobot",
-          "revision": "fbb811fca92504439792b97d216f0d00c2268382",
           "locator": "src/lerobot/policies/smolvla/modeling_smolvla.py#VLAFlowMatching::sample_actions",
+          "observation_ids": [],
+          "revision": "fbb811fca92504439792b97d216f0d00c2268382",
           "run_ids": [],
-          "observation_ids": []
+          "source_id": "source-lerobot"
         },
         {
           "evidence_id": "lerobot-smol-euler-source",
           "kind": "source_code",
-          "source_id": "source-lerobot",
-          "revision": "fbb811fca92504439792b97d216f0d00c2268382",
           "locator": "src/lerobot/policies/common/flow_matching.py#euler_integrate",
+          "observation_ids": [],
+          "revision": "fbb811fca92504439792b97d216f0d00c2268382",
           "run_ids": [],
-          "observation_ids": []
+          "source_id": "source-lerobot"
         },
         {
           "evidence_id": "lerobot-smol-attention-source",
           "kind": "source_code",
-          "source_id": "source-lerobot",
-          "revision": "fbb811fca92504439792b97d216f0d00c2268382",
           "locator": "src/lerobot/policies/smolvla/smolvlm_with_expert.py#eager_attention_forward",
+          "observation_ids": [],
+          "revision": "fbb811fca92504439792b97d216f0d00c2268382",
           "run_ids": [],
-          "observation_ids": []
+          "source_id": "source-lerobot"
         },
         {
           "evidence_id": "lerobot-smol-runs",
           "kind": "canonical_run",
-          "source_id": "source-local-thor",
-          "revision": null,
           "locator": null,
+          "observation_ids": [],
+          "revision": null,
           "run_ids": [
-            "run-lerobot-smolvla-matrix-001", "run-lerobot-smolvla-matrix-002", "run-lerobot-smolvla-matrix-003",
-            "run-lerobot-smolvla-matrix-004", "run-lerobot-smolvla-matrix-005", "run-lerobot-smolvla-matrix-006",
-            "run-lerobot-smolvla-matrix-007", "run-lerobot-smolvla-matrix-008", "run-lerobot-smolvla-matrix-009"
+            "run-lerobot-smolvla-matrix-001",
+            "run-lerobot-smolvla-matrix-002",
+            "run-lerobot-smolvla-matrix-003",
+            "run-lerobot-smolvla-matrix-004",
+            "run-lerobot-smolvla-matrix-005",
+            "run-lerobot-smolvla-matrix-006",
+            "run-lerobot-smolvla-matrix-007",
+            "run-lerobot-smolvla-matrix-008",
+            "run-lerobot-smolvla-matrix-009"
           ],
-          "observation_ids": []
+          "source_id": "source-local-thor"
         }
       ],
       "execution_groups": [
         {
+          "dependency_group_ids": [],
+          "evidence_ids": [
+            "lerobot-smol-prefix-source"
+          ],
           "execution_group_id": "external-vision-region",
-          "label": "External Transformers vision + connector",
-          "kind": "opaque_region",
           "implementation": "dependency call boundary; internal revision not pinned",
+          "kernel_resolution": "not_collected",
+          "kernel_signature_ids": [],
+          "kind": "opaque_region",
+          "label": "External Transformers vision + connector",
           "precision_path_id": "mixed-bf16-fp32",
           "repeat_selectors": [],
-          "dependency_group_ids": [],
-          "kernel_signature_ids": [],
-          "kernel_resolution": "not_collected",
-          "unmapped_reason_code": null,
-          "evidence_ids": ["lerobot-smol-prefix-source"]
+          "unmapped_reason_code": null
         },
         {
+          "dependency_group_ids": [],
+          "evidence_ids": [
+            "lerobot-smol-prefix-source"
+          ],
           "execution_group_id": "state-projection",
-          "label": "Eager state projection",
-          "kind": "framework_op",
           "implementation": "PyTorch linear operation",
+          "kernel_resolution": "not_collected",
+          "kernel_signature_ids": [],
+          "kind": "framework_op",
+          "label": "Eager state projection",
           "precision_path_id": "mixed-bf16-fp32",
           "repeat_selectors": [],
-          "dependency_group_ids": [],
-          "kernel_signature_ids": [],
-          "kernel_resolution": "not_collected",
-          "unmapped_reason_code": null,
-          "evidence_ids": ["lerobot-smol-prefix-source"]
+          "unmapped_reason_code": null
         },
         {
+          "dependency_group_ids": [],
+          "evidence_ids": [
+            "lerobot-smol-attention-source"
+          ],
           "execution_group_id": "attention-qk-mask",
-          "label": "QK matmul + scale/mask",
-          "kind": "framework_op",
           "implementation": "eager QK matmul, scaling, and masking",
-          "precision_path_id": "lerobot-fp32-attention-control",
-          "repeat_selectors": [{"scope_ref": "action-flow-decoder/expert-layer-pairs", "selection": "all", "indices": []}],
-          "dependency_group_ids": [],
-          "kernel_signature_ids": [],
           "kernel_resolution": "not_collected",
-          "unmapped_reason_code": null,
-          "evidence_ids": ["lerobot-smol-attention-source"]
+          "kernel_signature_ids": [],
+          "kind": "framework_op",
+          "label": "QK matmul + scale/mask",
+          "precision_path_id": "lerobot-fp32-attention-control",
+          "repeat_selectors": [
+            {
+              "indices": [],
+              "scope_ref": "action-flow-decoder/expert-layer-pairs",
+              "selection": "all"
+            }
+          ],
+          "unmapped_reason_code": null
         },
         {
+          "dependency_group_ids": [
+            "attention-qk-mask"
+          ],
+          "evidence_ids": [
+            "lerobot-smol-attention-source"
+          ],
           "execution_group_id": "attention-fp32-softmax",
-          "label": "FP32 softmax",
-          "kind": "framework_op",
           "implementation": "PyTorch FP32 softmax",
+          "kernel_resolution": "not_collected",
+          "kernel_signature_ids": [],
+          "kind": "framework_op",
+          "label": "FP32 softmax",
           "precision_path_id": "lerobot-fp32-attention-control",
-          "repeat_selectors": [{"scope_ref": "action-flow-decoder/expert-layer-pairs", "selection": "all", "indices": []}],
-          "dependency_group_ids": ["attention-qk-mask"],
-          "kernel_signature_ids": [],
-          "kernel_resolution": "not_collected",
-          "unmapped_reason_code": null,
-          "evidence_ids": ["lerobot-smol-attention-source"]
+          "repeat_selectors": [
+            {
+              "indices": [],
+              "scope_ref": "action-flow-decoder/expert-layer-pairs",
+              "selection": "all"
+            }
+          ],
+          "unmapped_reason_code": null
         },
         {
+          "dependency_group_ids": [
+            "attention-fp32-softmax"
+          ],
+          "evidence_ids": [
+            "lerobot-smol-attention-source"
+          ],
           "execution_group_id": "attention-pv",
-          "label": "Probability-value matmul",
-          "kind": "framework_op",
           "implementation": "eager P @ V matmul",
-          "precision_path_id": "mixed-bf16-fp32",
-          "repeat_selectors": [{"scope_ref": "action-flow-decoder/expert-layer-pairs", "selection": "all", "indices": []}],
-          "dependency_group_ids": ["attention-fp32-softmax"],
-          "kernel_signature_ids": [],
           "kernel_resolution": "not_collected",
-          "unmapped_reason_code": null,
-          "evidence_ids": ["lerobot-smol-attention-source"]
+          "kernel_signature_ids": [],
+          "kind": "framework_op",
+          "label": "Probability-value matmul",
+          "precision_path_id": "mixed-bf16-fp32",
+          "repeat_selectors": [
+            {
+              "indices": [],
+              "scope_ref": "action-flow-decoder/expert-layer-pairs",
+              "selection": "all"
+            }
+          ],
+          "unmapped_reason_code": null
         },
         {
+          "dependency_group_ids": [],
+          "evidence_ids": [
+            "lerobot-smol-public-slice-source",
+            "lerobot-smol-runs"
+          ],
           "execution_group_id": "public-action-slice",
-          "label": "Public action slice 32→6",
-          "kind": "framework_op",
           "implementation": "eager action dimension slice",
+          "kernel_resolution": "not_collected",
+          "kernel_signature_ids": [],
+          "kind": "framework_op",
+          "label": "Public action slice 32→6",
           "precision_path_id": "mixed-bf16-fp32",
           "repeat_selectors": [],
-          "dependency_group_ids": [],
-          "kernel_signature_ids": [],
-          "kernel_resolution": "not_collected",
-          "unmapped_reason_code": null,
-          "evidence_ids": ["lerobot-smol-public-slice-source", "lerobot-smol-runs"]
+          "unmapped_reason_code": null
         },
         {
+          "dependency_group_ids": [
+            "attention-pv"
+          ],
+          "evidence_ids": [
+            "lerobot-smol-sampling-source",
+            "lerobot-smol-euler-source"
+          ],
           "execution_group_id": "euler-integration",
-          "label": "Eager Euler integration",
-          "kind": "framework_op",
           "implementation": "action state plus velocity step",
-          "precision_path_id": "mixed-bf16-fp32",
-          "repeat_selectors": [{"scope_ref": "action-flow-decoder/action-flow-loop", "selection": "all", "indices": []}],
-          "dependency_group_ids": ["attention-pv"],
-          "kernel_signature_ids": [],
           "kernel_resolution": "not_collected",
-          "unmapped_reason_code": null,
-          "evidence_ids": ["lerobot-smol-sampling-source", "lerobot-smol-euler-source"]
+          "kernel_signature_ids": [],
+          "kind": "framework_op",
+          "label": "Eager Euler integration",
+          "precision_path_id": "mixed-bf16-fp32",
+          "repeat_selectors": [
+            {
+              "indices": [],
+              "scope_ref": "action-flow-decoder/action-flow-loop",
+              "selection": "all"
+            }
+          ],
+          "unmapped_reason_code": null
         }
       ],
+      "launch": {
+        "capture_scope": "none",
+        "cuda_graph_state": "absent",
+        "evidence_ids": [
+          "lerobot-smol-config-source"
+        ],
+        "submission_mode": "eager_dispatch"
+      },
+      "mapping_coverage": "partial",
+      "mapping_level": "pytorch_eager",
       "mappings": [
         {
-          "mapping_id": "map-external-vision",
-          "logical_targets": [
-            {"ref": "vision-encoder/image-patch-embedding/patch-project", "repeat_selectors": []},
-            {"ref": "vision-encoder/vision-blocks/self-attention/attention", "repeat_selectors": [{"scope_ref": "vision-encoder/vision-blocks", "selection": "all", "indices": []}]},
-            {"ref": "vision-encoder/patch-grid-connector/connector-projection", "repeat_selectors": []}
-          ],
-          "execution_group_ids": ["external-vision-region"],
-          "relation": "opaque",
-          "path": "primary",
           "certainty": "exact",
-          "method": "source_audit",
           "confidence": "medium",
+          "evidence_ids": [
+            "lerobot-smol-prefix-source"
+          ],
+          "execution_group_ids": [
+            "external-vision-region"
+          ],
+          "logical_targets": [
+            {
+              "ref": "vision-encoder/image-patch-embedding/patch-project",
+              "repeat_selectors": []
+            },
+            {
+              "ref": "vision-encoder/vision-blocks/self-attention/attention",
+              "repeat_selectors": [
+                {
+                  "indices": [],
+                  "scope_ref": "vision-encoder/vision-blocks",
+                  "selection": "all"
+                }
+              ]
+            },
+            {
+              "ref": "vision-encoder/patch-grid-connector/connector-projection",
+              "repeat_selectors": []
+            }
+          ],
+          "mapping_id": "map-external-vision",
+          "method": "source_audit",
+          "path": "primary",
           "reason_code": "dependency_revision_not_pinned_for_internal_mapping",
-          "evidence_ids": ["lerobot-smol-prefix-source"]
+          "relation": "opaque"
         },
         {
+          "certainty": "exact",
+          "confidence": "high",
+          "evidence_ids": [
+            "lerobot-smol-prefix-source"
+          ],
+          "execution_group_ids": [
+            "state-projection"
+          ],
+          "logical_targets": [
+            {
+              "ref": "prefix-encoder/state-token-projector/state-projection",
+              "repeat_selectors": []
+            }
+          ],
           "mapping_id": "map-state-projection",
-          "logical_targets": [{"ref": "prefix-encoder/state-token-projector/state-projection", "repeat_selectors": []}],
-          "execution_group_ids": ["state-projection"],
-          "relation": "preserved",
-          "path": "primary",
-          "certainty": "exact",
           "method": "source_audit",
-          "confidence": "high",
+          "path": "primary",
           "reason_code": null,
-          "evidence_ids": ["lerobot-smol-prefix-source"]
+          "relation": "preserved"
         },
         {
+          "certainty": "exact",
+          "confidence": "high",
+          "evidence_ids": [
+            "lerobot-smol-attention-source"
+          ],
+          "execution_group_ids": [
+            "attention-qk-mask",
+            "attention-fp32-softmax",
+            "attention-pv"
+          ],
+          "logical_targets": [
+            {
+              "ref": "action-flow-decoder/expert-layer-pairs/self-attention/attention",
+              "repeat_selectors": [
+                {
+                  "indices": [],
+                  "scope_ref": "action-flow-decoder/expert-layer-pairs",
+                  "selection": "all"
+                }
+              ]
+            }
+          ],
           "mapping_id": "map-expert-attention-split",
-          "logical_targets": [{"ref": "action-flow-decoder/expert-layer-pairs/self-attention/attention", "repeat_selectors": [{"scope_ref": "action-flow-decoder/expert-layer-pairs", "selection": "all", "indices": []}]}],
-          "execution_group_ids": ["attention-qk-mask", "attention-fp32-softmax", "attention-pv"],
-          "relation": "split",
-          "path": "primary",
-          "certainty": "exact",
           "method": "source_audit",
-          "confidence": "high",
+          "path": "primary",
           "reason_code": null,
-          "evidence_ids": ["lerobot-smol-attention-source"]
+          "relation": "split"
         },
         {
+          "certainty": "exact",
+          "confidence": "high",
+          "evidence_ids": [
+            "lerobot-smol-public-slice-source",
+            "lerobot-smol-runs"
+          ],
+          "execution_group_ids": [
+            "public-action-slice"
+          ],
+          "logical_targets": [
+            {
+              "ref": "public-output/public-action-slice/public-action-slice",
+              "repeat_selectors": []
+            }
+          ],
           "mapping_id": "map-public-action-slice",
-          "logical_targets": [{"ref": "public-output/public-action-slice/public-action-slice", "repeat_selectors": []}],
-          "execution_group_ids": ["public-action-slice"],
-          "relation": "preserved",
-          "path": "primary",
-          "certainty": "exact",
           "method": "source_audit",
-          "confidence": "high",
+          "path": "primary",
           "reason_code": null,
-          "evidence_ids": ["lerobot-smol-public-slice-source", "lerobot-smol-runs"]
+          "relation": "preserved"
         },
         {
-          "mapping_id": "map-euler-integration",
-          "logical_targets": [{"ref": "action-flow-decoder/euler-update/euler-update", "repeat_selectors": [{"scope_ref": "action-flow-decoder/action-flow-loop", "selection": "all", "indices": []}]}],
-          "execution_group_ids": ["euler-integration"],
-          "relation": "preserved",
-          "path": "primary",
           "certainty": "exact",
-          "method": "source_audit",
           "confidence": "high",
+          "evidence_ids": [
+            "lerobot-smol-sampling-source",
+            "lerobot-smol-euler-source"
+          ],
+          "execution_group_ids": [
+            "euler-integration"
+          ],
+          "logical_targets": [
+            {
+              "ref": "action-flow-decoder/euler-update/euler-update",
+              "repeat_selectors": [
+                {
+                  "indices": [],
+                  "scope_ref": "action-flow-decoder/action-flow-loop",
+                  "selection": "all"
+                }
+              ]
+            }
+          ],
+          "mapping_id": "map-euler-integration",
+          "method": "source_audit",
+          "path": "primary",
           "reason_code": null,
-          "evidence_ids": ["lerobot-smol-sampling-source", "lerobot-smol-euler-source"]
+          "relation": "preserved"
         }
-      ]
+      ],
+      "model_artifact_ids": [
+        "smolvla-lerobot-local-01"
+      ],
+      "model_graph_id": "smolvla-base-logical-v1",
+      "model_id": "smolvla",
+      "precision_paths": [
+        {
+          "accumulation_dtype": "fp32",
+          "activation_dtype": "mixed_bf16_fp32",
+          "evidence_ids": [
+            "lerobot-smol-runs"
+          ],
+          "label": "BF16 weights / mixed BF16-FP32",
+          "missing_fields": [],
+          "missing_reason_code": null,
+          "output_dtype": "mixed_bf16_fp32",
+          "precision_path_id": "mixed-bf16-fp32",
+          "quant_scheme": "none",
+          "weight_dtype": "mixed_bf16_fp32"
+        },
+        {
+          "accumulation_dtype": "fp32",
+          "activation_dtype": "fp32",
+          "evidence_ids": [
+            "lerobot-smol-attention-source"
+          ],
+          "label": "FP32 Q/K + softmax control",
+          "missing_fields": [
+            "weight_dtype"
+          ],
+          "missing_reason_code": "not_applicable_to_attention_control",
+          "output_dtype": "fp32",
+          "precision_path_id": "lerobot-fp32-attention-control",
+          "quant_scheme": "none",
+          "weight_dtype": null
+        }
+      ],
+      "realization_id": "rr-lerobot-smolvla-thor-eager-v1",
+      "runtime_id": "lerobot",
+      "runtime_revision": "fbb811fca92504439792b97d216f0d00c2268382",
+      "workload_applicability": {
+        "denoise_steps": 10,
+        "evidence_ids": [
+          "lerobot-smol-config-source",
+          "lerobot-smol-runs"
+        ],
+        "missing_reason_code": null,
+        "public_action_dimension": 6,
+        "public_action_horizon": 50,
+        "runtime_action_horizon": 50,
+        "runtime_internal_action_dimension": 32
+      }
     },
     {
-      "realization_id": "rr-vla-cpp-smolvla-q8-0-unsupported-v1",
-      "model_id": "smolvla",
-      "model_graph_id": "smolvla-base-logical-v1",
-      "runtime_id": "vla-cpp",
-      "runtime_revision": "4c105b8711b86c60828844d244b48db20619bdf8",
       "availability": "not_supported",
       "availability_reason_code": "loader_rejects_q8_tensor",
-      "mapping_level": "none",
-      "mapping_coverage": "none",
-      "model_artifact_ids": [],
       "configuration_ids": [],
       "device_ids": [],
-      "launch": {
-        "submission_mode": "none",
-        "cuda_graph_state": "not_applicable",
-        "capture_scope": "none",
-        "evidence_ids": ["vlacpp-smol-q8-status"]
-      },
-      "workload_applicability": {
-        "runtime_action_horizon": null,
-        "runtime_internal_action_dimension": null,
-        "public_action_horizon": null,
-        "public_action_dimension": null,
-        "denoise_steps": null,
-        "missing_reason_code": "not_supported_no_executable_workload",
-        "evidence_ids": ["vlacpp-smol-q8-status"]
-      },
-      "precision_paths": [{
-        "precision_path_id": "q8_0-weight-only",
-        "label": "Q8_0 request (unsupported)",
-        "weight_dtype": "q8_0",
-        "activation_dtype": null,
-        "accumulation_dtype": null,
-        "output_dtype": null,
-        "quant_scheme": "q8_0_weight_only",
-        "missing_fields": ["activation_dtype", "accumulation_dtype", "output_dtype"],
-        "missing_reason_code": "loader_rejects_q8_tensor",
-        "evidence_ids": ["vlacpp-smol-q8-status"]
-      }],
-      "evidence": [{
-        "evidence_id": "vlacpp-smol-q8-status",
-        "kind": "catalog_status",
-        "source_id": "source-local-thor",
-        "revision": null,
-        "locator": null,
-        "run_ids": [],
-        "observation_ids": []
-      }],
+      "evidence": [
+        {
+          "evidence_id": "vlacpp-smol-q8-status",
+          "kind": "catalog_status",
+          "locator": null,
+          "observation_ids": [],
+          "revision": null,
+          "run_ids": [],
+          "source_id": "source-local-thor"
+        }
+      ],
       "execution_groups": [],
-      "mappings": []
+      "launch": {
+        "capture_scope": "none",
+        "cuda_graph_state": "not_applicable",
+        "evidence_ids": [
+          "vlacpp-smol-q8-status"
+        ],
+        "submission_mode": "none"
+      },
+      "mapping_coverage": "none",
+      "mapping_level": "none",
+      "mappings": [],
+      "model_artifact_ids": [],
+      "model_graph_id": "smolvla-base-logical-v1",
+      "model_id": "smolvla",
+      "precision_paths": [
+        {
+          "accumulation_dtype": null,
+          "activation_dtype": null,
+          "evidence_ids": [
+            "vlacpp-smol-q8-status"
+          ],
+          "label": "Q8_0 request (unsupported)",
+          "missing_fields": [
+            "activation_dtype",
+            "accumulation_dtype",
+            "output_dtype"
+          ],
+          "missing_reason_code": "loader_rejects_q8_tensor",
+          "output_dtype": null,
+          "precision_path_id": "q8_0-weight-only",
+          "quant_scheme": "q8_0_weight_only",
+          "weight_dtype": "q8_0"
+        }
+      ],
+      "realization_id": "rr-vla-cpp-smolvla-q8-0-unsupported-v1",
+      "runtime_id": "vla-cpp",
+      "runtime_revision": "4c105b8711b86c60828844d244b48db20619bdf8",
+      "workload_applicability": {
+        "denoise_steps": null,
+        "evidence_ids": [
+          "vlacpp-smol-q8-status"
+        ],
+        "missing_reason_code": "not_supported_no_executable_workload",
+        "public_action_dimension": null,
+        "public_action_horizon": null,
+        "runtime_action_horizon": null,
+        "runtime_internal_action_dimension": null
+      }
+    },
+    {
+      "availability": "source_audited",
+      "availability_reason_code": "source_mapping_retained_non_p48_measurements_removed",
+      "configuration_ids": [],
+      "device_ids": [
+        "nvidia-jetson-agx-thor"
+      ],
+      "evidence": [
+        {
+          "evidence_id": "vlacpp-smol-attention-source",
+          "kind": "source_code",
+          "locator": "src/models/smolvla.cpp#ggml_flash_attn_ext",
+          "observation_ids": [],
+          "revision": "4c105b8711b86c60828844d244b48db20619bdf8",
+          "run_ids": [],
+          "source_id": "source-vla-cpp"
+        },
+        {
+          "evidence_id": "vlacpp-smol-compute-source",
+          "kind": "source_code",
+          "locator": "src/models/smolvla.cpp#ggml_backend_graph_compute",
+          "observation_ids": [],
+          "revision": "4c105b8711b86c60828844d244b48db20619bdf8",
+          "run_ids": [],
+          "source_id": "source-vla-cpp"
+        }
+      ],
+      "execution_groups": [
+        {
+          "dependency_group_ids": [],
+          "evidence_ids": [
+            "vlacpp-smol-attention-source"
+          ],
+          "execution_group_id": "vision-attention-option-region",
+          "implementation": "option-sensitive vision attention branch",
+          "kernel_resolution": "not_collected",
+          "kernel_signature_ids": [],
+          "kind": "opaque_region",
+          "label": "Vision attention option region",
+          "precision_path_id": "mixed-bf16-fp32",
+          "repeat_selectors": [
+            {
+              "indices": [],
+              "scope_ref": "vision-encoder/vision-blocks",
+              "selection": "all"
+            }
+          ],
+          "unmapped_reason_code": null
+        },
+        {
+          "dependency_group_ids": [],
+          "evidence_ids": [
+            "vlacpp-smol-attention-source"
+          ],
+          "execution_group_id": "prefix-flash-attention",
+          "implementation": "ggml_flash_attn_ext",
+          "kernel_resolution": "not_collected",
+          "kernel_signature_ids": [],
+          "kind": "backend_op",
+          "label": "Prefix ggml flash-attention op",
+          "precision_path_id": "mixed-bf16-fp32",
+          "repeat_selectors": [
+            {
+              "indices": [],
+              "scope_ref": "prefix-encoder/prefix-blocks",
+              "selection": "all"
+            }
+          ],
+          "unmapped_reason_code": null
+        },
+        {
+          "dependency_group_ids": [],
+          "evidence_ids": [
+            "vlacpp-smol-attention-source"
+          ],
+          "execution_group_id": "expert-flash-attention",
+          "implementation": "ggml_flash_attn_ext",
+          "kernel_resolution": "not_collected",
+          "kernel_signature_ids": [],
+          "kind": "backend_op",
+          "label": "Expert ggml flash-attention op",
+          "precision_path_id": "mixed-bf16-fp32",
+          "repeat_selectors": [
+            {
+              "indices": [],
+              "scope_ref": "action-flow-decoder/action-flow-loop",
+              "selection": "all"
+            },
+            {
+              "indices": [],
+              "scope_ref": "action-flow-decoder/expert-layer-pairs",
+              "selection": "all"
+            }
+          ],
+          "unmapped_reason_code": null
+        },
+        {
+          "dependency_group_ids": [
+            "expert-flash-attention"
+          ],
+          "evidence_ids": [
+            "vlacpp-smol-compute-source"
+          ],
+          "execution_group_id": "smol-velocity-projection",
+          "implementation": "explicit output projection node",
+          "kernel_resolution": "not_collected",
+          "kernel_signature_ids": [],
+          "kind": "backend_op",
+          "label": "ggml velocity projection",
+          "precision_path_id": "mixed-bf16-fp32",
+          "repeat_selectors": [
+            {
+              "indices": [],
+              "scope_ref": "action-flow-decoder/action-flow-loop",
+              "selection": "all"
+            }
+          ],
+          "unmapped_reason_code": null
+        },
+        {
+          "dependency_group_ids": [
+            "smol-velocity-projection"
+          ],
+          "evidence_ids": [
+            "vlacpp-smol-compute-source"
+          ],
+          "execution_group_id": "smol-euler-add",
+          "implementation": "explicit Euler update node",
+          "kernel_resolution": "not_collected",
+          "kernel_signature_ids": [],
+          "kind": "backend_op",
+          "label": "ggml Euler add",
+          "precision_path_id": "mixed-bf16-fp32",
+          "repeat_selectors": [
+            {
+              "indices": [],
+              "scope_ref": "action-flow-decoder/action-flow-loop",
+              "selection": "all"
+            }
+          ],
+          "unmapped_reason_code": null
+        }
+      ],
+      "launch": {
+        "capture_scope": "backend_managed",
+        "cuda_graph_state": "unknown",
+        "evidence_ids": [
+          "vlacpp-smol-compute-source"
+        ],
+        "submission_mode": "backend_graph_compute"
+      },
+      "mapping_coverage": "partial",
+      "mapping_level": "ggml_graph",
+      "mappings": [
+        {
+          "certainty": "ambiguous",
+          "confidence": "medium",
+          "evidence_ids": [
+            "vlacpp-smol-attention-source"
+          ],
+          "execution_group_ids": [
+            "vision-attention-option-region"
+          ],
+          "logical_targets": [
+            {
+              "ref": "vision-encoder/vision-blocks/self-attention/attention",
+              "repeat_selectors": [
+                {
+                  "indices": [],
+                  "scope_ref": "vision-encoder/vision-blocks",
+                  "selection": "all"
+                }
+              ]
+            }
+          ],
+          "mapping_id": "map-vision-attention-option",
+          "method": "source_audit",
+          "path": "primary",
+          "reason_code": "vision_flash_attention_option_not_recorded",
+          "relation": "opaque"
+        },
+        {
+          "certainty": "exact",
+          "confidence": "high",
+          "evidence_ids": [
+            "vlacpp-smol-attention-source"
+          ],
+          "execution_group_ids": [
+            "prefix-flash-attention"
+          ],
+          "logical_targets": [
+            {
+              "ref": "prefix-encoder/prefix-blocks/self-attention/attention",
+              "repeat_selectors": [
+                {
+                  "indices": [],
+                  "scope_ref": "prefix-encoder/prefix-blocks",
+                  "selection": "all"
+                }
+              ]
+            }
+          ],
+          "mapping_id": "map-prefix-attention",
+          "method": "source_audit",
+          "path": "primary",
+          "reason_code": null,
+          "relation": "preserved"
+        },
+        {
+          "certainty": "exact",
+          "confidence": "high",
+          "evidence_ids": [
+            "vlacpp-smol-attention-source"
+          ],
+          "execution_group_ids": [
+            "expert-flash-attention"
+          ],
+          "logical_targets": [
+            {
+              "ref": "action-flow-decoder/expert-layer-pairs/self-attention/attention",
+              "repeat_selectors": [
+                {
+                  "indices": [],
+                  "scope_ref": "action-flow-decoder/expert-layer-pairs",
+                  "selection": "all"
+                }
+              ]
+            }
+          ],
+          "mapping_id": "map-expert-attention",
+          "method": "source_audit",
+          "path": "primary",
+          "reason_code": null,
+          "relation": "preserved"
+        },
+        {
+          "certainty": "exact",
+          "confidence": "high",
+          "evidence_ids": [
+            "vlacpp-smol-compute-source"
+          ],
+          "execution_group_ids": [
+            "smol-velocity-projection"
+          ],
+          "logical_targets": [
+            {
+              "ref": "action-flow-decoder/velocity-projection/velocity-projection",
+              "repeat_selectors": [
+                {
+                  "indices": [],
+                  "scope_ref": "action-flow-decoder/action-flow-loop",
+                  "selection": "all"
+                }
+              ]
+            }
+          ],
+          "mapping_id": "map-smol-velocity",
+          "method": "source_audit",
+          "path": "primary",
+          "reason_code": null,
+          "relation": "preserved"
+        },
+        {
+          "certainty": "exact",
+          "confidence": "high",
+          "evidence_ids": [
+            "vlacpp-smol-compute-source"
+          ],
+          "execution_group_ids": [
+            "smol-euler-add"
+          ],
+          "logical_targets": [
+            {
+              "ref": "action-flow-decoder/euler-update/euler-update",
+              "repeat_selectors": [
+                {
+                  "indices": [],
+                  "scope_ref": "action-flow-decoder/action-flow-loop",
+                  "selection": "all"
+                }
+              ]
+            }
+          ],
+          "mapping_id": "map-smol-euler",
+          "method": "source_audit",
+          "path": "primary",
+          "reason_code": null,
+          "relation": "preserved"
+        }
+      ],
+      "model_artifact_ids": [
+        "smolvla-vlacpp-source-01"
+      ],
+      "model_graph_id": "smolvla-base-logical-v1",
+      "model_id": "smolvla",
+      "precision_paths": [
+        {
+          "accumulation_dtype": "fp32",
+          "activation_dtype": "mixed_bf16_fp32",
+          "evidence_ids": [],
+          "label": "BF16 weights / mixed BF16-FP32",
+          "missing_fields": [],
+          "missing_reason_code": null,
+          "output_dtype": "mixed_bf16_fp32",
+          "precision_path_id": "mixed-bf16-fp32",
+          "quant_scheme": "none",
+          "weight_dtype": "mixed_bf16_fp32"
+        }
+      ],
+      "realization_id": "rr-vla-cpp-smolvla-thor-bf16-f32-v1",
+      "runtime_id": "vla-cpp",
+      "runtime_revision": "4c105b8711b86c60828844d244b48db20619bdf8",
+      "workload_applicability": {
+        "denoise_steps": 10,
+        "evidence_ids": [
+          "vlacpp-smol-compute-source"
+        ],
+        "missing_reason_code": null,
+        "public_action_dimension": 32,
+        "public_action_horizon": 50,
+        "runtime_action_horizon": 50,
+        "runtime_internal_action_dimension": 32
+      }
     }
-  ]
+  ],
+  "schema_version": "1.0.0"
 }

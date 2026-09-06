@@ -29,6 +29,15 @@ function boundaryBox(boxes: readonly NodeBox[]): NodeBox {
 }
 
 function visualClusters(refs: readonly LogicalRef[], layout: LogicalLayout): LogicalRef[][] {
+  const visible = refs.filter((ref) => layout.nodeBoxes.has(ref));
+  if (!visible.length) return [];
+  const whole = boundaryBox(visible.map((ref) => layout.nodeBoxes.get(ref)!));
+  const overlaps = (box: { x: number; y: number; width: number; height: number }) =>
+    whole.x < box.x + box.width && whole.x + whole.width > box.x
+    && whole.y < box.y + box.height && whole.y + whole.height > box.y;
+  const enclosedUnrelatedNode = [...layout.nodeBoxes].some(([ref, box]) => !visible.includes(ref) && overlaps(box));
+  const enclosedScopeLabel = layout.scopeBoxes.some((box) => overlaps({ ...box, height: box.headerHeight }));
+  if (!enclosedUnrelatedNode && !enclosedScopeLabel) return [visible];
   const clusters: LogicalRef[][] = [];
   const visualRows: LogicalRef[][] = [];
   [...refs]

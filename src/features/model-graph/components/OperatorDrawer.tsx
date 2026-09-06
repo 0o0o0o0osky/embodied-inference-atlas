@@ -132,7 +132,7 @@ export function OperatorDrawerView({
           ) : (
             <div className="drawer-availability">
               <h3>当前抽屉未绑定精确实测 Kernel</h3>
-              <p>逻辑算子不等同于单个 Kernel。前往性能页检查运行时映射与采集证据；保留当前逻辑选择不代表已匹配观测。</p>
+              <p>这里展示模型定义的运算，尚未考虑推理栈的融合实现，不一定对应一个 Kernel。实际执行方式与测量见推理栈页面。</p>
               {evidenceLinks?.kernel}
             </div>
           )}

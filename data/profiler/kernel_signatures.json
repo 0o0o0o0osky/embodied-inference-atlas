@@ -366,6 +366,29 @@
         "sparsity": "unknown"
       },
       "runtime_id": "flashrt"
+    },
+    {
+      "classification_confidence": "medium",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "gemm",
+      "implementation_family": "nvjet",
+      "kernel_signature_id": "kernel-signature-pi0-vla-cpp-representative-gemm",
+      "label_sanitized": "vla.cpp representative GEMM",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "vla-cpp"
     }
   ],
   "schema_version": "1.0.0"

@@ -6,10 +6,12 @@ const LIMITERS = { compute: "计算受限", memory: "带宽受限", dependency: 
 const LABELS: Record<string, string> = {
   "Model total": "模型整体", "Vision Encoder": "视觉编码器",
   "Prefix Encoder": "前缀编码器", "Action Flow Decoder": "动作解码器",
+  "Q @ Kᵀ score": "Q @ Kᵀ 分数矩阵", "P @ V value": "P @ V 加权求和",
+  "Scale / mask / softmax": "缩放 / 掩码 / Softmax", "Partial envelope": "部分计算的组合下界",
 };
 
 export function theoryPointLabel(label: string): string {
-  return LABELS[label] ?? modelDisplayText("pi0", label);
+  return label.split(" · ").map((part) => LABELS[part] ?? modelDisplayText("pi0", part)).join(" · ");
 }
 
 export function TheoryPointSummary({ point }: { point: RooflinePointRecord | null }) {

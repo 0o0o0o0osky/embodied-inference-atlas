@@ -550,7 +550,7 @@ def _validate_policy(context: ProfilerImportContext, policy: Mapping[str, object
         common_valid
         and set(policy) == common_policy_keys
         and section_mode in _LEGACY_SECTION_MODES
-        and clock_control == "base"
+        and clock_control in {"base", "none"}
         and "gpu_frequency_not_fixed" in warnings
         and set(origins) == _LEGACY_ORIGIN_KEYS
         and origins.get("gpu_frequency_not_fixed") == "collection_log_manual_audit"
@@ -656,7 +656,7 @@ def _nonnegative_number(value: object) -> bool:
 
 def _reader_metrics(section_mode: str) -> tuple[str, ...]:
     if section_mode == "section_set":
-        return (*NCU_READER_METRICS, *SECTION_READER_METRICS)
+        return tuple(dict.fromkeys((*NCU_READER_METRICS, *SECTION_READER_METRICS, *SCHEDULER_READER_METRICS)))
     if section_mode == _SCHEDULER_MODE:
         return (
             *SCHEDULER_DIRECT_READER_METRICS,
@@ -678,7 +678,7 @@ def _reader_metrics(section_mode: str) -> tuple[str, ...]:
 
 
 def _required_reader_metrics(section_mode: str) -> tuple[str, ...]:
-    if section_mode in _LEGACY_SECTION_MODES:
+    if section_mode == "custom_metric_set_12":
         return _reader_metrics(section_mode)
     required = (
         "gpu__time_duration.sum",
@@ -733,8 +733,10 @@ def _session_facts(
     elif (
         len(kernel_names) == 1
         and not kernel_ids
-        and len(launch_skips) == 1
-        and _positive_option_integer(launch_skips[0], context) > 0
+        and (not launch_skips or (
+            len(launch_skips) == 1
+            and _positive_option_integer(launch_skips[0], context) > 0
+        ))
     ):
         selection = "name_filter_selected_match"
         population = "one_name_filtered_selected_match_replayed_launch"
@@ -759,8 +761,8 @@ def _session_facts(
         else []
     )
     if (
-        set(sections) == _LEGACY_SECTION_SET
-        and len(sections) == len(_LEGACY_SECTION_SET)
+        (set(sections) == _LEGACY_SECTION_SET and len(sections) == len(_LEGACY_SECTION_SET)
+         or tuple(sections) == _SCHEDULER_SECTION_ORDER)
         and not metric_sets
     ):
         section_mode = "section_set"
@@ -1124,6 +1126,7 @@ def _metrics(
             "gpc_cycle_rate_hz",
             "sm_cycle_rate_hz",
             "tensor_path_fp4_fp6_fp8_to_fp32_dense_pct_of_peak_elapsed",
+            *SCHEDULER_METRIC_NAMES,
         ))
     for metric_name in metric_names:
         spec = METRIC_REGISTRY[metric_name]
@@ -1158,7 +1161,7 @@ def _metrics(
                 None if value is not None else "counter_absent_from_report"
             ),
         })
-    missing_metrics = EXPLICIT_MISSING_METRICS
+    missing_metrics = tuple((name, reason) for name, reason in EXPLICIT_MISSING_METRICS if name not in metric_names)
     if section_mode == _SCHEDULER_MODE:
         missing_metrics = (
             ("system_memory_throughput_pct_of_ceiling", "counter_absent_from_report"),

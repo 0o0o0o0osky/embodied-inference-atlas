@@ -29,6 +29,6 @@ export function ModelTheorySummary({ result, route, navigate }: {
     <span>模型理论下界 <strong>{total?.derived.roof_second != null ? formatTime(total.derived.roof_second) : "暂不可估计"}</strong>
       <small>{result.status === "unavailable" ? result.reason : total?.coverage.status === "complete" ? "完整解析覆盖" : "部分解析覆盖"}</small>
     </span>
-    <RouteLink route={route} navigate={navigate} patch={expansion}>展开 Roofline</RouteLink>
+    <RouteLink route={route} navigate={navigate} patch={expansion}>放大理论分析</RouteLink>
   </div>;
 }

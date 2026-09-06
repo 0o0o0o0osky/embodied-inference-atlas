@@ -176,7 +176,7 @@ function evidence(runs: readonly RunRecord[]): ProfilerEvidence {
 }
 
 it("rejects known action and denoise mismatches while retaining null workload fields as partial context", () => {
-  const partial = run({ id: "partial", prompt: null, denoise: null });
+  const partial = run({ id: "partial", prompt: 48, denoise: null });
   const wrongAction = run({ id: "wrong-action", action: 10, prompt: null, denoise: null });
   const wrongDenoise = run({ id: "wrong-denoise", denoise: 8 });
   const data = atlas([partial, wrongAction, wrongDenoise]);
@@ -213,7 +213,7 @@ it("fails closed when a symbolic target has no resolved facet context", () => {
 
 it("uses an exact configuration's contracts and timing facet when one is available", () => {
   const selected = run({ id: "selected", configurationId: "cfg-selected" });
-  const partial = run({ id: "partial", prompt: null, denoise: null });
+  const partial = run({ id: "partial", prompt: 48, denoise: null });
   const wrongInput = run({ id: "wrong-input", prompt: null, denoise: null, inputContract: "other-input" });
   const wrongOutput = run({ id: "wrong-output", prompt: null, denoise: null, outputContract: "other-output" });
   const wrongBoundary = run({ id: "wrong-boundary", prompt: null, denoise: null, timingBoundary: "kernel-replay" });
@@ -247,7 +247,7 @@ it("uses an exact configuration's contracts and timing facet when one is availab
 it("keeps strict timing scope closed while exposing compatible independent NCU replay context", () => {
   const wallClock = run({ id: "wall-clock", configurationId: "cfg-wall-clock",
     captureMethod: "wall_clock", timingBoundary: "predict_cached_graph_sync" });
-  const replayRun = run({ id: "independent-ncu", prompt: null, denoise: null,
+  const replayRun = run({ id: "independent-ncu", prompt: 48, denoise: null,
     captureMethod: "ncu", timingBoundary: "representative_kernel_replay" });
   const replayCapture = {
     ...capture(replayRun), tool: "ncu", collectionScope: "representative_kernel_launch", nsys: null,
@@ -278,6 +278,11 @@ it("keeps strict timing scope closed while exposing compatible independent NCU r
     independent.timingBoundaryIds,
   ]).toEqual([[], ["capture-independent-ncu"], ["observation-independent-ncu"],
     ["independent-ncu"], "predict_cached_graph_sync", ["representative_kernel_replay"]]);
+
+  const unknownPrompt = run({ id: replayRun.run_id, prompt: null, denoise: null,
+    captureMethod: "ncu", timingBoundary: "representative_kernel_replay" });
+  expect(selectIndependentNcuReplayEvidence(atlas([wallClock, unknownPrompt]), profiler, query)
+    .evidence.captures).toEqual([]);
 });
 
 it("marks a compatible independent run partial while the anchor run remains exact", () => {
@@ -341,7 +346,7 @@ it("does not borrow a facet row's semantic prompt for a symbolic target", () => 
   expect([...scoped.partialContextRunIds]).toEqual(["capture-semantic-48"]);
 });
 
-it("retains an independently warmed capture with unknown workload context as partial", () => {
+it("excludes unknown-prompt captures from a selected P48 configuration", () => {
   const wallClock = run({
     id: "wall-clock",
     configurationId: "cfg-wall-clock",
@@ -372,8 +377,8 @@ it("retains an independently warmed capture with unknown workload context as par
     slice: runtimeProfilerSlice(data, wallClock.configuration_id),
   });
 
-  expect(scoped.evidence.captures.map((item) => item.runId)).toEqual(["independent-profiler"]);
-  expect([...scoped.partialContextRunIds]).toEqual(["independent-profiler"]);
+  expect(scoped.evidence.captures).toEqual([]);
+  expect([...scoped.partialContextRunIds]).toEqual([]);
 });
 
 it("defaults to the graph system capture and keeps node history explicitly selectable", () => {

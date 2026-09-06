@@ -58,6 +58,8 @@ it("projects runtime states without altering or obscuring fixed logical geometry
   } as unknown as RuntimeRealizationRecord;
 
   const fromLogical = buildRuntimeOverlay(dag, layout, realization, "logical:stage%2Fa");
+  const vertical = { ...realization, mappings: [mapping("m-vertical", [refs[0]!, refs[4]!], ["g-fused"], "fused")] };
+  expect(buildRuntimeOverlay(dag, layout, vertical, null).boundaries.map((item) => item.nodeRefs)).toEqual([[refs[0], refs[4]]]);
   expect(fromLogical.boundaries.map(({ nodeRefs }) => nodeRefs)).toEqual([[refs[0]], [refs[2]], [refs[4]]]);
   expect(fromLogical.boundaries.every(({ precisionPathId }) => precisionPathId === "fp16")).toBe(true);
   expect(fromLogical.badgesByNode.get(refs[3]!)?.map(({ kind }) => kind)).toContain("split");

@@ -71,6 +71,13 @@ not present any validated speedup.
 
 ## Timing and stage summaries
 
+The Pi0 runtime overview uses five untimed warmup predictions followed by ten
+timed predictions of the same input shape. It displays one record's summary
+per runtime/precision/contract, never a pooled percentile of separate runs.
+Older protocols remain archived but are excluded from the current overview.
+Warmup count alone does not prove stability: retain sample order locally and
+inspect the ten measured durations without discarding inconvenient samples.
+
 Latency values are comparable only when their timing boundaries, state or
 prefix reuse, warm/cold policy, workload, and work unit match under the chosen
 single-axis policy. End-to-end wall-clock timing, CUDA-event timing, profiler
@@ -108,11 +115,52 @@ FP16 and FP8 configurations therefore remain distinct. FlashRT precision ID
 `mixed-fp8-e4m3-fp16` denotes selective FP8-E4M3 GEMMs at operator-path
 granularity with mixed FP8/FP16 activation and execution semantics; attention,
 residual, and buffer execution remain FP16. It is neither uniform FP8 nor
-INT8. `Q8_0` in this snapshot is weight-only quantization: activations and
-execution retain their recorded floating-point semantics. It is not W8A8 or an
-INT8 compute path, and its smaller weight representation does not justify
+INT8. `Q8_0` in this snapshot is weight-only quantization: the graph's activation
+and output interfaces retain their recorded floating-point semantics. It is
+not a uniformly W8A8 model, and its smaller weight representation does not justify
 using an INT8 compute ceiling. The site consequently does not infer an INT8
 roofline for Q8_0 weight-only records.
+
+Here activation dtype describes the graph interface, not every kernel's
+temporary representation. The audited GGML CUDA MMQ path can quantize F32
+activations to Q8_1 and use integer MMA with packed Q8_0 weights and scales.
+Any kernel-specific roofline must follow that confirmed path, including its
+conversion work; neither a uniform floating-point nor uniform INT8 ceiling
+can be inferred from the weight-file label alone. The current Pi0 Q8 artifact
+quantizes selected ViT/VLM weights and leaves the action expert floating-point.
+
+## Model reference and runtime execution bounds
+
+The model DAG's BF16 analytical estimate is a model reference, not the bound
+of a particular runtime. Runtime-local bounds follow that implementation's
+fusion boundaries, precision segments, repeated calls, and modeled memory
+traffic. Adding the original unfused operators is not a fused-group bound.
+
+For a confirmed serial execution plan, complete local bounds can be summed.
+For a plan with overlap, aggregation must respect dependencies and shared
+resource budgets: the critical-path and resource lower bounds constrain the
+whole plan together; a critical path alone assumes away resource contention.
+Cross-group traffic must use consistent cache/residency assumptions. Necessary
+CPU work, synchronization, and transfers belong to the declared E2E boundary;
+overlapping intervals must not be added twice. Partial coverage cannot be
+promoted to a complete E2E bound, and missing terms are not zero.
+
+The runtime view accepts implementation-modeled records explicitly tied to
+the selected run and realization, with matching workload and operating point.
+A complete E2E bound additionally requires complete execution coverage and
+dependency, compute-resource, memory-resource, and runtime-overhead modeling.
+Until these exist, the UI leaves the runtime bound unavailable and keeps the
+model reference separate. Ordinary execution timing is distinct from NCU
+replay timing; replay observations are never used for the actual-to-bound gap.
+
+The paired Kernel Roofline uses one record's work and traffic for both points:
+arithmetic intensity is work / bytes; theoretical and observed throughput are
+work / lower-bound time and work / ordinary execution time. Modeled traffic is
+labeled explicitly. The vertical connector does not imply measured bandwidth.
+An attainment ratio requires the record's comparison prerequisites and complete
+coverage; missing timing leaves only the theoretical point. Kernel and fused
+group boundaries remain separate. Dependency-constrained aggregates are not
+forced onto a two-resource compute/bandwidth curve.
 
 ## Missing profiler, power, and throttle evidence
 

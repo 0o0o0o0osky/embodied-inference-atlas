@@ -12,7 +12,7 @@ interface Pi0PerformanceNavigationProps {
 const ROOFLINE_LEVEL_LABELS: Record<RouteState["rooflineLevel"], string> = {
   overview: "总览",
   stage: "模型阶段",
-  atomic: "逻辑算子",
+  atomic: "模型算子",
   fused: "融合算子",
   kernel: "实测 Kernel",
 };

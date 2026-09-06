@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import type { RoutePatch, RouteState } from "../../app/routes";
 import type { AtlasData, CanonicalRecord, ModelRecord } from "../../types/atlas";
 import { adaptV1ModelGraph } from "../model-graph/domain/adaptV1ModelGraph";
@@ -18,6 +18,9 @@ import {
   type Pi0RoutablePerformanceSelection,
 } from "./components/Pi0PerformanceOverviewChart";
 import { Pi0SelectedRuntimeSummary } from "./components/Pi0SelectedRuntimeSummary";
+import { RuntimeBoundSummary } from "./components/RuntimeBoundSummary";
+import { resolveRuntimeBounds } from "./domain/runtimeBounds";
+import { materializeCurrentPi0Roofline } from "../roofline/presentation/buildOperatorRooflineSummary";
 import { pi0PrecisionLabel } from "./components/runtimePresentation";
 import { adaptRuntimeRealization, isRuntimeRealizationRecord } from "./domain/adaptRuntimeRealization";
 import { buildPi0PerformanceOverview, PI0_PERFORMANCE_TARGET } from "./domain/buildPi0PerformanceOverview";
@@ -59,7 +62,7 @@ function graphWorkload(data: AtlasData, route: RouteState) {
 }
 
 export function Pi0RuntimeWorkspace({ data, model, record, route, navigate }: Pi0RuntimeWorkspaceProps) {
-  const [dagOpen, setDagOpen] = useState(false);
+  const [analysisSection, setAnalysisSection] = useState<"system" | "implementation" | "kernel">("system");
   const defaultGraph = useMemo(() => adaptV1ModelGraph(record), [record]);
   const normalizedWorkload = useMemo(() => graphWorkload(data, route), [data, route]);
   const overrides = useMemo(() => workloadOverrides(normalizedWorkload, defaultGraph.editableSymbols), [normalizedWorkload, defaultGraph.editableSymbols]);
@@ -120,9 +123,12 @@ export function Pi0RuntimeWorkspace({ data, model, record, route, navigate }: Pi
     ...(independentNcu?.partialContextRunIds ?? []),
   ]), [independentNcu, partialContextRunIds]);
   const activeRealization = activeCandidate?.actualPrecisionId === actualPrecision ? activeCandidate.realization : null;
-  const realizationId = activeRealization?.realizationId ?? null;
-  useEffect(() => setDagOpen(false), [realizationId]);
-  const renderedDagOpen = Boolean(dagOpen && activeRealization);
+  // Source-only overlays remain inspectable without claiming correlation to a measured configuration.
+  const sourceRealizations = realizations.filter((item) => item.runtimeId === route.runtime
+    && (!route.hardware || item.deviceIds.includes(route.hardware))
+    && item.precisionPaths.some((path) => path.precisionPathId === (actualPrecision ?? route.runtimePrecision)));
+  const implementationRealization = activeRealization ?? (sourceRealizations.length === 1 ? sourceRealizations[0]! : null);
+  const renderedDagOpen = Boolean(analysisSection === "implementation" && implementationRealization);
   const profilerIndex = useMemo(() => indexProfilerEvidence(scopedProfiler), [scopedProfiler]);
   const profilerCaptureSelection = useMemo(() =>
     selectRuntimeProfilerCaptures(scopedProfiler, route.timelineCapture), [scopedProfiler, route.timelineCapture]);
@@ -174,6 +180,10 @@ export function Pi0RuntimeWorkspace({ data, model, record, route, navigate }: Pi
     entity: null,
   }).allRows.find((row) => row.run.run_id === selectedRun.run_id) ?? null : null,
   [data, model.model_id, route.hardware, route.runtime, selectedRun]);
+  const runtimeBounds = useMemo(() => resolveRuntimeBounds(data, selectedRun, implementationRealization), [data, selectedRun, implementationRealization]);
+  const modelReference = useMemo(() => route.runtime ? materializeCurrentPi0Roofline({
+    data, workloadBinding: normalizedWorkload, hardwareId: route.hardware, precisionPathId: "bf16_dense",
+  }) : null, [data, normalizedWorkload, route.hardware, route.runtime]);
   const runtimeLabel = summaries.find((item) => item.runtimeId === route.runtime)?.displayName ?? route.runtime ?? "未选择";
   const precisionFallback = summaries.find((item) => item.runtimeId === route.runtime)?.actualPrecisions
     .find((precision) => precision.id === actualPrecision)?.label ?? actualPrecision ?? "未记录";
@@ -191,6 +201,8 @@ export function Pi0RuntimeWorkspace({ data, model, record, route, navigate }: Pi
     selectedWorkload.denoise_steps,
   ].some((item) => item === null);
   const selectedCoordinatesAreTarget = selectedRun !== null
+    && selectedRun.timing.warmup_iterations === PI0_PERFORMANCE_TARGET.warmupIterations
+    && selectedEvidence?.measurement.sampleCount === PI0_PERFORMANCE_TARGET.sampleCount
     && selectedWorkload.executed_prompt_tokens === PI0_PERFORMANCE_TARGET.promptTokens
     && selectedWorkload.denoise_steps === PI0_PERFORMANCE_TARGET.denoiseSteps
     && PI0_PERFORMANCE_TARGET.cameraViews.some((cameraViews) => cameraViews === selectedWorkload.camera_views)
@@ -208,7 +220,9 @@ export function Pi0RuntimeWorkspace({ data, model, record, route, navigate }: Pi
   const workloadStatus = selectionKind === "symbolic_target" || !selectedWorkloadIncomplete
     ? "complete"
     : "partial";
-  const openPerformanceEvidence = useCallback((selection: Pi0RoutablePerformanceSelection) => navigate({
+  const openPerformanceEvidence = useCallback((selection: Pi0RoutablePerformanceSelection) => {
+    setAnalysisSection("system");
+    navigate({
     runtime: selection.runtimeId,
     runtimePrecision: selection.precisionId,
     runtimeFacet: selection.facetId,
@@ -218,13 +232,19 @@ export function Pi0RuntimeWorkspace({ data, model, record, route, navigate }: Pi
     timelineCapture: null,
     basis: null,
     rooflineLevel: "overview",
-  }), [navigate]);
+    });
+  }, [navigate]);
 
   return (
     <section className="model-graph-workspace pi0-workspace pi0-runtime-workspace" aria-labelledby="pi0-runtime-title">
       <h2 id="pi0-runtime-title" className="visually-hidden">Pi0 性能对比</h2>
       <Pi0PerformanceNavigation route={route} navigate={navigate} surface="runtime" />
       {!route.runtime ? <Pi0PerformanceOverviewChart model={performanceOverview} selectedRunId={null}
+        onInspectRuntime={(runtime, runtimePrecision, coordinate) => {
+          setAnalysisSection("implementation");
+          navigate({ runtime, runtimePrecision, runtimeFacet: null,
+            workload: `v=${coordinate.cameraViews},p=48,a=${coordinate.actionChunk},n=10`, entity: null, timelineCapture: null });
+        }}
         onSelectEvidence={openPerformanceEvidence} /> : <Pi0SelectedRuntimeSummary
           runtimeLabel={runtimeLabel}
           precisionLabel={precisionLabel}
@@ -233,7 +253,16 @@ export function Pi0RuntimeWorkspace({ data, model, record, route, navigate }: Pi
           workloadStatus={workloadStatus}
           selectionKind={selectionKind}
         />}
-      {route.runtime ? <><Pi0NsysSection view={nsys}
+      {route.runtime ? <>
+      {modelReference ? <RuntimeBoundSummary bounds={runtimeBounds} reference={modelReference}
+        onOpenImplementation={() => setAnalysisSection("implementation")}
+        onOpenTheory={() => navigate({ tab: "roofline-kernels", runtime: null, runtimePrecision: null,
+          runtimeFacet: null, entity: null, basis: null, rooflineLevel: "stage", precision: "bf16_dense", workload: normalizedWorkload })} /> : null}
+      <nav className="pi0-runtime-analysis-tabs" aria-label="推理栈分析层级">
+        {([["system", "系统时间线"], ["implementation", "算子实现"], ["kernel", "Kernel 诊断"]] as const).map(([id, label]) =>
+          <button type="button" key={id} aria-pressed={analysisSection === id} onClick={() => setAnalysisSection(id)}>{label}</button>)}
+      </nav>
+      {analysisSection === "system" ? <><Pi0NsysSection view={nsys}
         onCaptureChange={(timelineCapture) => navigate({ ...scopePatch, timelineCapture, entity: null })}
         onSelectEvent={(event) => nsys.active && navigate(pi0EmbeddedTimelineSelectionPatch({
           ...scopePatch,
@@ -241,31 +270,29 @@ export function Pi0RuntimeWorkspace({ data, model, record, route, navigate }: Pi
           captureId: nsys.active.capture.captureId,
           entity: timelineEventEntity(nsys.active.timeline.timelineId, event.eventId),
         }), true)}
-        onOpenDetails={() => navigate({ ...scopePatch, tab: "timeline", timelineCapture: nsys.active?.capture.captureId ?? null, entity: null })} />
+        onOpenDetails={() => navigate({ ...scopePatch, tab: "timeline", timelineCapture: nsys.active?.capture.captureId ?? null, entity: route.entity })} />
       {nsys.active && partialContextRunIds.has(nsys.active.run.run_id)
         ? <p className="pi0-funnel-note"><strong>Nsys：独立采集 · 部分上下文。</strong> {slice.anchorRunId === nsys.active.run.run_id
-          ? "该 capture 与当前 wall-clock run identity 一致；未记录的 workload 字段保持未知。"
-          : "该 capture 不是当前选中的 wall-clock run；未记录的 workload 字段保持未知。"}</p>
-        : null}
-      <Pi0KernelSection view={kernels} realization={activeRealization} partialContextRunIds={kernelPartialContextRunIds}
+          ? "采集属于当前运行；仍有未记录的上下文字段。"
+          : "与端到端计时独立采集；仍有未记录的上下文字段。"}</p>
+        : null}</> : null}
+      {analysisSection === "kernel" ? <Pi0KernelSection view={kernels} realization={implementationRealization} partialContextRunIds={kernelPartialContextRunIds}
         independentNcu={independentNcu} dagOpen={renderedDagOpen}
-        onOpenDetails={() => navigate({ ...scopePatch, tab: "roofline-kernels", rooflineLevel: "overview", entity: null, basis: null })}
-        onOpenNcuContext={independentNcu && kernels.rows.find((row) => independentNcu.runIds.has(row.run.run_id))
+        onOpenDetails={() => navigate({ ...scopePatch, tab: "roofline-kernels", rooflineLevel: "kernel", entity: null, basis: null })}
+        onOpenNcuContext={kernels.rows.some((row) => row.observation.observationKind === "ncu_replayed_launch")
           ? () => {
-            const row = kernels.rows.find((item) => independentNcu.runIds.has(item.run.run_id))!;
+            const row = kernels.rows.find((item) => item.observation.observationKind === "ncu_replayed_launch")!;
             navigate({ ...scopePatch, tab: "roofline-kernels", rooflineLevel: "kernel",
               entity: kernelEntity(row.capture.captureId, row.observation.observationId), basis: null });
           } : null}
-        onOpenDag={() => setDagOpen((open) => !open)} />
+        onOpenDag={() => setAnalysisSection("implementation")} /> : null}
       {renderedDagOpen ? <section className="pi0-funnel-section" aria-labelledby="pi0-dag-title">
-        <header className="pi0-funnel-heading">
-          <h3 id="pi0-dag-title">完整实现图</h3>
-        </header>
+        <h3 id="pi0-dag-title" className="visually-hidden">模型 DAG 上的实现差异</h3>
         <div id="pi0-implementation-dag">
-          <Pi0ImplementationDagSection record={record} route={{ ...route, workload: normalizedWorkload }} activeRealization={activeRealization}
+          <Pi0ImplementationDagSection record={record} bounds={runtimeBounds} route={{ ...route, workload: normalizedWorkload }} activeRealization={implementationRealization}
             selectedRuntimeName={summaries.find((item) => item.runtimeId === route.runtime)?.displayName ?? null} navigate={navigate} />
         </div>
-      </section> : null}</> : null}
+      </section> : analysisSection === "implementation" ? <p className="pi0-funnel-empty">当前推理栈尚无对应精度的源码实现映射。</p> : null}</> : null}
     </section>
   );
 }

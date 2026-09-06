@@ -98,7 +98,7 @@ export interface RooflineViewModel {
   activeBasis: RooflineBasisRecord | null;
   activeScenario: RooflineScenarioRecord | null;
   activeCeiling: RooflineCeilingRecord | null;
-  availableBases: readonly { basisId: string; label: string; precisionPathId: string }[];
+  availableBases: readonly { basisId: string; label: string; precisionPathId: string; runtimeBound?: boolean }[];
   curves: readonly RooflineCurveVM[];
   points: readonly RooflinePointVM[];
   rows: readonly RooflineRowVM[];
@@ -413,7 +413,8 @@ export function buildRooflineView(query: RooflineQuery, index: RooflineIndex): R
     activeBasis: basis,
     activeScenario: scenario,
     activeCeiling: ceiling,
-    availableBases: bases.map((item) => ({ basisId: item.basis_id, label: item.label, precisionPathId: item.precision_path_id })),
+    availableBases: bases.map((item) => ({ basisId: item.basis_id, label: item.label, precisionPathId: item.precision_path_id,
+      runtimeBound: scenarioForBasis(index, item)?.precision_path.kind === "mapped_mixed" })),
     curves: buildCurves(basis, scenario, index, sparseObservedRunIds),
     points,
     rows,

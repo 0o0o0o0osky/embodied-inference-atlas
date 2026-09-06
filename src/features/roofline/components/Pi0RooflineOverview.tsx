@@ -123,7 +123,7 @@ export function Pi0RooflineOverview({ data, result, navigate, modelTheory = fals
 
       <div className="pi0-analytical-actions">
         <button type="button" onClick={() => openLevel("stage")}>查看模型阶段</button>
-        <button type="button" onClick={() => openLevel("atomic")}>查看逻辑算子</button>
+        <button type="button" onClick={() => openLevel("atomic")}>查看模型算子</button>
       </div>
 
       {!modelTheory ? <dl className="pi0-secondary-bases">

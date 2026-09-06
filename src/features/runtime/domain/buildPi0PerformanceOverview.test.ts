@@ -66,7 +66,7 @@ function run({
     timing_boundary_id: timingBoundaryId,
     state_reuse: "cached",
     warm_policy: "steady_state",
-    warmup_iterations: 3,
+    warmup_iterations: 5,
   };
   const operatingPoint: RunRecord["operating_point"] = {
     operating_point_id: "thor-max",
@@ -129,7 +129,7 @@ function measurement(run: RunRecord, value: number) {
       value,
       unit: "ms",
     }],
-    sample_count: run.evidence === "analytical" ? 0 : 20,
+    sample_count: run.evidence === "analytical" ? 0 : 10,
     percentile_method: run.runtime_id === "vla-cpp" ? "source_reported" : null,
     work_unit: "action_chunk",
     timing_boundary_id: run.timing.timing_boundary_id,
@@ -278,6 +278,9 @@ it("builds exact six-cell Pi0 target grids without borrowing mismatched evidence
     precisionId: "fp16",
     workload: { views: 2, prompt: 47, chunk: 10, denoise: 10 },
   });
+  const oldWarmup = run({runId: "old-three-warmups", workload: {views: 1, prompt: 48, chunk: 20, denoise: 10}});
+  oldWarmup.timing.warmup_iterations = 3;
+  oldWarmup.comparison_context.timing.warmup_iterations = 3;
   const runs = [
     exactFlash,
     wrongPrompt,
@@ -292,6 +295,7 @@ it("builds exact six-cell Pi0 target grids without borrowing mismatched evidence
     duplicateTargetOne,
     duplicateTargetTwo,
     duplicateNative,
+    oldWarmup,
   ];
   const data = {
     format_version: "1.0.0",
@@ -319,6 +323,8 @@ it("builds exact six-cell Pi0 target grids without borrowing mismatched evidence
     denoiseSteps: 10,
     cameraViews: [1, 2, 3],
     actionChunks: [20, 50],
+    warmupIterations: 5,
+    sampleCount: 10,
   });
   expect(overview.facets).toHaveLength(6);
   expect(overview.facets.filter((facet) => facet.runtimeId === "flashrt"

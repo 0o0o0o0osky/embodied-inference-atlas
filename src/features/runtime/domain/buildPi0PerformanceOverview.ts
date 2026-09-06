@@ -12,6 +12,8 @@ export const PI0_PERFORMANCE_TARGET = {
   denoiseSteps: 10,
   cameraViews: [1, 2, 3],
   actionChunks: [20, 50],
+  warmupIterations: 5,
+  sampleCount: 10,
 } as const;
 
 export interface Pi0PerformanceWorkload {
@@ -54,6 +56,8 @@ export interface Pi0PerformancePendingCell {
   cameraViews: number;
   actionChunk: number;
   reason: Pi0PerformancePendingReason;
+  /** Independent batches, retained separately; never pooled into a synthetic percentile. */
+  replicates?: readonly Pi0PerformanceMeasuredCell[];
 }
 
 export interface Pi0PerformanceUnsupportedCell {
@@ -162,6 +166,8 @@ export interface Pi0PerformanceGroup {
   facets: readonly Pi0PerformanceFacet[];
   primaryFacetId: string;
   comparison: Pi0PerformanceGroupComparison;
+  /** Source/catalog evidence without a fabricated measured contract. */
+  unmeasuredSeries?: readonly Pi0PerformanceSeries[];
 }
 
 export interface Pi0PerformanceOverviewModel {
@@ -387,7 +393,8 @@ function cellFor(
   const measuredRows = exactRows.filter((row) => row.selected?.value !== null && row.selected?.value !== undefined);
   if (measuredRows.length !== 1) {
     if (measuredRows.length > 1) {
-      return { state: "pending_supported", cameraViews, actionChunk, reason: "multiple_exact_measurements" };
+      return { state: "pending_supported", cameraViews, actionChunk, reason: "multiple_exact_measurements",
+        replicates: measuredRows.map((row) => cellFor([row], realizations, facetId, cameraViews, actionChunk) as Pi0PerformanceMeasuredCell) };
     }
     const unsupported = unsupportedCell(realizations, cameraViews, actionChunk);
     if (unsupported) return unsupported;
@@ -496,6 +503,8 @@ export function buildPi0PerformanceOverview({
     row.measurement.evidence === "measured_local"
     && row.run.evidence === "measured_local"
     && row.measurement.metric === "latency"
+    && row.run.timing.warmup_iterations === PI0_PERFORMANCE_TARGET.warmupIterations
+    && row.measurement.sampleCount === PI0_PERFORMANCE_TARGET.sampleCount
     && row.run.workload.vla !== undefined,
   );
   const facets = new Map<string, FacetAccumulator>();
@@ -585,6 +594,41 @@ export function buildPi0PerformanceOverview({
       comparison,
     };
   });
+  // A runtime does not disappear merely because its current workload has not
+  // been measured. Catalog-only groups deliberately contain no measurement facet.
+  const localSourceIds = new Set(data.datasets.runs.filter((run) =>
+    run.model_id === "pi0" && run.evidence === "measured_local"
+    && (hardwareId === null || run.device_id === hardwareId)).map((run) => run.source_id));
+  for (const runtime of data.datasets.runtimes) {
+    if (runtime.backend === "analytical-roofline" || runtime.runtime_id === "tether"
+      || groups.some((group) => group.runtimeId === runtime.runtime_id)) continue;
+    const audited = availableRealizations.filter((realization) =>
+      realization.modelId === "pi0" && realization.runtimeId === runtime.runtime_id
+      && (hardwareId === null || realization.deviceIds.includes(hardwareId))
+      && (realization.availability === "source_audited" || realization.availability === "measured")
+      && realization.evidence.some((item) => item.kind === "source_code"));
+    const localSupport = runtime.model_support.some((support) => {
+      const sourceId = (support as unknown as Record<string, unknown>).source_id;
+      return support.model_id === "pi0" && support.evidence === "measured_local"
+        && (support.status === "measured" || support.reason_code === "source_audit_only")
+        && typeof sourceId === "string" && localSourceIds.has(sourceId);
+    });
+    if (audited.length === 0 && !localSupport) continue;
+    const precisionId = audited[0]?.precisionPaths[0]?.precisionPathId ?? "unknown";
+    groups.push({
+      id: `pi0-group-${runtime.runtime_id}-${precisionId}`,
+      runtimeId: runtime.runtime_id, runtimeLabel: runtime.display_name,
+      hardwareId: hardwareId ?? audited[0]?.deviceIds[0] ?? "unknown",
+      precisionId, facets: [], primaryFacetId: "", comparison: { state: "unavailable" },
+      unmeasuredSeries: PI0_PERFORMANCE_TARGET.actionChunks.map((actionChunk) => ({
+        actionChunk,
+        cells: PI0_PERFORMANCE_TARGET.cameraViews.map((cameraViews) =>
+          unsupportedCell(audited, cameraViews, actionChunk) ?? pendingCell([], cameraViews, actionChunk)),
+      })),
+    });
+  }
+  groups.sort((left, right) => left.runtimeId.localeCompare(right.runtimeId)
+    || left.precisionId.localeCompare(right.precisionId));
   const hardwareLabel = hardwareId === null
     ? "全部硬件"
     : data.datasets.devices.find((device) => device.device_id === hardwareId)?.display_name ?? hardwareId;

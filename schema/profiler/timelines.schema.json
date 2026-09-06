@@ -45,7 +45,7 @@
             "event_id": {"type": "string", "min_length": 1, "max_length": 80},
             "lane_id": {"type": "string", "min_length": 1, "max_length": 80},
             "event_kind": {"type": "string", "enum": ["scheduler", "cuda_api", "cuda_graph", "kernel", "memcpy", "profiler_overhead"]},
-            "label": {"type": "string", "enum": ["predict", "vision-graph", "encoder-action-graph", "cuda-device-synchronize", "cuda-graph-launch", "kernel", "memcpy"]},
+            "label": {"type": "string", "enum": ["predict", "vision-graph", "encoder-action-graph", "cuda-device-synchronize", "cuda-stream-synchronize", "cuda-graph-launch", "kernel", "memcpy"]},
             "start_ns": {"type": "integer", "minimum": 0},
             "duration_ns": {"type": "integer", "minimum": 1},
             "count": {"type": "integer", "minimum": 1},

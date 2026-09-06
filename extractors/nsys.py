@@ -45,7 +45,7 @@ _NODE_COLUMNS = {
 }
 _COPY_DIRECTIONS = {1: "h2d", 2: "d2h", 8: "d2d", 9: "h2h"}
 _CONTROLLED_GRAPH_LABELS = {"vision-graph", "encoder-action-graph"}
-_CONTROLLED_API_LABELS = {"cuda-device-synchronize", "cuda-graph-launch"}
+_CONTROLLED_API_LABELS = {"cuda-device-synchronize", "cuda-stream-synchronize", "cuda-graph-launch"}
 
 
 def parse_nsys_sqlite(
@@ -453,6 +453,8 @@ def _validate_schema(
     connection: sqlite3.Connection, context: ProfilerImportContext, report_mode: str
 ) -> None:
     required = dict(_COMMON_COLUMNS)
+    if report_mode == "graph":
+        required.pop("CUPTI_ACTIVITY_KIND_KERNEL")
     required.update(_GRAPH_COLUMNS if report_mode == "graph" else _NODE_COLUMNS)
     tables = {
         row[0] for row in connection.execute(
