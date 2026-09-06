@@ -1611,3 +1611,18 @@
     left: auto;
   }
 }
+.model-theory-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  padding: 0.65rem 1.5rem;
+  color: #415870;
+  background: #fff;
+  border-bottom: 1px solid #dce5ee;
+  font-size: 0.9rem;
+}
+.model-theory-summary strong { margin-left: 0.6rem; color: #153b5a; font-size: 1.1rem; }
+.model-theory-summary small { margin-left: 0.85rem; color: #687c90; }
+.model-theory-summary a { color: #176a92; font-weight: 600; }

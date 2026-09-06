@@ -1,6 +1,7 @@
 import type { RoutePatch, RouteState } from "../../app/routes";
 import type { AtlasData, ModelRecord } from "../../types/atlas";
 import { isInferenceRuntimeForModel } from "../runtime/domain/runtimeCatalog";
+import { isPi0ModelTheory } from "../runtime/domain/pi0PerformanceNavigation";
 
 interface ContextBarProps {
   data: AtlasData;
@@ -41,7 +42,8 @@ export function ContextBar({ data, model, route, navigate, compact = false }: Co
   const showWorkload = route.tab !== "end-to-end" && route.tab !== "timeline";
   const showRuntimePrecision = route.tab === "runtime";
   const showRooflinePrecision = route.tab === "roofline-kernels";
-  const compactActualPrecision = compact && model.model_id === "pi0" && (
+  const modelTheory = isPi0ModelTheory(route);
+  const compactActualPrecision = compact && model.model_id === "pi0" && !modelTheory && (
     (route.tab === "runtime" && route.runtime !== null)
     || route.tab === "timeline"
     || route.tab === "roofline-kernels"
@@ -72,8 +74,9 @@ export function ContextBar({ data, model, route, navigate, compact = false }: Co
             runtimePrecision: null,
             runtimeFacet: null,
             timelineCapture: null,
-            entity: null,
-            workload: null,
+            entity: modelTheory ? route.entity : null,
+            workload: modelTheory ? route.workload : null,
+            basis: null,
           })}>
             <option value="">未选择</option>
             {route.hardware && !hardwareKnown ? <option value={route.hardware}>{route.hardware}</option> : null}
@@ -112,7 +115,7 @@ export function ContextBar({ data, model, route, navigate, compact = false }: Co
             <select value={route.precision ?? ""} onChange={(event) => navigate({
               precision: event.target.value || null,
               basis: null,
-              entity: route.tab === "roofline-kernels" ? null : route.entity,
+              entity: modelTheory ? route.entity : route.tab === "roofline-kernels" ? null : route.entity,
             }, true)}>
               <option value="">场景默认</option>
               {route.precision && !rooflinePrecisionIds.includes(route.precision) ? <option value={route.precision}>{precisionLabel(route.precision)}</option> : null}

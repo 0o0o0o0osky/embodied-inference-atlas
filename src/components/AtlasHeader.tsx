@@ -2,7 +2,7 @@ import type { AtlasData } from "../types/atlas";
 import type { RoutePatch, RouteState } from "../app/routes";
 import { RouteLink } from "./RouteLink";
 import { ContextBar } from "../features/workbench/ContextBar";
-import { pi0PerformanceNavigationPatch } from "../features/runtime/domain/pi0PerformanceNavigation";
+import { isPi0ModelTheory, pi0PerformanceNavigationPatch, pi0TheoryNavigationPatch } from "../features/runtime/domain/pi0PerformanceNavigation";
 
 interface AtlasHeaderProps {
   data: AtlasData;
@@ -27,7 +27,7 @@ export function AtlasHeader({ data, route, navigate }: AtlasHeaderProps) {
   const { models } = data.datasets;
   const model = models.find((item) => item.model_id === route.model);
   const topEntries = route.model === "pi0" ? [
-    { tab: "logical" as const, label: "理论 DAG", patch: pi0PerformanceNavigationPatch("logical") },
+    { tab: "logical" as const, label: "模型理论", patch: isPi0ModelTheory(route) ? pi0TheoryNavigationPatch(route, "logical") : pi0PerformanceNavigationPatch("logical") },
     { tab: "runtime" as const, label: "性能对比", patch: pi0PerformanceNavigationPatch("comparison") },
   ] : [
     { tab: "logical" as const, label: "模型结构", patch: { tab: "logical" as const } },
@@ -62,7 +62,9 @@ export function AtlasHeader({ data, route, navigate }: AtlasHeaderProps) {
       <nav className="atlas-navigation" aria-label="主要视图">
         {topEntries.map(({ tab, label, patch }) => (
           <RouteLink key={tab} route={route} patch={patch} navigate={navigate}
-            aria-current={route.tab === tab || (route.model === "pi0" && tab === "runtime" && ["timeline", "roofline-kernels", "end-to-end"].includes(route.tab)) || (tab === "logical" && route.model !== "pi0" && (route.tab === "roofline-kernels" || route.tab === "runtime")) ? "page" : undefined}>
+            aria-current={(route.model === "pi0"
+              ? tab === "logical" ? isPi0ModelTheory(route) : !isPi0ModelTheory(route)
+              : route.tab === tab || (tab === "logical" && (route.tab === "roofline-kernels" || route.tab === "runtime"))) ? "page" : undefined}>
             {label}
           </RouteLink>
         ))}

@@ -33,6 +33,7 @@ import { RooflineAnalysis } from "./RooflineAnalysis";
 import { RooflineBasisBar } from "./RooflineBasisBar";
 import { RooflineModeTabs } from "./RooflineModeTabs";
 import { RooflineOverview } from "./RooflineOverview";
+import { isPi0ModelTheory } from "../../runtime/domain/pi0PerformanceNavigation";
 
 export interface RooflineViewProps {
   data: AtlasData;
@@ -254,6 +255,15 @@ function CoreRooflineView({
     basisId: interactiveBasis ?? route.basis,
   }, index);
   const overview = buildRooflineView({ ...queryBase, mode: "overview", basisId: null }, index).overview!;
+  const modelTheory = isPi0ModelTheory(route);
+  const basisControls = <RooflineBasisBar
+    route={route}
+    model={view}
+    workload={view.activeScenario?.origin === "legacy_import" ? null : workload}
+    workloadBounds={workloadBounds}
+    navigate={navigate}
+    onWorkload={(next) => navigate({ workload: serializeInteractiveWorkload(next), basis: null, entity: modelTheory ? route.entity : null }, true)}
+  />;
   return (
     <section className="roofline-workspace" aria-labelledby="roofline-title">
       <header className="roofline-intro">
@@ -265,16 +275,14 @@ function CoreRooflineView({
         <RooflineOverview items={overview} legacy={view.legacyInventory} navigate={navigate} />
       ) : (
         <>
-          <RooflineBasisBar
-            route={route}
-            model={view}
-            workload={view.activeScenario?.origin === "legacy_import" ? null : workload}
-            workloadBounds={workloadBounds}
-            navigate={navigate}
-            onWorkload={(next) => navigate({ workload: serializeInteractiveWorkload(next), basis: null, entity: null }, true)}
-          />
-          {view.warnings.length ? <div className="roofline-warnings" role="status">{view.warnings.map((warning) => <p key={warning.id}><strong>{warning.id.replaceAll("-", " ")}.</strong> {warning.message}</p>)}</div> : null}
-          <RooflineAnalysis model={view} selectedEntityKey={selectedKey} onSelect={(entity) => navigate({ entity }, true)} />
+          {modelTheory ? <details className="theory-analysis-settings">
+            <summary>输入形状与分析依据 · V{workload.executedCameraViews} / P{workload.executedPromptTokens} / A{workload.actionHorizon} / N{workload.denoiseSteps}</summary>
+            {basisControls}
+            {view.warnings.map((warning) => <p key={warning.id}>{warning.message}</p>)}
+          </details> : <>{basisControls}
+            {view.warnings.length ? <div className="roofline-warnings" role="status">{view.warnings.map((warning) => <p key={warning.id}><strong>{warning.id.replaceAll("-", " ")}.</strong> {warning.message}</p>)}</div> : null}
+          </>}
+          <RooflineAnalysis model={view} selectedEntityKey={selectedKey} onSelect={(entity) => navigate({ entity }, true)} modelTheory={modelTheory} />
         </>
       )}
     </section>

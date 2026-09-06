@@ -1,4 +1,23 @@
-import type { RoutePatch } from "../../../app/routes";
+import type { RoutePatch, RouteState } from "../../../app/routes";
+import { logicalEntity, logicalRefFromEntity } from "../../workbench/entityKeys";
+
+export function isPi0ModelTheory(route: RouteState): boolean {
+  return route.model === "pi0" && (route.tab === "logical" || (
+    route.tab === "roofline-kernels" && !route.runtime
+    && ["overview", "stage", "atomic"].includes(route.rooflineLevel)
+  ));
+}
+
+export function pi0TheoryNavigationPatch(route: RouteState, destination: "logical" | "expanded"): RoutePatch {
+  const ref = logicalRefFromEntity(route.entity);
+  return {
+    tab: destination === "logical" ? "logical" : "roofline-kernels",
+    runtime: null, runtimePrecision: null, runtimeFacet: null,
+    timelineCapture: null, basis: null,
+    entity: ref ? logicalEntity(ref) : null,
+    rooflineLevel: destination === "logical" ? "overview" : ref ? "atomic" : "stage",
+  };
+}
 
 interface EmbeddedTimelineSelection {
   runtime: string | null;

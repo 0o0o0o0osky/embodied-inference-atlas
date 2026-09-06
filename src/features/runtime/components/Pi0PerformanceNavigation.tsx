@@ -1,6 +1,7 @@
 import type { RoutePatch, RouteState } from "../../../app/routes";
 import { RouteLink } from "../../../components/RouteLink";
-import { pi0PerformanceNavigationPatch } from "../domain/pi0PerformanceNavigation";
+import { isPi0ModelTheory, pi0PerformanceNavigationPatch, pi0TheoryNavigationPatch } from "../domain/pi0PerformanceNavigation";
+import { logicalRefFromEntity } from "../../workbench/entityKeys";
 
 interface Pi0PerformanceNavigationProps {
   route: RouteState;
@@ -17,6 +18,17 @@ const ROOFLINE_LEVEL_LABELS: Record<RouteState["rooflineLevel"], string> = {
 };
 
 export function Pi0PerformanceNavigation({ route, navigate, surface }: Pi0PerformanceNavigationProps) {
+  if (isPi0ModelTheory(route)) return (
+    <nav className="pi0-performance-navigation" aria-label="模型理论导航">
+      <ol className="pi0-performance-breadcrumb">
+        <li><RouteLink route={route} navigate={navigate} patch={pi0TheoryNavigationPatch(route, "logical")}>模型理论 / DAG</RouteLink></li>
+        <li><span aria-hidden="true">/</span><span aria-current="page">Roofline · {ROOFLINE_LEVEL_LABELS[route.rooflineLevel]}</span></li>
+      </ol>
+      <div className="pi0-performance-navigation-actions">
+        <RouteLink route={route} navigate={navigate} patch={pi0TheoryNavigationPatch(route, "logical")}>返回 DAG{logicalRefFromEntity(route.entity) ? " 与当前算子" : ""}</RouteLink>
+      </div>
+    </nav>
+  );
   const comparison = pi0PerformanceNavigationPatch("comparison");
   const isDetail = surface !== "runtime";
   return (

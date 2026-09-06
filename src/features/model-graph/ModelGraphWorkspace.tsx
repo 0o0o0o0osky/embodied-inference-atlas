@@ -11,6 +11,7 @@ import { GraphBreadcrumb } from "./components/GraphBreadcrumb";
 import { LogicalDagSvg } from "./components/LogicalDagSvg";
 import { OperatorInspector } from "./components/OperatorInspector";
 import { OperatorRooflinePanel } from "./components/OperatorRooflinePanel";
+import { ModelTheorySummary } from "./components/ModelTheorySummary";
 import { WorkloadControls } from "./components/WorkloadControls";
 import { adaptLogicalDag, incidentNodeRefs } from "./domain/adaptLogicalDag";
 import { adaptV1ModelGraph, isV1ModelGraphRecord } from "./domain/adaptV1ModelGraph";
@@ -20,7 +21,7 @@ import { layoutLogicalDag } from "./layout/paperLayout";
 import { resolveConnectorHints } from "./layout/routeConnectors";
 import { resolvePresentationProfile } from "./presentation/registry";
 import { ModelDisplayProvider, useModelText } from "./presentation/ModelDisplay";
-import { pi0PerformanceNavigationPatch } from "../runtime/domain/pi0PerformanceNavigation";
+import { pi0PerformanceNavigationPatch, pi0TheoryNavigationPatch } from "../runtime/domain/pi0PerformanceNavigation";
 import { serializeInteractiveWorkload } from "../roofline/data/materialize";
 import { materializeCurrentPi0Roofline } from "../roofline/presentation/buildOperatorRooflineSummary";
 
@@ -40,7 +41,13 @@ function resolveWorkloadBinding(data: AtlasData, route: RouteState) {
     && candidate.model_id === route.model
     && (!route.hardware || candidate.device_id === route.hardware));
   const vla = run?.workload.vla;
-  if (!vla) return route.workload;
+  if (!vla) {
+    const aliases: Record<string, string> = { v: "V", p: "L_PROMPT", a: "T_ACTION", n: "N_DENOISE" };
+    return route.workload?.split(",").map((part) => {
+      const [key, value] = part.split("=");
+      return `${aliases[key?.trim() ?? ""] ?? key}=${value}`;
+    }).join(",") ?? null;
+  }
   return [
     ["V", vla.camera_views],
     ["L_PROMPT", vla.executed_prompt_tokens],
@@ -142,12 +149,12 @@ function ResolvedModelGraph({
     () => resolveFocusViewport(dag, layout, operator?.ref ?? null, model.model_id === "pi0" ? "stage" : "canvas"),
     [dag, layout, model.model_id, operator?.ref],
   );
-  const pi0Roofline = useMemo(() => isPi0 && operator ? materializeCurrentPi0Roofline({
+  const pi0Roofline = useMemo(() => isPi0 ? materializeCurrentPi0Roofline({
     data,
     workloadBinding: route.workload,
     precisionPathId: route.precision,
     hardwareId: route.hardware,
-  }) : null, [data, isPi0, operator, route.hardware, route.precision, route.workload]);
+  }) : null, [data, isPi0, route.hardware, route.precision, route.workload]);
 
   const updateWorkload = (next: Record<string, number>) => {
     navigate(
@@ -226,12 +233,13 @@ function ResolvedModelGraph({
               <h2 id="logical-graph-title">Pi0 <span>v{graph.version}</span></h2>
               <span className="graph-view-current">理论 DAG</span>
               <RouteLink route={route} navigate={navigate} patch={pi0PerformanceNavigationPatch("comparison")}>性能对比</RouteLink>
-              <RouteLink route={route} navigate={navigate} patch={{ tab: "roofline-kernels", rooflineLevel: "overview", entity: null }}>理论 Roofline</RouteLink>
               {workloadControls}
             </> : undefined}
-            scenario={isPi0 ? <p className="graph-scenario-summary">
+            scenario={isPi0 ? <>
+              {!operator && pi0Roofline ? <ModelTheorySummary result={pi0Roofline} route={route} navigate={navigate} /> : null}
+              <p className="graph-scenario-summary">
               当前场景：{overrides.V} 个视角，{overrides.L_PROMPT} 个提示词位置，{overrides.T_ACTION} 个动作词元，{overrides.N_DENOISE} 步去噪。
-            </p> : undefined}
+            </p></> : undefined}
           />
         </section>
         {operator ? (
@@ -243,10 +251,7 @@ function ResolvedModelGraph({
               result={pi0Roofline}
               logicalRef={operator.ref}
               fullAnalysisLink={<RouteLink route={route} navigate={navigate} patch={{
-                tab: "roofline-kernels",
-                rooflineLevel: "atomic",
-                basis: null,
-                entity: logicalEntity(operator.ref),
+                ...pi0TheoryNavigationPatch(route, "expanded"),
                 workload: pi0Roofline.status === "available" ? serializeInteractiveWorkload({
                   executedCameraViews: pi0Roofline.value.scenario.workload.executed_camera_views,
                   executedPromptTokens: pi0Roofline.value.scenario.workload.executed_prompt_tokens,
@@ -259,15 +264,15 @@ function ResolvedModelGraph({
                 hardware: pi0Roofline.status === "available"
                   ? pi0Roofline.value.atomicBasis.device_id
                   : route.hardware,
-              }}>打开完整 Atomic 分析</RouteLink>}
+              }}>展开此算子的 Roofline</RouteLink>}
             /> : undefined}
             evidenceLinks={{
               roofline: <RouteLink route={route} navigate={navigate} patch={{
-                tab: "roofline-kernels", rooflineLevel: "atomic", basis: null, entity: logicalEntity(operator.ref),
-              }}>查看分析 Roofline</RouteLink>,
-              kernel: <RouteLink route={route} navigate={navigate} patch={{
+                ...pi0TheoryNavigationPatch(route, "expanded"),
+              }}>展开此算子的 Roofline</RouteLink>,
+              kernel: <RouteLink route={route} navigate={navigate} patch={isPi0 ? pi0PerformanceNavigationPatch("comparison") : {
                 tab: "roofline-kernels", rooflineLevel: "kernel", basis: null, entity: logicalEntity(operator.ref),
-              }}>查看实测 Kernel 证据</RouteLink>,
+              }}>{isPi0 ? "选择推理栈查看 Kernel" : "查看实测 Kernel 证据"}</RouteLink>,
             }}
           />
         ) : null}

@@ -2,6 +2,7 @@ import type { RoutePatch, RouteState } from "../../../app/routes";
 import type { InteractiveWorkload, InteractiveWorkloadBounds } from "../data/materialize";
 import type { RooflineViewModel } from "../presentation/viewModel";
 import { formatNumber, humanize, provenanceLabel } from "../presentation/viewModel";
+import { isPi0ModelTheory } from "../../runtime/domain/pi0PerformanceNavigation";
 
 function deviceLabel(deviceId: string) {
   return deviceId === "nvidia-jetson-agx-thor" ? "Jetson AGX Thor T5000" : deviceId;
@@ -41,6 +42,18 @@ export function RooflineBasisBar({
       ? "Analytical tuple remains independent of the runtime hardware filter"
       : "Analytical tuple · no runtime evidence selected";
   const bandwidth = model.curves[0];
+  const modelTheory = isPi0ModelTheory(route);
+  if (modelTheory) return <section className="theory-basis-controls">
+    {workload ? <div className="roofline-workload-controls">
+      <label><span>视角数</span><input aria-label="视角数" type="number" min="1" value={workload.executedCameraViews} onChange={(event) => update("executedCameraViews", event.target.value)} /></label>
+      <label><span>提示词长度</span><input aria-label="提示词长度" type="number" min={workloadBounds.promptMinimum} max={workloadBounds.promptMaximum ?? undefined} value={workload.executedPromptTokens} onChange={(event) => update("executedPromptTokens", event.target.value)} /></label>
+      <label><span>动作块长度</span><input aria-label="动作块长度" type="number" min="1" value={workload.actionHorizon} onChange={(event) => update("actionHorizon", event.target.value)} /></label>
+      <label><span>去噪步数</span><input aria-label="去噪步数" type="number" min="1" value={workload.denoiseSteps} onChange={(event) => update("denoiseSteps", event.target.value)} /></label>
+    </div> : null}
+    <p>计算上限：{model.curves.map((curve) => `${formatNumber(curve.computeFlopPerSecond / 1e12)} TFLOP/s`).join("；") || "未建立"}；带宽上限：{bandwidth ? `${formatNumber(bandwidth.bandwidthBytePerSecond / 1e9)} GB/s` : "未建立"}。</p>
+    <p>这些是所选硬件条件下的理论值，运行时频率与实测利用率需另行验证。</p>
+    <details><summary>完整计算口径</summary><code>{basis.basis_id}</code><p>{basis.provenance.condition}</p></details>
+  </section>;
   return (
     <section className="roofline-basis-bar" aria-labelledby="roofline-basis-title">
       <header>

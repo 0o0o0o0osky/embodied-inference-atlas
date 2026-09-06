@@ -10,6 +10,7 @@ interface Pi0RooflineOverviewProps {
   data: AtlasData;
   result: Pi0AnalyticalResult;
   navigate: (patch: RoutePatch, replace?: boolean) => void;
+  modelTheory?: boolean;
 }
 
 const STAGE_LABELS: Record<string, string> = {
@@ -61,7 +62,7 @@ function statusLabel(status: "available" | "empty" | "unavailable") {
   return "尚无同口径证据";
 }
 
-export function Pi0RooflineOverview({ data, result, navigate }: Pi0RooflineOverviewProps) {
+export function Pi0RooflineOverview({ data, result, navigate, modelTheory = false }: Pi0RooflineOverviewProps) {
   if (result.status === "unavailable") {
     return (
       <section className="pi0-analytical-overview is-unavailable" role="status">
@@ -125,10 +126,10 @@ export function Pi0RooflineOverview({ data, result, navigate }: Pi0RooflineOverv
         <button type="button" onClick={() => openLevel("atomic")}>查看逻辑算子</button>
       </div>
 
-      <dl className="pi0-secondary-bases">
+      {!modelTheory ? <dl className="pi0-secondary-bases">
         <div><dt>融合算子</dt><dd>{statusLabel(fusedStatus)}</dd></div>
         <div><dt>实测 Kernel</dt><dd>{statusLabel(kernelStatus)}；需精确 runtime / capture 映射</dd></div>
-      </dl>
+      </dl> : null}
     </section>
   );
 }

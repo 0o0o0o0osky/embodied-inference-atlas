@@ -102,6 +102,10 @@ const sourceText: ModelText = (text, values) => format(text, values);
 const chineseText: ModelText = (text, values) => format(pi0Text[text] ?? text, values);
 const ModelTextContext = createContext<ModelText>(sourceText);
 
+export function modelDisplayText(modelId: string, text: string, values?: Values): string {
+  return (modelId === "pi0" ? chineseText : sourceText)(text, values);
+}
+
 export function ModelDisplayProvider({ modelId, children }: { modelId: string; children: ReactNode }) {
   return <ModelTextContext value={modelId === "pi0" ? chineseText : sourceText}>{children}</ModelTextContext>;
 }

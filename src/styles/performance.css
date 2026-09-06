@@ -514,3 +514,62 @@
     flex-direction: column;
   }
 }
+.theory-analysis-settings {
+  border-bottom: 1px solid var(--line-dark);
+  font-size: 14px;
+}
+
+.theory-analysis-settings > summary,
+.theory-point-details > summary,
+.is-model-theory .roofline-curve-details > summary {
+  padding: 14px 16px;
+  cursor: pointer;
+  color: #435568;
+}
+
+.theory-basis-controls { padding: 0 16px 16px; }
+.theory-basis-controls p { max-width: 80ch; line-height: 1.65; }
+.theory-basis-controls .roofline-workload-controls { max-width: 640px; }
+.theory-basis-controls label { display: grid; gap: 8px; }
+.theory-basis-controls input { width: 100%; padding: 8px; font: inherit; }
+.theory-basis-controls code { overflow-wrap: anywhere; }
+
+.roofline-analysis-grid.is-model-theory {
+  grid-template-columns: minmax(0, 1fr) 300px;
+}
+
+.is-model-theory .roofline-svg-wrap svg { min-height: 0; }
+.is-model-theory .roofline-chart-panel h3 { font-size: 18px; }
+.is-model-theory .roofline-selected-label { font-family: inherit; font-size: 13px; }
+.is-model-theory .roofline-chart-panel header span { font: inherit; font-size: 13px; }
+
+.theory-point-summary {
+  grid-area: inspector;
+  min-width: 0;
+  padding: 22px;
+  border: 1px solid var(--line-dark);
+  background: var(--white);
+  font-size: 15px;
+  line-height: 1.65;
+}
+
+.theory-point-summary header { display: grid; gap: 6px; }
+.theory-point-summary h3 { margin: 0; font-size: 18px; overflow-wrap: anywhere; }
+.theory-point-summary header strong { font-size: 28px; font-variant-numeric: tabular-nums; }
+.theory-point-summary header span { color: #276e68; }
+.theory-point-summary dl { margin: 20px 0; }
+.theory-point-summary dl > div { display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #e7edf2; }
+.theory-point-summary dt { color: #657483; }
+.theory-point-summary dd { margin: 0; text-align: right; }
+.theory-point-summary > p { color: #657483; font-size: 14px; margin-bottom: 0; }
+.theory-point-summary summary { cursor: pointer; }
+.theory-point-summary details p { overflow-wrap: anywhere; }
+.theory-point-details { grid-area: table; min-width: 0; border-top: 1px solid var(--line-dark); }
+.theory-point-details > .roofline-inspector { margin-top: 16px; }
+
+@media (max-width: 64rem) {
+  .roofline-analysis-grid.is-model-theory {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "chart" "inspector" "table";
+  }
+}

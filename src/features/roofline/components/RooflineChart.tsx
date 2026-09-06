@@ -1,6 +1,7 @@
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 
 import type { CrossViewEntityKey } from "../../workbench/entityKeys";
+import { theoryPointLabel } from "./TheoryPointSummary";
 import {
   chartGeometry,
   localVoronoiCell,
@@ -106,6 +107,8 @@ export function RooflineChart({
   focusedPointId,
   unplottedSelection,
   onSelect,
+  modelTheory = false,
+  labelAllPoints = false,
 }: {
   title: string;
   curves: readonly RooflineCurveVM[];
@@ -114,9 +117,11 @@ export function RooflineChart({
   focusedPointId: string | null;
   unplottedSelection: UnplottedSelection | null;
   onSelect: (key: CrossViewEntityKey, pointId: string) => void;
+  modelTheory?: boolean;
+  labelAllPoints?: boolean;
 }) {
   const { ref, width } = useWidth();
-  const height = 520;
+  const height = modelTheory ? 420 : 520;
   const compact = width < 680;
   const box = { left: compact ? 76 : 94, top: 34, width: width - (compact ? 102 : 128), height: height - 116 };
   const geometry = chartGeometry(points, curves);
@@ -168,8 +173,8 @@ export function RooflineChart({
   return (
     <section className="roofline-chart-panel" aria-labelledby={`${uid}-title`}>
       <header>
-        <div><p>Active basis only</p><h3 id={`${uid}-title`}>{title}</h3></div>
-        <span>{points.length} points / {clusters.length} plot positions / log₁₀</span>
+        <div>{!modelTheory ? <p>Active basis only</p> : null}<h3 id={`${uid}-title`}>{title}</h3></div>
+        <span>{modelTheory ? `${points.length} 个解析点 · 对数坐标` : `${points.length} points / ${clusters.length} plot positions / log₁₀`}</span>
       </header>
       <div className="roofline-svg-wrap" ref={ref}>
         {unplottedSelection ? (
@@ -228,9 +233,13 @@ export function RooflineChart({
               const haloRadius = Math.min(radius + 4, ownershipRadius);
               const selectedMember = selectedClusterMember(cluster);
               const nextMember = nextClusterMember(cluster);
-              const selectedLabelWidth = selectedMember ? Math.max(48, selectedMember.label.length * 6.5) : 0;
-              const selectedLabelX = radius + 8;
-              const selectedLabelY = -radius - 4;
+              const labelMember = selectedMember ?? (labelAllPoints ? cluster.points[0] : null);
+              const pointLabel = labelMember ? modelTheory ? theoryPointLabel(labelMember.label) : labelMember.label : "";
+              const selectedLabelWidth = Math.max(48, pointLabel.length * (modelTheory ? 13 : 6.5));
+              const rightFits = cluster.screenX + radius + 8 + selectedLabelWidth < box.left + box.width;
+              const selectedLabelX = rightFits ? radius + 8 : -radius - 8;
+              const rank = positionedClusters.filter((other) => other.screenX < cluster.screenX).length;
+              const selectedLabelY = labelAllPoints && rank % 2 ? radius + 22 : -radius - 8;
               const selectedLabelBlocked = selectedMember && (cluster.points.length > 1 || countLabels.some((label) => (
                 Math.abs(cluster.screenX + selectedLabelX + selectedLabelWidth / 2 - label.x) < (selectedLabelWidth + label.width) / 2
                 && Math.abs(cluster.screenY + selectedLabelY - 5 - label.y) < (16 + label.height) / 2
@@ -273,7 +282,7 @@ export function RooflineChart({
                   }}
                 />
                 <circle className="roofline-marker-focus" r={Math.max(4, Math.min(radius + 4, 9))} />
-                {selectedMember && !selectedLabelBlocked ? <text className="roofline-selected-label" x={selectedLabelX} y={selectedLabelY}>{selectedMember.label}</text> : null}
+                {labelMember && !selectedLabelBlocked ? <text className="roofline-selected-label" textAnchor={rightFits ? "start" : "end"} x={selectedLabelX} y={selectedLabelY}>{pointLabel}</text> : null}
               </g>;
             })}
             {countLabels.map((placement) => {
@@ -322,10 +331,12 @@ export function RooflineChart({
             const labelX = Math.min(box.left + box.width - 6, Math.max(box.left + 110, ridgeX - 7));
             return <text key={`${curve.curveId}-label`} className="roofline-ridge-label" x={labelX} y={box.top + 16 + index * 15} textAnchor="end">{formatNumber(curve.ridgeFlopPerByte)} FLOP/B</text>;
           })}
-          <text className="roofline-axis-title" x={box.left + box.width / 2} y={height - 16} textAnchor="middle">Arithmetic intensity (FLOP/byte)</text>
-          <text className="roofline-axis-title" transform={`translate(22 ${box.top + box.height / 2}) rotate(-90)`} textAnchor="middle">Throughput (FLOP/s)</text>
+          <text className="roofline-axis-title" x={box.left + box.width / 2} y={height - 16} textAnchor="middle">{modelTheory ? "算术强度 (FLOP/byte)" : "Arithmetic intensity (FLOP/byte)"}</text>
+          <text className="roofline-axis-title" transform={`translate(22 ${box.top + box.height / 2}) rotate(-90)`} textAnchor="middle">{modelTheory ? "吞吐量 (FLOP/s)" : "Throughput (FLOP/s)"}</text>
         </svg>
       </div>
+      <details className="roofline-curve-details" open={modelTheory ? undefined : true}>
+        {modelTheory ? <summary>计算与带宽上限依据</summary> : <summary hidden>Curve identities and provenance</summary>}
       <div className="roofline-curve-ledger" aria-label="Curve identities and provenance">
         {curves.map((curve) => (
           <article key={curve.curveId}>
@@ -336,9 +347,10 @@ export function RooflineChart({
           </article>
         ))}
       </div>
+      </details>
       {overlapping.length ? (
         <details className="roofline-cluster-roster">
-          <summary>{overlapping.length} coincident clusters · open entity roster</summary>
+          <summary>{modelTheory ? `${overlapping.length} 组重合点 · 展开选择算子` : `${overlapping.length} coincident clusters · open entity roster`}</summary>
           <div>{overlapping.map((cluster) => (
             <article key={cluster.key}>
               <strong>{cluster.points.length} points at true AI {formatNumber(cluster.xFlopPerByte)} FLOP/B · {throughput(cluster.yFlopPerSecond)} FLOP/s · {markerEvidence(clusterMarker(cluster.points))}</strong>
@@ -348,10 +360,12 @@ export function RooflineChart({
         </details>
       ) : null}
       <div className="roofline-chart-legend" aria-label="Marker legend">
-        <span><i className="marker-swatch is-hollow" /> Analytical time + traffic</span>
-        <span><i className="marker-swatch is-half" /> Observed time + modeled traffic</span>
-        <span><i className="marker-swatch is-filled" /> Observed time + measured traffic</span>
-        <strong>Marker area = compatible time share · coincident glyphs aggregate member area</strong>
+        {modelTheory ? <><span><i className="marker-swatch is-hollow" /> 理论时间与建模访存</span><strong>点大小表示同口径理论时间占比；重合点可点击选择。</strong></> : <>
+          <span><i className="marker-swatch is-hollow" /> Analytical time + traffic</span>
+          <span><i className="marker-swatch is-half" /> Observed time + modeled traffic</span>
+          <span><i className="marker-swatch is-filled" /> Observed time + measured traffic</span>
+          <strong>Marker area = compatible time share · coincident glyphs aggregate member area</strong>
+        </>}
       </div>
     </section>
   );

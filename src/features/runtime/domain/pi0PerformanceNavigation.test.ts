@@ -1,6 +1,6 @@
 import { expect, it } from "vitest";
 import { readRoute, routeHref, type RouteState } from "../../../app/routes";
-import { pi0EmbeddedTimelineSelectionPatch, pi0PerformanceNavigationPatch } from "./pi0PerformanceNavigation";
+import { isPi0ModelTheory, pi0EmbeddedTimelineSelectionPatch, pi0PerformanceNavigationPatch, pi0TheoryNavigationPatch } from "./pi0PerformanceNavigation";
 
 it("leaves detail routes without leaking detail state or losing the requested comparison scope", () => {
   const detail: RouteState = {
@@ -24,6 +24,16 @@ it("leaves detail routes without leaking detail state or losing the requested co
     const href = routeHref(detail, pi0PerformanceNavigationPatch(destination));
     expect(readRoute(href), destination).toEqual({ ...preservedScope, ...expected });
   }
+});
+
+it("returns from expanded theory to the same DAG operator and analytical scenario", () => {
+  const graph = readRoute("?model=pi0&tab=logical&hardware=nvidia-jetson-agx-thor&precision=fp16_dense&workload=v=2,p=32,a=20,n=12&entity=logical:prefix-encoder%252Fq-proj");
+  const expanded = readRoute(routeHref(graph, pi0TheoryNavigationPatch(graph, "expanded")));
+  expect(expanded.tab).toBe("roofline-kernels");
+  expect(expanded.rooflineLevel).toBe("atomic");
+  expect(isPi0ModelTheory(expanded)).toBe(true);
+  expect(readRoute(routeHref(expanded, pi0TheoryNavigationPatch(expanded, "logical")))).toEqual(graph);
+  expect(isPi0ModelTheory({ ...expanded, runtime: "flashrt", rooflineLevel: "fused" })).toBe(false);
 });
 
 it("keeps embedded Nsys interval selection inside the performance overview", () => {

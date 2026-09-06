@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 
 import type { RoutePatch, RouteState } from "../../app/routes";
 import type { AtlasData, ModelRecord } from "../../types/atlas";
@@ -19,6 +19,7 @@ import { KernelTable } from "./components/KernelTable";
 import { Pi0ProfilerEvidenceSection } from "./components/Pi0ProfilerEvidenceSection";
 import { buildKernelRows } from "./domain/buildKernelRows";
 import { Pi0PerformanceNavigation } from "../runtime/components/Pi0PerformanceNavigation";
+import { isPi0ModelTheory } from "../runtime/domain/pi0PerformanceNavigation";
 
 interface PerformanceViewProps {
   data: AtlasData;
@@ -89,6 +90,10 @@ export function PerformanceView({ data, model, route, navigate }: PerformanceVie
     entity: route.entity,
   }), [kernelScope, index, model.model_id, route.entity, route.hardware, route.runtime]);
   const inventory = view.inventory;
+  const modelTheory = isPi0ModelTheory(route);
+  useEffect(() => {
+    if (modelTheory) window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+  }, [modelTheory]);
   const profilerSection = <Pi0ProfilerEvidenceSection model={view} partialContextRunIds={partialContextRunIds}
     anchorRunId={slice.anchorRunId} independentNcu={independentNcu} route={route} navigate={navigate} />;
 
@@ -100,11 +105,11 @@ export function PerformanceView({ data, model, route, navigate }: PerformanceVie
         {route.rooflineLevel === "kernel" ? profilerSection : null}
         <section className="pi0-funnel-section pi0-roofline-summary" aria-labelledby="pi0-roofline-title">
           <header className="pi0-funnel-heading">
-            <div><h3 id="pi0-roofline-title">理论 Roofline</h3><p>先选分析层级，再看对应上限；理论、融合实现与实测 Kernel 不混算。</p></div>
+            <div><h3 id="pi0-roofline-title">{modelTheory ? "模型理论 · Roofline" : "理论 Roofline"}</h3><p>{modelTheory ? "DAG 的展开分析视图。选择阶段或算子查看理论上限，返回时保留当前场景。" : "先选分析层级，再看对应上限；理论、融合实现与实测 Kernel 不混算。"}</p></div>
           </header>
           <Pi0RooflineLevelNavigation route={route} navigate={navigate} />
           {route.rooflineLevel === "overview" ? (
-            <Pi0RooflineOverview data={data} result={pi0Analytical!} navigate={navigate} />
+            <Pi0RooflineOverview data={data} result={pi0Analytical!} navigate={navigate} modelTheory={modelTheory} />
           ) : route.rooflineLevel === "kernel" && inventory.rooflineEligibleKernelPoints === 0 ? (
             <p className="pi0-funnel-note">尚无满足计算量、内存流量与实测时长关联要求的 Kernel Roofline 点。上方 NCU 指标可独立查看；逻辑算子与融合算子的理论分析可在对应标签中打开。</p>
           ) : (
@@ -113,7 +118,7 @@ export function PerformanceView({ data, model, route, navigate }: PerformanceVie
             </div>
           )}
         </section>
-        {route.rooflineLevel !== "kernel" && (route.runtime || route.rooflineLevel !== "overview") ? (
+        {!modelTheory && route.rooflineLevel !== "kernel" && (route.runtime || route.rooflineLevel !== "overview") ? (
           profilerSection
         ) : null}
       </div>
@@ -188,12 +193,12 @@ function Pi0RooflineLevelNavigation({ route, navigate }: {
 }) {
   return (
     <nav className="pi0-roofline-levels" aria-label="Roofline 分析层级">
-      {PI0_ROOFLINE_LEVELS.map((level) => (
+      {PI0_ROOFLINE_LEVELS.filter((level) => !isPi0ModelTheory(route) || ["overview", "stage", "atomic"].includes(level.id)).map((level) => (
         <button
           type="button"
           key={level.id}
           aria-current={route.rooflineLevel === level.id ? "page" : undefined}
-          onClick={() => navigate({ rooflineLevel: level.id, basis: null, entity: null })}
+          onClick={() => navigate({ rooflineLevel: level.id, basis: null, entity: isPi0ModelTheory(route) ? route.entity : null })}
         >{level.label}</button>
       ))}
     </nav>
