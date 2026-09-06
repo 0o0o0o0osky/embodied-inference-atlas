@@ -6,6 +6,7 @@ export interface RuntimeSystemSlice {
   promptTokens: number;
   actionChunk: number;
   denoiseSteps: number;
+  anchorRunId: string | null;
   facetContext: ComparisonContextRecord | null;
 }
 
@@ -103,6 +104,7 @@ export function runtimeProfilerSlice(
     promptTokens: vla?.executed_prompt_tokens ?? 48,
     actionChunk: vla?.action_chunk ?? 50,
     denoiseSteps: vla?.denoise_steps ?? 10,
+    anchorRunId: configuration?.run_id ?? null,
     facetContext: configuration?.comparison_context ?? facetContext,
   };
   for (const part of (workload ?? "").split(",")) {
@@ -143,7 +145,8 @@ export function scopeRuntimeProfiler(data: AtlasData, profiler: ProfilerEvidence
   const runIds = new Set(runs.map((run) => run.run_id));
   const partialContextRunIds = new Set(runs.filter((run) => {
     const vla = run.workload.vla!;
-    return contextMatches.get(run.run_id)?.partial || vla.camera_views === null || vla.executed_prompt_tokens === null
+    return query.slice.anchorRunId !== null && run.run_id !== query.slice.anchorRunId
+      || contextMatches.get(run.run_id)?.partial || vla.camera_views === null || vla.executed_prompt_tokens === null
       || vla.action_chunk === null || vla.denoise_steps === null;
   }).map((run) => run.run_id));
   const captures = profiler.captures.filter((capture) => runIds.has(capture.runId));

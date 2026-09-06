@@ -143,12 +143,16 @@ function realization({
   precisionId,
   actionHorizon,
   denoiseSteps = 10,
+  availability = "source_audited",
+  evidenceKind = "source_code",
 }: {
   id: string;
   runtimeId: string;
   precisionId: string;
   actionHorizon: number | null;
   denoiseSteps?: number | null;
+  availability?: RuntimeRealizationRecord["availability"];
+  evidenceKind?: RuntimeRealizationRecord["evidence"][number]["kind"];
 }): RuntimeRealizationRecord {
   return {
     realizationId: id,
@@ -156,7 +160,7 @@ function realization({
     modelGraphId: "pi0-logical-v1",
     runtimeId,
     runtimeRevision: "source-audited-revision",
-    availability: "source_audited",
+    availability,
     availabilityReasonCode: "source_audited_workload_contract",
     mappingLevel: "custom_runtime",
     mappingCoverage: "partial",
@@ -192,7 +196,7 @@ function realization({
     }],
     evidence: [{
       evidenceId: `evidence-${id}`,
-      kind: "source_code",
+      kind: evidenceKind,
       sourceId: `source-${id}`,
       revision: "source-audited-revision",
       locator: "runtime/source#predict",
@@ -328,6 +332,18 @@ it("builds exact six-cell Pi0 target grids without borrowing mismatched evidence
       denoiseSteps: 10,
     },
   });
+  expect(primary.nativeEvidenceSelection).toMatchObject({
+    runId: "flash-denoise-missing",
+    configurationId: "configuration-flash-denoise-missing",
+    workload: {
+      cameraViews: 2,
+      promptTokens: 48,
+      actionChunk: 50,
+      denoiseSteps: null,
+    },
+    workloadStatus: "partial",
+  });
+  expect(primary.series[1]!.cells[1]!.state).toBe("pending_supported");
 });
 
 it("uses source-audited action horizons to distinguish unsupported targets from pending measurements", () => {
@@ -361,7 +377,27 @@ it("uses source-audited action horizons to distinguish unsupported targets from 
     precisionId: "fp16",
     workload: { views: 2, prompt: 42, chunk: 10, denoise: 10 },
   });
-  const runs = [horizon10Native, horizon10CloserPrompt, horizon10PreferredView, horizon50Native, unknownNative];
+  const unmeasuredNative = run({
+    runId: "unmeasured-native",
+    runtimeId: "unmeasured-declaration",
+    precisionId: "fp16",
+    workload: { views: 2, prompt: 42, chunk: 10, denoise: 10 },
+  });
+  const runOnlyNative = run({
+    runId: "run-only-native",
+    runtimeId: "run-only-declaration",
+    precisionId: "fp16",
+    workload: { views: 2, prompt: 42, chunk: 10, denoise: 10 },
+  });
+  const runs = [
+    horizon10Native,
+    horizon10CloserPrompt,
+    horizon10PreferredView,
+    horizon50Native,
+    unknownNative,
+    unmeasuredNative,
+    runOnlyNative,
+  ];
   const data = {
     format_version: "1.0.0",
     datasets: {
@@ -374,18 +410,43 @@ it("uses source-audited action horizons to distinguish unsupported targets from 
         { runtime_id: "fixed-10", display_name: "Fixed 10", backend: "custom", model_support: [] },
         { runtime_id: "fixed-50", display_name: "Fixed 50", backend: "custom", model_support: [] },
         { runtime_id: "no-realization", display_name: "Unknown", backend: "custom", model_support: [] },
+        { runtime_id: "unmeasured-declaration", display_name: "Unmeasured", backend: "custom", model_support: [] },
+        { runtime_id: "run-only-declaration", display_name: "Run only", backend: "custom", model_support: [] },
       ],
     },
   } as unknown as AtlasData;
   const realizations = [
-    realization({ id: "fixed-10", runtimeId: "fixed-10", precisionId: "fp16", actionHorizon: 10 }),
+    realization({
+      id: "fixed-10",
+      runtimeId: "fixed-10",
+      precisionId: "fp16",
+      actionHorizon: 10,
+      availability: "measured",
+    }),
     realization({ id: "fixed-50", runtimeId: "fixed-50", precisionId: "bf16", actionHorizon: 50 }),
+    realization({
+      id: "unmeasured-declaration",
+      runtimeId: "unmeasured-declaration",
+      precisionId: "fp16",
+      actionHorizon: 10,
+      availability: "unmeasured",
+    }),
+    realization({
+      id: "run-only-declaration",
+      runtimeId: "run-only-declaration",
+      precisionId: "fp16",
+      actionHorizon: 10,
+      availability: "measured",
+      evidenceKind: "canonical_run",
+    }),
   ];
 
   const overview = buildPi0PerformanceOverview({ data, hardwareId: "thor", realizations });
   const fixed10 = overview.facets.find((facet) => facet.runtimeId === "fixed-10")!;
   const fixed50 = overview.facets.find((facet) => facet.runtimeId === "fixed-50")!;
   const unknown = overview.facets.find((facet) => facet.runtimeId === "no-realization")!;
+  const unmeasured = overview.facets.find((facet) => facet.runtimeId === "unmeasured-declaration")!;
+  const runOnly = overview.facets.find((facet) => facet.runtimeId === "run-only-declaration")!;
 
   expect(fixed10.series.map((series) => [series.actionChunk, series.cells.map((cell) => cell.state)])).toEqual([
     [20, ["unsupported", "unsupported", "unsupported"]],
@@ -396,6 +457,14 @@ it("uses source-audited action horizons to distinguish unsupported targets from 
     [50, ["pending_supported", "pending_supported", "pending_supported"]],
   ]);
   expect(unknown.series.flatMap((series) => series.cells.map((cell) => cell.state))).toEqual([
+    "pending_supported", "pending_supported", "pending_supported",
+    "pending_supported", "pending_supported", "pending_supported",
+  ]);
+  expect(unmeasured.series.flatMap((series) => series.cells.map((cell) => cell.state))).toEqual([
+    "pending_supported", "pending_supported", "pending_supported",
+    "pending_supported", "pending_supported", "pending_supported",
+  ]);
+  expect(runOnly.series.flatMap((series) => series.cells.map((cell) => cell.state))).toEqual([
     "pending_supported", "pending_supported", "pending_supported",
     "pending_supported", "pending_supported", "pending_supported",
   ]);

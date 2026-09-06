@@ -184,6 +184,7 @@ it("rejects known action and denoise mismatches while retaining null workload fi
   });
 
   expect(slice).toMatchObject({ cameraViews: 2, promptTokens: 48, actionChunk: 50, denoiseSteps: 10 });
+  expect(slice.anchorRunId).toBeNull();
   expect(scoped.evidence.captures.map((item) => item.runId)).toEqual(["partial"]);
   expect([...scoped.partialContextRunIds]).toEqual(["partial"]);
 });
@@ -232,7 +233,26 @@ it("uses an exact configuration's contracts and timing facet when one is availab
       state_reuse: "cached-prompt",
     },
   });
+  expect(slice.anchorRunId).toBe("selected");
   expect(scoped.evidence.captures.map((item) => item.runId)).toEqual(["partial"]);
+});
+
+it("marks a compatible independent run partial while the anchor run remains exact", () => {
+  const anchor = run({ id: "anchor", configurationId: "cfg-anchor", captureMethod: "wall_clock" });
+  const independent = run({ id: "independent" });
+  const data = atlas([anchor, independent]);
+  const slice = runtimeProfilerSlice(data, anchor.configuration_id);
+
+  const scoped = scopeRuntimeProfiler(data, evidence([anchor, independent]), {
+    modelId: "pi0",
+    runtimeId: "flashrt",
+    hardwareId: "thor",
+    precisionId: PRECISION_ID,
+    slice,
+  });
+
+  expect(scoped.evidence.captures.map((item) => item.runId)).toEqual(["anchor", "independent"]);
+  expect([...scoped.partialContextRunIds]).toEqual(["independent"]);
 });
 
 it("retains an independently warmed capture with unknown workload context as partial", () => {

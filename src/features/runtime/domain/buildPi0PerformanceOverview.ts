@@ -21,6 +21,13 @@ export interface Pi0PerformanceWorkload {
   denoiseSteps: number;
 }
 
+export interface Pi0NativeEvidenceWorkload {
+  cameraViews: number | null;
+  promptTokens: number | null;
+  actionChunk: number | null;
+  denoiseSteps: number | null;
+}
+
 export interface Pi0PerformanceSelection {
   facetId: string;
   runtimeId: string;
@@ -70,7 +77,9 @@ export type Pi0PerformanceCell =
   | Pi0PerformanceUnsupportedCell
   | Pi0PerformanceMeasuredCell;
 
-export interface Pi0NativeEvidenceSelection extends Pi0PerformanceSelection {
+export interface Pi0NativeEvidenceSelection extends Omit<Pi0PerformanceSelection, "workload"> {
+  workload: Pi0NativeEvidenceWorkload;
+  workloadStatus: "complete" | "partial";
   latency: Pi0PerformanceLatency;
 }
 
@@ -247,8 +256,14 @@ function unsupportedCell(
   cameraViews: number,
   actionChunk: number,
 ): Pi0PerformanceUnsupportedCell | null {
-  if (realizations.length === 0) return null;
-  const mismatches = realizations.map((realization) => {
+  const auditedRealizations = realizations.filter((realization) => {
+    if (realization.availability !== "measured" && realization.availability !== "source_audited") return false;
+    const applicabilityEvidenceIds = new Set(realization.workloadApplicability.evidenceIds);
+    return realization.evidence.some((item) =>
+      item.kind === "source_code" && applicabilityEvidenceIds.has(item.evidenceId));
+  });
+  if (auditedRealizations.length === 0) return null;
+  const mismatches = auditedRealizations.map((realization) => {
     const applicability = realization.workloadApplicability;
     const fixedActionHorizon = applicability.publicActionHorizon ?? applicability.runtimeActionHorizon;
     if (fixedActionHorizon !== null && fixedActionHorizon !== actionChunk) return "fixed_action_horizon" as const;
@@ -262,16 +277,20 @@ function unsupportedCell(
     cameraViews,
     actionChunk,
     reason: mismatches.includes("fixed_action_horizon") ? "fixed_action_horizon" : "fixed_denoise_steps",
-    realizationIds: realizations.map((realization) => realization.realizationId),
+    realizationIds: auditedRealizations.map((realization) => realization.realizationId),
   };
 }
 
 function selectionForRow(row: EvidenceRow, facetId: string): Pi0NativeEvidenceSelection | null {
   const vla = row.run.workload.vla;
   const selected = row.selected;
-  if (!vla || !selected || selected.value === null
-    || vla.camera_views === null || vla.executed_prompt_tokens === null
-    || vla.action_chunk === null || vla.denoise_steps === null) return null;
+  if (!vla || !selected || selected.value === null) return null;
+  const workload: Pi0NativeEvidenceWorkload = {
+    cameraViews: vla.camera_views,
+    promptTokens: vla.executed_prompt_tokens,
+    actionChunk: vla.action_chunk,
+    denoiseSteps: vla.denoise_steps,
+  };
   return {
     facetId,
     runtimeId: row.run.runtime_id,
@@ -279,18 +298,18 @@ function selectionForRow(row: EvidenceRow, facetId: string): Pi0NativeEvidenceSe
     hardwareId: row.run.device_id,
     runId: row.run.run_id,
     configurationId: row.run.configuration_id,
-    workload: {
-      cameraViews: vla.camera_views,
-      promptTokens: vla.executed_prompt_tokens,
-      actionChunk: vla.action_chunk,
-      denoiseSteps: vla.denoise_steps,
-    },
+    workload,
+    workloadStatus: Object.values(workload).some((value) => value === null) ? "partial" : "complete",
     latency: {
       statistic: selected.statistic,
       value: selected.value,
       unit: selected.unit,
     },
   };
+}
+
+function distanceFrom(value: number | null, target: number): number {
+  return value === null ? Number.POSITIVE_INFINITY : Math.abs(value - target);
 }
 
 function nativeEvidenceSelection(rows: readonly EvidenceRow[], facetId: string): Pi0NativeEvidenceSelection | null {
@@ -300,9 +319,9 @@ function nativeEvidenceSelection(rows: readonly EvidenceRow[], facetId: string):
       return selection ? [selection] : [];
     })
     .sort((left, right) =>
-      Math.abs(left.workload.promptTokens - PI0_PERFORMANCE_TARGET.promptTokens)
-        - Math.abs(right.workload.promptTokens - PI0_PERFORMANCE_TARGET.promptTokens)
-      || Math.abs(left.workload.cameraViews - 2) - Math.abs(right.workload.cameraViews - 2)
+      distanceFrom(left.workload.promptTokens, PI0_PERFORMANCE_TARGET.promptTokens)
+        - distanceFrom(right.workload.promptTokens, PI0_PERFORMANCE_TARGET.promptTokens)
+      || distanceFrom(left.workload.cameraViews, 2) - distanceFrom(right.workload.cameraViews, 2)
       || left.configurationId.localeCompare(right.configurationId)
       || left.runId.localeCompare(right.runId),
     )[0] ?? null;
