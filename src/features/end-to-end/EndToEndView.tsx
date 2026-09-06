@@ -33,7 +33,7 @@ export function EndToEndView({ data, model, route, navigate }: EndToEndViewProps
         <div>
           <p>Evidence boundary / one canonical run per row</p>
           <h2 id="e2e-title">End-to-end timing register</h2>
-          <span>Measured, analytical, and externally reported values never share a ratio or visual stack. The selected statistic is analytical estimate, otherwise measured mean, otherwise measured p50.</span>
+          <span>Measured, analytical, and externally reported values retain their own basis. Measured summaries use the within-batch median (p50); analytical records use their estimate.</span>
         </div>
         <dl aria-label={`End-to-end records for ${view.activeFilter}`}>
           {Object.entries(COUNT_LABELS).map(([evidence, label]) => (

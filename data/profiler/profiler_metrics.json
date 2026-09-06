@@ -5456,151 +5456,151 @@
     },
     {
       "basis": "per_profiled_launch",
-      "capture_id": "capture-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-001",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
       "confidence": "medium",
-      "metric_id": "metric-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-001",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
       "metric_name": "kernel_duration",
       "missing_reason": null,
       "raw_counter_name": "gpu__time_duration.sum",
-      "run_id": "run-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-001",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
       "section_name": "SpeedOfLight",
       "source_id": "source-local-thor",
       "statistic": "single",
       "subject": {
-        "id": "kernel-observation-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-001",
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
         "kind": "kernel_observation"
       },
       "unit": "ns",
-      "value": 43712
+      "value": 640800
     },
     {
       "basis": "per_profiled_launch",
-      "capture_id": "capture-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-001",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
       "confidence": "medium",
-      "metric_id": "metric-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-002",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-002",
       "metric_name": "sm_throughput_pct_of_peak_sustained_elapsed",
       "missing_reason": null,
       "raw_counter_name": "sm__throughput.avg.pct_of_peak_sustained_elapsed",
-      "run_id": "run-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-001",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
       "section_name": "SpeedOfLight",
       "source_id": "source-local-thor",
       "statistic": "single",
       "subject": {
-        "id": "kernel-observation-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-001",
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
         "kind": "kernel_observation"
       },
       "unit": "percent",
-      "value": 9.28
+      "value": 17.15
     },
     {
       "basis": "per_profiled_launch",
-      "capture_id": "capture-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-001",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
       "confidence": "medium",
-      "metric_id": "metric-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-003",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-003",
       "metric_name": "tensor_cycles_active_pct_of_peak_sustained_elapsed",
       "missing_reason": null,
       "raw_counter_name": "sm__pipe_tensor_cycles_active.avg.pct_of_peak_sustained_elapsed",
-      "run_id": "run-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-001",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
       "section_name": "SpeedOfLight_HierarchicalTensorRooflineChart",
       "source_id": "source-local-thor",
       "statistic": "single",
       "subject": {
-        "id": "kernel-observation-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-001",
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
         "kind": "kernel_observation"
       },
       "unit": "percent",
-      "value": 7.61
+      "value": 14.76
     },
     {
       "basis": "per_profiled_launch",
-      "capture_id": "capture-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-001",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
       "confidence": "medium",
-      "metric_id": "metric-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-004",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-004",
       "metric_name": "memory_sol_pct_of_peak_sustained_elapsed",
       "missing_reason": null,
       "raw_counter_name": "gpu__compute_memory_throughput.avg.pct_of_peak_sustained_elapsed",
-      "run_id": "run-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-001",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
       "section_name": "SpeedOfLight",
       "source_id": "source-local-thor",
       "statistic": "single",
       "subject": {
-        "id": "kernel-observation-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-001",
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
         "kind": "kernel_observation"
       },
       "unit": "percent",
-      "value": 15.84
+      "value": 25.51
     },
     {
       "basis": "per_profiled_launch",
-      "capture_id": "capture-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-001",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
       "confidence": "medium",
-      "metric_id": "metric-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-005",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-005",
       "metric_name": "l1_throughput_pct_of_peak_sustained_active",
       "missing_reason": null,
       "raw_counter_name": "l1tex__throughput.avg.pct_of_peak_sustained_active",
-      "run_id": "run-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-001",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
       "section_name": "SpeedOfLight",
       "source_id": "source-local-thor",
       "statistic": "single",
       "subject": {
-        "id": "kernel-observation-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-001",
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
         "kind": "kernel_observation"
       },
       "unit": "percent",
-      "value": 12.84
+      "value": 12.39
     },
     {
       "basis": "per_profiled_launch",
-      "capture_id": "capture-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-001",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
       "confidence": "medium",
-      "metric_id": "metric-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-006",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-006",
       "metric_name": "l2_throughput_pct_of_peak_sustained_elapsed",
       "missing_reason": null,
       "raw_counter_name": "lts__throughput.avg.pct_of_peak_sustained_elapsed",
-      "run_id": "run-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-001",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
       "section_name": "SpeedOfLight",
       "source_id": "source-local-thor",
       "statistic": "single",
       "subject": {
-        "id": "kernel-observation-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-001",
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
         "kind": "kernel_observation"
       },
       "unit": "percent",
-      "value": 15.84
+      "value": 25.51
     },
     {
       "basis": "per_profiled_launch",
-      "capture_id": "capture-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-001",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
       "confidence": "medium",
-      "metric_id": "metric-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-007",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-007",
       "metric_name": "l2_sysmem_fill_pct_of_peak_sustained_elapsed",
       "missing_reason": null,
       "raw_counter_name": "lts__d_sectors_fill_sysmem.avg.pct_of_peak_sustained_elapsed",
-      "run_id": "run-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-001",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
       "section_name": "MemoryWorkloadAnalysis",
       "source_id": "source-local-thor",
       "statistic": "single",
       "subject": {
-        "id": "kernel-observation-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-001",
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
         "kind": "kernel_observation"
       },
       "unit": "percent",
-      "value": 10.55
+      "value": 15.04
     },
     {
       "basis": "per_profiled_launch",
-      "capture_id": "capture-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-001",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
       "confidence": "medium",
-      "metric_id": "metric-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-008",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-008",
       "metric_name": "theoretical_occupancy_percent",
       "missing_reason": null,
       "raw_counter_name": "sm__maximum_warps_per_active_cycle_pct",
-      "run_id": "run-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-001",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
       "section_name": "Occupancy",
       "source_id": "source-local-thor",
       "statistic": "single",
       "subject": {
-        "id": "kernel-observation-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-001",
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
         "kind": "kernel_observation"
       },
       "unit": "percent",
@@ -5608,56 +5608,56 @@
     },
     {
       "basis": "per_profiled_launch",
-      "capture_id": "capture-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-001",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
       "confidence": "medium",
-      "metric_id": "metric-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-009",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-009",
       "metric_name": "achieved_occupancy_percent",
       "missing_reason": null,
       "raw_counter_name": "sm__warps_active.avg.pct_of_peak_sustained_active",
-      "run_id": "run-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-001",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
       "section_name": "Occupancy",
       "source_id": "source-local-thor",
       "statistic": "single",
       "subject": {
-        "id": "kernel-observation-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-001",
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
         "kind": "kernel_observation"
       },
       "unit": "percent",
-      "value": 13.37
+      "value": 12.29
     },
     {
       "basis": "per_profiled_launch",
-      "capture_id": "capture-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-001",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
       "confidence": "medium",
-      "metric_id": "metric-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-010",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-010",
       "metric_name": "gpc_cycle_rate_hz",
       "missing_reason": null,
       "raw_counter_name": "gpc__cycles_elapsed.avg.per_second",
-      "run_id": "run-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-001",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
       "section_name": "SpeedOfLight",
       "source_id": "source-local-thor",
       "statistic": "single",
       "subject": {
-        "id": "kernel-observation-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-001",
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
         "kind": "kernel_observation"
       },
       "unit": "hz",
-      "value": 1384951500.73
+      "value": 1385970661.67
     },
     {
       "basis": "per_profiled_launch",
-      "capture_id": "capture-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-001",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
       "confidence": "unknown",
-      "metric_id": "metric-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-011",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-011",
       "metric_name": "sm_cycle_rate_hz",
       "missing_reason": "counter_absent_from_report",
       "raw_counter_name": "sm__cycles_elapsed.avg.per_second",
-      "run_id": "run-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-001",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
       "section_name": "SpeedOfLight_HierarchicalTensorRooflineChart",
       "source_id": "source-local-thor",
       "statistic": "single",
       "subject": {
-        "id": "kernel-observation-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-001",
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
         "kind": "kernel_observation"
       },
       "unit": "hz",
@@ -5665,18 +5665,18 @@
     },
     {
       "basis": "per_profiled_launch",
-      "capture_id": "capture-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-001",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
       "confidence": "unknown",
-      "metric_id": "metric-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-012",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-012",
       "metric_name": "tensor_path_fp4_fp6_fp8_to_fp32_dense_pct_of_peak_elapsed",
       "missing_reason": "counter_absent_from_report",
       "raw_counter_name": "sm__ops_path_tensor_op_utcqmma_src_fp4_fp6_fp8_dst_fp32_sparsity_off.avg.pct_of_peak_sustained_elapsed",
-      "run_id": "run-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-001",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
       "section_name": "SpeedOfLight_HierarchicalTensorRooflineChart",
       "source_id": "source-local-thor",
       "statistic": "single",
       "subject": {
-        "id": "kernel-observation-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-001",
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
         "kind": "kernel_observation"
       },
       "unit": "percent",
@@ -5684,113 +5684,113 @@
     },
     {
       "basis": "per_profiled_launch",
-      "capture_id": "capture-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-001",
-      "confidence": "medium",
-      "metric_id": "metric-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-013",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-013",
       "metric_name": "scheduler_issue_active_per_active_cycle",
-      "missing_reason": null,
+      "missing_reason": "counter_absent_from_report",
       "raw_counter_name": "smsp__issue_active.avg.per_cycle_active",
-      "run_id": "run-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-001",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
       "section_name": "SchedulerStats",
       "source_id": "source-local-thor",
       "statistic": "single",
       "subject": {
-        "id": "kernel-observation-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-001",
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
         "kind": "kernel_observation"
       },
       "unit": "warp_per_cycle",
-      "value": 0.03
+      "value": null
     },
     {
       "basis": "per_profiled_launch",
-      "capture_id": "capture-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-001",
-      "confidence": "medium",
-      "metric_id": "metric-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-014",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-014",
       "metric_name": "scheduler_issue_active_pct_of_peak_sustained_active",
-      "missing_reason": null,
+      "missing_reason": "counter_absent_from_report",
       "raw_counter_name": "smsp__issue_active.avg.pct_of_peak_sustained_active",
-      "run_id": "run-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-001",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
       "section_name": "SchedulerStats",
       "source_id": "source-local-thor",
       "statistic": "single",
       "subject": {
-        "id": "kernel-observation-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-001",
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
         "kind": "kernel_observation"
       },
       "unit": "percent",
-      "value": 2.82
+      "value": null
     },
     {
       "basis": "per_profiled_launch",
-      "capture_id": "capture-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-001",
-      "confidence": "medium",
-      "metric_id": "metric-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-015",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-015",
       "metric_name": "scheduler_issue_inst0_percent",
-      "missing_reason": null,
+      "missing_reason": "counter_absent_from_report",
       "raw_counter_name": "smsp__issue_inst0.avg.pct_of_peak_sustained_active",
-      "run_id": "run-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-001",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
       "section_name": "SchedulerStats",
       "source_id": "source-local-thor",
       "statistic": "single",
       "subject": {
-        "id": "kernel-observation-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-001",
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
         "kind": "kernel_observation"
       },
       "unit": "percent",
-      "value": 97.18
+      "value": null
     },
     {
       "basis": "per_profiled_launch",
-      "capture_id": "capture-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-001",
-      "confidence": "medium",
-      "metric_id": "metric-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-016",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-016",
       "metric_name": "scheduler_active_warps_per_active_cycle",
-      "missing_reason": null,
+      "missing_reason": "counter_absent_from_report",
       "raw_counter_name": "smsp__warps_active.avg.per_cycle_active",
-      "run_id": "run-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-001",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
       "section_name": "SchedulerStats",
       "source_id": "source-local-thor",
       "statistic": "single",
       "subject": {
-        "id": "kernel-observation-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-001",
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
         "kind": "kernel_observation"
       },
       "unit": "warp",
-      "value": 1.55
+      "value": null
     },
     {
       "basis": "per_profiled_launch",
-      "capture_id": "capture-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-001",
-      "confidence": "medium",
-      "metric_id": "metric-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-017",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-017",
       "metric_name": "scheduler_eligible_warps_per_active_cycle",
-      "missing_reason": null,
+      "missing_reason": "counter_absent_from_report",
       "raw_counter_name": "smsp__warps_eligible.avg.per_cycle_active",
-      "run_id": "run-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-001",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
       "section_name": "SchedulerStats",
       "source_id": "source-local-thor",
       "statistic": "single",
       "subject": {
-        "id": "kernel-observation-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-001",
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
         "kind": "kernel_observation"
       },
       "unit": "warp",
-      "value": 0.03
+      "value": null
     },
     {
       "basis": "per_profiled_launch",
-      "capture_id": "capture-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-001",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
       "confidence": "medium",
-      "metric_id": "metric-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-018",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-018",
       "metric_name": "scheduler_maximum_warps_per_active_cycle",
       "missing_reason": null,
       "raw_counter_name": "smsp__maximum_warps_avg_per_active_cycle",
-      "run_id": "run-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-001",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
       "section_name": "SchedulerStats",
       "source_id": "source-local-thor",
       "statistic": "single",
       "subject": {
-        "id": "kernel-observation-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-001",
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
         "kind": "kernel_observation"
       },
       "unit": "warp",
@@ -5798,37 +5798,37 @@
     },
     {
       "basis": "per_profiled_launch",
-      "capture_id": "capture-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-001",
-      "confidence": "medium",
-      "metric_id": "metric-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-019",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-019",
       "metric_name": "scheduler_warps_active_peak_sustained",
-      "missing_reason": null,
+      "missing_reason": "counter_absent_from_report",
       "raw_counter_name": "smsp__warps_active.avg.peak_sustained",
-      "run_id": "run-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-001",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
       "section_name": "SchedulerStats",
       "source_id": "source-local-thor",
       "statistic": "single",
       "subject": {
-        "id": "kernel-observation-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-001",
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
         "kind": "kernel_observation"
       },
       "unit": "warp",
-      "value": 12.0
+      "value": null
     },
     {
       "basis": "per_profiled_launch",
-      "capture_id": "capture-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-001",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
       "confidence": "unknown",
-      "metric_id": "metric-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-020",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-020",
       "metric_name": "system_memory_throughput_pct_of_ceiling",
       "missing_reason": "counter_absent_from_report",
       "raw_counter_name": null,
-      "run_id": "run-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-001",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
       "section_name": "MemoryWorkloadAnalysis",
       "source_id": "source-local-thor",
       "statistic": "single",
       "subject": {
-        "id": "kernel-observation-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-001",
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
         "kind": "kernel_observation"
       },
       "unit": "percent",
@@ -5836,18 +5836,18 @@
     },
     {
       "basis": "per_profiled_launch",
-      "capture_id": "capture-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-001",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
       "confidence": "unknown",
-      "metric_id": "metric-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-021",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-021",
       "metric_name": "system_memory_bytes",
       "missing_reason": "counter_absent_from_report",
       "raw_counter_name": null,
-      "run_id": "run-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-001",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
       "section_name": "MemoryWorkloadAnalysis",
       "source_id": "source-local-thor",
       "statistic": "single",
       "subject": {
-        "id": "kernel-observation-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-001",
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
         "kind": "kernel_observation"
       },
       "unit": "byte",
@@ -5855,18 +5855,18 @@
     },
     {
       "basis": "per_profiled_launch",
-      "capture_id": "capture-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-001",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
       "confidence": "unknown",
-      "metric_id": "metric-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-022",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-022",
       "metric_name": "scheduler_issue_active_percent",
       "missing_reason": "section_not_collected",
       "raw_counter_name": null,
-      "run_id": "run-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-001",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
       "section_name": "SchedulerStats",
       "source_id": "source-local-thor",
       "statistic": "single",
       "subject": {
-        "id": "kernel-observation-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-001",
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
         "kind": "kernel_observation"
       },
       "unit": "percent",
@@ -5874,18 +5874,18 @@
     },
     {
       "basis": "per_profiled_launch",
-      "capture_id": "capture-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-001",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
       "confidence": "unknown",
-      "metric_id": "metric-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-023",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-023",
       "metric_name": "warp_stall_long_scoreboard_percent",
       "missing_reason": "section_not_collected",
       "raw_counter_name": null,
-      "run_id": "run-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-001",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
       "section_name": "WarpStateStats",
       "source_id": "source-local-thor",
       "statistic": "single",
       "subject": {
-        "id": "kernel-observation-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-001",
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
         "kind": "kernel_observation"
       },
       "unit": "percent",
@@ -5893,18 +5893,18 @@
     },
     {
       "basis": "per_profiled_launch",
-      "capture_id": "capture-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-001",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
       "confidence": "unknown",
-      "metric_id": "metric-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-024",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-024",
       "metric_name": "warp_stall_short_scoreboard_percent",
       "missing_reason": "section_not_collected",
       "raw_counter_name": null,
-      "run_id": "run-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-001",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
       "section_name": "WarpStateStats",
       "source_id": "source-local-thor",
       "statistic": "single",
       "subject": {
-        "id": "kernel-observation-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-001",
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
         "kind": "kernel_observation"
       },
       "unit": "percent",
@@ -5912,18 +5912,1443 @@
     },
     {
       "basis": "per_profiled_launch",
-      "capture_id": "capture-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-001",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
       "confidence": "unknown",
-      "metric_id": "metric-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-025",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-025",
       "metric_name": "source_counter_attribution",
       "missing_reason": "section_not_collected",
       "raw_counter_name": null,
-      "run_id": "run-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-001",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
       "section_name": "SourceCounters",
       "source_id": "source-local-thor",
       "statistic": "single",
       "subject": {
-        "id": "kernel-observation-pi0-vla-cpp-ncu-vla-cpp-representative-gemm-001",
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-16384x304x2048-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "count",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-001",
+      "metric_name": "kernel_duration",
+      "missing_reason": null,
+      "raw_counter_name": "gpu__time_duration.sum",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-001",
+      "section_name": "SpeedOfLight",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "ns",
+      "value": 71296
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-002",
+      "metric_name": "sm_throughput_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "sm__throughput.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-001",
+      "section_name": "SpeedOfLight",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 5.28
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-003",
+      "metric_name": "tensor_cycles_active_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "sm__pipe_tensor_cycles_active.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-001",
+      "section_name": "SpeedOfLight_HierarchicalTensorRooflineChart",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 2.9
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-004",
+      "metric_name": "memory_sol_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "gpu__compute_memory_throughput.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-001",
+      "section_name": "SpeedOfLight",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 9.61
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-005",
+      "metric_name": "l1_throughput_pct_of_peak_sustained_active",
+      "missing_reason": null,
+      "raw_counter_name": "l1tex__throughput.avg.pct_of_peak_sustained_active",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-001",
+      "section_name": "SpeedOfLight",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 43.16
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-006",
+      "metric_name": "l2_throughput_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "lts__throughput.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-001",
+      "section_name": "SpeedOfLight",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 9.61
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-007",
+      "metric_name": "l2_sysmem_fill_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "lts__d_sectors_fill_sysmem.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-001",
+      "section_name": "MemoryWorkloadAnalysis",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 0.01
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-008",
+      "metric_name": "theoretical_occupancy_percent",
+      "missing_reason": null,
+      "raw_counter_name": "sm__maximum_warps_per_active_cycle_pct",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-001",
+      "section_name": "Occupancy",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 16.67
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-009",
+      "metric_name": "achieved_occupancy_percent",
+      "missing_reason": null,
+      "raw_counter_name": "sm__warps_active.avg.pct_of_peak_sustained_active",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-001",
+      "section_name": "Occupancy",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 12.4
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-010",
+      "metric_name": "gpc_cycle_rate_hz",
+      "missing_reason": null,
+      "raw_counter_name": "gpc__cycles_elapsed.avg.per_second",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-001",
+      "section_name": "SpeedOfLight",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "hz",
+      "value": 1384523675.94
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-011",
+      "metric_name": "sm_cycle_rate_hz",
+      "missing_reason": "counter_absent_from_report",
+      "raw_counter_name": "sm__cycles_elapsed.avg.per_second",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-001",
+      "section_name": "SpeedOfLight_HierarchicalTensorRooflineChart",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "hz",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-012",
+      "metric_name": "tensor_path_fp4_fp6_fp8_to_fp32_dense_pct_of_peak_elapsed",
+      "missing_reason": "counter_absent_from_report",
+      "raw_counter_name": "sm__ops_path_tensor_op_utcqmma_src_fp4_fp6_fp8_dst_fp32_sparsity_off.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-001",
+      "section_name": "SpeedOfLight_HierarchicalTensorRooflineChart",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-013",
+      "metric_name": "scheduler_issue_active_per_active_cycle",
+      "missing_reason": "counter_absent_from_report",
+      "raw_counter_name": "smsp__issue_active.avg.per_cycle_active",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-001",
+      "section_name": "SchedulerStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "warp_per_cycle",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-014",
+      "metric_name": "scheduler_issue_active_pct_of_peak_sustained_active",
+      "missing_reason": "counter_absent_from_report",
+      "raw_counter_name": "smsp__issue_active.avg.pct_of_peak_sustained_active",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-001",
+      "section_name": "SchedulerStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-015",
+      "metric_name": "scheduler_issue_inst0_percent",
+      "missing_reason": "counter_absent_from_report",
+      "raw_counter_name": "smsp__issue_inst0.avg.pct_of_peak_sustained_active",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-001",
+      "section_name": "SchedulerStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-016",
+      "metric_name": "scheduler_active_warps_per_active_cycle",
+      "missing_reason": "counter_absent_from_report",
+      "raw_counter_name": "smsp__warps_active.avg.per_cycle_active",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-001",
+      "section_name": "SchedulerStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "warp",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-017",
+      "metric_name": "scheduler_eligible_warps_per_active_cycle",
+      "missing_reason": "counter_absent_from_report",
+      "raw_counter_name": "smsp__warps_eligible.avg.per_cycle_active",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-001",
+      "section_name": "SchedulerStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "warp",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-018",
+      "metric_name": "scheduler_maximum_warps_per_active_cycle",
+      "missing_reason": null,
+      "raw_counter_name": "smsp__maximum_warps_avg_per_active_cycle",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-001",
+      "section_name": "SchedulerStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "warp",
+      "value": 2.0
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-019",
+      "metric_name": "scheduler_warps_active_peak_sustained",
+      "missing_reason": "counter_absent_from_report",
+      "raw_counter_name": "smsp__warps_active.avg.peak_sustained",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-001",
+      "section_name": "SchedulerStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "warp",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-020",
+      "metric_name": "system_memory_throughput_pct_of_ceiling",
+      "missing_reason": "counter_absent_from_report",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-001",
+      "section_name": "MemoryWorkloadAnalysis",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-021",
+      "metric_name": "system_memory_bytes",
+      "missing_reason": "counter_absent_from_report",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-001",
+      "section_name": "MemoryWorkloadAnalysis",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "byte",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-022",
+      "metric_name": "scheduler_issue_active_percent",
+      "missing_reason": "section_not_collected",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-001",
+      "section_name": "SchedulerStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-023",
+      "metric_name": "warp_stall_long_scoreboard_percent",
+      "missing_reason": "section_not_collected",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-001",
+      "section_name": "WarpStateStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-024",
+      "metric_name": "warp_stall_short_scoreboard_percent",
+      "missing_reason": "section_not_collected",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-001",
+      "section_name": "WarpStateStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-025",
+      "metric_name": "source_counter_attribution",
+      "missing_reason": "section_not_collected",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-001",
+      "section_name": "SourceCounters",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-bf16-gemm-4096x51x1024-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "count",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
+      "metric_name": "kernel_duration",
+      "missing_reason": null,
+      "raw_counter_name": "gpu__time_duration.sum",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
+      "section_name": "SpeedOfLight",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "ns",
+      "value": 27456
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-002",
+      "metric_name": "sm_throughput_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "sm__throughput.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
+      "section_name": "SpeedOfLight",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 44.55
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-003",
+      "metric_name": "tensor_cycles_active_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "sm__pipe_tensor_cycles_active.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
+      "section_name": "SpeedOfLight_HierarchicalTensorRooflineChart",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 0.0
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-004",
+      "metric_name": "memory_sol_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "gpu__compute_memory_throughput.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
+      "section_name": "SpeedOfLight",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 4.85
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-005",
+      "metric_name": "l1_throughput_pct_of_peak_sustained_active",
+      "missing_reason": null,
+      "raw_counter_name": "l1tex__throughput.avg.pct_of_peak_sustained_active",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
+      "section_name": "SpeedOfLight",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 6.19
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-006",
+      "metric_name": "l2_throughput_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "lts__throughput.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
+      "section_name": "SpeedOfLight",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 4.85
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-007",
+      "metric_name": "l2_sysmem_fill_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "lts__d_sectors_fill_sysmem.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
+      "section_name": "MemoryWorkloadAnalysis",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 0.03
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-008",
+      "metric_name": "theoretical_occupancy_percent",
+      "missing_reason": null,
+      "raw_counter_name": "sm__maximum_warps_per_active_cycle_pct",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
+      "section_name": "Occupancy",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 100.0
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-009",
+      "metric_name": "achieved_occupancy_percent",
+      "missing_reason": null,
+      "raw_counter_name": "sm__warps_active.avg.pct_of_peak_sustained_active",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
+      "section_name": "Occupancy",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 84.42
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-010",
+      "metric_name": "gpc_cycle_rate_hz",
+      "missing_reason": null,
+      "raw_counter_name": "gpc__cycles_elapsed.avg.per_second",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
+      "section_name": "SpeedOfLight",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "hz",
+      "value": 1384615384.62
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-011",
+      "metric_name": "sm_cycle_rate_hz",
+      "missing_reason": "counter_absent_from_report",
+      "raw_counter_name": "sm__cycles_elapsed.avg.per_second",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
+      "section_name": "SpeedOfLight_HierarchicalTensorRooflineChart",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "hz",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-012",
+      "metric_name": "tensor_path_fp4_fp6_fp8_to_fp32_dense_pct_of_peak_elapsed",
+      "missing_reason": "counter_absent_from_report",
+      "raw_counter_name": "sm__ops_path_tensor_op_utcqmma_src_fp4_fp6_fp8_dst_fp32_sparsity_off.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
+      "section_name": "SpeedOfLight_HierarchicalTensorRooflineChart",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-013",
+      "metric_name": "scheduler_issue_active_per_active_cycle",
+      "missing_reason": "counter_absent_from_report",
+      "raw_counter_name": "smsp__issue_active.avg.per_cycle_active",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
+      "section_name": "SchedulerStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "warp_per_cycle",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-014",
+      "metric_name": "scheduler_issue_active_pct_of_peak_sustained_active",
+      "missing_reason": "counter_absent_from_report",
+      "raw_counter_name": "smsp__issue_active.avg.pct_of_peak_sustained_active",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
+      "section_name": "SchedulerStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-015",
+      "metric_name": "scheduler_issue_inst0_percent",
+      "missing_reason": "counter_absent_from_report",
+      "raw_counter_name": "smsp__issue_inst0.avg.pct_of_peak_sustained_active",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
+      "section_name": "SchedulerStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-016",
+      "metric_name": "scheduler_active_warps_per_active_cycle",
+      "missing_reason": "counter_absent_from_report",
+      "raw_counter_name": "smsp__warps_active.avg.per_cycle_active",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
+      "section_name": "SchedulerStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "warp",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-017",
+      "metric_name": "scheduler_eligible_warps_per_active_cycle",
+      "missing_reason": "counter_absent_from_report",
+      "raw_counter_name": "smsp__warps_eligible.avg.per_cycle_active",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
+      "section_name": "SchedulerStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "warp",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-018",
+      "metric_name": "scheduler_maximum_warps_per_active_cycle",
+      "missing_reason": null,
+      "raw_counter_name": "smsp__maximum_warps_avg_per_active_cycle",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
+      "section_name": "SchedulerStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "warp",
+      "value": 12.0
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-019",
+      "metric_name": "scheduler_warps_active_peak_sustained",
+      "missing_reason": "counter_absent_from_report",
+      "raw_counter_name": "smsp__warps_active.avg.peak_sustained",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
+      "section_name": "SchedulerStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "warp",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-020",
+      "metric_name": "system_memory_throughput_pct_of_ceiling",
+      "missing_reason": "counter_absent_from_report",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
+      "section_name": "MemoryWorkloadAnalysis",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-021",
+      "metric_name": "system_memory_bytes",
+      "missing_reason": "counter_absent_from_report",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
+      "section_name": "MemoryWorkloadAnalysis",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "byte",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-022",
+      "metric_name": "scheduler_issue_active_percent",
+      "missing_reason": "section_not_collected",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
+      "section_name": "SchedulerStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-023",
+      "metric_name": "warp_stall_long_scoreboard_percent",
+      "missing_reason": "section_not_collected",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
+      "section_name": "WarpStateStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-024",
+      "metric_name": "warp_stall_short_scoreboard_percent",
+      "missing_reason": "section_not_collected",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
+      "section_name": "WarpStateStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-025",
+      "metric_name": "source_counter_attribution",
+      "missing_reason": "section_not_collected",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
+      "section_name": "SourceCounters",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "count",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-001",
+      "metric_name": "kernel_duration",
+      "missing_reason": null,
+      "raw_counter_name": "gpu__time_duration.sum",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-001",
+      "section_name": "SpeedOfLight",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "ns",
+      "value": 289504
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-002",
+      "metric_name": "sm_throughput_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "sm__throughput.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-001",
+      "section_name": "SpeedOfLight",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 71.3
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-003",
+      "metric_name": "tensor_cycles_active_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "sm__pipe_tensor_cycles_active.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-001",
+      "section_name": "SpeedOfLight_HierarchicalTensorRooflineChart",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 0.0
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-004",
+      "metric_name": "memory_sol_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "gpu__compute_memory_throughput.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-001",
+      "section_name": "SpeedOfLight",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 9.73
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-005",
+      "metric_name": "l1_throughput_pct_of_peak_sustained_active",
+      "missing_reason": null,
+      "raw_counter_name": "l1tex__throughput.avg.pct_of_peak_sustained_active",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-001",
+      "section_name": "SpeedOfLight",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 6.01
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-006",
+      "metric_name": "l2_throughput_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "lts__throughput.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-001",
+      "section_name": "SpeedOfLight",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 9.73
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-007",
+      "metric_name": "l2_sysmem_fill_pct_of_peak_sustained_elapsed",
+      "missing_reason": null,
+      "raw_counter_name": "lts__d_sectors_fill_sysmem.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-001",
+      "section_name": "MemoryWorkloadAnalysis",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 9.73
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-008",
+      "metric_name": "theoretical_occupancy_percent",
+      "missing_reason": null,
+      "raw_counter_name": "sm__maximum_warps_per_active_cycle_pct",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-001",
+      "section_name": "Occupancy",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 100.0
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-009",
+      "metric_name": "achieved_occupancy_percent",
+      "missing_reason": null,
+      "raw_counter_name": "sm__warps_active.avg.pct_of_peak_sustained_active",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-001",
+      "section_name": "Occupancy",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": 85.11
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-010",
+      "metric_name": "gpc_cycle_rate_hz",
+      "missing_reason": null,
+      "raw_counter_name": "gpc__cycles_elapsed.avg.per_second",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-001",
+      "section_name": "SpeedOfLight",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "hz",
+      "value": 1385627371.87
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-011",
+      "metric_name": "sm_cycle_rate_hz",
+      "missing_reason": "counter_absent_from_report",
+      "raw_counter_name": "sm__cycles_elapsed.avg.per_second",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-001",
+      "section_name": "SpeedOfLight_HierarchicalTensorRooflineChart",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "hz",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-012",
+      "metric_name": "tensor_path_fp4_fp6_fp8_to_fp32_dense_pct_of_peak_elapsed",
+      "missing_reason": "counter_absent_from_report",
+      "raw_counter_name": "sm__ops_path_tensor_op_utcqmma_src_fp4_fp6_fp8_dst_fp32_sparsity_off.avg.pct_of_peak_sustained_elapsed",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-001",
+      "section_name": "SpeedOfLight_HierarchicalTensorRooflineChart",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-013",
+      "metric_name": "scheduler_issue_active_per_active_cycle",
+      "missing_reason": "counter_absent_from_report",
+      "raw_counter_name": "smsp__issue_active.avg.per_cycle_active",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-001",
+      "section_name": "SchedulerStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "warp_per_cycle",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-014",
+      "metric_name": "scheduler_issue_active_pct_of_peak_sustained_active",
+      "missing_reason": "counter_absent_from_report",
+      "raw_counter_name": "smsp__issue_active.avg.pct_of_peak_sustained_active",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-001",
+      "section_name": "SchedulerStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-015",
+      "metric_name": "scheduler_issue_inst0_percent",
+      "missing_reason": "counter_absent_from_report",
+      "raw_counter_name": "smsp__issue_inst0.avg.pct_of_peak_sustained_active",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-001",
+      "section_name": "SchedulerStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-016",
+      "metric_name": "scheduler_active_warps_per_active_cycle",
+      "missing_reason": "counter_absent_from_report",
+      "raw_counter_name": "smsp__warps_active.avg.per_cycle_active",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-001",
+      "section_name": "SchedulerStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "warp",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-017",
+      "metric_name": "scheduler_eligible_warps_per_active_cycle",
+      "missing_reason": "counter_absent_from_report",
+      "raw_counter_name": "smsp__warps_eligible.avg.per_cycle_active",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-001",
+      "section_name": "SchedulerStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "warp",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-001",
+      "confidence": "medium",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-018",
+      "metric_name": "scheduler_maximum_warps_per_active_cycle",
+      "missing_reason": null,
+      "raw_counter_name": "smsp__maximum_warps_avg_per_active_cycle",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-001",
+      "section_name": "SchedulerStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "warp",
+      "value": 12.0
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-019",
+      "metric_name": "scheduler_warps_active_peak_sustained",
+      "missing_reason": "counter_absent_from_report",
+      "raw_counter_name": "smsp__warps_active.avg.peak_sustained",
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-001",
+      "section_name": "SchedulerStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "warp",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-020",
+      "metric_name": "system_memory_throughput_pct_of_ceiling",
+      "missing_reason": "counter_absent_from_report",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-001",
+      "section_name": "MemoryWorkloadAnalysis",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-021",
+      "metric_name": "system_memory_bytes",
+      "missing_reason": "counter_absent_from_report",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-001",
+      "section_name": "MemoryWorkloadAnalysis",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "byte",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-022",
+      "metric_name": "scheduler_issue_active_percent",
+      "missing_reason": "section_not_collected",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-001",
+      "section_name": "SchedulerStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-023",
+      "metric_name": "warp_stall_long_scoreboard_percent",
+      "missing_reason": "section_not_collected",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-001",
+      "section_name": "WarpStateStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-024",
+      "metric_name": "warp_stall_short_scoreboard_percent",
+      "missing_reason": "section_not_collected",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-001",
+      "section_name": "WarpStateStats",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-001",
+        "kind": "kernel_observation"
+      },
+      "unit": "percent",
+      "value": null
+    },
+    {
+      "basis": "per_profiled_launch",
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-001",
+      "confidence": "unknown",
+      "metric_id": "metric-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-025",
+      "metric_name": "source_counter_attribution",
+      "missing_reason": "section_not_collected",
+      "raw_counter_name": null,
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-001",
+      "section_name": "SourceCounters",
+      "source_id": "source-local-thor",
+      "statistic": "single",
+      "subject": {
+        "id": "kernel-observation-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-055-001",
         "kind": "kernel_observation"
       },
       "unit": "count",

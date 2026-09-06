@@ -66,6 +66,19 @@ def runtime_realization_problems(
         if isinstance(materialized, Mapping):
             logical_refs, repeat_scopes = _logical_index(materialized)
 
+    reuse = _mapping_list(record.get("reuse"))
+    _unique_ids(issues, reuse, "reuse_id", "$.reuse")
+    for index, item in enumerate(reuse):
+        base = f"$.reuse[{index}]"
+        _check_ids(issues, f"{base}.evidence_ids", item.get("evidence_ids"), evidence_ids)
+        for field in ("producer_refs", "consumer_refs"):
+            _check_ids(issues, f"{base}.{field}", item.get(field), logical_refs | group_ids)
+        if item.get("implementation_status") in {"implemented", "not_implemented"} and not _string_list(item.get("evidence_ids")):
+            issues.append(RuntimeRealizationProblem(
+                f"{base}.evidence_ids", "reuse_evidence",
+                "known reuse implementation status requires evidence",
+            ))
+
     used_groups: set[str] = set()
     for index, group in enumerate(groups):
         base = f"$.execution_groups[{index}]"

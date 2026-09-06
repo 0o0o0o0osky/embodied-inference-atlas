@@ -78,7 +78,26 @@ export interface WorkloadApplicability {
   evidenceIds: readonly string[];
 }
 
+/** Optional source-backed lifecycle evidence; duration fields are never inferred. */
+export interface RuntimeReuseDescriptor {
+  reuseId: string;
+  label: string;
+  kind: "computed_result" | "execution_plan" | "storage";
+  producerRefs: readonly string[];
+  consumerRefs: readonly string[];
+  lifetime: "initialization" | "observation" | "solver_step" | "across_observations";
+  repeatScope: string;
+  valueDependencies: readonly string[];
+  invalidationConditions: readonly string[];
+  implementationStatus: "implemented" | "not_implemented" | "unknown";
+  evidenceIds: readonly string[];
+  storageBytes: number | null;
+  preparationNs: number | null;
+  readNs: number | null;
+}
+
 export interface RuntimeRealizationRecord {
+  reuse?: readonly RuntimeReuseDescriptor[];
   realizationId: string;
   modelId: string;
   modelGraphId: string;

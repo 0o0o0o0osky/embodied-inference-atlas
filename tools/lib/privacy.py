@@ -105,7 +105,7 @@ def scan_json(value: object, path: str = "$") -> list[Issue]:
     return issues
 
 
-def scan_release_tree(root: Path) -> list[Issue]:
+def scan_release_tree(root: Path, *, verified_assets: frozenset[str] = frozenset()) -> list[Issue]:
     issues: list[Issue] = []
     if root.is_symlink():
         return [Issue("$", "symlink", "release trees must not contain symlinks")]
@@ -142,13 +142,16 @@ def scan_release_tree(root: Path) -> list[Issue]:
         for name in sorted(filenames):
             path = parent / name
             relative = path.relative_to(root)
+            if relative.as_posix() in verified_assets and not path.is_symlink():
+                continue
             issues.extend(_scan_release_file(path, relative))
     return issues
 
 
 def scan_site_tree(root: Path) -> list[Issue]:
-    """Scan a generated site, allowing only the pinned ECharts ``::`` token."""
-    issues = scan_release_tree(root)
+    """Scan first-party output normally; third-party exemptions require exact pinned bytes."""
+    vendor_issues, verified = _verify_perfetto_assets(root)
+    issues = vendor_issues + scan_release_tree(root, verified_assets=verified)
     asset = root / "assets" / "vendor" / "echarts.min.js"
     if not asset.is_file():
         return issues
@@ -162,6 +165,32 @@ def scan_site_tree(root: Path) -> list[Issue]:
             and issue.code == "ip_address"
         )
     ]
+
+
+def perfetto_asset_paths() -> frozenset[str]:
+    """Trusted build inventory lives with source code, never in generated output."""
+    pin = Path(__file__).with_name("perfetto-assets.json")
+    return frozenset(json.loads(pin.read_text(encoding="utf-8")))
+
+
+def _verify_perfetto_assets(root: Path) -> tuple[list[Issue], frozenset[str]]:
+    vendor = root / "perfetto"
+    if not vendor.exists() or vendor.is_symlink():
+        return [], frozenset()
+    pins = json.loads(Path(__file__).with_name("perfetto-assets.json").read_text(encoding="utf-8"))
+    issues: list[Issue] = []
+    verified: set[str] = set()
+    actual = {p.relative_to(root).as_posix(): p for p in vendor.rglob("*") if p.is_file() or p.is_symlink()}
+    for name, path in actual.items():
+        if name not in pins:
+            issues.append(Issue(_release_path(Path(name)), "unrecognized_vendor_asset", "file is not in the pinned Perfetto distribution"))
+        elif path.is_symlink() or hashlib.sha256(path.read_bytes()).hexdigest() != pins[name]:
+            issues.append(Issue(_release_path(Path(name)), "vendor_asset_mismatch", "file differs from the reviewed offline Perfetto pin"))
+        else:
+            verified.add(name)
+    for name in pins.keys() - actual.keys():
+        issues.append(Issue(_release_path(Path(name)), "missing_vendor_asset", "pinned Perfetto resource is missing"))
+    return issues, frozenset(verified)
 
 
 def scan_release_name(path: Path, *, symlink: bool = False) -> list[Issue]:

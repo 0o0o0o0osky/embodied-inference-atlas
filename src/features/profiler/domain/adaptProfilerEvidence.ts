@@ -162,6 +162,33 @@ function adaptCapture(raw: CanonicalRecord): ProfilerCapture {
     : record(rawNcu.external_clock_control, "profiler capture ncu.external_clock_control");
   return {
     captureId: text(raw.capture_id, "capture_id"),
+    ...(raw.cpu_capabilities ? {cpuCapabilities:(()=>{
+      const cap=record(raw.cpu_capabilities,'cpu capabilities');
+      return {schedulerRunning:booleanValue(cap.scheduler_running,'cpu scheduler'),threadStates:booleanValue(cap.thread_states,'cpu states'),
+        functionSamples:booleanValue(cap.function_samples,'cpu samples'),taskMarkers:booleanValue(cap.task_markers,'cpu markers'),associationEvents:booleanValue(cap.association_events,'cpu associations')};
+    })()} : {}),
+    ...(raw.analysis_summary ? {analysisSummary:(()=>{
+      const summary=record(raw.analysis_summary,'capture analysis_summary');
+      const wall=record(summary.wall,'analysis wall');
+      const medians=record(summary.system_medians,'analysis system medians');
+      return {batchId:text(summary.batch_id,'analysis batch'),inputCaseId:text(summary.input_case_id,'analysis input'),
+        sampleCount:integer(summary.sample_count,'analysis sample count'),warmupIterations:integer(summary.warmup_iterations,'analysis warmup'),
+        status:text(summary.status,'analysis status') as 'stable',representativeCaptureId:text(summary.representative_capture_id,'analysis representative'),
+        wall:{medianNs:numberValue(wall.median_ns,'analysis wall median'),cv:numberValue(wall.cv,'analysis wall cv')},
+        hotspots:records(summary.hotspots,'analysis hotspots').map(h=>({id:text(h.id,'hotspot id'),label:text(h.label,'hotspot label'),
+          medianNs:numberValue(h.median_ns,'hotspot median'),cv:numberValue(h.cv,'hotspot cv'),calls:integer(h.calls,'hotspot calls'),countsMatch:booleanValue(h.counts_match,'hotspot count match')})),
+        systemMedians:{cpuCoreTimeNs:nullableNumber(medians.cpu_core_time_ns,'cpu core time median'),gpuActivityUnionNs:nullableNumber(medians.gpu_activity_union_ns,'gpu union median'),apiWallUnionNs:nullableNumber(medians.api_wall_union_ns,'api union median')},
+      };
+    })()} : {}),
+    ...(raw.analysis_sample ? {analysisSample: (() => {
+      const sample = record(raw.analysis_sample, 'capture analysis_sample');
+      return {
+        batchId:text(sample.batch_id,'sample batch_id'), inputCaseId:text(sample.input_case_id,'sample input_case_id'),
+        sampleIndex:integer(sample.sample_index,'sample index'), warmupIterations:integer(sample.warmup_iterations,'sample warmup'),
+        measuredIterations:integer(sample.measured_iterations,'sample measured iterations'),
+        windowStartNs:integer(sample.window_start_ns,'sample window start'),windowEndNs:integer(sample.window_end_ns,'sample window end'),
+      };
+    })()} : {}),
     runId: text(raw.run_id, "capture run_id"),
     sourceId: text(raw.source_id, "capture source_id"),
     evidence: text(raw.evidence, "capture evidence") as ProfilerCapture["evidence"],
@@ -230,7 +257,16 @@ function adaptLane(raw: RawRecord): TimelineLane {
 }
 
 function adaptEvent(raw: RawRecord): TimelineEvent {
+  const launch=raw.launch ? record(raw.launch,'event launch') : null;
   return {
+    ...(raw.api_name ? {apiName:text(raw.api_name,'event api name')} : {}),
+    ...(launch ? {launch:{
+      grid:nullableIntegers(launch.grid,'event launch grid'),block:nullableIntegers(launch.block,'event launch block'),
+      registersPerThread:nullableInteger(launch.registers_per_thread,'event registers'),
+      staticSharedMemoryBytes:nullableInteger(launch.static_shared_memory_bytes,'event static shared'),
+      dynamicSharedMemoryBytes:nullableInteger(launch.dynamic_shared_memory_bytes,'event dynamic shared'),
+      wavesPerSm:nullableNumber(launch.waves_per_sm,'event waves'),
+    }} : {}),
     eventId: text(raw.event_id, "timeline event_id"),
     laneId: text(raw.lane_id, "timeline event lane_id"),
     eventKind: text(raw.event_kind, "timeline event kind") as TimelineEvent["eventKind"],
@@ -259,6 +295,10 @@ function adaptSummary(raw: RawRecord): TimelineSummary {
 function adaptTimeline(raw: CanonicalRecord): TimelineRecord {
   const window = record(raw.window, "timeline window");
   return {
+    ...(raw.cpu_samples ? {cpuSamples:records(raw.cpu_samples,'cpu samples').map(s=>({
+      sampleId:text(s.sample_id,'cpu sample id'),laneId:text(s.lane_id,'cpu sample lane'),timeNs:integer(s.time_ns,'cpu sample time'),weight:numberValue(s.weight,'cpu sample weight'),
+      frames:records(s.frames,'cpu frames').map(f=>({labelSanitized:text(f.label_sanitized,'cpu frame label'),depth:integer(f.depth,'cpu frame depth')})),
+    }))} : {}),
     timelineId: text(raw.timeline_id, "timeline_id"),
     captureId: text(raw.capture_id, "timeline capture_id"),
     runId: text(raw.run_id, "timeline run_id"),

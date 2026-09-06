@@ -2,113 +2,382 @@
   "dataset": "profiler_captures",
   "record": {
     "type": "object",
-    "required": ["capture_id", "run_id", "source_id", "evidence", "tool", "tool_version", "collection_scope", "target_window_label", "target_window_count", "selection_policy", "coverage", "warnings", "nsys", "ncu", "missing"],
+    "required": [
+      "capture_id",
+      "run_id",
+      "source_id",
+      "evidence",
+      "tool",
+      "tool_version",
+      "collection_scope",
+      "target_window_label",
+      "target_window_count",
+      "selection_policy",
+      "coverage",
+      "warnings",
+      "nsys",
+      "ncu",
+      "missing"
+    ],
     "additional_properties": false,
     "properties": {
-      "capture_id": {"type": "string", "min_length": 1, "max_length": 120},
-      "run_id": {"type": "string", "min_length": 1, "max_length": 120},
-      "source_id": {"type": "string", "min_length": 1, "max_length": 80},
-      "evidence": {"type": "string", "enum": ["measured_local"]},
-      "tool": {"type": "string", "enum": ["nsys", "ncu"]},
-      "tool_version": {"type": "string", "min_length": 1, "max_length": 40},
-      "collection_scope": {"type": "string", "enum": ["prediction_window", "representative_kernel_launch"]},
-      "target_window_label": {"type": ["string", "null"], "enum": ["predict", null]},
-      "target_window_count": {"type": "integer", "minimum": 1},
-      "selection_policy": {"type": "string", "enum": ["explicit_invocation", "name_filter_selected_match", "single_predict_window"]},
+      "capture_id": {
+        "type": "string",
+        "min_length": 1,
+        "max_length": 120
+      },
+      "run_id": {
+        "type": "string",
+        "min_length": 1,
+        "max_length": 120
+      },
+      "source_id": {
+        "type": "string",
+        "min_length": 1,
+        "max_length": 80
+      },
+      "evidence": {
+        "type": "string",
+        "enum": [
+          "measured_local"
+        ]
+      },
+      "tool": {
+        "type": "string",
+        "enum": [
+          "nsys",
+          "ncu"
+        ]
+      },
+      "tool_version": {
+        "type": "string",
+        "min_length": 1,
+        "max_length": 40
+      },
+      "collection_scope": {
+        "type": "string",
+        "enum": [
+          "prediction_window",
+          "representative_kernel_launch"
+        ]
+      },
+      "target_window_label": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "enum": [
+          "predict",
+          null
+        ]
+      },
+      "target_window_count": {
+        "type": "integer",
+        "minimum": 1
+      },
+      "selection_policy": {
+        "type": "string",
+        "enum": [
+          "explicit_invocation",
+          "name_filter_selected_match",
+          "single_predict_window"
+        ]
+      },
       "coverage": {
         "type": "object",
-        "required": ["population", "observed_count", "is_complete_for_population"],
+        "required": [
+          "population",
+          "observed_count",
+          "is_complete_for_population"
+        ],
         "additional_properties": false,
         "properties": {
-          "population": {"type": "string", "enum": ["one_profiled_prediction", "one_replayed_launch"]},
-          "observed_count": {"type": "integer", "minimum": 0},
-          "is_complete_for_population": {"type": "boolean"}
+          "population": {
+            "type": "string",
+            "enum": [
+              "one_profiled_prediction",
+              "one_replayed_launch"
+            ]
+          },
+          "observed_count": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "is_complete_for_population": {
+            "type": "boolean"
+          }
         }
       },
       "warnings": {
         "type": "array",
-        "items": {"type": "string", "enum": ["gpu_frequency_not_fixed", "intrusive_node_trace", "profiler_scheduler_activity_present", "work_id_unavailable", "partial_kernel_signature_coverage"]}
+        "items": {
+          "type": "string",
+          "enum": [
+            "gpu_frequency_not_fixed",
+            "intrusive_node_trace",
+            "profiler_scheduler_activity_present",
+            "work_id_unavailable",
+            "partial_kernel_signature_coverage"
+          ]
+        }
       },
       "nsys": {
-        "type": ["object", "null"],
-        "required": ["report_mode", "scheduler_scope", "logical_cpu_count", "cuda_graph_trace_present", "graph_node_trace_present", "scheduler_trace_present", "profiler_overhead_trace_present"],
+        "type": [
+          "object",
+          "null"
+        ],
+        "required": [
+          "report_mode",
+          "scheduler_scope",
+          "logical_cpu_count",
+          "cuda_graph_trace_present",
+          "graph_node_trace_present",
+          "scheduler_trace_present",
+          "profiler_overhead_trace_present"
+        ],
         "additional_properties": false,
         "properties": {
-          "report_mode": {"type": "string", "enum": ["graph", "node"]},
-          "scheduler_scope": {"type": "string", "enum": ["process_tree", "system_wide"]},
-          "logical_cpu_count": {"type": "integer", "minimum": 1},
-          "cuda_graph_trace_present": {"type": "boolean"},
-          "graph_node_trace_present": {"type": "boolean"},
-          "scheduler_trace_present": {"type": "boolean"},
-          "profiler_overhead_trace_present": {"type": "boolean"}
+          "report_mode": {
+            "type": "string",
+            "enum": [
+              "graph",
+              "node"
+            ]
+          },
+          "scheduler_scope": {
+            "type": "string",
+            "enum": [
+              "process_tree",
+              "system_wide"
+            ]
+          },
+          "logical_cpu_count": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "cuda_graph_trace_present": {
+            "type": "boolean"
+          },
+          "graph_node_trace_present": {
+            "type": "boolean"
+          },
+          "scheduler_trace_present": {
+            "type": "boolean"
+          },
+          "profiler_overhead_trace_present": {
+            "type": "boolean"
+          }
         }
       },
       "ncu": {
-        "type": ["object", "null"],
-        "required": ["replay_mode", "replay_passes", "cache_control_request", "clock_control_request", "warmup_count", "backing_store_bytes", "origins"],
+        "type": [
+          "object",
+          "null"
+        ],
+        "required": [
+          "replay_mode",
+          "replay_passes",
+          "cache_control_request",
+          "clock_control_request",
+          "warmup_count",
+          "backing_store_bytes",
+          "origins"
+        ],
         "additional_properties": false,
         "properties": {
-          "replay_mode": {"type": "string", "enum": ["kernel"]},
-          "replay_passes": {"type": "integer", "minimum": 1},
-          "cache_control_request": {"type": "string", "enum": ["all"]},
-          "clock_control_request": {"type": "string", "enum": ["base", "none"]},
-          "warmup_count": {"type": "integer", "minimum": 0},
-          "backing_store_bytes": {"type": ["integer", "null"], "minimum": 0},
-          "disable_extra_suffixes": {"type": "boolean"},
-          "section_mode": {"type": "string", "enum": ["scheduler_stats_with_sysmem_sectors", "warp_state_stats"]},
+          "replay_mode": {
+            "type": "string",
+            "enum": [
+              "kernel"
+            ]
+          },
+          "replay_passes": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "cache_control_request": {
+            "type": "string",
+            "enum": [
+              "all",
+              "none"
+            ]
+          },
+          "clock_control_request": {
+            "type": "string",
+            "enum": [
+              "base",
+              "none"
+            ]
+          },
+          "warmup_count": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "backing_store_bytes": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "disable_extra_suffixes": {
+            "type": "boolean"
+          },
+          "section_mode": {
+            "type": "string",
+            "enum": [
+              "scheduler_stats_with_sysmem_sectors",
+              "warp_state_stats"
+            ]
+          },
           "sections": {
             "type": "array",
-            "items": {"type": "string", "enum": ["SpeedOfLight", "ComputeWorkloadAnalysis", "MemoryWorkloadAnalysis", "LaunchStats", "Occupancy", "SchedulerStats", "WarpStateStats"]}
+            "items": {
+              "type": "string",
+              "enum": [
+                "SpeedOfLight",
+                "ComputeWorkloadAnalysis",
+                "MemoryWorkloadAnalysis",
+                "LaunchStats",
+                "Occupancy",
+                "SchedulerStats",
+                "WarpStateStats"
+              ]
+            }
           },
           "explicit_metrics": {
             "type": "array",
-            "items": {"type": "string", "enum": ["lts__d_sectors_fill_sysmem.sum", "lts__t_sectors_aperture_sysmem_op_write.sum", "lts__t_sectors_srcunit_tex_aperture_sysmem_lookup_miss.sum"]}
+            "items": {
+              "type": "string",
+              "enum": [
+                "lts__d_sectors_fill_sysmem.sum",
+                "lts__t_sectors_aperture_sysmem_op_write.sum",
+                "lts__t_sectors_srcunit_tex_aperture_sysmem_lookup_miss.sum"
+              ]
+            }
           },
           "external_clock_control": {
             "type": "object",
-            "required": ["controller", "state"],
+            "required": [
+              "controller",
+              "state"
+            ],
             "additional_properties": false,
             "properties": {
-              "controller": {"type": "string", "enum": ["jetson_clocks"]},
-              "state": {"type": "string", "enum": ["locked"]}
+              "controller": {
+                "type": "string",
+                "enum": [
+                  "jetson_clocks"
+                ]
+              },
+              "state": {
+                "type": "string",
+                "enum": [
+                  "locked"
+                ]
+              }
             }
           },
           "warp_trigger": {
             "type": "object",
-            "required": ["scheduler_capture_id", "scheduler_observation_id", "origin", "criteria", "launch_occupancy_review"],
+            "required": [
+              "scheduler_capture_id",
+              "scheduler_observation_id",
+              "origin",
+              "criteria",
+              "launch_occupancy_review"
+            ],
             "additional_properties": false,
             "properties": {
-              "scheduler_capture_id": {"type": "string", "min_length": 1, "max_length": 120},
-              "scheduler_observation_id": {"type": "string", "min_length": 1, "max_length": 120},
-              "origin": {"type": "string", "enum": ["reviewed_scheduler_evidence"]},
+              "scheduler_capture_id": {
+                "type": "string",
+                "min_length": 1,
+                "max_length": 120
+              },
+              "scheduler_observation_id": {
+                "type": "string",
+                "min_length": 1,
+                "max_length": 120
+              },
+              "origin": {
+                "type": "string",
+                "enum": [
+                  "reviewed_scheduler_evidence"
+                ]
+              },
               "criteria": {
                 "type": "array",
                 "min_items": 3,
                 "max_items": 3,
                 "items": {
                   "type": "object",
-                  "required": ["metric_name", "operator", "threshold", "observed_value"],
+                  "required": [
+                    "metric_name",
+                    "operator",
+                    "threshold",
+                    "observed_value"
+                  ],
                   "additional_properties": false,
                   "properties": {
-                    "metric_name": {"type": "string", "enum": ["scheduler_issue_active_per_active_cycle", "scheduler_active_warps_per_active_cycle", "scheduler_eligible_warps_per_active_cycle"]},
-                    "operator": {"type": "string", "enum": ["lt", "gte"]},
-                    "threshold": {"type": "number", "minimum": 0},
-                    "observed_value": {"type": "number", "minimum": 0}
+                    "metric_name": {
+                      "type": "string",
+                      "enum": [
+                        "scheduler_issue_active_per_active_cycle",
+                        "scheduler_active_warps_per_active_cycle",
+                        "scheduler_eligible_warps_per_active_cycle"
+                      ]
+                    },
+                    "operator": {
+                      "type": "string",
+                      "enum": [
+                        "lt",
+                        "gte"
+                      ]
+                    },
+                    "threshold": {
+                      "type": "number",
+                      "minimum": 0
+                    },
+                    "observed_value": {
+                      "type": "number",
+                      "minimum": 0
+                    }
                   }
                 }
               },
               "launch_occupancy_review": {
                 "type": "object",
-                "required": ["conclusion", "basis", "evidence_fields"],
+                "required": [
+                  "conclusion",
+                  "basis",
+                  "evidence_fields"
+                ],
                 "additional_properties": false,
                 "properties": {
-                  "conclusion": {"type": "string", "enum": ["launch_and_occupancy_do_not_explain_issue_gap"]},
-                  "basis": {"type": "string", "enum": ["manual_review_of_same_capture_evidence"]},
+                  "conclusion": {
+                    "type": "string",
+                    "enum": [
+                      "launch_and_occupancy_do_not_explain_issue_gap"
+                    ]
+                  },
+                  "basis": {
+                    "type": "string",
+                    "enum": [
+                      "manual_review_of_same_capture_evidence"
+                    ]
+                  },
                   "evidence_fields": {
                     "type": "array",
                     "min_items": 3,
                     "max_items": 3,
-                    "items": {"type": "string", "enum": ["kernel_observation.launch", "theoretical_occupancy_percent", "achieved_occupancy_percent"]}
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "kernel_observation.launch",
+                        "theoretical_occupancy_percent",
+                        "achieved_occupancy_percent"
+                      ]
+                    }
                   }
                 }
               }
@@ -116,19 +385,80 @@
           },
           "origins": {
             "type": "object",
-            "required": ["selection_policy", "replay_mode", "replay_passes", "cache_control_request", "clock_control_request", "warmup_count", "backing_store_bytes"],
+            "required": [
+              "selection_policy",
+              "replay_mode",
+              "replay_passes",
+              "cache_control_request",
+              "clock_control_request",
+              "warmup_count",
+              "backing_store_bytes"
+            ],
             "additional_properties": false,
             "properties": {
-              "selection_policy": {"type": "string", "enum": ["session_command"]},
-              "replay_mode": {"type": "string", "enum": ["session_command", "ncu_cli_default_2025_3"]},
-              "replay_passes": {"type": "string", "enum": ["collection_log_manual_audit"]},
-              "cache_control_request": {"type": "string", "enum": ["session_command", "ncu_cli_default_2025_3"]},
-              "clock_control_request": {"type": "string", "enum": ["session_command", "ncu_cli_default_2025_3"]},
-              "warmup_count": {"type": "string", "enum": ["harness_source_audit"]},
-              "backing_store_bytes": {"type": "string", "enum": ["unavailable"]},
-              "gpu_frequency_not_fixed": {"type": "string", "enum": ["collection_log_manual_audit"]},
-              "disable_extra_suffixes": {"type": "string", "enum": ["session_command"]},
-              "external_clock_control": {"type": "string", "enum": ["collection_wrapper_observed"]}
+              "selection_policy": {
+                "type": "string",
+                "enum": [
+                  "session_command"
+                ]
+              },
+              "replay_mode": {
+                "type": "string",
+                "enum": [
+                  "session_command",
+                  "ncu_cli_default_2025_3"
+                ]
+              },
+              "replay_passes": {
+                "type": "string",
+                "enum": [
+                  "collection_log_manual_audit"
+                ]
+              },
+              "cache_control_request": {
+                "type": "string",
+                "enum": [
+                  "session_command",
+                  "ncu_cli_default_2025_3"
+                ]
+              },
+              "clock_control_request": {
+                "type": "string",
+                "enum": [
+                  "session_command",
+                  "ncu_cli_default_2025_3"
+                ]
+              },
+              "warmup_count": {
+                "type": "string",
+                "enum": [
+                  "harness_source_audit"
+                ]
+              },
+              "backing_store_bytes": {
+                "type": "string",
+                "enum": [
+                  "unavailable"
+                ]
+              },
+              "gpu_frequency_not_fixed": {
+                "type": "string",
+                "enum": [
+                  "collection_log_manual_audit"
+                ]
+              },
+              "disable_extra_suffixes": {
+                "type": "string",
+                "enum": [
+                  "session_command"
+                ]
+              },
+              "external_clock_control": {
+                "type": "string",
+                "enum": [
+                  "collection_wrapper_observed"
+                ]
+              }
             }
           }
         }
@@ -138,10 +468,257 @@
         "required": [],
         "additional_properties": false,
         "properties": {
-          "target_window_label": {"type": "string", "enum": ["not_applicable"]},
-          "nsys": {"type": "string", "enum": ["not_applicable"]},
-          "ncu": {"type": "string", "enum": ["not_applicable"]},
-          "ncu.backing_store_bytes": {"type": "string", "enum": ["unavailable"]}
+          "target_window_label": {
+            "type": "string",
+            "enum": [
+              "not_applicable"
+            ]
+          },
+          "nsys": {
+            "type": "string",
+            "enum": [
+              "not_applicable"
+            ]
+          },
+          "ncu": {
+            "type": "string",
+            "enum": [
+              "not_applicable"
+            ]
+          },
+          "ncu.backing_store_bytes": {
+            "type": "string",
+            "enum": [
+              "unavailable"
+            ]
+          }
+        }
+      },
+      "analysis_sample": {
+        "type": "object",
+        "required": [
+          "batch_id",
+          "input_case_id",
+          "sample_index",
+          "warmup_iterations",
+          "measured_iterations",
+          "window_start_ns",
+          "window_end_ns"
+        ],
+        "additional_properties": false,
+        "properties": {
+          "batch_id": {
+            "type": "string",
+            "min_length": 1,
+            "max_length": 160
+          },
+          "input_case_id": {
+            "type": "string",
+            "min_length": 1,
+            "max_length": 160
+          },
+          "input_recipe": {
+            "type": "string",
+            "min_length": 1,
+            "max_length": 160
+          },
+          "sample_index": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "warmup_iterations": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "measured_iterations": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "window_start_ns": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "window_end_ns": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "output_finite": {
+            "type": "boolean"
+          },
+          "output_shape": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        }
+      },
+      "cpu_capabilities": {
+        "type": "object",
+        "required": [
+          "scheduler_running",
+          "thread_states",
+          "function_samples",
+          "task_markers",
+          "association_events"
+        ],
+        "additional_properties": false,
+        "properties": {
+          "scheduler_running": {
+            "type": "boolean"
+          },
+          "thread_states": {
+            "type": "boolean"
+          },
+          "function_samples": {
+            "type": "boolean"
+          },
+          "task_markers": {
+            "type": "boolean"
+          },
+          "association_events": {
+            "type": "boolean"
+          }
+        }
+      },
+      "analysis_summary": {
+        "type": "object",
+        "required": [
+          "batch_id",
+          "input_case_id",
+          "sample_count",
+          "warmup_iterations",
+          "status",
+          "representative_capture_id",
+          "wall",
+          "hotspots",
+          "system_medians"
+        ],
+        "additional_properties": false,
+        "properties": {
+          "batch_id": {
+            "type": "string",
+            "min_length": 1,
+            "max_length": 200
+          },
+          "input_case_id": {
+            "type": "string",
+            "min_length": 1,
+            "max_length": 200
+          },
+          "sample_count": {
+            "type": "integer",
+            "minimum": 2
+          },
+          "warmup_iterations": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "stable"
+            ]
+          },
+          "representative_capture_id": {
+            "type": "string",
+            "min_length": 1,
+            "max_length": 200
+          },
+          "wall": {
+            "type": "object",
+            "required": [
+              "median_ns",
+              "cv"
+            ],
+            "additional_properties": false,
+            "properties": {
+              "median_ns": {
+                "type": "number",
+                "minimum": 0
+              },
+              "cv": {
+                "type": "number",
+                "minimum": 0
+              }
+            }
+          },
+          "hotspots": {
+            "type": "array",
+            "min_items": 1,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "label",
+                "median_ns",
+                "cv",
+                "calls",
+                "counts_match"
+              ],
+              "additional_properties": false,
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "min_length": 1,
+                  "max_length": 200
+                },
+                "label": {
+                  "type": "string",
+                  "min_length": 1,
+                  "max_length": 400
+                },
+                "median_ns": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "cv": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "calls": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "counts_match": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "system_medians": {
+            "type": "object",
+            "required": [
+              "cpu_core_time_ns",
+              "gpu_activity_union_ns",
+              "api_wall_union_ns"
+            ],
+            "additional_properties": false,
+            "properties": {
+              "cpu_core_time_ns": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "minimum": 0
+              },
+              "gpu_activity_union_ns": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "minimum": 0
+              },
+              "api_wall_union_ns": {
+                "type": [
+                  "number",
+                  "null"
+                ],
+                "minimum": 0
+              }
+            }
+          }
         }
       }
     }

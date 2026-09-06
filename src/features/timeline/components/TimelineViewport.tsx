@@ -4,6 +4,8 @@ import { TimelineTracks } from "./TimelineTracks";
 import { TimelineEventDetails } from "./TimelineEventDetails";
 import "./timelineGrouped.css";
 
+const savedWindows = new Map<string, {start:number;span:number}>();
+
 /** One viewport shared by the system preview and the full timeline. */
 export function TimelineViewport({ timeline, selectedEventId, onSelect, locale = "zh" }: {
   timeline: TimelineRecord;
@@ -11,15 +13,16 @@ export function TimelineViewport({ timeline, selectedEventId, onSelect, locale =
   onSelect: (event: TimelineEvent) => void;
   locale?: "zh" | "en";
 }) {
-  const [window, setWindow] = useState({ start: 0, span: 1 });
+  const [window, setWindow] = useState(savedWindows.get(timeline.timelineId) ?? { start: 0, span: 1 });
   const root = useRef<HTMLDivElement>(null);
   const drag = useRef<{ x: number; start: number; width: number; moved: boolean } | null>(null);
   const suppressClick = useRef(false);
   const zh = locale === "zh";
-  useEffect(() => { setWindow({ start: 0, span: 1 }); }, [timeline.timelineId]);
+  useEffect(() => { setWindow(savedWindows.get(timeline.timelineId) ?? { start: 0, span: 1 }); }, [timeline.timelineId]);
+  useEffect(() => { savedWindows.set(timeline.timelineId,window); }, [timeline.timelineId,window]);
   function zoom(factor: number, anchor = 0.5) {
     setWindow((current) => {
-      const span = Math.max(1 / 128, Math.min(1, current.span / factor));
+      const span = Math.max(1 / 65536, Math.min(1, current.span / factor));
       return { span, start: Math.max(0, Math.min(1 - span, current.start + (current.span - span) * anchor)) };
     });
   }
@@ -64,12 +67,14 @@ export function TimelineViewport({ timeline, selectedEventId, onSelect, locale =
       onPointerCancel={() => { drag.current = null; }}
       onClickCapture={(event) => { if (suppressClick.current) { event.stopPropagation(); suppressClick.current = false; } }}>
       <TimelineTracks timeline={timeline} locale={locale} selectedEventId={selectedEventId} onSelect={onSelect}
+        onZoomRange={(start,end)=>{const span=Math.min(1,Math.max(1/65536,(end-start)/timeline.window.durationNs*1.3));
+          setWindow({span,start:Math.max(0,Math.min(1-span,(start-timeline.window.startNs)/timeline.window.durationNs-span*.1))});}}
         windowStartNs={timeline.window.startNs + window.start * timeline.window.durationNs}
         windowDurationNs={window.span * timeline.window.durationNs} />
     </div>
     <TimelineEventDetails timeline={timeline} event={timeline.events.find((event) => event.eventId === selectedEventId) ?? null}
       onFocus={(event) => {
-        const span = Math.min(1, Math.max(1 / 128, event.durationNs / timeline.window.durationNs * 1.3));
+        const span = Math.min(1, Math.max(1 / 65536, event.durationNs / timeline.window.durationNs * 1.3));
         const center = (event.startNs - timeline.window.startNs + event.durationNs / 2) / timeline.window.durationNs;
         setWindow({ span, start: Math.max(0, Math.min(1 - span, center - span / 2)) });
       }} />

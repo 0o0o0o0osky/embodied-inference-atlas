@@ -1,12 +1,34 @@
 # Repository Guidance
 
-This repository stores sanitized inference evidence and generated offline reports. It does not install runtimes, download models, or contain model/kernel implementations.
+This project is a reusable inference-analysis workflow: import evidence, explain
+execution, render an analysis, and help a person judge bottlenecks. Keep the
+maintained code and evidence small; it is not a collection of every experiment.
 
-- Read `docs/methodology.md` before changing comparison semantics.
-- Put raw reports only under `.local/`; never force-add ignored files.
-- Importers write `.local/staging`; only `tools/promote.py --apply` writes canonical `data/`.
-- Preserve missing values and evidence type. Never convert missing profiler metrics to zero.
-- Only compare records through the declared single-axis comparison policy.
-- Local commands: `python3 -m unittest`, `python3 -m tools.validate --all`, `python3 -m tools.build`, and `python3 -m tools.build --check`.
-- Open the generated report at `site/index.html`; commit deterministic `site/` output when a task requires a release snapshot.
-- When reviewing a rendered model or performance-workbench UI, read and use `skills/reviewing-technical-model-ui/SKILL.md`.
+- Start with one model, runtime and concrete input, and the question to answer.
+  Reuse the existing parser, formula engine and visual components before adding data or UI.
+- Check stability from a bounded local batch. Retain one real representative
+  trace per analysis case, its small stability summary, the required E2E medians,
+  and matched Kernel metrics. Other samples and duplicate exports stay local.
+  Missing or unstable evidence must not become a claimed stable representative.
+- Keep raw reports, sample sequences, screenshots, review logs and superseded
+  data under ignored `.local/`. Archive before removing canonical records and
+  validate the retained reference closure. Import via staging/promote; compact
+  via the archive tool. Do not manually edit large generated datasets.
+- Store formulas and scenario inputs rather than all derived precision/shape
+  combinations. Keep a small default reference snapshot for regression checks.
+- Read `docs/methodology.md` for timing, precision and comparison semantics.
+  CPU core-time, request wall time, Nsys and NCU remain distinct. Missing is not zero.
+- Use `skills/collecting-performance-evidence/SKILL.md` for bounded acquisition,
+  `skills/analyzing-performance-evidence/SKILL.md` for interpretation, and
+  `skills/reviewing-technical-model-ui/SKILL.md` for actual rendering/review.
+- UI follows the question and selected object. One representative trace is shared
+  by system, DAG and Kernel views; do not add duplicate selectors or data archives.
+- Additional collection must resolve a named evidence gap. Stop once the
+  question is answerable; do not expand to all kernels, metrics or input combinations.
+- Check changed behavior, typecheck, canonical validation, offline build and a
+  real browser. Keep tests bounded; do not add stress/combination suites for UI edits.
+- Before finishing, report useful findings, evidence limits, changed data/asset
+  size and relevant checks. The deliverable is a readable analysis plus a repeatable process.
+- Pinned third-party UI binaries are reproducible local dependencies, not source
+  to vendor repeatedly. Generated `site/perfetto/` and local reports stay out of Git.
+  Do not download models, change clocks/power, or alter the inference implementation.

@@ -193,11 +193,21 @@ def _scan_generated_ids(
             issues.append(_generated_id(
                 f"$.datasets.runs[{index}].configuration_id"
             ))
-    _require_contiguous_ordinals(
-        issues,
-        run_ordinal_groups,
-        allow_partial_start=allow_partial_run_sequence,
-    )
+    # A compacted stable batch keeps the original representative identity.
+    # Only its singleton ordinal may start above one; all naming and child-ID
+    # checks still run, and the summary is validated by profiler semantics.
+    retained_labels = {
+        run_labels[capture["run_id"]][0]
+        for _, capture in capture_records
+        if capture.get("run_id") in run_labels
+        and capture.get("analysis_summary", {}).get("status") == "stable"
+        and capture.get("analysis_summary", {}).get("representative_capture_id") == capture.get("capture_id")
+    }
+    for label, ordinals in run_ordinal_groups.items():
+        _require_contiguous_ordinals(
+            issues, {label: ordinals},
+            allow_partial_start=allow_partial_run_sequence or (label in retained_labels and len(ordinals) == 1),
+        )
 
     primary_keys = {
         "profiler_captures": "capture_id",

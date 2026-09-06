@@ -32,9 +32,9 @@ export function Pi0PerformanceNavigation({ route, navigate, surface }: Pi0Perfor
   const comparison = pi0PerformanceNavigationPatch("comparison");
   const isDetail = surface !== "runtime";
   return (
-    <nav className="pi0-performance-navigation" aria-label="Pi0 性能工作台导航">
+    <nav className="pi0-performance-navigation" aria-label="模型性能工作台导航">
       <ol className="pi0-performance-breadcrumb">
-        <li><RouteLink route={route} navigate={navigate} patch={pi0PerformanceNavigationPatch("logical")}>理论 DAG</RouteLink></li>
+        <li><RouteLink route={route} navigate={navigate} patch={pi0PerformanceNavigationPatch("logical")}>模型理论</RouteLink></li>
         <li><span aria-hidden="true">/</span>{isDetail || route.runtime ? (
           <RouteLink route={route} navigate={navigate} patch={comparison}>性能对比</RouteLink>
         ) : <span aria-current="page">性能对比</span>}</li>

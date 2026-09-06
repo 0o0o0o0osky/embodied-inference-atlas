@@ -2,36 +2,128 @@
   "dataset": "timelines",
   "record": {
     "type": "object",
-    "required": ["timeline_id", "capture_id", "run_id", "source_id", "window", "time_basis", "lanes", "events", "summaries", "missing"],
+    "required": [
+      "timeline_id",
+      "capture_id",
+      "run_id",
+      "source_id",
+      "window",
+      "time_basis",
+      "lanes",
+      "events",
+      "summaries",
+      "missing"
+    ],
     "additional_properties": false,
     "properties": {
-      "timeline_id": {"type": "string", "min_length": 1, "max_length": 120},
-      "capture_id": {"type": "string", "min_length": 1, "max_length": 120},
-      "run_id": {"type": "string", "min_length": 1, "max_length": 120},
-      "source_id": {"type": "string", "min_length": 1, "max_length": 80},
+      "timeline_id": {
+        "type": "string",
+        "min_length": 1,
+        "max_length": 120
+      },
+      "capture_id": {
+        "type": "string",
+        "min_length": 1,
+        "max_length": 120
+      },
+      "run_id": {
+        "type": "string",
+        "min_length": 1,
+        "max_length": 120
+      },
+      "source_id": {
+        "type": "string",
+        "min_length": 1,
+        "max_length": 80
+      },
       "window": {
         "type": "object",
-        "required": ["label", "start_ns", "duration_ns"],
+        "required": [
+          "label",
+          "start_ns",
+          "duration_ns"
+        ],
         "additional_properties": false,
         "properties": {
-          "label": {"type": "string", "enum": ["predict"]},
-          "start_ns": {"type": "integer", "minimum": 0},
-          "duration_ns": {"type": "integer", "minimum": 1}
+          "label": {
+            "type": "string",
+            "enum": [
+              "predict"
+            ]
+          },
+          "start_ns": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "duration_ns": {
+            "type": "integer",
+            "minimum": 1
+          }
         }
       },
-      "time_basis": {"type": "string", "enum": ["relative_to_target_window_start"]},
+      "time_basis": {
+        "type": "string",
+        "enum": [
+          "relative_to_target_window_start"
+        ]
+      },
       "lanes": {
         "type": "array",
         "items": {
           "type": "object",
-          "required": ["lane_id", "kind", "role", "ordinal", "coverage"],
+          "required": [
+            "lane_id",
+            "kind",
+            "role",
+            "ordinal",
+            "coverage"
+          ],
           "additional_properties": false,
           "properties": {
-            "lane_id": {"type": "string", "min_length": 1, "max_length": 80},
-            "kind": {"type": "string", "enum": ["cpu_thread", "cpu_aggregate", "cuda_api", "cuda_graph", "gpu_kernel", "gpu_memcpy", "profiler_overhead"]},
-            "role": {"type": "string", "enum": ["target-main", "target-worker", "cuda-event-handler", "non-profiler-all-processes", "graph-execution", "kernel-stream", "copy-stream", "profiler-excluded"]},
-            "ordinal": {"type": "integer", "minimum": 0},
-            "coverage": {"type": "string", "enum": ["complete", "partial", "excluded"]}
+            "lane_id": {
+              "type": "string",
+              "min_length": 1,
+              "max_length": 80
+            },
+            "kind": {
+              "type": "string",
+              "enum": [
+                "cpu_thread",
+                "cpu_aggregate",
+                "cuda_api",
+                "cuda_graph",
+                "gpu_kernel",
+                "gpu_memcpy",
+                "profiler_overhead",
+                "cuda_sync",
+                "osrt"
+              ]
+            },
+            "role": {
+              "type": "string",
+              "enum": [
+                "target-main",
+                "target-worker",
+                "cuda-event-handler",
+                "non-profiler-all-processes",
+                "graph-execution",
+                "kernel-stream",
+                "copy-stream",
+                "profiler-excluded"
+              ]
+            },
+            "ordinal": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "coverage": {
+              "type": "string",
+              "enum": [
+                "complete",
+                "partial",
+                "excluded"
+              ]
+            }
           }
         }
       },
@@ -39,20 +131,200 @@
         "type": "array",
         "items": {
           "type": "object",
-          "required": ["event_id", "lane_id", "event_kind", "label", "start_ns", "duration_ns", "count", "kernel_signature_id", "bytes", "copy_direction", "evidence_semantics"],
+          "required": [
+            "event_id",
+            "lane_id",
+            "event_kind",
+            "label",
+            "start_ns",
+            "duration_ns",
+            "count",
+            "kernel_signature_id",
+            "bytes",
+            "copy_direction",
+            "evidence_semantics"
+          ],
           "additional_properties": false,
           "properties": {
-            "event_id": {"type": "string", "min_length": 1, "max_length": 80},
-            "lane_id": {"type": "string", "min_length": 1, "max_length": 80},
-            "event_kind": {"type": "string", "enum": ["scheduler", "cuda_api", "cuda_graph", "kernel", "memcpy", "profiler_overhead"]},
-            "label": {"type": "string", "enum": ["predict", "vision-graph", "encoder-action-graph", "cuda-device-synchronize", "cuda-stream-synchronize", "cuda-graph-launch", "kernel", "memcpy"]},
-            "start_ns": {"type": "integer", "minimum": 0},
-            "duration_ns": {"type": "integer", "minimum": 1},
-            "count": {"type": "integer", "minimum": 1},
-            "kernel_signature_id": {"type": ["string", "null"], "min_length": 1, "max_length": 120},
-            "bytes": {"type": ["integer", "null"], "minimum": 0},
-            "copy_direction": {"type": ["string", "null"], "enum": ["h2d", "d2h", "d2d", "h2h", "unknown", null]},
-            "evidence_semantics": {"type": "string", "enum": ["exact_interval", "cuda_graph_execution_span", "scheduler_running_interval", "aggregated_interval"]}
+            "event_id": {
+              "type": "string",
+              "min_length": 1,
+              "max_length": 80
+            },
+            "lane_id": {
+              "type": "string",
+              "min_length": 1,
+              "max_length": 80
+            },
+            "event_kind": {
+              "type": "string",
+              "enum": [
+                "scheduler",
+                "cuda_api",
+                "cuda_graph",
+                "kernel",
+                "memcpy",
+                "profiler_overhead",
+                "cuda_sync",
+                "osrt"
+              ]
+            },
+            "label": {
+              "type": "string",
+              "enum": [
+                "predict",
+                "vision-graph",
+                "encoder-action-graph",
+                "cuda-device-synchronize",
+                "cuda-stream-synchronize",
+                "cuda-graph-launch",
+                "kernel",
+                "memcpy",
+                "cuda-api-call",
+                "cuda-sync",
+                "osrt-call"
+              ]
+            },
+            "start_ns": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "duration_ns": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "count": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "kernel_signature_id": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "min_length": 1,
+              "max_length": 120
+            },
+            "bytes": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "minimum": 0
+            },
+            "copy_direction": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "enum": [
+                "h2d",
+                "d2h",
+                "d2d",
+                "h2h",
+                "unknown",
+                null
+              ]
+            },
+            "evidence_semantics": {
+              "type": "string",
+              "enum": [
+                "exact_interval",
+                "cuda_graph_execution_span",
+                "scheduler_running_interval",
+                "aggregated_interval"
+              ]
+            },
+            "launch": {
+              "type": "object",
+              "required": [
+                "grid",
+                "block",
+                "registers_per_thread",
+                "static_shared_memory_bytes",
+                "dynamic_shared_memory_bytes",
+                "waves_per_sm"
+              ],
+              "additional_properties": false,
+              "properties": {
+                "grid": {
+                  "type": [
+                    "array",
+                    "null"
+                  ],
+                  "items": {
+                    "type": "integer",
+                    "minimum": 1
+                  }
+                },
+                "block": {
+                  "type": [
+                    "array",
+                    "null"
+                  ],
+                  "items": {
+                    "type": "integer",
+                    "minimum": 1
+                  }
+                },
+                "registers_per_thread": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
+                  "minimum": 0
+                },
+                "static_shared_memory_bytes": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
+                  "minimum": 0
+                },
+                "dynamic_shared_memory_bytes": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
+                  "minimum": 0
+                },
+                "waves_per_sm": {
+                  "type": [
+                    "number",
+                    "null"
+                  ],
+                  "minimum": 0
+                }
+              }
+            },
+            "api_name": {
+              "type": "string",
+              "enum": [
+                "cudaGraphLaunch",
+                "cudaStreamSynchronize",
+                "cudaDeviceSynchronize",
+                "cudaEventSynchronize",
+                "cudaMemcpyAsync",
+                "cudaMemcpy",
+                "cudaMalloc",
+                "cudaFree",
+                "cudaLaunchKernel",
+                "cudaLaunchKernelExC",
+                "cuLaunchKernel",
+                "cuLaunchKernelEx",
+                "pthread_cond_wait",
+                "pthread_cond_timedwait",
+                "pthread_mutex_lock",
+                "pthread_mutex_trylock",
+                "pthread_cond_broadcast",
+                "sem_timedwait",
+                "poll",
+                "read",
+                "write",
+                "ioctl",
+                "unknown"
+              ]
+            }
           }
         }
       },
@@ -60,15 +332,81 @@
         "type": "array",
         "items": {
           "type": "object",
-          "required": ["metric_name", "value", "unit", "denominator", "derivation_version", "input_refs"],
+          "required": [
+            "metric_name",
+            "value",
+            "unit",
+            "denominator",
+            "derivation_version",
+            "input_refs"
+          ],
           "additional_properties": false,
           "properties": {
-            "metric_name": {"type": "string", "enum": ["cuda_graph_span_union", "inter_graph_gap", "outside_graph_span_union", "cuda_device_synchronize_wall_duration", "cuda_graph_launch_wall_duration", "kernel_duration_sum", "recorded_gpu_activity_union", "recorded_copy_activity_union", "target_scheduled_core_time_overlapping_recorded_gpu_activity", "target_wall_overlap_with_recorded_gpu_activity", "target_scheduled_core_time_overlapping_graph_spans", "target_scheduled_core_time_over_full_window", "non_profiler_scheduled_core_time_during_graph_spans", "non_profiler_equivalent_scheduled_cores_during_graph_spans", "non_profiler_scheduled_capacity_share_during_graph_spans", "non_profiler_wall_overlap_with_graph_spans", "profiler_scheduled_core_time_during_graph_spans"]},
-            "value": {"type": "number", "minimum": 0},
-            "unit": {"type": "string", "enum": ["ns", "percent", "cores"]},
-            "denominator": {"type": "string", "enum": ["predict_window", "adjacent_graph_spans", "kernel_duration_sum", "recorded_gpu_activity_union", "cuda_graph_span_union", "logical_cpu_capacity_during_graph_spans", "none"]},
-            "derivation_version": {"type": "string", "enum": ["interval-union-v1", "interval-gap-v1", "interval-complement-v1", "interval-sum-v1", "interval-intersection-v1", "interval-ratio-v1"]},
-            "input_refs": {"type": "array", "items": {"type": "string", "min_length": 1, "max_length": 80}}
+            "metric_name": {
+              "type": "string",
+              "enum": [
+                "cuda_graph_span_union",
+                "inter_graph_gap",
+                "outside_graph_span_union",
+                "cuda_device_synchronize_wall_duration",
+                "cuda_graph_launch_wall_duration",
+                "kernel_duration_sum",
+                "recorded_gpu_activity_union",
+                "recorded_copy_activity_union",
+                "target_scheduled_core_time_overlapping_recorded_gpu_activity",
+                "target_wall_overlap_with_recorded_gpu_activity",
+                "target_scheduled_core_time_overlapping_graph_spans",
+                "target_scheduled_core_time_over_full_window",
+                "non_profiler_scheduled_core_time_during_graph_spans",
+                "non_profiler_equivalent_scheduled_cores_during_graph_spans",
+                "non_profiler_scheduled_capacity_share_during_graph_spans",
+                "non_profiler_wall_overlap_with_graph_spans",
+                "profiler_scheduled_core_time_during_graph_spans"
+              ]
+            },
+            "value": {
+              "type": "number",
+              "minimum": 0
+            },
+            "unit": {
+              "type": "string",
+              "enum": [
+                "ns",
+                "percent",
+                "cores"
+              ]
+            },
+            "denominator": {
+              "type": "string",
+              "enum": [
+                "predict_window",
+                "adjacent_graph_spans",
+                "kernel_duration_sum",
+                "recorded_gpu_activity_union",
+                "cuda_graph_span_union",
+                "logical_cpu_capacity_during_graph_spans",
+                "none"
+              ]
+            },
+            "derivation_version": {
+              "type": "string",
+              "enum": [
+                "interval-union-v1",
+                "interval-gap-v1",
+                "interval-complement-v1",
+                "interval-sum-v1",
+                "interval-intersection-v1",
+                "interval-ratio-v1"
+              ]
+            },
+            "input_refs": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "min_length": 1,
+                "max_length": 80
+              }
+            }
           }
         }
       },
@@ -77,10 +415,91 @@
         "required": [],
         "additional_properties": false,
         "properties": {
-          "exact_gpu_busy_union": {"type": "string", "enum": ["graph_node_trace_not_collected"]},
-          "gpu_kernel_lane": {"type": "string", "enum": ["not_collected_at_trace_mode"]},
-          "cpu_idle_conclusion": {"type": "string", "enum": ["not_computable_from_scheduler_activity"]},
-          "kernel_signature_coverage": {"type": "string", "enum": ["unclassified_raw_symbols"]}
+          "exact_gpu_busy_union": {
+            "type": "string",
+            "enum": [
+              "graph_node_trace_not_collected"
+            ]
+          },
+          "gpu_kernel_lane": {
+            "type": "string",
+            "enum": [
+              "not_collected_at_trace_mode"
+            ]
+          },
+          "cpu_idle_conclusion": {
+            "type": "string",
+            "enum": [
+              "not_computable_from_scheduler_activity"
+            ]
+          },
+          "kernel_signature_coverage": {
+            "type": "string",
+            "enum": [
+              "unclassified_raw_symbols"
+            ]
+          }
+        }
+      },
+      "cpu_samples": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": [
+            "sample_id",
+            "lane_id",
+            "time_ns",
+            "frames",
+            "weight"
+          ],
+          "additional_properties": false,
+          "properties": {
+            "sample_id": {
+              "type": "string",
+              "min_length": 1,
+              "max_length": 80
+            },
+            "lane_id": {
+              "type": "string",
+              "min_length": 1,
+              "max_length": 80
+            },
+            "time_ns": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "weight": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "frames": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "label_sanitized",
+                  "depth"
+                ],
+                "additional_properties": false,
+                "properties": {
+                  "label_sanitized": {
+                    "type": "string",
+                    "enum": [
+                      "unresolved",
+                      "native-predict",
+                      "cuda-runtime",
+                      "thread-wait",
+                      "other"
+                    ]
+                  },
+                  "depth": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                }
+              }
+            }
+          }
         }
       }
     }

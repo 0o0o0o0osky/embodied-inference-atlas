@@ -7,7 +7,9 @@ type SelectedWorkload = Pick<VlaWorkloadRecord,
 export type Pi0RuntimeSelectionKind =
   | "target_measurement"
   | "native_evidence"
-  | "symbolic_target";
+  | "symbolic_target"
+  | "unsupported"
+  | "profiler_capture";
 
 interface Pi0SelectedRuntimeSummaryProps {
   runtimeLabel: string;
@@ -28,12 +30,16 @@ const SELECTION_LABELS: Readonly<Record<Pi0RuntimeSelectionKind, string>> = {
   target_measurement: "目标点实测",
   native_evidence: "已有原生证据",
   symbolic_target: "目标配置待测",
+  unsupported: "当前形状不支持",
+  profiler_capture: "独立性能采集",
 };
 
 const SELECTION_NOTES: Readonly<Record<Pi0RuntimeSelectionKind, string>> = {
-  target_measurement: "与 P=48、N=10、A=20/50 目标坐标匹配；预热 5 次，正式测量 10 次。",
+  target_measurement: "与当前输入形状匹配；预热 5 次，正式测量 10 次。",
   native_evidence: "这是该推理栈已有的原生测量，未完全匹配当前输入形状或 5+10 采样口径。",
   symbolic_target: "当前只是待采集的目标坐标；没有借用其他输入配置的延时。",
+  unsupported: "现有实现不支持当前形状；下方可查看当前栈的执行结构。",
+  profiler_capture: "当前为独立 Profiler 采集，不将其窗口时长当作无 Profiler 的端到端统计。",
 };
 
 function value(item: number | null, suffix = "") {
@@ -61,7 +67,7 @@ export function Pi0SelectedRuntimeSummary({
         </div>
         <div className="pi0-selected-latency">
           <span>端到端延时</span>
-          <strong>{latency?.value == null ? "待测" : `${latency.value.toLocaleString("zh-CN", { maximumFractionDigits: 2 })} ${latency.unit}`}</strong>
+          <strong>{latency?.value == null ? selectionKind === "profiler_capture" ? "未关联" : selectionKind === "unsupported" ? "不支持" : "待测" : `${latency.value.toLocaleString("zh-CN", { maximumFractionDigits: 2 })} ${latency.unit}`}</strong>
           <small>{latency ? STATISTIC_LABELS[latency.statistic] ?? latency.statistic : "无匹配实测"}</small>
         </div>
       </header>

@@ -1614,6 +1614,526 @@
     {
       "aggregation": "entity",
       "bandwidth_ceiling_id": "bw-thor-120w-conditional-273gbps",
+      "basis_id": "basis-pi0-vlacpp-gemm-021-001",
+      "capture_id": "capture-pi0-vla-cpp-nsys-node-021",
+      "ceiling_id": "thor-t5000-120w-1386mhz",
+      "comparison_mode": "inventory",
+      "device_id": "nvidia-jetson-agx-thor",
+      "label": "BF16 GEMM 16384x304x2048; window 1; kernel-boundary modeled traffic",
+      "level": "kernel",
+      "missing": [],
+      "operating_point_id": "thor-120w-1386mhz-analytical",
+      "precision_path_id": "bf16_dense",
+      "provenance": {
+        "class": "analytical_model",
+        "condition": "Only three exact GEMM shapes; BF16 inputs and FP32 accumulation/output. Kernel boundary excludes conversion, other kernels, CPU and transfers. Nsys node-traced ordinary execution; not unprofiled timing or NCU replay. Conditional 120W/1.386GHz/273GB/s curve; no matched observed clocks or DRAM traffic.",
+        "derivation": {
+          "expression": "one-window shape-matched launch sum; same work and bytes for theoretical and observed points",
+          "input_refs": [
+            "ggml/src/ggml-cuda/ggml-cuda.cu#ggml_cuda_op_mul_mat_cublas"
+          ],
+          "kind": "formula"
+        },
+        "evidence": "analytical",
+        "source_ids": [
+          "source-local-thor",
+          "source-vla-cpp"
+        ]
+      },
+      "realization_id": "rr-vla-cpp-pi0-thor-bf16-f32-v1",
+      "run_id": "run-pi0-vla-cpp-nsys-node-021",
+      "runtime_id": "vla-cpp",
+      "runtime_overhead": "excluded",
+      "scenario_id": "scenario-pi0-vlacpp-bf16-gemm-capture",
+      "schema_version": "2.0.0",
+      "time_basis": "nsys_interval",
+      "traffic_basis": "kernel_boundary_modeled",
+      "work_basis": "runtime_executed_formula",
+      "work_unit": "kernel_launch"
+    },
+    {
+      "aggregation": "entity",
+      "bandwidth_ceiling_id": "bw-thor-120w-conditional-273gbps",
+      "basis_id": "basis-pi0-vlacpp-gemm-021-002",
+      "capture_id": "capture-pi0-vla-cpp-nsys-node-021",
+      "ceiling_id": "thor-t5000-120w-1386mhz",
+      "comparison_mode": "inventory",
+      "device_id": "nvidia-jetson-agx-thor",
+      "label": "BF16 GEMM 2048x304x16384; window 1; kernel-boundary modeled traffic",
+      "level": "kernel",
+      "missing": [],
+      "operating_point_id": "thor-120w-1386mhz-analytical",
+      "precision_path_id": "bf16_dense",
+      "provenance": {
+        "class": "analytical_model",
+        "condition": "Only three exact GEMM shapes; BF16 inputs and FP32 accumulation/output. Kernel boundary excludes conversion, other kernels, CPU and transfers. Nsys node-traced ordinary execution; not unprofiled timing or NCU replay. Conditional 120W/1.386GHz/273GB/s curve; no matched observed clocks or DRAM traffic.",
+        "derivation": {
+          "expression": "one-window shape-matched launch sum; same work and bytes for theoretical and observed points",
+          "input_refs": [
+            "ggml/src/ggml-cuda/ggml-cuda.cu#ggml_cuda_op_mul_mat_cublas"
+          ],
+          "kind": "formula"
+        },
+        "evidence": "analytical",
+        "source_ids": [
+          "source-local-thor",
+          "source-vla-cpp"
+        ]
+      },
+      "realization_id": "rr-vla-cpp-pi0-thor-bf16-f32-v1",
+      "run_id": "run-pi0-vla-cpp-nsys-node-021",
+      "runtime_id": "vla-cpp",
+      "runtime_overhead": "excluded",
+      "scenario_id": "scenario-pi0-vlacpp-bf16-gemm-capture",
+      "schema_version": "2.0.0",
+      "time_basis": "nsys_interval",
+      "traffic_basis": "kernel_boundary_modeled",
+      "work_basis": "runtime_executed_formula",
+      "work_unit": "kernel_launch"
+    },
+    {
+      "aggregation": "entity",
+      "bandwidth_ceiling_id": "bw-thor-120w-conditional-273gbps",
+      "basis_id": "basis-pi0-vlacpp-gemm-021-003",
+      "capture_id": "capture-pi0-vla-cpp-nsys-node-021",
+      "ceiling_id": "thor-t5000-120w-1386mhz",
+      "comparison_mode": "inventory",
+      "device_id": "nvidia-jetson-agx-thor",
+      "label": "BF16 GEMM 4304x256x1152; window 1; kernel-boundary modeled traffic",
+      "level": "kernel",
+      "missing": [],
+      "operating_point_id": "thor-120w-1386mhz-analytical",
+      "precision_path_id": "bf16_dense",
+      "provenance": {
+        "class": "analytical_model",
+        "condition": "Only three exact GEMM shapes; BF16 inputs and FP32 accumulation/output. Kernel boundary excludes conversion, other kernels, CPU and transfers. Nsys node-traced ordinary execution; not unprofiled timing or NCU replay. Conditional 120W/1.386GHz/273GB/s curve; no matched observed clocks or DRAM traffic.",
+        "derivation": {
+          "expression": "one-window shape-matched launch sum; same work and bytes for theoretical and observed points",
+          "input_refs": [
+            "ggml/src/ggml-cuda/ggml-cuda.cu#ggml_cuda_op_mul_mat_cublas"
+          ],
+          "kind": "formula"
+        },
+        "evidence": "analytical",
+        "source_ids": [
+          "source-local-thor",
+          "source-vla-cpp"
+        ]
+      },
+      "realization_id": "rr-vla-cpp-pi0-thor-bf16-f32-v1",
+      "run_id": "run-pi0-vla-cpp-nsys-node-021",
+      "runtime_id": "vla-cpp",
+      "runtime_overhead": "excluded",
+      "scenario_id": "scenario-pi0-vlacpp-bf16-gemm-capture",
+      "schema_version": "2.0.0",
+      "time_basis": "nsys_interval",
+      "traffic_basis": "kernel_boundary_modeled",
+      "work_basis": "runtime_executed_formula",
+      "work_unit": "kernel_launch"
+    },
+    {
+      "aggregation": "entity",
+      "bandwidth_ceiling_id": "bw-thor-120w-conditional-273gbps",
+      "basis_id": "basis-pi0-vlacpp-gemm-021-004",
+      "capture_id": "capture-pi0-vla-cpp-nsys-node-021",
+      "ceiling_id": "thor-t5000-120w-1386mhz",
+      "comparison_mode": "inventory",
+      "device_id": "nvidia-jetson-agx-thor",
+      "label": "BF16 GEMM 256x51x1024; window 1; kernel-boundary modeled traffic",
+      "level": "kernel",
+      "missing": [],
+      "operating_point_id": "thor-120w-1386mhz-analytical",
+      "precision_path_id": "bf16_dense",
+      "provenance": {
+        "class": "analytical_model",
+        "condition": "Only three exact GEMM shapes; BF16 inputs and FP32 accumulation/output. Kernel boundary excludes conversion, other kernels, CPU and transfers. Nsys node-traced ordinary execution; not unprofiled timing or NCU replay. Conditional 120W/1.386GHz/273GB/s curve; no matched observed clocks or DRAM traffic.",
+        "derivation": {
+          "expression": "one-window shape-matched launch sum; same work and bytes for theoretical and observed points",
+          "input_refs": [
+            "ggml/src/ggml-cuda/ggml-cuda.cu#ggml_cuda_op_mul_mat_cublas"
+          ],
+          "kind": "formula"
+        },
+        "evidence": "analytical",
+        "source_ids": [
+          "source-local-thor",
+          "source-vla-cpp"
+        ]
+      },
+      "realization_id": "rr-vla-cpp-pi0-thor-bf16-f32-v1",
+      "run_id": "run-pi0-vla-cpp-nsys-node-021",
+      "runtime_id": "vla-cpp",
+      "runtime_overhead": "excluded",
+      "scenario_id": "scenario-pi0-vlacpp-bf16-gemm-capture",
+      "schema_version": "2.0.0",
+      "time_basis": "nsys_interval",
+      "traffic_basis": "kernel_boundary_modeled",
+      "work_basis": "runtime_executed_formula",
+      "work_unit": "kernel_launch"
+    },
+    {
+      "aggregation": "entity",
+      "bandwidth_ceiling_id": "bw-thor-120w-conditional-273gbps",
+      "basis_id": "basis-pi0-vlacpp-gemm-021-005",
+      "capture_id": "capture-pi0-vla-cpp-nsys-node-021",
+      "ceiling_id": "thor-t5000-120w-1386mhz",
+      "comparison_mode": "inventory",
+      "device_id": "nvidia-jetson-agx-thor",
+      "label": "BF16 GEMM 256x304x2048; window 1; kernel-boundary modeled traffic",
+      "level": "kernel",
+      "missing": [],
+      "operating_point_id": "thor-120w-1386mhz-analytical",
+      "precision_path_id": "bf16_dense",
+      "provenance": {
+        "class": "analytical_model",
+        "condition": "Only three exact GEMM shapes; BF16 inputs and FP32 accumulation/output. Kernel boundary excludes conversion, other kernels, CPU and transfers. Nsys node-traced ordinary execution; not unprofiled timing or NCU replay. Conditional 120W/1.386GHz/273GB/s curve; no matched observed clocks or DRAM traffic.",
+        "derivation": {
+          "expression": "one-window shape-matched launch sum; same work and bytes for theoretical and observed points",
+          "input_refs": [
+            "ggml/src/ggml-cuda/ggml-cuda.cu#ggml_cuda_op_mul_mat_cublas"
+          ],
+          "kind": "formula"
+        },
+        "evidence": "analytical",
+        "source_ids": [
+          "source-local-thor",
+          "source-vla-cpp"
+        ]
+      },
+      "realization_id": "rr-vla-cpp-pi0-thor-bf16-f32-v1",
+      "run_id": "run-pi0-vla-cpp-nsys-node-021",
+      "runtime_id": "vla-cpp",
+      "runtime_overhead": "excluded",
+      "scenario_id": "scenario-pi0-vlacpp-bf16-gemm-capture",
+      "schema_version": "2.0.0",
+      "time_basis": "nsys_interval",
+      "traffic_basis": "kernel_boundary_modeled",
+      "work_basis": "runtime_executed_formula",
+      "work_unit": "kernel_launch"
+    },
+    {
+      "aggregation": "entity",
+      "bandwidth_ceiling_id": "bw-thor-120w-conditional-273gbps",
+      "basis_id": "basis-pi0-vlacpp-gemm-021-006",
+      "capture_id": "capture-pi0-vla-cpp-nsys-node-021",
+      "ceiling_id": "thor-t5000-120w-1386mhz",
+      "comparison_mode": "inventory",
+      "device_id": "nvidia-jetson-agx-thor",
+      "label": "BF16 GEMM 1024x51x2048; window 1; kernel-boundary modeled traffic",
+      "level": "kernel",
+      "missing": [],
+      "operating_point_id": "thor-120w-1386mhz-analytical",
+      "precision_path_id": "bf16_dense",
+      "provenance": {
+        "class": "analytical_model",
+        "condition": "Only three exact GEMM shapes; BF16 inputs and FP32 accumulation/output. Kernel boundary excludes conversion, other kernels, CPU and transfers. Nsys node-traced ordinary execution; not unprofiled timing or NCU replay. Conditional 120W/1.386GHz/273GB/s curve; no matched observed clocks or DRAM traffic.",
+        "derivation": {
+          "expression": "one-window shape-matched launch sum; same work and bytes for theoretical and observed points",
+          "input_refs": [
+            "ggml/src/ggml-cuda/ggml-cuda.cu#ggml_cuda_op_mul_mat_cublas"
+          ],
+          "kind": "formula"
+        },
+        "evidence": "analytical",
+        "source_ids": [
+          "source-local-thor",
+          "source-vla-cpp"
+        ]
+      },
+      "realization_id": "rr-vla-cpp-pi0-thor-bf16-f32-v1",
+      "run_id": "run-pi0-vla-cpp-nsys-node-021",
+      "runtime_id": "vla-cpp",
+      "runtime_overhead": "excluded",
+      "scenario_id": "scenario-pi0-vlacpp-bf16-gemm-capture",
+      "schema_version": "2.0.0",
+      "time_basis": "nsys_interval",
+      "traffic_basis": "kernel_boundary_modeled",
+      "work_basis": "runtime_executed_formula",
+      "work_unit": "kernel_launch"
+    },
+    {
+      "aggregation": "entity",
+      "bandwidth_ceiling_id": "bw-thor-120w-conditional-273gbps",
+      "basis_id": "basis-pi0-vlacpp-gemm-021-007",
+      "capture_id": "capture-pi0-vla-cpp-nsys-node-021",
+      "ceiling_id": "thor-t5000-120w-1386mhz",
+      "comparison_mode": "inventory",
+      "device_id": "nvidia-jetson-agx-thor",
+      "label": "BF16 GEMM 1024x51x4096; window 1; kernel-boundary modeled traffic",
+      "level": "kernel",
+      "missing": [],
+      "operating_point_id": "thor-120w-1386mhz-analytical",
+      "precision_path_id": "bf16_dense",
+      "provenance": {
+        "class": "analytical_model",
+        "condition": "Only three exact GEMM shapes; BF16 inputs and FP32 accumulation/output. Kernel boundary excludes conversion, other kernels, CPU and transfers. Nsys node-traced ordinary execution; not unprofiled timing or NCU replay. Conditional 120W/1.386GHz/273GB/s curve; no matched observed clocks or DRAM traffic.",
+        "derivation": {
+          "expression": "one-window shape-matched launch sum; same work and bytes for theoretical and observed points",
+          "input_refs": [
+            "ggml/src/ggml-cuda/ggml-cuda.cu#ggml_cuda_op_mul_mat_cublas"
+          ],
+          "kind": "formula"
+        },
+        "evidence": "analytical",
+        "source_ids": [
+          "source-local-thor",
+          "source-vla-cpp"
+        ]
+      },
+      "realization_id": "rr-vla-cpp-pi0-thor-bf16-f32-v1",
+      "run_id": "run-pi0-vla-cpp-nsys-node-021",
+      "runtime_id": "vla-cpp",
+      "runtime_overhead": "excluded",
+      "scenario_id": "scenario-pi0-vlacpp-bf16-gemm-capture",
+      "schema_version": "2.0.0",
+      "time_basis": "nsys_interval",
+      "traffic_basis": "kernel_boundary_modeled",
+      "work_basis": "runtime_executed_formula",
+      "work_unit": "kernel_launch"
+    },
+    {
+      "aggregation": "entity",
+      "bandwidth_ceiling_id": "bw-thor-120w-conditional-273gbps",
+      "basis_id": "basis-pi0-vlacpp-gemm-021-008",
+      "capture_id": "capture-pi0-vla-cpp-nsys-node-021",
+      "ceiling_id": "thor-t5000-120w-1386mhz",
+      "comparison_mode": "inventory",
+      "device_id": "nvidia-jetson-agx-thor",
+      "label": "BF16 GEMM 1152x256x1152; window 1; kernel-boundary modeled traffic",
+      "level": "kernel",
+      "missing": [],
+      "operating_point_id": "thor-120w-1386mhz-analytical",
+      "precision_path_id": "bf16_dense",
+      "provenance": {
+        "class": "analytical_model",
+        "condition": "Only three exact GEMM shapes; BF16 inputs and FP32 accumulation/output. Kernel boundary excludes conversion, other kernels, CPU and transfers. Nsys node-traced ordinary execution; not unprofiled timing or NCU replay. Conditional 120W/1.386GHz/273GB/s curve; no matched observed clocks or DRAM traffic.",
+        "derivation": {
+          "expression": "one-window shape-matched launch sum; same work and bytes for theoretical and observed points",
+          "input_refs": [
+            "ggml/src/ggml-cuda/ggml-cuda.cu#ggml_cuda_op_mul_mat_cublas"
+          ],
+          "kind": "formula"
+        },
+        "evidence": "analytical",
+        "source_ids": [
+          "source-local-thor",
+          "source-vla-cpp"
+        ]
+      },
+      "realization_id": "rr-vla-cpp-pi0-thor-bf16-f32-v1",
+      "run_id": "run-pi0-vla-cpp-nsys-node-021",
+      "runtime_id": "vla-cpp",
+      "runtime_overhead": "excluded",
+      "scenario_id": "scenario-pi0-vlacpp-bf16-gemm-capture",
+      "schema_version": "2.0.0",
+      "time_basis": "nsys_interval",
+      "traffic_basis": "kernel_boundary_modeled",
+      "work_basis": "runtime_executed_formula",
+      "work_unit": "kernel_launch"
+    },
+    {
+      "aggregation": "entity",
+      "bandwidth_ceiling_id": "bw-thor-120w-conditional-273gbps",
+      "basis_id": "basis-pi0-vlacpp-gemm-021-009",
+      "capture_id": "capture-pi0-vla-cpp-nsys-node-021",
+      "ceiling_id": "thor-t5000-120w-1386mhz",
+      "comparison_mode": "inventory",
+      "device_id": "nvidia-jetson-agx-thor",
+      "label": "BF16 GEMM 1152x256x4304; window 1; kernel-boundary modeled traffic",
+      "level": "kernel",
+      "missing": [],
+      "operating_point_id": "thor-120w-1386mhz-analytical",
+      "precision_path_id": "bf16_dense",
+      "provenance": {
+        "class": "analytical_model",
+        "condition": "Only three exact GEMM shapes; BF16 inputs and FP32 accumulation/output. Kernel boundary excludes conversion, other kernels, CPU and transfers. Nsys node-traced ordinary execution; not unprofiled timing or NCU replay. Conditional 120W/1.386GHz/273GB/s curve; no matched observed clocks or DRAM traffic.",
+        "derivation": {
+          "expression": "one-window shape-matched launch sum; same work and bytes for theoretical and observed points",
+          "input_refs": [
+            "ggml/src/ggml-cuda/ggml-cuda.cu#ggml_cuda_op_mul_mat_cublas"
+          ],
+          "kind": "formula"
+        },
+        "evidence": "analytical",
+        "source_ids": [
+          "source-local-thor",
+          "source-vla-cpp"
+        ]
+      },
+      "realization_id": "rr-vla-cpp-pi0-thor-bf16-f32-v1",
+      "run_id": "run-pi0-vla-cpp-nsys-node-021",
+      "runtime_id": "vla-cpp",
+      "runtime_overhead": "excluded",
+      "scenario_id": "scenario-pi0-vlacpp-bf16-gemm-capture",
+      "schema_version": "2.0.0",
+      "time_basis": "nsys_interval",
+      "traffic_basis": "kernel_boundary_modeled",
+      "work_basis": "runtime_executed_formula",
+      "work_unit": "kernel_launch"
+    },
+    {
+      "aggregation": "entity",
+      "bandwidth_ceiling_id": "bw-thor-120w-conditional-273gbps",
+      "basis_id": "basis-pi0-vlacpp-gemm-021-010",
+      "capture_id": "capture-pi0-vla-cpp-nsys-node-021",
+      "ceiling_id": "thor-t5000-120w-1386mhz",
+      "comparison_mode": "inventory",
+      "device_id": "nvidia-jetson-agx-thor",
+      "label": "BF16 GEMM 2048x51x1024; window 1; kernel-boundary modeled traffic",
+      "level": "kernel",
+      "missing": [],
+      "operating_point_id": "thor-120w-1386mhz-analytical",
+      "precision_path_id": "bf16_dense",
+      "provenance": {
+        "class": "analytical_model",
+        "condition": "Only three exact GEMM shapes; BF16 inputs and FP32 accumulation/output. Kernel boundary excludes conversion, other kernels, CPU and transfers. Nsys node-traced ordinary execution; not unprofiled timing or NCU replay. Conditional 120W/1.386GHz/273GB/s curve; no matched observed clocks or DRAM traffic.",
+        "derivation": {
+          "expression": "one-window shape-matched launch sum; same work and bytes for theoretical and observed points",
+          "input_refs": [
+            "ggml/src/ggml-cuda/ggml-cuda.cu#ggml_cuda_op_mul_mat_cublas"
+          ],
+          "kind": "formula"
+        },
+        "evidence": "analytical",
+        "source_ids": [
+          "source-local-thor",
+          "source-vla-cpp"
+        ]
+      },
+      "realization_id": "rr-vla-cpp-pi0-thor-bf16-f32-v1",
+      "run_id": "run-pi0-vla-cpp-nsys-node-021",
+      "runtime_id": "vla-cpp",
+      "runtime_overhead": "excluded",
+      "scenario_id": "scenario-pi0-vlacpp-bf16-gemm-capture",
+      "schema_version": "2.0.0",
+      "time_basis": "nsys_interval",
+      "traffic_basis": "kernel_boundary_modeled",
+      "work_basis": "runtime_executed_formula",
+      "work_unit": "kernel_launch"
+    },
+    {
+      "aggregation": "entity",
+      "bandwidth_ceiling_id": "bw-thor-120w-conditional-273gbps",
+      "basis_id": "basis-pi0-vlacpp-gemm-021-011",
+      "capture_id": "capture-pi0-vla-cpp-nsys-node-021",
+      "ceiling_id": "thor-t5000-120w-1386mhz",
+      "comparison_mode": "inventory",
+      "device_id": "nvidia-jetson-agx-thor",
+      "label": "BF16 GEMM 2048x256x1152; window 1; kernel-boundary modeled traffic",
+      "level": "kernel",
+      "missing": [],
+      "operating_point_id": "thor-120w-1386mhz-analytical",
+      "precision_path_id": "bf16_dense",
+      "provenance": {
+        "class": "analytical_model",
+        "condition": "Only three exact GEMM shapes; BF16 inputs and FP32 accumulation/output. Kernel boundary excludes conversion, other kernels, CPU and transfers. Nsys node-traced ordinary execution; not unprofiled timing or NCU replay. Conditional 120W/1.386GHz/273GB/s curve; no matched observed clocks or DRAM traffic.",
+        "derivation": {
+          "expression": "one-window shape-matched launch sum; same work and bytes for theoretical and observed points",
+          "input_refs": [
+            "ggml/src/ggml-cuda/ggml-cuda.cu#ggml_cuda_op_mul_mat_cublas"
+          ],
+          "kind": "formula"
+        },
+        "evidence": "analytical",
+        "source_ids": [
+          "source-local-thor",
+          "source-vla-cpp"
+        ]
+      },
+      "realization_id": "rr-vla-cpp-pi0-thor-bf16-f32-v1",
+      "run_id": "run-pi0-vla-cpp-nsys-node-021",
+      "runtime_id": "vla-cpp",
+      "runtime_overhead": "excluded",
+      "scenario_id": "scenario-pi0-vlacpp-bf16-gemm-capture",
+      "schema_version": "2.0.0",
+      "time_basis": "nsys_interval",
+      "traffic_basis": "kernel_boundary_modeled",
+      "work_basis": "runtime_executed_formula",
+      "work_unit": "kernel_launch"
+    },
+    {
+      "aggregation": "entity",
+      "bandwidth_ceiling_id": "bw-thor-120w-conditional-273gbps",
+      "basis_id": "basis-pi0-vlacpp-gemm-021-012",
+      "capture_id": "capture-pi0-vla-cpp-nsys-node-021",
+      "ceiling_id": "thor-t5000-120w-1386mhz",
+      "comparison_mode": "inventory",
+      "device_id": "nvidia-jetson-agx-thor",
+      "label": "BF16 GEMM 2048x304x2048; window 1; kernel-boundary modeled traffic",
+      "level": "kernel",
+      "missing": [],
+      "operating_point_id": "thor-120w-1386mhz-analytical",
+      "precision_path_id": "bf16_dense",
+      "provenance": {
+        "class": "analytical_model",
+        "condition": "Only three exact GEMM shapes; BF16 inputs and FP32 accumulation/output. Kernel boundary excludes conversion, other kernels, CPU and transfers. Nsys node-traced ordinary execution; not unprofiled timing or NCU replay. Conditional 120W/1.386GHz/273GB/s curve; no matched observed clocks or DRAM traffic.",
+        "derivation": {
+          "expression": "one-window shape-matched launch sum; same work and bytes for theoretical and observed points",
+          "input_refs": [
+            "ggml/src/ggml-cuda/ggml-cuda.cu#ggml_cuda_op_mul_mat_cublas"
+          ],
+          "kind": "formula"
+        },
+        "evidence": "analytical",
+        "source_ids": [
+          "source-local-thor",
+          "source-vla-cpp"
+        ]
+      },
+      "realization_id": "rr-vla-cpp-pi0-thor-bf16-f32-v1",
+      "run_id": "run-pi0-vla-cpp-nsys-node-021",
+      "runtime_id": "vla-cpp",
+      "runtime_overhead": "excluded",
+      "scenario_id": "scenario-pi0-vlacpp-bf16-gemm-capture",
+      "schema_version": "2.0.0",
+      "time_basis": "nsys_interval",
+      "traffic_basis": "kernel_boundary_modeled",
+      "work_basis": "runtime_executed_formula",
+      "work_unit": "kernel_launch"
+    },
+    {
+      "aggregation": "entity",
+      "bandwidth_ceiling_id": "bw-thor-120w-conditional-273gbps",
+      "basis_id": "basis-pi0-vlacpp-gemm-021-013",
+      "capture_id": "capture-pi0-vla-cpp-nsys-node-021",
+      "ceiling_id": "thor-t5000-120w-1386mhz",
+      "comparison_mode": "inventory",
+      "device_id": "nvidia-jetson-agx-thor",
+      "label": "BF16 GEMM 4096x51x1024; window 1; kernel-boundary modeled traffic",
+      "level": "kernel",
+      "missing": [],
+      "operating_point_id": "thor-120w-1386mhz-analytical",
+      "precision_path_id": "bf16_dense",
+      "provenance": {
+        "class": "analytical_model",
+        "condition": "Only three exact GEMM shapes; BF16 inputs and FP32 accumulation/output. Kernel boundary excludes conversion, other kernels, CPU and transfers. Nsys node-traced ordinary execution; not unprofiled timing or NCU replay. Conditional 120W/1.386GHz/273GB/s curve; no matched observed clocks or DRAM traffic.",
+        "derivation": {
+          "expression": "one-window shape-matched launch sum; same work and bytes for theoretical and observed points",
+          "input_refs": [
+            "ggml/src/ggml-cuda/ggml-cuda.cu#ggml_cuda_op_mul_mat_cublas"
+          ],
+          "kind": "formula"
+        },
+        "evidence": "analytical",
+        "source_ids": [
+          "source-local-thor",
+          "source-vla-cpp"
+        ]
+      },
+      "realization_id": "rr-vla-cpp-pi0-thor-bf16-f32-v1",
+      "run_id": "run-pi0-vla-cpp-nsys-node-021",
+      "runtime_id": "vla-cpp",
+      "runtime_overhead": "excluded",
+      "scenario_id": "scenario-pi0-vlacpp-bf16-gemm-capture",
+      "schema_version": "2.0.0",
+      "time_basis": "nsys_interval",
+      "traffic_basis": "kernel_boundary_modeled",
+      "work_basis": "runtime_executed_formula",
+      "work_unit": "kernel_launch"
+    },
+    {
+      "aggregation": "entity",
+      "bandwidth_ceiling_id": "bw-thor-120w-conditional-273gbps",
       "basis_id": "basis-pi0-w4a16_bf16_compute-atomic-default",
       "capture_id": null,
       "ceiling_id": "thor-t5000-120w-1386mhz",

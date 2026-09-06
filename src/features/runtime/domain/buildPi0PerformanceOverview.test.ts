@@ -125,7 +125,7 @@ function measurement(run: RunRecord, value: number) {
     measurement_method: run.evidence === "analytical" ? "analytical" : "wall_clock",
     metric: "latency",
     statistics: [{
-      statistic: run.runtime_id === "vla-cpp" ? "p50" : run.evidence === "analytical" ? "analytical_estimate" : "mean",
+      statistic: run.evidence === "analytical" ? "analytical_estimate" : "p50",
       value,
       unit: "ms",
     }],

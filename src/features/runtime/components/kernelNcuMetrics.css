@@ -1,0 +1,25 @@
+.kernel-ncu { margin-top: 1.25rem; }
+.kernel-ncu h4 { margin: 0 0 .4rem; }
+.kernel-ncu-note { color: #53616d; font-size: .84rem; line-height: 1.5; margin: .45rem 0 .75rem; }
+.kernel-ncu-replay { border-top: 1px solid #d7e0e7; padding: .9rem 0; }
+.kernel-ncu-replay > header { display: flex; align-items: baseline; flex-wrap: wrap; gap: .35rem .75rem; }
+.kernel-ncu-replay > header span { font-size: .85rem; color: #53616d; }
+.kernel-ncu-group h5 { margin: .85rem 0 .4rem; font-size: .85rem; color: #53616d; font-weight: 500; }
+.kernel-ncu-group dl { display: grid; grid-template-columns: repeat(auto-fit, minmax(132px, 1fr)); gap: .5rem; margin: 0; }
+.kernel-ncu-group dl > div { background: #f3f7fa; padding: .65rem .7rem; border-radius: 4px; }
+.kernel-ncu-group dt { font-size: .8rem; line-height: 1.4; }
+.kernel-ncu-group dd { font-size: 1.05rem; font-variant-numeric: tabular-nums; font-weight: 600; margin: .3rem 0 0; }
+.kernel-ncu-group small { display: block; margin-top: .25rem; font-size: .72rem; line-height: 1.4; color: #657785; }
+.kernel-ncu-raw { margin-top: .7rem; font-size: .8rem; }
+.kernel-ncu-raw summary { cursor: pointer; color: #53616d; }
+.kernel-ncu-identity div { display: grid; grid-template-columns: 6rem minmax(0,1fr); gap: .4rem; padding: .25rem 0; }
+.kernel-ncu-identity dd { margin: 0; overflow-wrap: anywhere; }
+.kernel-ncu-raw ul { padding-left: 1rem; }
+.kernel-ncu-raw li { margin: .65rem 0; overflow-wrap: anywhere; line-height: 1.4; }
+.kernel-ncu-raw li code, .kernel-ncu-raw li span { display: block; margin-top: .2rem; }
+.kernel-ncu-raw li code { font-size: .74rem; }
+
+.kernel-ncu-select { display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; margin: .7rem 0; font-size: .85rem; }
+.kernel-ncu-select select { max-width: 100%; padding: .3rem .45rem; background: #fff; border: 1px solid #ccd8e1; border-radius: 4px; }
+.kernel-ncu .kernel-ncu-group dl > div { display: block; }
+.kernel-ncu .kernel-ncu-group dd { text-align: left; white-space: nowrap; }

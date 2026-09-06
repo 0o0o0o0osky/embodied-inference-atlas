@@ -2,7 +2,7 @@ import { expect, it } from "vitest";
 import { readRoute, routeHref, type RouteState } from "../../../app/routes";
 import { isPi0ModelTheory, pi0EmbeddedTimelineSelectionPatch, pi0PerformanceNavigationPatch, pi0TheoryNavigationPatch } from "./pi0PerformanceNavigation";
 
-it("leaves detail routes without leaking detail state or losing the requested comparison scope", () => {
+it("retains selected execution context on comparison return and clears it only for model theory", () => {
   const detail: RouteState = {
     model: "pi0", tab: "roofline-kernels", runtime: "flashrt",
     runtimePrecision: "mixed-fp8-e4m3-fp16", hardware: "nvidia-jetson-agx-thor",
@@ -22,7 +22,7 @@ it("leaves detail routes without leaking detail state or losing the requested co
   ] as const;
   for (const { destination, expected } of cases) {
     const href = routeHref(detail, pi0PerformanceNavigationPatch(destination));
-    expect(readRoute(href), destination).toEqual({ ...preservedScope, ...expected });
+    expect(readRoute(href), destination).toEqual({ ...preservedScope, ...expected, ...(destination === "logical" ? {} : {entity:"kernel:selected",timelineCapture:"capture-selected"}) });
   }
 });
 

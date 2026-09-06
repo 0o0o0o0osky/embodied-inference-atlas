@@ -827,8 +827,12 @@ def _validate_kernel_point(
         "system_memory_measured": "system_memory",
         "l2_measured": "l2",
     }.get(basis.get("traffic_basis"))
-    if expected_domain is None or traffic.get("memory_domain") != expected_domain or traffic.get("value_kind") != "measured":
-        issues.append(_problem(f"{base}.traffic", "kernel_traffic", "kernel points require measured traffic on the basis memory domain"))
+    modeled_boundary = basis.get("traffic_basis") == "kernel_boundary_modeled"
+    if modeled_boundary:
+        if traffic.get("value_kind") != "modeled" or traffic.get("memory_domain") != "system_memory":
+            issues.append(_problem(f"{base}.traffic", "kernel_traffic", "kernel boundary traffic must remain explicitly modeled system-memory tensor bytes"))
+    elif expected_domain is None or traffic.get("memory_domain") != expected_domain or traffic.get("value_kind") != "measured":
+        issues.append(_problem(f"{base}.traffic", "kernel_traffic", "kernel points require measured-domain traffic or explicit kernel-boundary modeling"))
     if not _is_number(timing.get("observed_second")) or timing.get("observed_second") <= 0:
         issues.append(_problem(f"{base}.timing.observed_second", "kernel_timing", "kernel points require a positive observed duration"))
     if basis.get("work_basis") not in {"runtime_executed_formula", "hardware_counter"}:

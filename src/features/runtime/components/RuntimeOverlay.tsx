@@ -240,14 +240,14 @@ export function RuntimeOverlay({
     const group = index.groupById.get(boundary.groupId);
     const precision = index.precisionById.get(boundary.precisionPathId);
     const labels = pi0
-      ? [showPrecision ? `${pi0RelationLabel(boundary.relation)} · ${pi0ShortPrecisionLabel(precision?.precisionPathId ?? "", precision?.label ?? "精度未建立")}` : "融合"]
+      ? showPrecision ? [`${pi0RelationLabel(boundary.relation)} · ${pi0ShortPrecisionLabel(precision?.precisionPathId ?? "", precision?.label ?? "精度未建立")}`, "融合"] : ["融合"]
       : [...new Set([
           `Fused · ${precisionMark(precision)}`,
           `Fused · ${shortPrecisionMark(precision)}`,
     ])];
     for (const label of labels) {
       const width = pi0
-        ? pi0LabelWidth(label, showPrecision ? 92 : 42)
+        ? pi0LabelWidth(label, label === "融合" ? 42 : 92)
         : Math.max(106, label.length * 8.1 + 18);
       const box = pi0
         ? placePi0BoundaryLabel(boundary.box, width, layout, occupied)
@@ -270,7 +270,7 @@ export function RuntimeOverlay({
         eliminatedMappings.add(key);
         const mapping = realization.mappings.find((item) => item.mappingId === badge.mappingId);
         const label = mapping?.reasonCode === "precomputed_outside_prediction" ? "预计算"
-          : mapping?.reasonCode === "pointer_offset_view" ? "视图" : "已消除";
+          : mapping?.reasonCode === "pointer_offset_view" ? "共享数据切片" : "已消除";
         compactBadgeEntries.push({ ref, badge: { ...badge, label } });
       });
       const byGroup = new Map<string, RuntimeBadge[]>();
@@ -318,7 +318,8 @@ export function RuntimeOverlay({
         ? precisionMark(index.precisionById.get(group.precisionPathId))
         : badge.label;
     const precision = group ? index.precisionById.get(group.precisionPathId) : undefined;
-    const labels = !pi0 && badge.kind === "precision" ? [...new Set([label, shortPrecisionMark(precision)])] : [label];
+    const labels = !pi0 && badge.kind === "precision" ? [...new Set([label, shortPrecisionMark(precision)])]
+      : pi0 && badge.kind === "precision" && precision?.quantScheme === "q8_0_weight_only" ? [label, "Q8_0"] : [label];
     for (const candidateLabel of labels) {
       const width = pi0
         ? pi0LabelWidth(candidateLabel, 42)
@@ -327,6 +328,14 @@ export function RuntimeOverlay({
         ? placePi0BadgeLabel(anchor, width, layout, occupied)
         : placeRuntimeLabel(anchor, width, layout, occupied);
       if (box) return [{ ref, badge, group, label: candidateLabel, box }];
+    }
+    // A short precision chip fits inside the node header when adjacent lanes
+    // and dependency paths leave no collision-free external label position.
+    if (pi0 && badge.kind === "precision" && precision?.quantScheme === "q8_0_weight_only" && anchor.height >= 38 && anchor.width >= 48) {
+      return [{ref,badge,group,label:"Q8_0",box:{x:anchor.x+2,y:anchor.y+1,width:anchor.width-4,height:11}}];
+    }
+    if (pi0 && group?.kernelSignatureIds.length && anchor.height >= 38 && anchor.width >= 48) {
+      return [{ref,badge,group,label:"Kernel",box:{x:anchor.x+2,y:anchor.y+1,width:anchor.width-4,height:11}}];
     }
     return [];
   });
@@ -370,7 +379,7 @@ export function RuntimeOverlay({
           onKeyDown={(event) => activate(event, () => onSelectGroup(boundary.groupId))}
         >
           <rect x={box.x} y={box.y} width={box.width} height={box.height} rx={2} />
-          <text x={box.x + 8} y={box.y + 16}>{label}</text>
+          <text x={box.x + (box.height < 20 ? 4 : 8)} y={box.y + (box.height < 20 ? 9 : 16)} style={box.height < 20 ? {fontSize:9} : undefined}>{label}</text>
         </g>
       ))}
 
@@ -383,6 +392,7 @@ export function RuntimeOverlay({
               className={[
                 "runtime-badge",
                 `runtime-badge--${badge.kind}`,
+                realization.mappings.some(mapping=>mapping.mappingId === badge.mappingId && mapping.reasonCode === "pointer_offset_view") ? "runtime-badge--data-slice" : "",
                 selected ? "is-selected" : "",
               ].filter(Boolean).join(" ")}
               role={action ? "button" : undefined}
@@ -394,7 +404,7 @@ export function RuntimeOverlay({
               onKeyDown={action ? (event) => activate(event, action) : undefined}
             >
               <rect x={box.x} y={box.y} width={box.width} height={box.height} rx={2} />
-              <text x={box.x + 8} y={box.y + 16}>{label}</text>
+              <text x={box.x + (box.height < 20 ? 4 : 8)} y={box.y + (box.height < 20 ? 9 : 16)} style={box.height < 20 ? {fontSize:9} : undefined}>{label}</text>
             </g>
           );
       })}

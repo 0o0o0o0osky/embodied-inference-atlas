@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 export const WORKBENCH_TABS = [
   "logical",
@@ -11,6 +11,9 @@ export const WORKBENCH_TABS = [
 export type WorkbenchTab = (typeof WORKBENCH_TABS)[number];
 
 export interface RouteState {
+  inputShape?: string | null;
+  analysisView?: "system" | "hotspots" | "reuse" | "perfetto";
+  selectedRun?: string | null;
   model: string | null;
   tab: WorkbenchTab;
   runtime: string | null;
@@ -29,6 +32,9 @@ export type RoutePatch = Partial<RouteState>;
 
 const ROUTE_FIELDS = [
   "model",
+  "inputShape",
+  "analysisView",
+  "selectedRun",
   "runtime",
   "hardware",
   "workload",
@@ -43,14 +49,23 @@ const ROUTE_FIELDS = [
 export function readRoute(search = window.location.search): RouteState {
   const params = new URLSearchParams(search);
   const requestedTab = params.get("tab");
-  const isDefaultRoute = params.size === 0;
+  const isPi0 = (readValue(params, "model") ?? "pi0") === "pi0";
+  const runtime = readValue(params, "runtime");
+  const legacyView = !isPi0 ? null : requestedTab === "timeline" ? "system" : requestedTab === "roofline-kernels" && runtime ? "hotspots" : null;
+  const requestedView = params.get("analysisView");
+  const analysisView = ["system", "hotspots", "reuse", "perfetto"].includes(requestedView ?? "")
+    ? requestedView as RouteState["analysisView"] : legacyView;
+  const legacyRuntime = legacyView !== null || isPi0 && requestedTab === "end-to-end";
   return {
+    ...(params.has("inputShape") ? { inputShape: readValue(params, "inputShape") } : {}),
+    ...(params.has("selectedRun") ? { selectedRun: readValue(params, "selectedRun") } : {}),
+    ...(analysisView ? { analysisView } : {}),
     model: readValue(params, "model") ?? "pi0",
-    tab: isWorkbenchTab(requestedTab) ? requestedTab : "logical",
+    tab: legacyRuntime ? "runtime" : isWorkbenchTab(requestedTab) ? requestedTab : "logical",
     runtime: readValue(params, "runtime"),
-    hardware: readValue(params, "hardware") ?? (isDefaultRoute ? "nvidia-jetson-agx-thor" : null),
+    hardware: readValue(params, "hardware") ?? "nvidia-jetson-agx-thor",
     workload: readValue(params, "workload"),
-    precision: readValue(params, "precision") ?? (isDefaultRoute ? "bf16_dense" : null),
+    precision: readValue(params, "precision") ?? "bf16_dense",
     runtimePrecision: readValue(params, "runtimePrecision"),
     runtimeFacet: readValue(params, "runtimeFacet"),
     entity: readValue(params, "entity"),
@@ -96,6 +111,7 @@ export function useRouteState(): [
   (patch: RoutePatch, replace?: boolean) => void,
 ] {
   const [route, setRoute] = useState<RouteState>(() => readRoute());
+  const theoryViews = useRef(new Map<string, RoutePatch>());
 
   useEffect(() => {
     const handlePopState = () => setRoute(readRoute());
@@ -105,7 +121,13 @@ export function useRouteState(): [
 
   const navigate = useCallback(
     (patch: RoutePatch, replace = false) => {
-      const next = { ...route, ...patch };
+      const sameModel = !patch.model || patch.model === route.model;
+      if (route.tab === "logical" && patch.tab && patch.tab !== "logical" && route.model) {
+        theoryViews.current.set(route.model, {entity:route.entity,workload:route.workload,precision:route.precision});
+      }
+      const restored = sameModel && patch.tab === "logical" && route.tab !== "logical" && route.model
+        ? theoryViews.current.get(route.model) ?? {} : {};
+      const next = { ...route, ...patch, ...restored };
       const href = routeHref(next);
       window.history[replace ? "replaceState" : "pushState"]({}, "", href);
       setRoute(readRoute());

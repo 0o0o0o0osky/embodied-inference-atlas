@@ -1,24 +1,27 @@
 import { useEffect, useRef, useState } from "react";
 import type { TimelineEvent, TimelineRecord } from "../../profiler/domain/types";
-import { clipInterval, interval } from "../../profiler/domain/intervals";
 import { eventTitle, laneTitle, timeLabel } from "./timelineLabels";
+import { timelinePixels } from '../domain/timelinePixels';
 
 const groups = [
   { id: "gpu", title: "GPU 执行阶段", kinds: ["cuda_graph"], open: true },
-  { id: "cpu", title: "CPU 线程 · 调度运行", kinds: ["cpu_thread", "cpu_aggregate"], open: false },
+  { id: "cpu", title: "CPU 线程 · 调度运行", kinds: ["cpu_thread", "cpu_aggregate"], open: true },
   { id: "api", title: "CUDA API · 主机调用", kinds: ["cuda_api"], open: false },
+  { id: "sync", title: "CUDA 同步记录", kinds: ["cuda_sync"], open: false },
+  { id: "osrt", title: "CPU 系统调用与等待", kinds: ["osrt"], open: false },
   { id: "copy", title: "数据传输", kinds: ["gpu_memcpy"], open: false },
-  { id: "kernel", title: "历史逐 Kernel 记录", kinds: ["gpu_kernel"], open: false },
+  { id: "kernel", title: "GPU Kernel 区间", kinds: ["gpu_kernel"], open: true },
   { id: "profiler", title: "采集器 · 已排除", kinds: ["profiler_overhead"], open: false },
 ];
 
-export function TimelineTracks({ timeline, windowStartNs, windowDurationNs, selectedEventId, onSelect }: {
+export function TimelineTracks({ timeline, windowStartNs, windowDurationNs, selectedEventId, onSelect, onZoomRange }: {
   locale?: "en" | "zh";
   timeline: TimelineRecord;
   windowStartNs: number;
   windowDurationNs: number;
   selectedEventId: string | null;
   onSelect: (event: TimelineEvent) => void;
+  onZoomRange?: (startNs:number,endNs:number)=>void;
 }) {
   const ruler = useRef<HTMLDivElement>(null);
   const root = useRef<HTMLElement>(null);
@@ -36,7 +39,6 @@ export function TimelineTracks({ timeline, windowStartNs, windowDurationNs, sele
     const group = row?.closest("details");
     if (group) group.open = true;
   }, [selectedEventId, timeline]);
-  const bounds = { startNs: windowStartNs, endNs: windowStartNs + windowDurationNs };
   const lanes = [...timeline.lanes].sort((a, b) => a.ordinal - b.ordinal);
   const eventsByLane = new Map<string, TimelineEvent[]>();
   for (const event of timeline.events) {
@@ -67,11 +69,14 @@ export function TimelineTracks({ timeline, windowStartNs, windowDurationNs, sele
           </div>
           <svg viewBox={`0 0 ${width} 44`} aria-label={`${laneTitle(lane)}时间轨道`}>
             {Array.from({ length: 6 }, (_, i) => <line className="timeline-grid-line" key={i} x1={i * width / 5} x2={i * width / 5} y1={0} y2={44} />)}
-            {(eventsByLane.get(lane.laneId) ?? []).map((event) => {
-              const clipped = clipInterval(interval(event.startNs, event.durationNs), bounds);
-              if (!clipped) return null;
-              const x = (clipped.startNs - bounds.startNs) / windowDurationNs * width;
-              const w = (clipped.endNs - clipped.startNs) / windowDurationNs * width;
+            {timelinePixels(eventsByLane.get(lane.laneId)??[],windowStartNs,windowDurationNs,width,selectedEventId).map(({x,width:w,events}) => {
+              const event=events[0]!;
+              if(events.length>1){
+                const title=`此像素内 ${events.length} 个区间，点击放大查看`;
+                const focus=()=>onZoomRange?.(Math.min(...events.map(e=>e.startNs)),Math.max(...events.map(e=>e.startNs+e.durationNs)));
+                return <rect key={`pixel-${x}`} x={x} y={6} width={1} height={32} className={`timeline-event is-${lane.kind}`} role="button" tabIndex={0} aria-label={title}
+                  onClick={focus} onKeyDown={e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();focus();}}}><title>{title}</title></rect>;
+              }
               const title = eventTitle(event);
               const duration = timeLabel(event.durationNs);
               const fullLabel = `${title} · ${duration}`;
@@ -90,6 +95,6 @@ export function TimelineTracks({ timeline, windowStartNs, windowDurationNs, sele
         </div>)}
       </details>;
     })}
-    <p className="timeline-evidence-note">Graph 色块表示执行起止范围，并非持续满载；空白不代表空闲。分组用于浏览，不表示函数调用关系。</p>
+    <p className="timeline-evidence-note">密集区间按像素合并显示，点击可放大；完整事件保留在详情与 Perfetto。Graph 色块表示执行范围；空白不代表空闲，分组不表示调用关系。</p>
   </section>;
 }

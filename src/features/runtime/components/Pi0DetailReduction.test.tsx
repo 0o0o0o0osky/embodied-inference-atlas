@@ -1,7 +1,7 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { expect, it } from "vitest";
 
-import atlasDocument from "../../../../site/assets/data/atlas-data.json";
+import { atlasSnapshot as atlasDocument } from '../../../testSupport/atlasSnapshot';
 import type { AtlasData } from "../../../types/atlas";
 import { buildKernelRows } from "../../performance/domain/buildKernelRows";
 import { buildTimelineView } from "../../timeline/domain/buildTimelineView";
@@ -16,7 +16,7 @@ it("keeps the Pi0 profiler overview concise while retaining evidence in disclosu
   const evidence = adaptProfilerEvidence(data);
   const index = indexProfilerEvidence(evidence);
   const query = { modelId: "pi0", runtimeId: "flashrt", hardwareId: "nvidia-jetson-agx-thor", entity: null };
-  const timeline = buildTimelineView(data, evidence, index, { ...query, captureId: null });
+  const timeline = buildTimelineView(data, evidence, index, { ...query, captureId: "capture-pi0-flashrt-nsys-node-001" });
   const kernels = buildKernelRows(data, evidence, index, query);
   const realization = adaptRuntimeRealization(data.datasets.runtime_realizations.find((record) =>
     record.model_id === "pi0" && record.runtime_id === "flashrt",
@@ -24,7 +24,6 @@ it("keeps the Pi0 profiler overview concise while retaining evidence in disclosu
 
   const nsysMarkup = renderToStaticMarkup(<Pi0NsysSection
     view={timeline}
-    onCaptureChange={() => undefined}
     onSelectEvent={() => undefined}
     onOpenDetails={() => undefined}
   />);

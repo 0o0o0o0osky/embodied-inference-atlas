@@ -65,12 +65,12 @@ export function RuntimeView({ data, model, route, navigate }: RuntimeViewProps) 
   if (!record) {
     return (
       <section className="logical-unavailable">
-        <p>Runtime overlay unavailable</p>
-        <h2>{model.display_name} has no canonical logical graph to anchor an overlay.</h2>
+        <p>运行表现暂不可用</p>
+        <h2>{model.display_name} 尚无 canonical 逻辑图。</h2>
       </section>
     );
   }
-  if (model.model_id === "pi0") {
+  if (["pi0", "pi05", "smolvla"].includes(model.model_id)) {
     return (
       <ModelDisplayProvider modelId={model.model_id}>
         <Pi0RuntimeWorkspace

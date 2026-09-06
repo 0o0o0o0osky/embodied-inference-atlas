@@ -34,8 +34,7 @@ export function pi0PerformanceNavigationPatch(
 ): RoutePatch {
   return {
     tab: destination === "logical" ? "logical" : "runtime",
-    entity: null,
-    timelineCapture: null,
+    ...(destination === "logical" ? {entity:null,timelineCapture:null} : {}),
     basis: null,
     rooflineLevel: "overview",
     ...(destination === "stack" ? {} : { runtime: null, runtimePrecision: null, runtimeFacet: null }),

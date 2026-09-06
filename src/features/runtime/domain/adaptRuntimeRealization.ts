@@ -7,6 +7,7 @@ import type {
   RepeatSelector,
   RuntimeMapping,
   RuntimeRealizationRecord,
+  RuntimeReuseDescriptor,
 } from "./types";
 
 type RawRecord = Record<string, unknown>;
@@ -115,6 +116,24 @@ function mapping(raw: RawRecord): RuntimeMapping {
   };
 }
 
+function optionalCost(value: unknown): number | null {
+  return typeof value === "number" && Number.isFinite(value) && value >= 0 ? value : null;
+}
+
+function reuseDescriptor(raw: RawRecord): RuntimeReuseDescriptor {
+  return {
+    reuseId: text(raw.reuse_id), label: text(raw.label),
+    kind: text(raw.kind) as RuntimeReuseDescriptor["kind"],
+    producerRefs: strings(raw.producer_refs), consumerRefs: strings(raw.consumer_refs),
+    lifetime: text(raw.lifetime) as RuntimeReuseDescriptor["lifetime"],
+    repeatScope: text(raw.repeat_scope), valueDependencies: strings(raw.value_dependencies),
+    invalidationConditions: strings(raw.invalidation_conditions),
+    implementationStatus: text(raw.implementation_status) as RuntimeReuseDescriptor["implementationStatus"],
+    evidenceIds: strings(raw.evidence_ids), storageBytes: optionalCost(raw.storage_bytes),
+    preparationNs: optionalCost(raw.preparation_ns), readNs: optionalCost(raw.read_ns),
+  };
+}
+
 export function isRuntimeRealizationRecord(
   record: CanonicalRecord,
   modelId?: string,
@@ -137,6 +156,7 @@ export function adaptRuntimeRealization(record: CanonicalRecord): RuntimeRealiza
   const launch = record.launch as RawRecord;
   const workload = record.workload_applicability as RawRecord;
   return {
+    reuse: records(record.reuse).map(reuseDescriptor),
     realizationId: text(record.realization_id),
     modelId: text(record.model_id),
     modelGraphId: text(record.model_graph_id),

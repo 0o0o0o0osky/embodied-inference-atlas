@@ -14,6 +14,8 @@ import type {
 import { effectiveCameraZoom, getCameraPanRanges, graphWheelZoomAction, updateManualCamera, type GraphViewport, type ManualCameraAction } from "../domain/focusViewport";
 import { useModelText, type ModelText } from "../presentation/ModelDisplay";
 
+const savedCameras = new Map<string, {zoom:number;x:number;y:number}>();
+
 interface LogicalDagSvgProps {
   dag: LogicalDag;
   layout: LogicalLayout;
@@ -195,7 +197,7 @@ export function LogicalDagSvg({
   const svgRef = useRef<SVGSVGElement>(null);
   const resetKey = `${cameraResetKey}|${[...activeFocusRefs].sort().join(",")}|${mode}`;
   const automaticCamera = { zoom: 100, x: 0, y: 0 };
-  const [manualState, setManualState] = useState({ resetKey, camera: automaticCamera });
+  const [manualState, setManualState] = useState({ resetKey, camera: savedCameras.get(resetKey) ?? automaticCamera });
   const camera = manualState.resetKey === resetKey ? manualState.camera : automaticCamera;
   const cameraRanges = getCameraPanRanges(camera.zoom, cameraFrame, cameraContent);
   const canPan = cameraRanges.x.max - cameraRanges.x.min > 1e-6 || cameraRanges.y.max - cameraRanges.y.min > 1e-6;
@@ -203,14 +205,15 @@ export function LogicalDagSvg({
   const dragRef = useRef<{ pointerId: number; x: number; y: number; resetKey: string } | null>(null);
   const [dragging, setDragging] = useState(false);
   useEffect(() => {
-    setManualState({ resetKey, camera: { zoom: 100, x: 0, y: 0 } });
+    setManualState({ resetKey, camera: savedCameras.get(resetKey) ?? { zoom: 100, x: 0, y: 0 } });
     dragRef.current = null;
     setDragging(false);
   }, [resetKey]);
-  const changeCamera = (action: ManualCameraAction) => setManualState((previous) => ({
-    resetKey,
-    camera: updateManualCamera(previous.resetKey === resetKey ? previous.camera : automaticCamera, action, cameraFrame, cameraContent),
-  }));
+  const changeCamera = (action: ManualCameraAction) => setManualState((previous) => {
+    const next = updateManualCamera(previous.resetKey === resetKey ? previous.camera : automaticCamera, action, cameraFrame, cameraContent);
+    savedCameras.set(resetKey,next);
+    return {resetKey,camera:next};
+  });
   const framePoint = (clientX: number, clientY: number) => {
     const matrix = svgRef.current?.getScreenCTM();
     return matrix ? new DOMPoint(clientX, clientY).matrixTransform(matrix.inverse()) : null;
@@ -384,7 +387,7 @@ export function LogicalDagSvg({
             <text className="logical-stage-label" x={stage.x + 54} y={stage.y + 31}>
               {t(stage.label).split(/\s+/)[0]}
             </text>
-            <title>{t(stage.label)}. {t(stage.description)}</title>
+            <title>{`${t(stage.label)}. ${t(stage.description)}`}</title>
           </g>
         ))}
 

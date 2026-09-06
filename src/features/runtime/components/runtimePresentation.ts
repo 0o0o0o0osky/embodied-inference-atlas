@@ -6,6 +6,7 @@ export function humanizeRuntime(value: string) {
 }
 
 const PI0_PRECISION_LABELS: Readonly<Record<string, string>> = {
+  "flashrt-geglu-fp16-fp8": "FP16 输入 → FP32 逐元素计算 → FP8 输出",
   "mixed-fp8-e4m3-fp16": "选择性 FP8 E4M3 / FP16",
   "flashrt-fp16-control": "FP16 控制路径（组内）",
   "mixed-bf16-fp32": "BF16 / FP32 混合执行",
@@ -13,6 +14,7 @@ const PI0_PRECISION_LABELS: Readonly<Record<string, string>> = {
 };
 
 const PI0_SHORT_PRECISION_LABELS: Readonly<Record<string, string>> = {
+  "flashrt-geglu-fp16-fp8": "FP16→FP8",
   "mixed-fp8-e4m3-fp16": "FP8/FP16",
   "flashrt-fp16-control": "FP16",
   "mixed-bf16-fp32": "BF16/FP32",
@@ -20,6 +22,8 @@ const PI0_SHORT_PRECISION_LABELS: Readonly<Record<string, string>> = {
 };
 
 const PI0_GROUP_LABELS: Readonly<Record<string, string>> = {
+  "Prefix GELU × up + FP8 cast": "前缀 GEGLU + FP8 转换",
+  "Action GELU × up + FP8 cast": "动作 GEGLU + FP8 转换",
   "Prefix merged QKV GEMM": "前缀 Q/K/V 合并 GEMM",
   "Prefix attention runtime region": "前缀注意力运行区",
   "Velocity projection + Euler update": "速度投影 + 欧拉更新",

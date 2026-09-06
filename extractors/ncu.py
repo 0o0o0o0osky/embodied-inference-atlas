@@ -520,7 +520,7 @@ def _validate_policy(context: ProfilerImportContext, policy: Mapping[str, object
         and isinstance(policy.get("replay_passes"), int)
         and not isinstance(policy.get("replay_passes"), bool)
         and policy["replay_passes"] > 0
-        and policy.get("cache_control_request") == "all"
+        and policy.get("cache_control_request") in {"all", "none"}
         and isinstance(policy.get("warmup_count"), int)
         and not isinstance(policy.get("warmup_count"), bool)
         and policy["warmup_count"] >= 0
@@ -762,7 +762,8 @@ def _session_facts(
     )
     if (
         (set(sections) == _LEGACY_SECTION_SET and len(sections) == len(_LEGACY_SECTION_SET)
-         or tuple(sections) == _SCHEDULER_SECTION_ORDER)
+         or tuple(sections) == _SCHEDULER_SECTION_ORDER
+         or tuple(sections) == ("LaunchStats", "SpeedOfLight", "ComputeWorkloadAnalysis", "MemoryWorkloadAnalysis"))
         and not metric_sets
     ):
         section_mode = "section_set"
@@ -922,6 +923,17 @@ def _csv_rows(payload: str, context: ProfilerImportContext, page: str) -> list[l
     if not isinstance(payload, str):
         raise SourceFormatError(f"{context.source_label}: invalid NCU {page} page row 1")
     try:
+        if page == "session":
+            # NCU 2025.3 writes shell quotes unescaped in its command CSV cell.
+            # A templated kernel filter contains commas, splitting that one row.
+            rows = []
+            for line in payload.splitlines():
+                row = next(csv.reader([line]))
+                prefix = '\"Profiler Command Line\",\"'
+                if len(row) > 2 and line.startswith(prefix) and line.endswith('\"'):
+                    row = ["Profiler Command Line", line[len(prefix):-1]]
+                rows.append(row)
+            return rows
         return list(csv.reader(io.StringIO(payload)))
     except csv.Error as error:
         raise SourceFormatError(

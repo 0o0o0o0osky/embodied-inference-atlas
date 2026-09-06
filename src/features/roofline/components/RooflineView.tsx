@@ -161,7 +161,9 @@ function CoreRooflineView({
   const workloadBounds = useMemo(() => promptBounds(graphRecord), [graphRecord]);
   const workload = parseInteractiveWorkload(route.workload, sourceScenario.workload, workloadBounds);
   const interactive = useMemo(() => {
-    if (!isAnalyticalWorkload(route.workload, canonicalConfigurationIds)) return null;
+    // Default scenarios are formula inputs; their point snapshots are optional.
+    if (requestedScenario?.origin === "legacy_import") return null;
+    if (route.workload && !isAnalyticalWorkload(route.workload, canonicalConfigurationIds)) return null;
     const realizationId = sourceScenario.precision_path.realization_ids.length === 1
       ? sourceScenario.precision_path.realization_ids[0]!
       : null;
@@ -208,12 +210,13 @@ function CoreRooflineView({
     } catch {
       return null;
     }
-  }, [canonical, canonicalConfigurationIds, data.datasets.runtime_realizations, graphRecord, requestedBasis, route.hardware, route.workload, sourceScenario, workload]);
+  }, [canonical, canonicalConfigurationIds, data.datasets.runtime_realizations, graphRecord, requestedBasis, requestedScenario, route.hardware, route.workload, sourceScenario, workload]);
   const index = useMemo(() => interactive
     ? createRooflineIndex(
       canonical.ceilings,
       [...canonical.scenarios, interactive.scenario],
-      [...canonical.bases, ...interactive.bases],
+      // Prefer this selected precision/workload in overview as well as detail.
+      [...interactive.bases, ...canonical.bases],
       [...canonical.points, ...interactive.points],
     )
     : canonical, [canonical, interactive]);

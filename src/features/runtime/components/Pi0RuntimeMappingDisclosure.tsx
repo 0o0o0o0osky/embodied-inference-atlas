@@ -70,9 +70,9 @@ export function Pi0RuntimeMappingDisclosure({
                     .replaceAll("all", "全部");
                   return repeat ? `${label}（${repeat}）` : label;
                 }) ?? [];
-                const evidenceState = mapping?.method === "source_audit"
-                  ? "源码审计 · Kernel 未关联"
-                  : mapping ? "非源码审计 · Kernel 未关联" : "源码审计 · 运行时额外工作";
+                const evidenceState = !group ? "无独立执行组"
+                  : group.kernelResolution === "resolved" ? "已关联 Kernel"
+                  : group.kernelResolution === "partial" ? "部分关联 Kernel" : "Kernel 未关联";
                 return (
                   <tr key={`${mapping?.mappingId ?? "unmapped"}/${groupId ?? "eliminated"}`}>
                     <td>

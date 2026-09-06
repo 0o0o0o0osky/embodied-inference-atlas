@@ -6,6 +6,7 @@ import {
 } from "../../end-to-end/domain/buildEvidenceRows";
 import { adaptRuntimeRealization, isRuntimeRealizationRecord } from "./adaptRuntimeRealization";
 import type { RuntimeRealizationRecord } from "./types";
+import { endToEndBatch } from './analysisSamples';
 
 export const PI0_PERFORMANCE_TARGET = {
   promptTokens: 48,
@@ -390,7 +391,9 @@ function cellFor(
   actionChunk: number,
 ): Pi0PerformanceCell {
   const exactRows = rows.filter((row) => workloadMatches(row, cameraViews, actionChunk));
-  const measuredRows = exactRows.filter((row) => row.selected?.value !== null && row.selected?.value !== undefined);
+  let measuredRows = exactRows.filter((row) => row.selected?.value !== null && row.selected?.value !== undefined);
+  const stableRows=measuredRows.filter(row=>endToEndBatch(row.run)?.status==='stable').sort((a,b)=>a.run.run_id.localeCompare(b.run.run_id));
+  if (stableRows.length) measuredRows=[stableRows[0]!];
   if (measuredRows.length !== 1) {
     if (measuredRows.length > 1) {
       return { state: "pending_supported", cameraViews, actionChunk, reason: "multiple_exact_measurements",

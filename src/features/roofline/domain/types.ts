@@ -1,6 +1,6 @@
 export type RooflineLevel = "stage" | "atomic" | "fused" | "kernel";
 export type RooflineMode = "overview" | RooflineLevel;
-export type ScenarioOrigin = "default_precomputed" | "interactive_analytical" | "legacy_import";
+export type ScenarioOrigin = "default_precomputed" | "interactive_analytical" | "captured_kernel" | "legacy_import";
 export type PrecisionPathId =
   | "bf16_dense"
   | "fp16_dense"
@@ -122,7 +122,7 @@ export interface RooflineBasisRecord {
   operating_point_id: string;
   work_unit: "action_chunk" | "denoise_step" | "operator_invocation" | "execution_group" | "kernel_launch";
   time_basis: "analytical_roof" | "legacy_analytical_prediction" | "wall_clock" | "cuda_event" | "nsys_interval" | "ncu_kernel";
-  traffic_basis: "atomic_materialized" | "fused_boundary_modeled" | "system_memory_measured" | "l2_measured" | "legacy_inverse_roofline" | "legacy_custom_resident_score";
+  traffic_basis: "atomic_materialized" | "fused_boundary_modeled" | "kernel_boundary_modeled" | "system_memory_measured" | "l2_measured" | "legacy_inverse_roofline" | "legacy_custom_resident_score";
   work_basis: "logical_formula" | "runtime_executed_formula" | "hardware_counter" | "legacy_component_aggregate";
   aggregation: "entity" | "dag_resource_and_critical_path";
   runtime_overhead: "included" | "excluded" | "not_applicable" | "unknown";
@@ -212,7 +212,7 @@ export interface RooflinePointRecord {
   };
   timing: {
     observed_second: number | null;
-    statistic: "analytical" | "median" | "mean" | "single_observation" | null;
+    statistic: "analytical" | "median" | "mean" | "single_observation" | "sum" | null;
     sample_count: number | null;
     timing_boundary_id: string;
   };

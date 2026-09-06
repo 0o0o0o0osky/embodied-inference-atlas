@@ -26,13 +26,10 @@ const HOME_ROUTE: RoutePatch = {
 export function AtlasHeader({ data, route, navigate }: AtlasHeaderProps) {
   const { models } = data.datasets;
   const model = models.find((item) => item.model_id === route.model);
-  const topEntries = route.model === "pi0" ? [
-    { tab: "logical" as const, label: "模型理论", patch: isPi0ModelTheory(route) ? pi0TheoryNavigationPatch(route, "logical") : pi0PerformanceNavigationPatch("logical") },
-    { tab: "runtime" as const, label: "性能对比", patch: pi0PerformanceNavigationPatch("comparison") },
-  ] : [
-    { tab: "logical" as const, label: "模型结构", patch: { tab: "logical" as const } },
-    { tab: "end-to-end" as const, label: "端到端", patch: { tab: "end-to-end" as const } },
-    { tab: "timeline" as const, label: "Nsys", patch: { tab: "timeline" as const } },
+  const modelTheory = route.tab === "logical" || isPi0ModelTheory(route);
+  const topEntries = [
+    { tab: "logical" as const, label: "模型理论", patch: modelTheory ? pi0TheoryNavigationPatch(route, "logical") : pi0PerformanceNavigationPatch("logical") },
+    { tab: "runtime" as const, label: "运行表现", patch: pi0PerformanceNavigationPatch("comparison") },
   ];
 
   return (
@@ -50,21 +47,19 @@ export function AtlasHeader({ data, route, navigate }: AtlasHeaderProps) {
         <span>模型</span>
         <select value={route.model ?? "pi0"} onChange={(event) => navigate({
           model: event.target.value, entity: null, runtime: null,
-          runtimePrecision: null, runtimeFacet: null, timelineCapture: null, workload: null, basis: null,
+          runtimePrecision: null, runtimeFacet: null, timelineCapture: null, workload: null, inputShape: null, selectedRun: null, analysisView: "system", basis: null,
         })}>
           {!model && route.model ? <option value={route.model}>{route.model}</option> : null}
           {models.map((item) => <option key={item.model_id} value={item.model_id}>{item.display_name}</option>)}
         </select>
       </label>
-      {model && route.model === "pi0" && ["logical", "runtime", "timeline", "roofline-kernels"].includes(route.tab) ? (
+      {model && (route.tab === "runtime" || route.model === "pi0" && ["logical", "timeline", "roofline-kernels"].includes(route.tab)) ? (
         <ContextBar data={data} model={model} route={route} navigate={navigate} compact />
       ) : null}
       <nav className="atlas-navigation" aria-label="主要视图">
         {topEntries.map(({ tab, label, patch }) => (
           <RouteLink key={tab} route={route} patch={patch} navigate={navigate}
-            aria-current={(route.model === "pi0"
-              ? tab === "logical" ? isPi0ModelTheory(route) : !isPi0ModelTheory(route)
-              : route.tab === tab || (tab === "logical" && (route.tab === "roofline-kernels" || route.tab === "runtime"))) ? "page" : undefined}>
+            aria-current={(tab === "logical" ? modelTheory : !modelTheory) ? "page" : undefined}>
             {label}
           </RouteLink>
         ))}

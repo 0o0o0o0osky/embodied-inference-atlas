@@ -44,6 +44,37 @@
           "revision": "054bea4d02ebc63f6a0c45991c6061b1e1caa46c",
           "run_ids": [],
           "source_id": "source-flashrt"
+        },
+        {
+          "evidence_id": "flashrt-pi0-geglu-kernel-source",
+          "kind": "source_code",
+          "locator": "csrc/kernels/activation.cu#gate_geglu_merged_fp8_fp16",
+          "observation_ids": [],
+          "revision": "054bea4d02ebc63f6a0c45991c6061b1e1caa46c",
+          "run_ids": [],
+          "source_id": "source-flashrt"
+        },
+        {
+          "evidence_id": "flashrt-pi0-torch-capture-source",
+          "kind": "source_code",
+          "locator": "flash_rt/frontends/torch/pi0_thor.py#_capture_enc_ae_graph",
+          "observation_ids": [],
+          "revision": "054bea4d02ebc63f6a0c45991c6061b1e1caa46c",
+          "run_ids": [],
+          "source_id": "source-flashrt"
+        },
+        {
+          "evidence_id": "flashrt-pi0-geglu-shared-trace",
+          "kind": "profiler_correlation",
+          "locator": null,
+          "observation_ids": [
+            "kernel-observation-pi0-flashrt-nsys-node-007"
+          ],
+          "revision": null,
+          "run_ids": [
+            "run-pi0-flashrt-nsys-node-001"
+          ],
+          "source_id": "source-local-thor"
         }
       ],
       "execution_groups": [
@@ -108,6 +139,81 @@
             {
               "indices": [],
               "scope_ref": "action-flow-decoder/action-flow-loop",
+              "selection": "all"
+            }
+          ],
+          "unmapped_reason_code": null
+        },
+        {
+          "dependency_group_ids": [],
+          "evidence_ids": [
+            "flashrt-pi0-encoder-source",
+            "flashrt-pi0-geglu-kernel-source",
+            "flashrt-pi0-torch-capture-source",
+            "flashrt-pi0-geglu-shared-trace"
+          ],
+          "execution_group_id": "prefix-geglu-fp8",
+          "implementation": "GELU(gate) × up, static rescale, clamp and FP8 cast in one kernel; signature shared across prefix and action groups",
+          "kernel_resolution": "partial",
+          "kernel_signature_ids": [
+            "kernel-signature-pi0-encoder-geglu"
+          ],
+          "kind": "custom_op",
+          "label": "Prefix GELU × up + FP8 cast",
+          "precision_path_id": "flashrt-geglu-fp16-fp8",
+          "repeat_selectors": [
+            {
+              "indices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15,
+                16
+              ],
+              "scope_ref": "prefix-encoder/prefix-blocks",
+              "selection": "indices"
+            }
+          ],
+          "unmapped_reason_code": null
+        },
+        {
+          "dependency_group_ids": [],
+          "evidence_ids": [
+            "flashrt-pi0-decoder-source",
+            "flashrt-pi0-geglu-kernel-source",
+            "flashrt-pi0-torch-capture-source",
+            "flashrt-pi0-geglu-shared-trace"
+          ],
+          "execution_group_id": "action-geglu-fp8",
+          "implementation": "GELU(gate) × up, static rescale, clamp and FP8 cast in one kernel; signature shared across prefix and action groups",
+          "kernel_resolution": "partial",
+          "kernel_signature_ids": [
+            "kernel-signature-pi0-encoder-geglu"
+          ],
+          "kind": "custom_op",
+          "label": "Action GELU × up + FP8 cast",
+          "precision_path_id": "flashrt-geglu-fp16-fp8",
+          "repeat_selectors": [
+            {
+              "indices": [],
+              "scope_ref": "action-flow-decoder/action-flow-loop",
+              "selection": "all"
+            },
+            {
+              "indices": [],
+              "scope_ref": "action-flow-decoder/action-expert-blocks",
               "selection": "all"
             }
           ],
@@ -286,6 +392,128 @@
           "path": "primary",
           "reason_code": null,
           "relation": "fused"
+        },
+        {
+          "certainty": "exact",
+          "confidence": "high",
+          "evidence_ids": [
+            "flashrt-pi0-encoder-source",
+            "flashrt-pi0-geglu-kernel-source"
+          ],
+          "execution_group_ids": [
+            "prefix-geglu-fp8"
+          ],
+          "logical_targets": [
+            {
+              "ref": "prefix-encoder/prefix-blocks/feed-forward/gate-gelu",
+              "repeat_selectors": [
+                {
+                  "indices": [
+                    0,
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                    16
+                  ],
+                  "scope_ref": "prefix-encoder/prefix-blocks",
+                  "selection": "indices"
+                }
+              ]
+            },
+            {
+              "ref": "prefix-encoder/prefix-blocks/feed-forward/gate-product",
+              "repeat_selectors": [
+                {
+                  "indices": [
+                    0,
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                    16
+                  ],
+                  "scope_ref": "prefix-encoder/prefix-blocks",
+                  "selection": "indices"
+                }
+              ]
+            }
+          ],
+          "mapping_id": "map-prefix-geglu-fp8",
+          "method": "source_audit",
+          "path": "primary",
+          "reason_code": null,
+          "relation": "fused"
+        },
+        {
+          "certainty": "exact",
+          "confidence": "high",
+          "evidence_ids": [
+            "flashrt-pi0-decoder-source",
+            "flashrt-pi0-geglu-kernel-source"
+          ],
+          "execution_group_ids": [
+            "action-geglu-fp8"
+          ],
+          "logical_targets": [
+            {
+              "ref": "action-flow-decoder/action-expert-blocks/feed-forward/gate-gelu",
+              "repeat_selectors": [
+                {
+                  "indices": [],
+                  "scope_ref": "action-flow-decoder/action-flow-loop",
+                  "selection": "all"
+                },
+                {
+                  "indices": [],
+                  "scope_ref": "action-flow-decoder/action-expert-blocks",
+                  "selection": "all"
+                }
+              ]
+            },
+            {
+              "ref": "action-flow-decoder/action-expert-blocks/feed-forward/gate-product",
+              "repeat_selectors": [
+                {
+                  "indices": [],
+                  "scope_ref": "action-flow-decoder/action-flow-loop",
+                  "selection": "all"
+                },
+                {
+                  "indices": [],
+                  "scope_ref": "action-flow-decoder/action-expert-blocks",
+                  "selection": "all"
+                }
+              ]
+            }
+          ],
+          "mapping_id": "map-action-geglu-fp8",
+          "method": "source_audit",
+          "path": "primary",
+          "reason_code": null,
+          "relation": "fused"
         }
       ],
       "model_artifact_ids": [
@@ -323,6 +551,22 @@
           "precision_path_id": "flashrt-fp16-control",
           "quant_scheme": "none",
           "weight_dtype": "fp16"
+        },
+        {
+          "accumulation_dtype": "fp32",
+          "activation_dtype": "fp16",
+          "evidence_ids": [
+            "flashrt-pi0-geglu-kernel-source"
+          ],
+          "label": "FP16 gate/up → FP32 elementwise → FP8 E4M3",
+          "missing_fields": [
+            "weight_dtype"
+          ],
+          "missing_reason_code": "not_applicable_no_weight_tensor",
+          "output_dtype": "fp8_e4m3",
+          "precision_path_id": "flashrt-geglu-fp16-fp8",
+          "quant_scheme": "activation_static_fp8_e4m3",
+          "weight_dtype": null
         }
       ],
       "realization_id": "rr-flashrt-pi0-thor-fp8-v1",
@@ -344,7 +588,8 @@
       "availability": "measured",
       "availability_reason_code": "measured_configuration_source_mapping_not_profiler_correlated",
       "configuration_ids": [
-        "cfg-pi0-vlacpp-target-v1-001"
+        "cfg-pi0-vlacpp-target-v1-001",
+        "config-pi0-vla-cpp-nsys-node-021"
       ],
       "device_ids": [
         "nvidia-jetson-agx-thor"
@@ -385,6 +630,26 @@
           "revision": null,
           "run_ids": [
             "run-pi0-vlacpp-target-v1-001"
+          ],
+          "source_id": "source-local-thor"
+        },
+        {
+          "evidence_id": "vlacpp-fixed-instance-shapes",
+          "kind": "source_code",
+          "locator": "src/models/pi0.cpp#build_gemma_layer",
+          "observation_ids": [],
+          "revision": "4c105b8711b86c60828844d244b48db20619bdf8",
+          "run_ids": [],
+          "source_id": "source-vla-cpp"
+        },
+        {
+          "evidence_id": "vlacpp-fixed-instance-capture",
+          "kind": "runtime_trace",
+          "locator": null,
+          "observation_ids": [],
+          "revision": null,
+          "run_ids": [
+            "run-pi0-vla-cpp-nsys-node-021"
           ],
           "source_id": "source-local-thor"
         }
@@ -503,13 +768,68 @@
             }
           ],
           "unmapped_reason_code": null
+        },
+        {
+          "dependency_group_ids": [],
+          "evidence_ids": [
+            "vlacpp-fixed-instance-shapes",
+            "vlacpp-pi0-layer-source"
+          ],
+          "execution_group_id": "action-mlp-expansion",
+          "implementation": "Separate gate and up cublas GEMMs; shared exact-shape class, individual gate/up attribution unavailable",
+          "kernel_resolution": "partial",
+          "kernel_signature_ids": [
+            "kernel-signature-pi0-vlacpp-bf16-gemm-4096x51x1024"
+          ],
+          "kind": "backend_op",
+          "label": "动作专家 Gate/Up 投影",
+          "precision_path_id": "bf16-gemm-fp32-output",
+          "repeat_selectors": [
+            {
+              "indices": [],
+              "scope_ref": "action-flow-decoder/action-flow-loop",
+              "selection": "all"
+            },
+            {
+              "indices": [],
+              "scope_ref": "action-flow-decoder/action-expert-blocks",
+              "selection": "all"
+            }
+          ],
+          "unmapped_reason_code": null
+        },
+        {
+          "dependency_group_ids": [],
+          "evidence_ids": [
+            "vlacpp-fixed-instance-shapes",
+            "vlacpp-pi0-layer-source"
+          ],
+          "execution_group_id": "prefix-mlp-expansion",
+          "implementation": "Separate gate and up cublas GEMMs; shared exact-shape class, individual gate/up attribution unavailable",
+          "kernel_resolution": "partial",
+          "kernel_signature_ids": [
+            "kernel-signature-pi0-vlacpp-bf16-gemm-16384x304x2048"
+          ],
+          "kind": "backend_op",
+          "label": "Prefix Gate/Up 投影",
+          "precision_path_id": "bf16-gemm-fp32-output",
+          "repeat_selectors": [
+            {
+              "indices": [],
+              "scope_ref": "prefix-encoder/prefix-blocks",
+              "selection": "all"
+            }
+          ],
+          "unmapped_reason_code": null
         }
       ],
       "launch": {
         "capture_scope": "backend_managed",
-        "cuda_graph_state": "unknown",
+        "cuda_graph_state": "present",
         "evidence_ids": [
-          "vlacpp-pi0-predict-source"
+          "vlacpp-fixed-instance-shapes",
+          "vlacpp-pi0-predict-source",
+          "vlacpp-fixed-instance-capture"
         ],
         "submission_mode": "backend_graph_compute"
       },
@@ -624,6 +944,92 @@
           "path": "primary",
           "reason_code": null,
           "relation": "preserved"
+        },
+        {
+          "certainty": "ambiguous",
+          "confidence": "medium",
+          "evidence_ids": [
+            "vlacpp-fixed-instance-shapes",
+            "vlacpp-pi0-layer-source"
+          ],
+          "execution_group_ids": [
+            "action-mlp-expansion"
+          ],
+          "logical_targets": [
+            {
+              "ref": "action-flow-decoder/action-expert-blocks/feed-forward/gate-projection",
+              "repeat_selectors": [
+                {
+                  "indices": [],
+                  "scope_ref": "action-flow-decoder/action-flow-loop",
+                  "selection": "all"
+                },
+                {
+                  "indices": [],
+                  "scope_ref": "action-flow-decoder/action-expert-blocks",
+                  "selection": "all"
+                }
+              ]
+            },
+            {
+              "ref": "action-flow-decoder/action-expert-blocks/feed-forward/up-projection",
+              "repeat_selectors": [
+                {
+                  "indices": [],
+                  "scope_ref": "action-flow-decoder/action-flow-loop",
+                  "selection": "all"
+                },
+                {
+                  "indices": [],
+                  "scope_ref": "action-flow-decoder/action-expert-blocks",
+                  "selection": "all"
+                }
+              ]
+            }
+          ],
+          "mapping_id": "map-action-mlp-expansion",
+          "method": "source_audit",
+          "path": "primary",
+          "reason_code": "shared_gate_up_signature_not_split",
+          "relation": "preserved"
+        },
+        {
+          "certainty": "ambiguous",
+          "confidence": "medium",
+          "evidence_ids": [
+            "vlacpp-fixed-instance-shapes",
+            "vlacpp-pi0-layer-source"
+          ],
+          "execution_group_ids": [
+            "prefix-mlp-expansion"
+          ],
+          "logical_targets": [
+            {
+              "ref": "prefix-encoder/prefix-blocks/feed-forward/gate-projection",
+              "repeat_selectors": [
+                {
+                  "indices": [],
+                  "scope_ref": "prefix-encoder/prefix-blocks",
+                  "selection": "all"
+                }
+              ]
+            },
+            {
+              "ref": "prefix-encoder/prefix-blocks/feed-forward/up-projection",
+              "repeat_selectors": [
+                {
+                  "indices": [],
+                  "scope_ref": "prefix-encoder/prefix-blocks",
+                  "selection": "all"
+                }
+              ]
+            }
+          ],
+          "mapping_id": "map-prefix-mlp-expansion",
+          "method": "source_audit",
+          "path": "primary",
+          "reason_code": "shared_gate_up_signature_not_split",
+          "relation": "preserved"
         }
       ],
       "model_artifact_ids": [
@@ -645,9 +1051,114 @@
           "precision_path_id": "mixed-bf16-fp32",
           "quant_scheme": "none",
           "weight_dtype": "mixed_bf16_fp32"
+        },
+        {
+          "accumulation_dtype": "fp32",
+          "activation_dtype": "bf16",
+          "evidence_ids": [
+            "vlacpp-fixed-instance-shapes"
+          ],
+          "label": "BF16 GEMM / FP32 accumulation and output",
+          "missing_fields": [],
+          "missing_reason_code": null,
+          "output_dtype": "fp32",
+          "precision_path_id": "bf16-gemm-fp32-output",
+          "quant_scheme": "none",
+          "weight_dtype": "bf16"
         }
       ],
       "realization_id": "rr-vla-cpp-pi0-thor-bf16-f32-v1",
+      "reuse": [
+        {
+          "consumer_refs": [
+            "action-flow-decoder/action-expert-blocks/self-attention/attention"
+          ],
+          "evidence_ids": [
+            "vlacpp-pi0-predict-source"
+          ],
+          "implementation_status": "implemented",
+          "invalidation_conditions": [
+            "new observation executes prefix graph again",
+            "prefix inputs or model weights change"
+          ],
+          "kind": "computed_result",
+          "label": "单次观测 Prefix K/V",
+          "lifetime": "observation",
+          "preparation_ns": null,
+          "producer_refs": [
+            "prefix-encoder/prefix-blocks/self-attention/key-projection",
+            "prefix-encoder/prefix-blocks/self-attention/value-projection"
+          ],
+          "read_ns": null,
+          "repeat_scope": "同一次观测的10个去噪步骤",
+          "reuse_id": "native-prefix-kv",
+          "storage_bytes": null,
+          "value_dependencies": [
+            "image content",
+            "prompt tokens",
+            "positions",
+            "model weights"
+          ]
+        },
+        {
+          "consumer_refs": [],
+          "evidence_ids": [
+            "vlacpp-fixed-instance-shapes",
+            "vlacpp-pi0-predict-source",
+            "vlacpp-fixed-instance-capture"
+          ],
+          "implementation_status": "implemented",
+          "invalidation_conditions": [
+            "MainKey changes rebuild GGML graph",
+            "backend graph update or model lifecycle ends"
+          ],
+          "kind": "execution_plan",
+          "label": "原生 CUDA Graph 与 GGML 执行计划",
+          "lifetime": "across_observations",
+          "preparation_ns": null,
+          "producer_refs": [],
+          "read_ns": null,
+          "repeat_scope": "同一模型对象、兼容输入形状下的后续预测；后端计划对象不对应单一逻辑算子",
+          "reuse_id": "native-main-graph-plan",
+          "storage_bytes": null,
+          "value_dependencies": [
+            "image token count",
+            "prompt token count",
+            "denoise step count",
+            "backend graph topology"
+          ]
+        },
+        {
+          "consumer_refs": [
+            "action-flow-decoder/action-suffix-builder/action-time-concat"
+          ],
+          "evidence_ids": [
+            "vlacpp-pi0-predict-source"
+          ],
+          "implementation_status": "implemented",
+          "invalidation_conditions": [
+            "next predict recomputes and uploads all timestep embeddings",
+            "schedule or embedding shape changes"
+          ],
+          "kind": "computed_result",
+          "label": "每次预测生成并上传时间嵌入",
+          "lifetime": "observation",
+          "preparation_ns": null,
+          "producer_refs": [
+            "action-flow-decoder/action-suffix-builder/time-embedding"
+          ],
+          "read_ns": null,
+          "repeat_scope": "本次预测的固定10步时间计划；每步嵌入广播至chunk输入，下一次预测重新计算与上传",
+          "reuse_id": "native-time-embedding-observation",
+          "storage_bytes": null,
+          "value_dependencies": [
+            "timestep schedule",
+            "embedding width",
+            "chunk length",
+            "sinusoidal embedding parameters"
+          ]
+        }
+      ],
       "runtime_id": "vla-cpp",
       "runtime_revision": "4c105b8711b86c60828844d244b48db20619bdf8",
       "workload_applicability": {

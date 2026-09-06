@@ -1,0 +1,6 @@
+.offline-perfetto { margin-top: 1.25rem; border-top: 1px solid var(--border, #d4d9dd); padding-top: 1rem; }
+.offline-perfetto__heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: .75rem; }
+.offline-perfetto__heading h3 { margin: 0; }
+.offline-perfetto p { font-size: .875rem; line-height: 1.5; overflow-wrap: anywhere; }
+.offline-perfetto__note { color: var(--muted, #53616d); }
+.offline-perfetto iframe { width: 100%; height: 640px; display: block; border: 1px solid var(--border, #d4d9dd); border-radius: 6px; background: #fff; }

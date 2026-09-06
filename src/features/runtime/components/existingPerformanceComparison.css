@@ -1,0 +1,8 @@
+.existing-performance-comparison { padding:24px; background:#fff; }
+.existing-shape-selector { display:grid; gap:.5rem; margin-block:1rem; }
+.existing-shape-selector select { max-width:100%; padding:.6rem; }
+.existing-performance-bars { margin-block:1rem; }
+.existing-performance-bars button { position:relative; display:flex; flex-wrap:wrap; justify-content:space-between; gap:.6rem; width:100%; text-align:left; padding:1rem 1rem 1.7rem; margin:.5rem 0; background:#fff; border:1px solid #cbd6df; cursor:pointer; }
+.existing-performance-bars i { position:absolute; left:0; bottom:0; height:.6rem; background:#337eaa; }
+.existing-runtime-status { display:flex; gap:.7rem; flex-wrap:wrap; }
+.existing-runtime-status button { background:#fff; border:1px solid #ccd6de; padding:.7rem; cursor:pointer; }

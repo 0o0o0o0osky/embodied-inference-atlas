@@ -127,6 +127,15 @@ export interface ComparisonContextRecord {
 }
 
 export interface RunRecord {
+  analysis_batch?: {
+    batch_id: string;
+    input_case_id: string;
+    warmup_iterations: number;
+    samples: readonly {sample_index:number;wall_time_ns:number}[];
+    input_recipe?: string;
+    output_finite?: boolean;
+    output_shape?: readonly number[];
+  };
   schema_version: "1.0.0";
   run_id: string;
   configuration_id: string;

@@ -1,0 +1,91 @@
+.pi0-runtime-workspace [hidden] { display: none !important; }
+.system-bound-status { display: flex; gap: 24px; align-items: baseline; padding: 12px 24px; border-top: 1px solid var(--line); background: #fff; font-size: 14px; color: var(--slate); }
+.system-bound-status strong { color: var(--graphite); font-weight: 500; }
+.system-bound-status details { max-width: 650px; }
+.system-bound-status summary { cursor: pointer; }
+.execution-hotspots { padding: 24px; background: #fff; }
+.execution-hotspots .pi0-funnel-heading { padding: 0; }
+.execution-hotspots select, .system-perfetto-detail select { padding: 6px; border: 1px solid var(--line); background: #fff; max-width: 100%; }
+.execution-hotspots > .pi0-funnel-note { margin: 12px 0 22px; }
+.execution-hotspot-layout { display: grid; gap: 24px; }
+.execution-hotspot-layout.has-selection { grid-template-columns: minmax(300px, 1fr) minmax(440px, 1.2fr); }
+.execution-hotspot-list { list-style: none; padding: 0; margin: 0; }
+.execution-hotspot-list button { position: relative; width: 100%; border: 0; border-bottom: 1px solid var(--line); background: #fff; color: var(--graphite); text-align: left; display: grid; grid-template-columns: 115px minmax(0,1fr) 115px; gap: 12px; align-items: center; padding: 18px 8px; cursor: pointer; }
+.execution-hotspot-list button:hover, .execution-hotspot-list button[aria-pressed="true"] { background: #edf8fa; }
+.execution-hotspot-list strong { overflow-wrap: anywhere; font-size: 14px; font-weight: 500; line-height: 1.5; }
+.hotspot-kind { font-size: 13px; color: var(--slate); }
+.hotspot-duration { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; font-size: 14px; }
+.hotspot-duration-bar { height: 3px; position: absolute; bottom: 0; left: 0; background: var(--signal-blue); opacity: .5; }
+.execution-hotspot-detail { scroll-margin-top: 72px; border-left: 2px solid var(--signal-blue); padding: 0 20px; min-width: 0; }
+.execution-hotspot-detail > header { display: flex; gap: 12px; justify-content: space-between; }
+.execution-hotspot-detail h4 { overflow-wrap: anywhere; margin: 0 0 12px; line-height: 1.5; font-size: 16px; }
+.execution-hotspot-detail p { color: var(--slate); font-size: 14px; line-height: 1.7; }
+.execution-hotspot-detail button { border: 1px solid var(--line); background: #fff; padding: 7px 12px; color: var(--graphite); cursor: pointer; }
+.execution-hotspot-detail nav { display: flex; gap: 6px; margin: 16px 0; }
+.execution-hotspot-detail nav button[aria-pressed="true"] { background: #e4f5f7; border-color: var(--signal-blue); }
+.execution-hotspot-detail dl { font-size: 14px; }
+.execution-hotspot-detail dl > div { display: flex; justify-content: space-between; gap: 20px; padding: 8px 0; border-bottom: 1px solid var(--line); overflow-wrap: anywhere; }
+.execution-hotspot-detail dt { color: var(--slate); }
+.execution-hotspot-detail dd { margin: 0; }
+.execution-hotspot-detail details { margin: 20px 0; font-size: 14px; }
+.hotspot-source-dag { margin-top: 28px; border-top: 1px solid var(--line); padding-top: 20px; }
+.hotspot-source-dag > summary { cursor: pointer; color: var(--slate); font-size: 14px; }
+.system-metrics { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 24px; margin: 16px 24px; }
+.system-metrics dt { color: var(--slate); font-size: 13px; }
+.system-metrics dd { margin: 8px 0; font-size: 22px; font-variant-numeric: tabular-nums; }
+.system-metrics small { color: var(--slate); font-size: 12px; }
+.system-capabilities { margin: 20px 24px; color: var(--slate); font-size: 14px; }
+.system-capabilities dl { display: flex; flex-wrap: wrap; gap: 24px; }
+.system-capabilities dd { margin: 6px 0; color: var(--graphite); }
+.system-perfetto-detail { background: #fff; }
+.reuse-lifecycle { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 12px; margin: 20px 0 32px; }
+.reuse-lifecycle div { padding: 15px; border-top: 3px solid var(--signal-blue); background: #f2f8fa; }
+.reuse-lifecycle strong, .reuse-lifecycle span { display: block; }
+.reuse-lifecycle span { margin-top: 8px; font-size: 13px; color: var(--slate); }
+.reuse-object { border-top: 1px solid var(--line); padding: 20px 0; }
+.reuse-object > summary { cursor: pointer; display: flex; align-items: baseline; gap: 20px; }
+.reuse-object > summary strong { font-size: 17px; color: var(--graphite); }
+.reuse-object > summary span { color: var(--signal-blue); font-size: 13px; }
+.reuse-object dl { display: grid; grid-template-columns: 130px 1fr; gap: 12px; }
+.reuse-object dd { margin: 0; }
+@media(max-width:900px) { .execution-hotspot-layout.has-selection { grid-template-columns: 1fr; } .system-metrics { grid-template-columns: repeat(2,minmax(0,1fr)); } .reuse-lifecycle { grid-template-columns: repeat(2,minmax(0,1fr)); } }
+@media(max-width:550px) { .execution-hotspot-list button { grid-template-columns: 1fr 100px; } .hotspot-kind { grid-column: 1/-1; } .system-bound-status { flex-wrap: wrap; } }
+.pi0-runtime-workspace .pi0-selected-runtime > dl > div { flex-direction: row; gap: 8px; }
+.pi0-runtime-workspace .pi0-selected-runtime > dl { padding-top: 6px; padding-bottom: 8px; }
+.system-metrics dd { font-size: 20px; }
+.system-perfetto-detail .offline-perfetto { padding: 18px 24px 24px; }
+.system-perfetto-detail button { padding: 7px 12px; border: 1px solid var(--line); border-radius: 4px; background: #fff; color: var(--graphite); cursor: pointer; }
+.hotspot-kernel-inventory { margin-top: 28px; border-top: 1px solid var(--line); padding: 20px 0; }
+.hotspot-kernel-inventory > summary { cursor: pointer; font-size: 15px; color: var(--graphite); }
+.hotspot-unmapped-detail { max-width: 880px; margin: 24px 0; }
+.dag-kernel-selection { border-top: 1px solid var(--line); padding-top: 20px; margin-top: 16px; }
+.dag-kernel-selection h3 { font-size: 16px; }
+.dag-kernel-selection > p { font-size: 14px; color: var(--slate); }
+.dag-kernel-selection > ul { list-style: none; padding: 0; }
+.dag-kernel-selection > ul button { width: 100%; padding: 12px; border: 1px solid var(--line); background: #fff; color: var(--graphite); text-align: left; overflow-wrap: anywhere; cursor: pointer; }
+.dag-kernel-selection > ul button[aria-pressed="true"] { border-color: var(--signal-blue); background: #edf8fa; }
+.dag-kernel-selection > ul span { display: block; margin-top: 6px; font-size: 13px; color: var(--slate); }
+.dag-kernel-selection .execution-hotspot-detail { border: 0; padding: 16px 0 0; }
+.dag-kernel-selection .execution-hotspot-detail nav { flex-wrap: wrap; }
+
+.inference-sample-summary { padding: 12px 16px; border-block: 1px solid var(--border, #d8e1ea); margin-block: 12px; }
+.inference-sample-line { display:flex; align-items:center; flex-wrap:wrap; gap:12px 24px; font-size:14px; }
+.inference-sample-line.secondary { margin-top:8px; color:var(--muted, #536578); font-size:13px; align-items:start; }
+.inference-sample-line label { display:flex; align-items:center; flex-wrap:wrap; gap:8px; }
+.inference-sample-line select { max-width:420px; padding:5px 8px; font:inherit; }
+.sample-evidence { flex:1; min-width:220px; }
+.sample-evidence[open] { flex-basis:100%; }
+.sample-evidence p { max-width:85ch; line-height:1.6; }
+.sample-evidence table { font-size:13px; width:100%; text-align:left; border-collapse:collapse; }
+.sample-evidence th,.sample-evidence td { padding:7px; border-bottom:1px solid #dde5ed; overflow-wrap:anywhere; }
+.sample-distribution { max-width:640px; width:100%; overflow:visible; }
+.sample-distribution text { fill:#536578; font-size:11px; }
+.sample-distribution circle { fill:#426c92; }
+.sample-distribution .is-selected circle { fill:#ca612a; stroke:#fff; stroke-width:2px; r:7px; }
+.sample-distribution [role=button] { cursor:pointer; }
+.sample-distribution [role=button]:focus { outline:2px solid #426c92; }
+.sample-axis { stroke:#a9bbc9; }
+.sample-stem { stroke:#b4c5d3; stroke-width:2px; }
+.sample-median { stroke:#426c92; stroke-dasharray:4 4; }
+.timeline-event.is-cuda_sync { fill:#ba8145; }
+@media(max-width:720px) { .inference-sample-line select {max-width:100%;width:100%;} .inference-sample-line label {width:100%;} }

@@ -59,7 +59,7 @@ export interface NcuWarpTrigger {
 export interface NcuCaptureDetails {
   replayMode: "kernel";
   replayPasses: number;
-  cacheControlRequest: "all";
+  cacheControlRequest: "all" | "none";
   clockControlRequest: "base" | "none";
   warmupCount: number;
   backingStoreBytes: number | null;
@@ -72,7 +72,30 @@ export interface NcuCaptureDetails {
   origins: NcuCaptureOrigins;
 }
 
+export interface TraceAnalysisSummary {
+  batchId: string;
+  inputCaseId: string;
+  sampleCount: number;
+  warmupIterations: number;
+  status: 'stable';
+  representativeCaptureId: string;
+  wall: {medianNs:number;cv:number};
+  hotspots: readonly {id:string;label:string;medianNs:number;cv:number;calls:number;countsMatch:boolean}[];
+  systemMedians: {cpuCoreTimeNs:number|null;gpuActivityUnionNs:number|null;apiWallUnionNs:number|null};
+}
+
 export interface ProfilerCapture {
+  analysisSummary?: TraceAnalysisSummary;
+  cpuCapabilities?: {schedulerRunning:boolean;threadStates:boolean;functionSamples:boolean;taskMarkers:boolean;associationEvents:boolean};
+  analysisSample?: {
+    batchId: string;
+    inputCaseId: string;
+    sampleIndex: number;
+    warmupIterations: number;
+    measuredIterations: number;
+    windowStartNs: number;
+    windowEndNs: number;
+  };
   captureId: string;
   runId: string;
   sourceId: string;
@@ -94,6 +117,8 @@ export type TimelineLaneKind =
   | "cpu_thread"
   | "cpu_aggregate"
   | "cuda_api"
+  | "cuda_sync"
+  | "osrt"
   | "cuda_graph"
   | "gpu_kernel"
   | "gpu_memcpy"
@@ -124,7 +149,9 @@ export type TimelineEventSemantics =
 export interface TimelineEvent {
   eventId: string;
   laneId: string;
-  eventKind: "scheduler" | "cuda_api" | "cuda_graph" | "kernel" | "memcpy" | "profiler_overhead";
+  eventKind: "scheduler" | "cuda_api" | "cuda_sync" | "osrt" | "cuda_graph" | "kernel" | "memcpy" | "profiler_overhead";
+  apiName?: string;
+  launch?: KernelLaunch;
   label: string;
   startNs: number;
   durationNs: number;
@@ -145,6 +172,7 @@ export interface TimelineSummary {
 }
 
 export interface TimelineRecord {
+  cpuSamples?: readonly {sampleId:string;laneId:string;timeNs:number;frames:readonly {labelSanitized:string;depth:number}[];weight:number}[];
   timelineId: string;
   captureId: string;
   runId: string;
@@ -162,9 +190,9 @@ export interface TimelineRecord {
 }
 
 export interface KernelPrecisionPath {
-  inputDtypeClass: "fp8_e4m3" | "fp16" | "fp32" | null;
+  inputDtypeClass: "fp8_e4m3" | "bf16" | "fp16" | "fp32" | null;
   accumulatorDtypeClass: "fp16" | "fp32" | null;
-  outputDtypeClass: "fp16" | "fp32" | null;
+  outputDtypeClass: "bf16" | "fp16" | "fp32" | null;
   sparsity: "on" | "off" | "unknown";
   missing: ProfilerMissing;
 }

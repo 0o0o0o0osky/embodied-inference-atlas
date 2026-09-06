@@ -130,6 +130,7 @@
         "enum": [
           "atomic_materialized",
           "fused_boundary_modeled",
+          "kernel_boundary_modeled",
           "system_memory_measured",
           "l2_measured",
           "legacy_inverse_roofline",

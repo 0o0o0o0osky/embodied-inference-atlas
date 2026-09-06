@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, type ReactNode } from "react";
 import "./Pi0ExecutionInspector.css";
 
 import type { LogicalDag } from "../../model-graph/domain/types";
@@ -25,6 +25,7 @@ interface Pi0ExecutionInspectorProps {
   onOpenRoofline?: () => void;
   onOpenNcu?: () => void;
   groupBounds?: ReadonlyMap<string, RuntimeBoundPoint>;
+  renderKernelDetails?: (groupIds: readonly string[]) => ReactNode;
 }
 
 function kernelState(group: ExecutionGroup) {
@@ -42,8 +43,9 @@ function chineseRepeat(label: string) {
 }
 
 function mappingExplanation(mapping: RuntimeMapping) {
+  if (mapping.reasonCode === 'shared_gate_up_signature_not_split') return 'Gate 与 Up 各自执行 GEMM；形状相同，共用类别计时，尚未区分两者的调用归属。';
   if (mapping.reasonCode === "precomputed_outside_prediction") return "移到预测前预计算，数学运算仍保留。";
-  if (mapping.reasonCode === "pointer_offset_view") return "通过偏移量建立数据视图，无独立算术运算。";
+  if (mapping.reasonCode === "pointer_offset_view") return "引用已有数据中的动作行，不复制数据，也不启动独立的计算 Kernel。";
   return {
     fused: "多个原算子合并到同一执行组。",
     preserved: "保留原算子的执行边界。",
@@ -77,6 +79,7 @@ export function Pi0ExecutionInspector({
   onOpenRoofline,
   onOpenNcu,
   groupBounds,
+  renderKernelDetails,
 }: Pi0ExecutionInspectorProps) {
   const t = useModelText();
   const index = indexRuntimeRealization(realization);
@@ -91,7 +94,7 @@ export function Pi0ExecutionInspector({
   const groups = group ? [group] : uniqueGroups(mappings, index);
   const bound = groups.length === 1 ? groupBounds?.get(groups[0]!.executionGroupId) : null;
   const roof = bound?.point.derived.roof_second;
-  const ordinaryTime = bound && ["wall_clock", "cuda_event"].includes(bound.basis.time_basis)
+  const ordinaryTime = bound && ["wall_clock", "cuda_event", "nsys_interval"].includes(bound.basis.time_basis)
     ? bound.point.timing.observed_second : null;
   const logicalNode = logicalRef ? dag.nodes.get(logicalRef) : undefined;
   const precisionPaths = [...new Set(groups.map((item) => item.precisionPathId))]
@@ -117,7 +120,7 @@ export function Pi0ExecutionInspector({
   const noGroupReason = mappings.some((mapping) => mapping.reasonCode === "precomputed_outside_prediction")
     ? "预测前预计算，无预测内执行组"
     : mappings.some((mapping) => mapping.reasonCode === "pointer_offset_view")
-      ? "数据视图，无独立执行组"
+      ? "共享数据切片，无独立计算 Kernel"
       : null;
   const mappingSummary = group
     ? logicalCoverage.length ? [...new Set(logicalCoverage)].join("、") : "运行时额外工作，无逻辑目标"
@@ -169,9 +172,9 @@ export function Pi0ExecutionInspector({
         </dd></div>
       </dl>
 
-      <section className="pi0-execution-performance" aria-labelledby="pi0-execution-performance-title">
+      {renderKernelDetails ? renderKernelDetails(groups.map(item=>item.executionGroupId)) : <section className="pi0-execution-performance" aria-labelledby="pi0-execution-performance-title">
         <h3 id="pi0-execution-performance-title">局部下界与实测</h3>
-        {groups.length ? <>
+        {groups.length && bound ? <>
         <dl>
           <div><dt>{performanceGroupLabel}理论下界</dt><dd>{roof != null ? formatTime(roof) : "未建立"}</dd></div>
           <div><dt>同组普通执行计时</dt><dd>{ordinaryTime != null ? formatTime(ordinaryTime) : "未关联"}</dd></div>
@@ -179,18 +182,14 @@ export function Pi0ExecutionInspector({
         <p>{bound ? `覆盖本次推理内 ${bound.point.calls} 次调用；${bound.point.coverage.status === "complete" ? "完整覆盖" : "部分项下界"}。` : "按融合边界与实际精度建模，不相加融合前算子的估计。"}</p>
         <details className="pi0-execution-bound-rules"><summary>局部如何汇总到整体？</summary><p>串行路径的局部下界可相加；存在并行时，还要结合关键路径和共享资源。缺少完整执行映射时，不推算端到端下界。</p></details>
         {onOpenRoofline ? <button type="button" onClick={onOpenRoofline}>查看理论与计时</button> : null}
-        <div className="pi0-execution-ncu">
-          <h4>NCU 诊断</h4>
-          <p>本组诊断指标未关联。NCU 采集耗时不作为普通执行计时。</p>
-          {onOpenNcu ? <button type="button" onClick={onOpenNcu}>查看 NCU 诊断</button> : null}
-        </div>
-        </> : <p>无独立执行组，组级性能分析不适用。</p>}
-      </section>
+        </> : <p>{groups.length ? "此执行组尚未关联性能测量。逐 Kernel 数据见上方执行热点。" : "无独立执行组，组级性能分析不适用。"}</p>}
+        {onOpenNcu ? <button type="button" onClick={onOpenNcu}>查看 NCU 诊断</button> : null}
+      </section>}
 
       <details className="pi0-runtime-raw-evidence">
-        <summary>源码实现与详细证据</summary>
+        <summary>详细证据</summary>
         <dl>
-          <div><dt>源码实现</dt><dd>{implementation}</dd></div>
+          <div><dt>计算方式</dt><dd>{implementation}</dd></div>
           <div><dt>重复与内核</dt><dd>{repeatAndKernel.replaceAll("Kernel", "内核")}</dd></div>
           <div><dt>实现记录</dt><dd><code>{realization.realizationId}</code></dd></div>
           <div><dt>运行时修订</dt><dd><code>{realization.runtimeRevision}</code></dd></div>

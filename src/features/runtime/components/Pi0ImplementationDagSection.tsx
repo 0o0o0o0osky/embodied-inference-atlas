@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import type { RoutePatch, RouteState } from "../../../app/routes";
 import type { CanonicalRecord } from "../../../types/atlas";
 import { LogicalDagSvg } from "../../model-graph/components/LogicalDagSvg";
@@ -28,6 +28,8 @@ interface Pi0ImplementationDagSectionProps {
   selectedRuntimeName: string | null;
   navigate: (patch: RoutePatch, replace?: boolean) => void;
   bounds?: RuntimeBounds;
+  initialShowPrecision?: boolean;
+  renderKernelDetails?: (groupIds: readonly string[]) => ReactNode;
 }
 
 function contains(viewport: GraphViewport, box: { x: number; y: number; width: number; height: number }) {
@@ -37,9 +39,9 @@ function contains(viewport: GraphViewport, box: { x: number; y: number; width: n
     && box.y + box.height <= viewport.y + viewport.height;
 }
 
-export function Pi0ImplementationDagSection({ record, route, activeRealization, selectedRuntimeName, navigate, bounds }: Pi0ImplementationDagSectionProps) {
+export function Pi0ImplementationDagSection({ record, route, activeRealization, selectedRuntimeName, navigate, bounds, initialShowPrecision = false, renderKernelDetails }: Pi0ImplementationDagSectionProps) {
   const [display, setDisplay] = useState<"theory" | "implementation" | "reuse">("implementation");
-  const [showPrecision, setShowPrecision] = useState(false);
+  const [showPrecision, setShowPrecision] = useState(initialShowPrecision);
   const defaultGraph = useMemo(() => adaptV1ModelGraph(record), [record]);
   const overrides = useMemo(
     () => workloadOverrides(route.workload, defaultGraph.editableSymbols),
@@ -116,14 +118,14 @@ export function Pi0ImplementationDagSection({ record, route, activeRealization, 
   return (
     <section aria-label="完整实现 DAG 与映射">
       <header className="runtime-implementation-header">
-        <div><h4>{selectedRuntimeName} 的执行方式</h4><p>原图位置不变，仅叠加已确认的实现差异。源码映射，不代表实测 kernel 关联。</p></div>
+        <div><h4>{selectedRuntimeName} 的执行方式</h4><p>查看融合边界、计算路径与执行精度。</p></div>
         <div className="runtime-implementation-switch" aria-label="实现视图">
           {([["theory", "理论原图"], ["implementation", "实现叠加"], ["reuse", "计算与复用"]] as const).map(([id, label]) =>
             <button type="button" key={id} aria-pressed={display === id} onClick={() => setDisplay(id)}>{label}</button>)}
         </div>
       </header>
       <div className="runtime-implementation-legend" aria-hidden={display !== "implementation"} style={{ visibility: display === "implementation" ? "visible" : "hidden" }}>
-        <span><i />融合组</span><span><i className="is-precomputed" />预计算 / 视图 / 消除</span>
+        <span><i />融合组</span><span><i className="is-precomputed" />预计算 / 共享数据切片 / 消除</span>
         <span>无标记：未标注实现差异</span>
         <label><input type="checkbox" checked={showPrecision} onChange={(event) => setShowPrecision(event.target.checked)} />显示精度</label>
       </div>
@@ -135,7 +137,7 @@ export function Pi0ImplementationDagSection({ record, route, activeRealization, 
       ) : null}
 
       <div hidden={display === "reuse"} className={`runtime-implementation-canvas pi0-runtime-dag-grid${drawerOpen ? " is-focused" : ""}`}>
-        <section className="logical-graph-panel" aria-label="Pi0 推理栈实现图">
+        <section className="logical-graph-panel" aria-label="推理栈实现图">
           <LogicalDagSvg
             dag={dag}
             layout={layout}
@@ -149,29 +151,30 @@ export function Pi0ImplementationDagSection({ record, route, activeRealization, 
             onSelect={(ref) => {
               if (activeRealization) navigate({ entity: logicalEntity(ref) }, true);
             }}
-            ariaLabel="Pi0 模型算子图及推理栈实现覆盖层"
+            ariaLabel="模型算子图及推理栈实现覆盖层"
             underlay={display === "implementation" && activeRealization && overlay ? <RuntimeOverlay
               layout={layout} realization={activeRealization} overlay={overlay} onSelectGroup={selectGroup}
-              pi0 layer="background" showPrecision={showPrecision} /> : undefined}
+              pi0={activeRealization.modelId === "pi0"} layer="background" showPrecision={showPrecision} /> : undefined}
             overlay={display === "implementation" && activeRealization && overlay ? (
               <RuntimeOverlay
                 layout={layout}
                 realization={activeRealization}
                 overlay={overlay}
                 onSelectGroup={selectGroup}
-                pi0
+                pi0={activeRealization.modelId === "pi0"}
                 layer="labels"
                 showPrecision={showPrecision}
                 avoidPaths={connectors.connectors.flatMap((connector) => connector.paths)}
               />
             ) : undefined}
             compactControls
-            cameraResetKey={`pi0-runtime|${route.runtime ?? "none"}|${route.hardware ?? "none"}|${route.runtimePrecision ?? "none"}|${route.workload ?? "defaults"}`}
+            cameraResetKey={`${activeRealization?.modelId ?? route.model}-runtime|${route.runtime ?? "none"}|${route.hardware ?? "none"}|${route.runtimePrecision ?? "none"}|${route.workload ?? "defaults"}`}
           />
         </section>
         {drawerOpen && activeRealization && route.entity ? (
           <Pi0ExecutionInspector
             {...(bounds ? { groupBounds: bounds.groups } : {})}
+            {...(renderKernelDetails ? { renderKernelDetails } : {})}
             dag={dag}
             realization={activeRealization}
             selectedEntity={route.entity}

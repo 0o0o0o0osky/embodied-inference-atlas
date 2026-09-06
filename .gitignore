@@ -29,3 +29,10 @@ dist/
 *.png
 *.mp4
 *.mov
+
+# Reproducible, pinned local viewer dependency. Keep instructions and licenses.
+/public/perfetto/*
+!/public/perfetto/README.md
+!/public/perfetto/atlas-manifest.json
+!/public/perfetto/licenses/
+/site/perfetto/

@@ -42,8 +42,8 @@ export function ContextBar({ data, model, route, navigate, compact = false }: Co
   const showWorkload = route.tab !== "end-to-end" && route.tab !== "timeline";
   const showRuntimePrecision = route.tab === "runtime";
   const showRooflinePrecision = route.tab === "roofline-kernels";
-  const modelTheory = isPi0ModelTheory(route);
-  const compactActualPrecision = compact && model.model_id === "pi0" && !modelTheory && (
+  const modelTheory = route.tab === "logical" || isPi0ModelTheory(route);
+  const compactActualPrecision = compact && !modelTheory && (
     (route.tab === "runtime" && route.runtime !== null)
     || route.tab === "timeline"
     || route.tab === "roofline-kernels"
@@ -231,7 +231,7 @@ function runtimePrecisionLabel(precisionId: string): string {
   return ({
     "mixed-fp8-e4m3-fp16": "选择性 FP8 E4M3 / FP16",
     "mixed-bf16-fp32": "BF16 / FP32 混合执行",
-    "q8_0-weight-only": "Q8_0 仅权重量化 / FP16 执行（非 INT8 计算）",
+    "q8_0-weight-only": "Q8_0 仅权重量化 / FP32 激活",
   } as Readonly<Record<string, string>>)[precisionId] ?? precisionId;
 }
 

@@ -3908,6 +3908,155 @@
       }
     },
     {
+      "label": "Pi0 native BF16 GEMM kernel boundary",
+      "missing": [],
+      "model_artifact_id": "pi0-vlacpp-source-01",
+      "model_graph_id": "pi0-logical-v1",
+      "model_id": "pi0",
+      "modeling_scope": "implementation_modeled",
+      "origin": "captured_kernel",
+      "precision_path": {
+        "kind": "uniform",
+        "precision_path_id": "bf16_dense",
+        "realization_ids": [
+          "rr-vla-cpp-pi0-thor-bf16-f32-v1"
+        ],
+        "runtime_support": "proven",
+        "segments": [
+          {
+            "accumulator_dtype": "fp32",
+            "activation": {
+              "bits_per_value": 16,
+              "block_values": null,
+              "format": "bf16",
+              "packed_data_bytes_per_block": null,
+              "padding": "none",
+              "provenance": {
+                "class": "analytical_model",
+                "condition": "Only three exact GEMM shapes; BF16 inputs and FP32 accumulation/output. Kernel boundary excludes conversion, other kernels, CPU and transfers. Nsys node-traced ordinary execution; not unprofiled timing or NCU replay. Conditional 120W/1.386GHz/273GB/s curve; no matched observed clocks or DRAM traffic.",
+                "derivation": {
+                  "expression": "cublasGemmEx CUDA_R_16BF A/B; CUDA_R_32F C; CUBLAS_COMPUTE_32F",
+                  "input_refs": [
+                    "ggml/src/ggml-cuda/ggml-cuda.cu#ggml_cuda_op_mul_mat_cublas"
+                  ],
+                  "kind": "formula"
+                },
+                "evidence": "analytical",
+                "source_ids": [
+                  "source-local-thor",
+                  "source-vla-cpp"
+                ]
+              },
+              "scale_bytes_per_block": 0,
+              "scale_format": "none",
+              "tensor_scale_bytes": 0,
+              "zero_point_bytes_per_block": 0
+            },
+            "compute_class": "tensor_bf16_dense",
+            "dequantization": {
+              "floating_flop_per_weight": 0,
+              "integer_op_per_weight": 0,
+              "materialized_bytes_per_weight": 0,
+              "mode": "none"
+            },
+            "output": {
+              "bits_per_value": 32,
+              "block_values": null,
+              "format": "fp32",
+              "packed_data_bytes_per_block": null,
+              "padding": "none",
+              "provenance": {
+                "class": "analytical_model",
+                "condition": "Only three exact GEMM shapes; BF16 inputs and FP32 accumulation/output. Kernel boundary excludes conversion, other kernels, CPU and transfers. Nsys node-traced ordinary execution; not unprofiled timing or NCU replay. Conditional 120W/1.386GHz/273GB/s curve; no matched observed clocks or DRAM traffic.",
+                "derivation": {
+                  "expression": "cublasGemmEx CUDA_R_16BF A/B; CUDA_R_32F C; CUBLAS_COMPUTE_32F",
+                  "input_refs": [
+                    "ggml/src/ggml-cuda/ggml-cuda.cu#ggml_cuda_op_mul_mat_cublas"
+                  ],
+                  "kind": "formula"
+                },
+                "evidence": "analytical",
+                "source_ids": [
+                  "source-local-thor",
+                  "source-vla-cpp"
+                ]
+              },
+              "scale_bytes_per_block": 0,
+              "scale_format": "none",
+              "tensor_scale_bytes": 0,
+              "zero_point_bytes_per_block": 0
+            },
+            "segment_id": "segment-bf16",
+            "selector": {
+              "kind": "all",
+              "refs": []
+            },
+            "weight": {
+              "bits_per_value": 16,
+              "block_values": null,
+              "format": "bf16",
+              "packed_data_bytes_per_block": null,
+              "padding": "none",
+              "provenance": {
+                "class": "analytical_model",
+                "condition": "Only three exact GEMM shapes; BF16 inputs and FP32 accumulation/output. Kernel boundary excludes conversion, other kernels, CPU and transfers. Nsys node-traced ordinary execution; not unprofiled timing or NCU replay. Conditional 120W/1.386GHz/273GB/s curve; no matched observed clocks or DRAM traffic.",
+                "derivation": {
+                  "expression": "cublasGemmEx CUDA_R_16BF A/B; CUDA_R_32F C; CUBLAS_COMPUTE_32F",
+                  "input_refs": [
+                    "ggml/src/ggml-cuda/ggml-cuda.cu#ggml_cuda_op_mul_mat_cublas"
+                  ],
+                  "kind": "formula"
+                },
+                "evidence": "analytical",
+                "source_ids": [
+                  "source-local-thor",
+                  "source-vla-cpp"
+                ]
+              },
+              "scale_bytes_per_block": 0,
+              "scale_format": "none",
+              "tensor_scale_bytes": 0,
+              "zero_point_bytes_per_block": 0
+            }
+          }
+        ]
+      },
+      "provenance": {
+        "class": "analytical_model",
+        "condition": "Only three exact GEMM shapes; BF16 inputs and FP32 accumulation/output. Kernel boundary excludes conversion, other kernels, CPU and transfers. Nsys node-traced ordinary execution; not unprofiled timing or NCU replay. Conditional 120W/1.386GHz/273GB/s curve; no matched observed clocks or DRAM traffic.",
+        "derivation": {
+          "expression": "exact cublasGemmEx shape labels linked through CUDA Graph node clone ancestry",
+          "input_refs": [
+            "ggml/src/ggml-cuda/ggml-cuda.cu#ggml_cuda_op_mul_mat_cublas"
+          ],
+          "kind": "formula"
+        },
+        "evidence": "analytical",
+        "source_ids": [
+          "source-local-thor",
+          "source-vla-cpp"
+        ]
+      },
+      "scenario_id": "scenario-pi0-vlacpp-bf16-gemm-capture",
+      "schema_version": "2.0.0",
+      "workload": {
+        "action_horizon": 50,
+        "active_camera_views": 1,
+        "batch_size": 1,
+        "denoise_steps": 10,
+        "executed_camera_views": 1,
+        "executed_image_height": 224,
+        "executed_image_width": 224,
+        "executed_prompt_tokens": 48,
+        "internal_action_dimension": 32,
+        "public_action_dimension": 32,
+        "raw_image_height": 224,
+        "raw_image_width": 224,
+        "semantic_prompt_tokens": 48,
+        "work_unit": "action_chunk"
+      }
+    },
+    {
       "label": "pi0 default · W4A16 · block-32 · BF16 compute",
       "missing": [
         {

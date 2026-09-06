@@ -1,0 +1,66 @@
+[
+  {
+    "file": "Perfetto-LICENSE.txt",
+    "source": "https://raw.githubusercontent.com/google/perfetto/v58.2/LICENSE"
+  },
+  {
+    "file": "protobuf-LICENSE.txt",
+    "source": "https://raw.githubusercontent.com/protocolbuffers/protobuf/74211c0dfc2777318ab53c2cd2c317a2ef9012de/LICENSE"
+  },
+  {
+    "file": "Abseil-LICENSE.txt",
+    "source": "https://raw.githubusercontent.com/abseil/abseil-cpp/76bb24329e8bf5f39704eb10d21b9a80befa7c81/LICENSE"
+  },
+  {
+    "file": "Expat-COPYING.txt",
+    "source": "https://raw.githubusercontent.com/libexpat/libexpat/fa75b96546c069d17b8f80d91e0f4ef0cde3790d/expat/COPYING"
+  },
+  {
+    "file": "LLVM-LICENSE.txt",
+    "source": "https://raw.githubusercontent.com/llvm/llvm-project/617a15a9eac96088ae5e9134248d8236e34b91b1/llvm/LICENSE.TXT"
+  },
+  {
+    "file": "Zlib-LICENSE.txt",
+    "source": "https://chromium.googlesource.com/chromium/src/third_party/zlib/+/6f9b4e61924021237d474569027cfb8ac7933ee6/LICENSE?format=TEXT"
+  },
+  {
+    "file": "Zstd-LICENSE.txt",
+    "source": "https://raw.githubusercontent.com/facebook/zstd/f8745da6ff1ad1e7bab384bd1f9d742439278e99/LICENSE"
+  },
+  {
+    "file": "RE2-LICENSE.txt",
+    "source": "https://raw.githubusercontent.com/google/re2/927f5d53caf8111721e734cf24724686bb745f55/LICENSE"
+  },
+  {
+    "file": "PCRE2-LICENCE.txt",
+    "source": "https://raw.githubusercontent.com/PCRE2Project/pcre2/6ae58beca071f13ccfed31d03b3f479ab520639b/LICENCE"
+  },
+  {
+    "file": "Roboto-OFL.txt",
+    "source": "https://raw.githubusercontent.com/googlefonts/roboto/main/LICENSE"
+  },
+  {
+    "file": "RobotoMono-LICENSE.txt",
+    "source": "https://raw.githubusercontent.com/googlefonts/RobotoMono/main/OFL.txt"
+  },
+  {
+    "file": "MaterialSymbols-LICENSE.txt",
+    "source": "https://raw.githubusercontent.com/google/material-design-icons/master/LICENSE"
+  },
+  {
+    "file": "Catapult-LICENSE.txt",
+    "source": "https://raw.githubusercontent.com/catapult-project/catapult/master/LICENSE"
+  },
+  {
+    "file": "Hsluv-LICENSE.txt",
+    "source": "https://raw.githubusercontent.com/hsluv/hsluv-javascript/v0.1.0/LICENSE"
+  },
+  {
+    "file": "Syntaqlite-LICENSE.txt",
+    "source": "https://raw.githubusercontent.com/LalitMaganti/syntaqlite/v0.7.1/LICENSE"
+  },
+  {
+    "file": "SQLite-PUBLIC-DOMAIN.txt",
+    "source": "https://raw.githubusercontent.com/sqlite/sqlite/a4643b451a2941f5e6965ab095d3057bc7cb2222/LICENSE.md"
+  }
+]

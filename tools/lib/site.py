@@ -11,7 +11,7 @@ from pathlib import Path
 
 from tools.lib.contracts import Issue, load_manifest
 from tools.lib.jsonio import load_json
-from tools.lib.privacy import scan_site_tree
+from tools.lib.privacy import perfetto_asset_paths, scan_site_tree
 from tools.validate import format_issue, validate_repository
 
 
@@ -52,8 +52,11 @@ def build_site(repo_root: Path, output_dir: Path, check: bool = False) -> BuildR
                 if path.is_file()
             )
         )
-        if pages != ("index.html",):
-            raise BuildError("frontend build must emit exactly one index.html entry")
+        expected_pages = {"index.html"}
+        if (candidate / "perfetto").is_dir():
+            expected_pages.update(name for name in perfetto_asset_paths() if name.endswith(".html"))
+        if set(pages) != expected_pages:
+            raise BuildError("frontend build must emit one application entry and only pinned Perfetto HTML pages")
         if not check:
             replace_tree(candidate, output_dir)
         return BuildResult(pages=pages, checked=check)
@@ -149,16 +152,8 @@ def _build_frontend(repo_root: Path, destination: Path) -> None:
 def _write_frontend_data(
     path: Path, datasets: Mapping[str, list[dict[str, object]]]
 ) -> None:
-    payload = {
-        "format_version": FRONTEND_DATA_VERSION,
-        "datasets": dict(datasets),
-    }
-    content = json.dumps(
-        payload,
-        ensure_ascii=False,
-        sort_keys=True,
-        separators=(",", ":"),
-    )
+    payload = {"format_version": FRONTEND_DATA_VERSION, "datasets": dict(datasets)}
+    content = json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
     _write_text_atomic(path, f"{content}\n")
 
 

@@ -3,6 +3,8 @@ import unittest
 from pathlib import Path
 
 from tools.lib.jsonio import load_json
+from tools.lib.contracts import validate_document
+from tools.lib.runtime_realization import runtime_realization_problems
 from tools.lib.privacy import scan_json
 from tools.validate import validate_references
 
@@ -11,6 +13,28 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class RuntimeRealizationValidationTests(unittest.TestCase):
+    def test_optional_reuse_contract_preserves_unknown_costs_and_checks_evidence(self):
+        document = copy.deepcopy(load_json(ROOT / "data/runtime_realizations/pi0.json"))
+        record = document["records"][0]
+        graph = load_json(ROOT / "data/model_graphs/pi0.json")["records"][0]
+        logical_ref = record["mappings"][0]["logical_targets"][0]["ref"]
+        record["reuse"] = [{
+            "reuse_id": "fixture-reuse", "label": "Fixture reuse", "kind": "computed_result",
+            "producer_refs": [logical_ref], "consumer_refs": [logical_ref],
+            "lifetime": "observation", "repeat_scope": "denoise_steps",
+            "value_dependencies": ["image", "prompt"], "invalidation_conditions": ["observation_changed"],
+            "implementation_status": "implemented", "evidence_ids": [record["evidence"][0]["evidence_id"]],
+            "storage_bytes": None, "preparation_ns": None, "read_ns": None,
+        }]
+        self.assertEqual(validate_document("runtime_realizations", document, ROOT), [])
+        self.assertEqual(runtime_realization_problems(record, graph), [])
+        record["reuse"][0]["evidence_ids"] = []
+        self.assertIn("reuse_evidence", {issue.code for issue in runtime_realization_problems(record, graph)})
+        record["reuse"][0]["evidence_ids"] = ["unknown-evidence"]
+        self.assertIn("broken_reference", {issue.code for issue in runtime_realization_problems(record, graph)})
+        record["reuse"][0]["storage_bytes"] = -1
+        self.assertTrue(validate_document("runtime_realizations", document, ROOT))
+
     def test_mapping_semantics_and_graph_local_references(self):
         pi0 = load_json(ROOT / "data/model_graphs/pi0.json")["records"][0]
         pi05 = load_json(ROOT / "data/model_graphs/pi05.json")["records"][0]

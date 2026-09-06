@@ -3,6 +3,7 @@ from __future__ import annotations
 from collections import Counter, defaultdict
 from collections.abc import Mapping
 from dataclasses import dataclass
+import math
 
 from extractors.profiler_common import (
     METRIC_REGISTRY,
@@ -141,6 +142,29 @@ def profiler_semantic_issues(datasets: Mapping[str, list[Mapping]]) -> list[Issu
             issues.append(_broken(f"{base}.run_id"))
             continue
         tool = capture.get("tool")
+        summary = capture.get("analysis_summary")
+        if isinstance(summary, Mapping):
+            sample = capture.get("analysis_sample") or {}
+            wall = summary.get("wall") or {}
+            hotspots = summary.get("hotspots") or []
+            def stable_stat(stat):
+                median, cv = stat.get("median_ns"), stat.get("cv")
+                return (isinstance(median, (int, float)) and math.isfinite(median) and median > 0
+                        and isinstance(cv, (int, float)) and math.isfinite(cv) and 0 <= cv <= .05)
+            valid = (
+                tool == "nsys" and summary.get("status") == "stable"
+                and summary.get("representative_capture_id") == capture.get("capture_id")
+                and summary.get("sample_count") == sample.get("measured_iterations") == 10
+                and summary.get("warmup_iterations") == sample.get("warmup_iterations") == 5
+                and summary.get("batch_id") == sample.get("batch_id")
+                and summary.get("input_case_id") == sample.get("input_case_id")
+                and capture.get("coverage", {}).get("is_complete_for_population") is True
+                and stable_stat(wall) and bool(hotspots)
+                and all(stable_stat(h) and h.get("counts_match") is True for h in hotspots)
+            )
+            if not valid:
+                issues.append(_issue(f"{base}.analysis_summary", "analysis_summary_stability",
+                    "retained representative requires its matching complete 5+10 batch summary, CV <= 5% and consistent hotspot counts"))
         if run.get("capture_method") != tool:
             issues.append(_issue(f"{base}.tool", "capture_method_mismatch", "capture tool must match its run"))
         if capture.get("source_id") != run.get("source_id"):

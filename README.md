@@ -2,19 +2,30 @@
 
 Offline, evidence-backed views of VLA, world-model, and world-action-model inference behavior.
 
-Raw profiler reports stay on each collection machine under `.local/` and are never committed. This repository does not download models or install inference runtimes. Canonical data lives under `data/`; generated offline pages live under `site/`.
+The maintained project is a small, repeatable workflow for parsing evidence,
+rendering execution and identifying bottlenecks. Canonical `data/` retains one
+representative trace per required case, its stability summary and the measurements
+needed for analysis. Other samples, raw reports and review artifacts stay under
+ignored `.local/`. Formulas generate additional theoretical points on demand.
+This repository does not download models or install inference runtimes.
 
 ## Local commands
 
 ```bash
 npm ci
+python3 tools/vendor_perfetto.py
 npm run typecheck
-npm run build
-python3 -m unittest
 python3 -m tools.validate --all
 python3 -m tools.build
 python3 -m tools.build --check
 ```
+
+Prepare the pinned Perfetto dependency once. For an offline preparation, use
+`python3 tools/vendor_perfetto.py --archive /path/to/perfetto-ui.zip` instead;
+the installer verifies the fixed archive hash. Its binaries remain local and
+are excluded from Git. The build copies them into the runnable offline `site/`.
+Normal builds do not download assets. Run the tests relevant to the change with
+`npm test -- <test-path>` or `python3 -m unittest <test-module>`.
 
 The Python builder validates canonical JSON, creates the deterministic frontend
 payload, runs the locked Vite build, and replaces `site/` with relative,
@@ -37,7 +48,11 @@ generated site. Review a promotion diff before applying it, for example:
 python3 -m tools.promote .local/staging/<bundle>.json --apply
 ```
 
-Only the promotion command writes canonical data.
+Promotion imports reviewed evidence. To compact accumulated evidence, run
+`python3 -m tools.archive_analysis` for a validated size/selection preview, then
+`python3 -m tools.archive_analysis --apply`. The latter backs up exact originals
+and a manifest under `.local/archive/` before writing the reduced corpus.
 
-See `docs/methodology.md` for evidence, timing, comparison, precision, and
-missing-data semantics.
+See [the single-inference workflow](docs/single-inference-analysis.md) for agent
+analysis and rendering, [methodology](docs/methodology.md) for data semantics,
+and [AGENTS.md](AGENTS.md) for scope and retention rules.

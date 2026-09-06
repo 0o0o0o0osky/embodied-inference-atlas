@@ -1,7 +1,7 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { expect, it } from "vitest";
 
-import atlasDocument from "../../../site/assets/data/atlas-data.json";
+import { atlasSnapshot as atlasDocument } from '../../testSupport/atlasSnapshot';
 import type { RouteState } from "../../app/routes";
 import type { AtlasData } from "../../types/atlas";
 import { TimelineView } from "./TimelineView";

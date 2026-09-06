@@ -1,5 +1,18 @@
 # Methodology
 
+## Repository scope
+
+The maintained artifact is the parsing and analysis workflow plus its minimal
+reference evidence. After local batch stability checks, retain one real trace
+per analysis case and a compact `analysis_summary`; other windows, duplicate
+exports and exploratory artifacts remain in ignored local archives. A retained
+summary preserves batch medians/CVs without requiring every trace in the UI.
+Keep default BF16 analytical snapshots for regression; other precision points
+are computed from the existing scenarios and formula engine when requested.
+Do not append measurements, panels or assets just because they are available.
+
+## Evidence
+
 The Embodied Inference Atlas separates evidence by how a value was obtained:
 
 - `measured_local` records come from a benchmark or profiler run on a named,
@@ -74,7 +87,8 @@ not present any validated speedup.
 The Pi0 runtime overview uses five untimed warmup predictions followed by ten
 timed predictions of the same input shape. It displays one record's summary
 per runtime/precision/contract, never a pooled percentile of separate runs.
-Older protocols remain archived but are excluded from the current overview.
+Older protocols remain in local archives unless they are the only necessary
+reference for another supported model; they are excluded from the current overview.
 Warmup count alone does not prove stability: retain sample order locally and
 inspect the ten measured durations without discarding inconvenient samples.
 
@@ -91,8 +105,9 @@ Measured distributions containing source p50 or p95 values use
 null percentile method and zero samples.
 
 For charts that need one latency per record, the site selects an
-`analytical_estimate` for analytical evidence, otherwise a measured mean when
-available, otherwise a measured p50. The selected statistic is displayed with
+`analytical_estimate` for analytical evidence and the within-batch median
+(`p50`) for measured summaries. A missing median stays unavailable; existing
+means remain accessible in the evidence ledger. The selected statistic is displayed with
 the selected value; an analytical estimate is never labeled as a measured
 mean. The full E2E provenance table remains available even when a record has no
 comparison-safe multi-record group.
@@ -166,9 +181,10 @@ forced onto a two-resource compute/bandwidth curve.
 
 Missing observations remain missing rather than becoming zero. Many measured
 runs do not provide `power_mode` or `clock_policy`; all current runs leave
-`throttle_status` unobserved. This snapshot has no canonical telemetry time
-series and no measured board/GPU/CPU power, temperature, or observed-clock
-window from which to resolve those gaps. Where a source states an operating
+`throttle_status` unobserved. Canonical telemetry includes time series and report snapshots. Each record
+preserves its temporal alignment: same-run but unaligned readings cannot be
+assigned to one launch, and a report snapshot cannot establish continuous
+clock or thermal stability. Where a source states an operating
 mode, that statement is retained, but it is not evidence of stable observed
 frequency or absence of throttling.
 
@@ -187,8 +203,44 @@ exact GPU-busy time. The intrusive node report provides a recorded kernel-plus-
 copy activity union and controlled CPU-overlap summaries; even that union is
 not evidence of all GPU activity. NCU preserves per-replay SM, tensor, clock-
 rate, L1, L2, and L2 sysmem-fill metrics, but L2 and sysmem-fill activity is not
-LPDDR or whole-system memory traffic. Because the captures lack DRAM traffic,
-SchedulerStats, and long/short-scoreboard counters, they cannot prove LPDDR
-saturation or a kernel, compute, memory, or stall bottleneck. NCU replay
+LPDDR or whole-system memory traffic. Some independent replays also contain SchedulerStats and scoreboard counters;
+these diagnose only their selected launches. When a capture lacks DRAM counters, L2 sysmem-fill activity cannot establish
+LPDDR saturation. Independently replayed memory counters and Nsys execution
+times must not be combined into measured bandwidth. NCU replay
 durations remain separate single-launch observations and are neither summed
 across reports nor used as end-to-end or stage timing.
+
+## Fixed-input batches and representative traces
+
+A fixed-input case identifies the input recipe, shapes, dtypes, preprocessing
+boundary, external noise and output checks. Finite output alone does not prove
+task correctness. Optional run `analysis_batch` records preserve all ten
+wall-clock samples after five warmups. Optional capture `analysis_sample`
+records connect a real prediction window to its input case, batch and zero-based
+sample index. Independent tools and repeated batches retain distinct identities.
+
+All overall measured summaries use the median of one complete batch. Stability
+uses sample standard deviation divided by the arithmetic mean, with a project
+acceptance threshold of 5%; the mean is used in this diagnostic, not as the
+displayed latency. No samples are dropped. At most one new batch is collected
+when unstable; batches are retained separately, never pooled.
+
+For a representative node trace, validate request wall-clock variability and
+the first two GEMM and first non-GEMM execution classes ranked by median
+cumulative kernel time. Each class must have consistent call count across ten
+samples and cumulative-time CV at most 5%. Candidate traces must be within 5%
+of every checked metric's median. Select the candidate closest to median wall
+time, breaking ties by sample order. Full event coverage is required. An
+unstable or incomplete batch has no automatically verified representative.
+
+Kernel classes retain actual signature and launch configuration. Shape and
+precision metadata must come from the implementation/capture, not the symbol
+alone. Details select one real call nearest the class's within-trace median;
+its actual event time drives the single-call Roofline. Class cumulative time
+is useful for ranking, but overlap prevents treating it as wall-clock share.
+
+CPU scheduled intervals, CUDA/OS runtime calls, device synchronization records
+and timestamped function samples preserve distinct semantics. Samples carry
+weights and sanitized recorded frames, never inferred duration. Device sync
+records are not added to host API time. Pixel bins simplify only the rendered
+overview; complete events and samples remain available in the offline export.

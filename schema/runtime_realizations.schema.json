@@ -11,6 +11,30 @@
     ],
     "additional_properties": false,
     "properties": {
+      "reuse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["reuse_id", "label", "kind", "producer_refs", "consumer_refs", "lifetime", "repeat_scope", "value_dependencies", "invalidation_conditions", "implementation_status", "evidence_ids", "storage_bytes", "preparation_ns", "read_ns"],
+          "additional_properties": false,
+          "properties": {
+            "reuse_id": {"type": "string", "min_length": 1, "max_length": 120},
+            "label": {"type": "string", "min_length": 1, "max_length": 160},
+            "kind": {"type": "string", "enum": ["computed_result", "execution_plan", "storage"]},
+            "producer_refs": {"type": "array", "items": {"type": "string", "min_length": 1, "max_length": 300}},
+            "consumer_refs": {"type": "array", "items": {"type": "string", "min_length": 1, "max_length": 300}},
+            "lifetime": {"type": "string", "enum": ["initialization", "observation", "solver_step", "across_observations"]},
+            "repeat_scope": {"type": "string", "min_length": 1, "max_length": 160},
+            "value_dependencies": {"type": "array", "items": {"type": "string", "min_length": 1, "max_length": 300}},
+            "invalidation_conditions": {"type": "array", "items": {"type": "string", "min_length": 1, "max_length": 300}},
+            "implementation_status": {"type": "string", "enum": ["implemented", "not_implemented", "unknown"]},
+            "evidence_ids": {"type": "array", "items": {"type": "string", "min_length": 1, "max_length": 120}},
+            "storage_bytes": {"type": ["integer", "null"], "minimum": 0},
+            "preparation_ns": {"type": ["number", "null"], "minimum": 0},
+            "read_ns": {"type": ["number", "null"], "minimum": 0}
+          }
+        }
+      },
       "realization_id": {"type": "string", "min_length": 1, "max_length": 120},
       "model_id": {"type": "string", "min_length": 1, "max_length": 80},
       "model_graph_id": {"type": "string", "min_length": 1, "max_length": 80},

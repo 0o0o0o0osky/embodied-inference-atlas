@@ -460,14 +460,70 @@ def _change_diff(change: PromotionChange, repo_root: Path) -> str:
     relative = change.path.relative_to(repo_root).as_posix()
     before = change.safe_before.decode("utf-8").splitlines(keepends=True)
     after = _json_bytes(change.document).decode("utf-8").splitlines(keepends=True)
-    return "".join(
-        difflib.unified_diff(
-            before,
-            after,
-            fromfile=f"a/{relative}",
-            tofile=f"b/{relative}",
-        )
-    )
+    # Canonical documents contain many identical punctuation/event lines. Feeding
+    # their already-equal population to SequenceMatcher makes a simple record
+    # insertion quadratic. Trim exact common boundaries before matching, preserving
+    # absolute line coordinates and the usual three context lines.
+    prefix = 0
+    common = min(len(before), len(after))
+    while prefix < common and before[prefix] == after[prefix]:
+        prefix += 1
+    if prefix == len(before) == len(after):
+        return ""
+    suffix = 0
+    while suffix < common - prefix and before[len(before) - suffix - 1] == after[len(after) - suffix - 1]:
+        suffix += 1
+    old_end, new_end = len(before) - suffix, len(after) - suffix
+    # Match only the changed middle. Keeping equal prefix/suffix as fixed anchors
+    # also prevents repetitive braces from shifting context past a clipped edge.
+    codes = [(tag, i + prefix, j + prefix, k + prefix, end + prefix)
+             for tag, i, j, k, end in difflib.SequenceMatcher(
+                 None, before[prefix:old_end], after[prefix:new_end]
+             ).get_opcodes()]
+    if prefix:
+        codes.insert(0, ("equal", 0, prefix, 0, prefix))
+    if suffix:
+        codes.append(("equal", old_end, len(before), new_end, len(after)))
+    result = [f"--- a/{relative}\n", f"+++ b/{relative}\n"]
+    for group in _diff_groups(codes):
+        result.append(f"@@ -{_diff_range(group[0][1], group[-1][2])} +{_diff_range(group[0][3], group[-1][4])} @@\n")
+        for tag, i, j, k, end in group:
+            if tag == "equal":
+                result.extend(" " + line for line in before[i:j])
+            else:
+                if tag in ("replace", "delete"):
+                    result.extend("-" + line for line in before[i:j])
+                if tag in ("replace", "insert"):
+                    result.extend("+" + line for line in after[k:end])
+    return "".join(result)
+
+
+def _diff_range(start: int, end: int) -> str:
+    length = end - start
+    if length == 1:
+        return str(start + 1)
+    return f"{start if length == 0 else start + 1},{length}"
+
+
+def _diff_groups(codes, context: int = 3):
+    """Group anchored opcodes using ordinary unified-diff context semantics."""
+    group = []
+    for index, (tag, i, j, k, end) in enumerate(codes):
+        if tag == "equal":
+            if index == 0:
+                i, k = max(i, j - context), max(k, end - context)
+            if index == len(codes) - 1:
+                j, end = min(j, i + context), min(end, k + context)
+            if j - i > 2 * context:
+                group.append((tag, i, i + context, k, k + context))
+                if any(item[0] != "equal" for item in group):
+                    yield group
+                group = []
+                i, k = j - context, end - context
+        group.append((tag, i, j, k, end))
+    if any(item[0] != "equal" for item in group):
+        yield group
+
 
 
 def _ensure_safe_path(path: Path, repo_root: Path) -> None:

@@ -1,0 +1,24 @@
+.reuse-object-selector { display:flex; flex-wrap:wrap; gap:.6rem; margin-block:1rem; }
+.reuse-object-selector button { display:grid; gap:.35rem; text-align:left; padding:.75rem; background:white; border:1px solid var(--line,#ccc); border-radius:5px; cursor:pointer; }
+.reuse-object-selector button[aria-pressed="true"] { background:#edf5fa; border-color:#3b7598; }
+.reuse-object-selector span { font-size:.82rem; color:#53616d; }
+.reuse-stage-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:.5rem; }
+.reuse-stage-grid button { display:grid; align-content:start; gap:.4rem; min-height:108px; padding:.7rem; text-align:left; background:#f6f7f8; border:1px solid var(--line,#ccc); color:#53616d; cursor:pointer; }
+.reuse-stage-grid button[data-in-scope="true"] { background:#eef6ef; border-bottom:4px solid #699572; }
+.reuse-stage-grid button[aria-pressed="true"] { outline:2px solid #347397; outline-offset:2px; color:#173b54; }
+.reuse-stage-grid small { font-size:.75rem; }
+.reuse-stage-controls { display:flex; align-items:center; gap:1rem; margin-block:1rem; }
+.reuse-stage-controls button { background:white; padding:.4rem .7rem; border:1px solid #ccd8e1; cursor:pointer; }
+.reuse-stage-controls button:disabled { opacity:.45; cursor:default; }
+.reuse-selected-object { border-top:1px solid var(--line,#ccc); padding-block:1rem; }
+.reuse-selected-object h4 { margin:0; font-size:1rem; }
+.reuse-value-flow { display:flex; align-items:center; gap:.75rem; flex-wrap:wrap; margin-block:1rem; }
+.reuse-value-flow > div { display:grid; gap:.4rem; flex:1 1 140px; padding:.8rem; border:1px solid #bdcdd8; border-radius:4px; overflow-wrap:anywhere; }
+.reuse-value-flow small { color:#53616d; }
+.reuse-stage-explanation { padding:.6rem .8rem; background:#f1f5f8; }
+.reuse-selected-object dl { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:.7rem 1.4rem; }
+.reuse-selected-object dt { color:#53616d; font-size:.85rem; }
+.reuse-selected-object dd { margin:.3rem 0 0; line-height:1.5; }
+.reuse-evidence { margin-block:1rem; font-size:.85rem; overflow-wrap:anywhere; }
+.reuse-evidence summary { cursor:pointer; }
+@media (max-width:640px) { .reuse-stage-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .reuse-selected-object dl { grid-template-columns:1fr; } }

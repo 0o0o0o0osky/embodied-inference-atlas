@@ -1,5 +1,218 @@
 {
   "dataset": "operator_kernel_links",
-  "records": [],
+  "records": [
+    {
+      "confidence": "high",
+      "coverage": {
+        "mapped_launches": 197,
+        "population_launches": 197,
+        "unit": "launch"
+      },
+      "evidence_ids": [
+        "capture-pi0-flashrt-nsys-node-001"
+      ],
+      "execution_group_ids": [
+        "prefix-geglu-fp8",
+        "action-geglu-fp8"
+      ],
+      "kernel_signature_id": "kernel-signature-pi0-encoder-geglu",
+      "link_id": "operator-kernel-link-pi0-flashrt-nsys-node-007-001",
+      "logical_targets": [
+        {
+          "ref": "prefix-encoder/prefix-blocks/feed-forward/gate-gelu",
+          "repeat_selectors": [
+            {
+              "indices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15,
+                16
+              ],
+              "scope_ref": "prefix-encoder/prefix-blocks",
+              "selection": "indices"
+            }
+          ]
+        },
+        {
+          "ref": "prefix-encoder/prefix-blocks/feed-forward/gate-product",
+          "repeat_selectors": [
+            {
+              "indices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15,
+                16
+              ],
+              "scope_ref": "prefix-encoder/prefix-blocks",
+              "selection": "indices"
+            }
+          ]
+        },
+        {
+          "ref": "action-flow-decoder/action-expert-blocks/feed-forward/gate-gelu",
+          "repeat_selectors": [
+            {
+              "indices": [],
+              "scope_ref": "action-flow-decoder/action-flow-loop",
+              "selection": "all"
+            },
+            {
+              "indices": [],
+              "scope_ref": "action-flow-decoder/action-expert-blocks",
+              "selection": "all"
+            }
+          ]
+        },
+        {
+          "ref": "action-flow-decoder/action-expert-blocks/feed-forward/gate-product",
+          "repeat_selectors": [
+            {
+              "indices": [],
+              "scope_ref": "action-flow-decoder/action-flow-loop",
+              "selection": "all"
+            },
+            {
+              "indices": [],
+              "scope_ref": "action-flow-decoder/action-expert-blocks",
+              "selection": "all"
+            }
+          ]
+        }
+      ],
+      "mapping_method": "source_audit",
+      "model_graph_id": "pi0-logical-v1",
+      "observation_id": "kernel-observation-pi0-flashrt-nsys-node-007",
+      "realization_id": "rr-flashrt-pi0-thor-fp8-v1",
+      "reason_code": "ambiguous_attribution",
+      "run_id": "run-pi0-flashrt-nsys-node-001",
+      "status": "partial"
+    },
+    {
+      "confidence": "high",
+      "coverage": {
+        "mapped_launches": 34,
+        "population_launches": 34,
+        "unit": "launch"
+      },
+      "evidence_ids": [
+        "capture-pi0-vla-cpp-nsys-node-021"
+      ],
+      "execution_group_ids": [
+        "prefix-mlp-expansion"
+      ],
+      "kernel_signature_id": "kernel-signature-pi0-vlacpp-bf16-gemm-16384x304x2048",
+      "link_id": "operator-kernel-link-pi0-vla-cpp-nsys-node_r021_001_001",
+      "logical_targets": [
+        {
+          "ref": "prefix-encoder/prefix-blocks/feed-forward/gate-projection",
+          "repeat_selectors": [
+            {
+              "indices": [],
+              "scope_ref": "prefix-encoder/prefix-blocks",
+              "selection": "all"
+            }
+          ]
+        },
+        {
+          "ref": "prefix-encoder/prefix-blocks/feed-forward/up-projection",
+          "repeat_selectors": [
+            {
+              "indices": [],
+              "scope_ref": "prefix-encoder/prefix-blocks",
+              "selection": "all"
+            }
+          ]
+        }
+      ],
+      "mapping_method": "combined",
+      "model_graph_id": "pi0-logical-v1",
+      "observation_id": "kernel-observation-pi0-vla-cpp-nsys-node_r021_001",
+      "realization_id": "rr-vla-cpp-pi0-thor-bf16-f32-v1",
+      "reason_code": "ambiguous_attribution",
+      "run_id": "run-pi0-vla-cpp-nsys-node-021",
+      "status": "partial"
+    },
+    {
+      "confidence": "high",
+      "coverage": {
+        "mapped_launches": 360,
+        "population_launches": 360,
+        "unit": "launch"
+      },
+      "evidence_ids": [
+        "capture-pi0-vla-cpp-nsys-node-021"
+      ],
+      "execution_group_ids": [
+        "action-mlp-expansion"
+      ],
+      "kernel_signature_id": "kernel-signature-pi0-vlacpp-bf16-gemm-4096x51x1024",
+      "link_id": "operator-kernel-link-pi0-vla-cpp-nsys-node_r021_013_001",
+      "logical_targets": [
+        {
+          "ref": "action-flow-decoder/action-expert-blocks/feed-forward/gate-projection",
+          "repeat_selectors": [
+            {
+              "indices": [],
+              "scope_ref": "action-flow-decoder/action-flow-loop",
+              "selection": "all"
+            },
+            {
+              "indices": [],
+              "scope_ref": "action-flow-decoder/action-expert-blocks",
+              "selection": "all"
+            }
+          ]
+        },
+        {
+          "ref": "action-flow-decoder/action-expert-blocks/feed-forward/up-projection",
+          "repeat_selectors": [
+            {
+              "indices": [],
+              "scope_ref": "action-flow-decoder/action-flow-loop",
+              "selection": "all"
+            },
+            {
+              "indices": [],
+              "scope_ref": "action-flow-decoder/action-expert-blocks",
+              "selection": "all"
+            }
+          ]
+        }
+      ],
+      "mapping_method": "combined",
+      "model_graph_id": "pi0-logical-v1",
+      "observation_id": "kernel-observation-pi0-vla-cpp-nsys-node_r021_013",
+      "realization_id": "rr-vla-cpp-pi0-thor-bf16-f32-v1",
+      "reason_code": "ambiguous_attribution",
+      "run_id": "run-pi0-vla-cpp-nsys-node-021",
+      "status": "partial"
+    }
+  ],
   "schema_version": "1.0.0"
 }

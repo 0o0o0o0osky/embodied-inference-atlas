@@ -523,6 +523,7 @@
               "median",
               "mean",
               "single_observation",
+              "sum",
               null
             ]
           },

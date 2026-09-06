@@ -43,6 +43,7 @@
         "enum": [
           "default_precomputed",
           "interactive_analytical",
+          "captured_kernel",
           "legacy_import"
         ]
       },

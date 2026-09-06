@@ -5,7 +5,7 @@ import captureDocument from "../../../../data/profiler/profiler_captures.json";
 import metricDocument from "../../../../data/profiler/profiler_metrics.json";
 import observationDocument from "../../../../data/profiler/kernel_observations.json";
 import signatureDocument from "../../../../data/profiler/kernel_signatures.json";
-import timelineDocument from "../../../../data/profiler/timelines.json";
+import { readFileSync } from "node:fs";
 import runDocument from "../../../../data/measurements/runs.json";
 import type { RouteState } from "../../../app/routes";
 import type { AtlasData, AtlasDatasets, CanonicalRecord } from "../../../types/atlas";
@@ -16,6 +16,10 @@ import { TimelineInspector } from "../../timeline/components/TimelineInspector";
 import { buildTimelineView } from "../../timeline/domain/buildTimelineView";
 import { adaptProfilerEvidence } from "./adaptProfilerEvidence";
 import { indexProfilerEvidence } from "./indexProfilerEvidence";
+
+// Read the full canonical document as data; transforming its 100+ MB JSON into JS
+// exceeds the bundler string limit and is unrelated to adapter behavior.
+const timelineDocument = JSON.parse(readFileSync(new URL("../../../../data/profiler/timelines.json", import.meta.url), "utf8")) as { records: CanonicalRecord[] };
 
 function atlas(overrides: Partial<AtlasDatasets>): AtlasData {
   return {

@@ -160,7 +160,7 @@ def write_schemas():
         "schema_version": enum(VERSION),
         "scenario_id": string(160),
         "label": string(240),
-        "origin": enum("default_precomputed", "interactive_analytical", "legacy_import"),
+        "origin": enum("default_precomputed", "interactive_analytical", "captured_kernel", "legacy_import"),
         "model_id": enum("pi0", "pi05", "smolvla"),
         "model_graph_id": string(120, nullable=True),
         "model_artifact_id": string(160),
@@ -204,7 +204,7 @@ def write_schemas():
         "operating_point_id": string(160),
         "work_unit": enum("action_chunk", "denoise_step", "operator_invocation", "execution_group", "kernel_launch"),
         "time_basis": enum("analytical_roof", "legacy_analytical_prediction", "wall_clock", "cuda_event", "nsys_interval", "ncu_kernel"),
-        "traffic_basis": enum("atomic_materialized", "fused_boundary_modeled", "system_memory_measured", "l2_measured", "legacy_inverse_roofline", "legacy_custom_resident_score"),
+        "traffic_basis": enum("atomic_materialized", "fused_boundary_modeled", "kernel_boundary_modeled", "system_memory_measured", "l2_measured", "legacy_inverse_roofline", "legacy_custom_resident_score"),
         "work_basis": enum("logical_formula", "runtime_executed_formula", "hardware_counter", "legacy_component_aggregate"),
         "aggregation": enum("entity", "dag_resource_and_critical_path"),
         "runtime_overhead": enum("included", "excluded", "not_applicable", "unknown"),
@@ -259,7 +259,7 @@ def write_schemas():
         }),
         "timing": obj({
             "observed_second": number(nullable=True),
-            "statistic": enum("analytical", "median", "mean", "single_observation", None),
+            "statistic": enum("analytical", "median", "mean", "single_observation", "sum", None),
             "sample_count": integer(nullable=True),
             "timing_boundary_id": string(200),
         }),
@@ -1017,8 +1017,19 @@ def logical_snapshot_problems(datasets):
         for index, item in enumerate(datasets.get("roofline_points", []))
         if isinstance(item.get("point_id"), str)
     }
+    scenario_by_id = {s["scenario_id"]: s for s in scenarios}
+    populated_bases = {point["basis_id"] for _, point in canonical.values()}
+    optional_empty_bases = {
+        basis["basis_id"] for basis in bases
+        if basis["basis_id"] not in populated_bases
+        and (scenario := scenario_by_id[basis["scenario_id"]]).get("origin") == "default_precomputed"
+        and scenario.get("modeling_scope") == "ideal_analytical"
+        and scenario["precision_path"]["precision_path_id"] != "bf16_dense"
+    }
     problems = []
     for expected_point in expected:
+        if expected_point["basis_id"] in optional_empty_bases:
+            continue
         point_id = expected_point["point_id"]
         indexed = canonical.get(point_id)
         if indexed is None:

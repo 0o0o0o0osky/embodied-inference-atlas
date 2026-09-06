@@ -152,7 +152,7 @@ export function selectedTiming(
 ): TimingValue | null {
   const order: readonly TimingStatistic[] = evidence === "analytical"
     ? ["analytical_estimate"]
-    : ["mean", "p50"];
+    : ["p50"];
   for (const statistic of order) {
     const value = statistics.find((item) => item.statistic === statistic && item.value !== null);
     if (value) return value;

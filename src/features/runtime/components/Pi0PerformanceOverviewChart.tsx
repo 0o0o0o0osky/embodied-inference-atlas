@@ -6,6 +6,8 @@ export type Pi0RoutablePerformanceSelection = Pi0PerformanceSelection | Pi0Nativ
 export interface Pi0PerformanceOverviewChartProps {
   model: Pi0PerformanceOverviewModel;
   selectedRunId: string | null;
+  coordinate?: Pi0PerformanceCoordinate;
+  onCoordinateChange?: (coordinate: Pi0PerformanceCoordinate) => void;
   onSelectEvidence: (selection: Pi0RoutablePerformanceSelection) => void;
   onInspectRuntime?: (runtimeId: string, precisionId: string, coordinate: Pi0PerformanceCoordinate) => void;
 }
@@ -41,8 +43,10 @@ interface ChartColumn {
   replicates?: readonly Pi0PerformanceMeasuredCell[] | undefined;
   contractIndex?: number; missing: string;
 }
-export function Pi0PerformanceOverviewChart({ model, selectedRunId, onSelectEvidence, onInspectRuntime }: Pi0PerformanceOverviewChartProps) {
-  const [coordinate, setCoordinate] = useState<Pi0PerformanceCoordinate>(model.defaultCoordinate);
+export function Pi0PerformanceOverviewChart({ model, selectedRunId, onSelectEvidence, onInspectRuntime, coordinate: controlledCoordinate, onCoordinateChange }: Pi0PerformanceOverviewChartProps) {
+  const [localCoordinate, setLocalCoordinate] = useState<Pi0PerformanceCoordinate>({ cameraViews: 1, actionChunk: 50 });
+  const coordinate = controlledCoordinate ?? localCoordinate;
+  const setCoordinate = (next: Pi0PerformanceCoordinate) => { setLocalCoordinate(next); onCoordinateChange?.(next); };
   const columns = model.groups.flatMap<ChartColumn>((group) => {
     const measured = group.facets.flatMap<{ facet: Pi0PerformanceFacet; cell: Pi0PerformanceMeasuredCell; contractIndex: number; replicates?: readonly Pi0PerformanceMeasuredCell[] | undefined }>((facet, index) => {
       const cell = cellAt(facet, coordinate);
@@ -86,12 +90,12 @@ export function Pi0PerformanceOverviewChart({ model, selectedRunId, onSelectEvid
                   : <span className="pi0-runtime-missing">{cell ? `记录单位 ${cell.latency.unit}` : column.missing}</span>}
               </div>
               <div className="pi0-runtime-column-label"><strong>{column.runtimeLabel}</strong><span>{precisionLabel(column.precisionId)}</span>{column.contractIndex ? <small>独立口径 {column.contractIndex}</small> : null}</div>
-              {onInspectRuntime ? <button type="button" className="pi0-runtime-source-link" onClick={() => onInspectRuntime(column.runtimeId, column.precisionId, coordinate)}>查看算子实现</button> : null}
+              {onInspectRuntime ? <button type="button" className="pi0-runtime-source-link" onClick={() => onInspectRuntime(column.runtimeId, column.precisionId, coordinate)}>查看推理栈</button> : null}
             </div>;
           })}
         </div>
       </div>
-      <p className="pi0-runtime-chart-note">{measured.length ? "点击柱子查看系统时间线与算子实现。计时边界、精度可能不同，仅并列展示实测耗时。" : "当前输入形状还没有可绘制的实测数据；可切换形状或查看已有记录。"}</p>
+      <p className="pi0-runtime-chart-note">{measured.length ? "点击柱子查看系统耗时、执行热点与计算复用。计时边界、精度可能不同，仅并列展示实测耗时。" : "当前输入形状还没有可绘制的实测数据；可切换形状或查看已有记录。"}</p>
     </figure>
     <details className="pi0-runtime-evidence">
       <summary>测量口径与已有记录</summary>

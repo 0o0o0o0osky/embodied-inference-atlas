@@ -71,6 +71,7 @@ export function RooflinePairChart({ point, basis }: { point: RooflinePointRecord
         <text className="pair-axis" transform={`translate(19 ${box.top + box.height / 2}) rotate(-90)`} textAnchor="middle">吞吐量（TFLOP/s）</text>
       </svg>
     </div>
+    {basis.time_basis === "nsys_interval" ? <p className="roofline-pair-hint">实测点来自 Nsys 追踪；曲线采用理论硬件上限假设，采集时频率尚未匹配。</p> : null}
     <div className="roofline-pair-legend">
       <span><i className="is-theory" />理论上限 · {formatNumber(pair.theoryRate / 1e12)} TFLOP/s</span>
       <span><i className="is-actual" />实测性能 · {pair.actualRate === null ? "未提供" : `${formatNumber(pair.actualRate / 1e12)} TFLOP/s`}</span>
@@ -81,7 +82,7 @@ export function RooflinePairChart({ point, basis }: { point: RooflinePointRecord
       <header><strong>{point.entity.label}</strong><button type="button" onClick={() => setInspecting(false)}>收起详情</button></header>
       <dl>
         <div><dt>理论耗时下界</dt><dd>{formatTime(point.derived.roof_second!)}</dd></div>
-        <div><dt>正常执行耗时</dt><dd>{pair.actualRate === null ? "未提供" : formatTime(point.timing.observed_second!)}</dd></div>
+        <div><dt>{basis.time_basis === "nsys_interval" ? "Nsys 追踪下执行耗时" : "正常执行耗时"}</dt><dd>{pair.actualRate === null ? "未提供" : formatTime(point.timing.observed_second!)}</dd></div>
         <div><dt>耗时 / 理论下界</dt><dd>{pair.efficiency === null ? "待匹配" : `${formatNumber(1 / pair.efficiency)}×`}</dd></div>
       </dl>
       <p>{point.entity.shape_or_coverage}</p>

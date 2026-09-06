@@ -2,45 +2,282 @@
   "dataset": "kernel_signatures",
   "record": {
     "type": "object",
-    "required": ["kernel_signature_id", "runtime_id", "model_id", "label_sanitized", "function_family", "implementation_family", "precision_path", "classification_method", "classification_confidence", "missing"],
+    "required": [
+      "kernel_signature_id",
+      "runtime_id",
+      "model_id",
+      "label_sanitized",
+      "function_family",
+      "implementation_family",
+      "precision_path",
+      "classification_method",
+      "classification_confidence",
+      "missing"
+    ],
     "additional_properties": false,
     "properties": {
-      "kernel_signature_id": {"type": "string", "min_length": 1, "max_length": 120},
-      "runtime_id": {"type": "string", "min_length": 1, "max_length": 80},
-      "model_id": {"type": "string", "min_length": 1, "max_length": 80},
-      "label_sanitized": {"type": "string", "enum": ["decoder attention tensor-op", "decoder attention WMMA", "decoder NVJET 128x16", "decoder NVJET 512x16", "decoder NVJET 64x16", "encoder large GEMM", "encoder GEGLU", "encoder QKV split", "encoder residual RMS", "encoder second GEMM", "encoder third GEMM", "SigLIP broadcast add", "SigLIP FMHA", "SigLIP GELU+bias", "SigLIP layer norm", "SigLIP quantize", "vla.cpp representative GEMM"]},
-      "function_family": {"type": "string", "enum": ["gemm", "attention", "normalization", "elementwise", "quantize", "copy", "other"]},
-      "implementation_family": {"type": "string", "enum": ["cutlass-tensor-core", "cutlass-wmma", "nvjet", "fmha", "fused-elementwise", "layer-normalization", "quantization", "other"]},
+      "kernel_signature_id": {
+        "type": "string",
+        "min_length": 1,
+        "max_length": 120
+      },
+      "runtime_id": {
+        "type": "string",
+        "min_length": 1,
+        "max_length": 80
+      },
+      "model_id": {
+        "type": "string",
+        "min_length": 1,
+        "max_length": 80
+      },
+      "label_sanitized": {
+        "type": "string",
+        "enum": [
+          "decoder attention tensor-op",
+          "decoder attention WMMA",
+          "decoder NVJET 128x16",
+          "decoder NVJET 512x16",
+          "decoder NVJET 64x16",
+          "encoder large GEMM",
+          "encoder GEGLU",
+          "encoder QKV split",
+          "encoder residual RMS",
+          "encoder second GEMM",
+          "encoder third GEMM",
+          "SigLIP broadcast add",
+          "SigLIP FMHA",
+          "SigLIP GELU+bias",
+          "SigLIP layer norm",
+          "SigLIP quantize",
+          "vla.cpp representative GEMM",
+          "vlacpp BF16 GEMM 16384x304x2048",
+          "vlacpp BF16 GEMM 2048x304x16384",
+          "vlacpp BF16 GEMM 4304x256x1152",
+          "vlacpp recorded kernel 001",
+          "vlacpp recorded kernel 002",
+          "vlacpp recorded kernel 003",
+          "vlacpp recorded kernel 004",
+          "vlacpp recorded kernel 005",
+          "vlacpp recorded kernel 006",
+          "vlacpp recorded kernel 007",
+          "vlacpp recorded kernel 008",
+          "vlacpp recorded kernel 009",
+          "vlacpp recorded kernel 010",
+          "vlacpp recorded kernel 011",
+          "vlacpp recorded kernel 012",
+          "vlacpp recorded kernel 013",
+          "vlacpp recorded kernel 014",
+          "vlacpp recorded kernel 015",
+          "vlacpp recorded kernel 016",
+          "vlacpp recorded kernel 017",
+          "vlacpp recorded kernel 018",
+          "vlacpp recorded kernel 019",
+          "vlacpp recorded kernel 020",
+          "vlacpp recorded kernel 021",
+          "vlacpp recorded kernel 022",
+          "vlacpp recorded kernel 023",
+          "vlacpp recorded kernel 024",
+          "vlacpp recorded kernel 025",
+          "vlacpp recorded kernel 026",
+          "vlacpp recorded kernel 027",
+          "vlacpp recorded kernel 028",
+          "vlacpp recorded kernel 029",
+          "vlacpp recorded kernel 030",
+          "vlacpp recorded kernel 031",
+          "vlacpp recorded kernel 032",
+          "vlacpp recorded kernel 033",
+          "vlacpp recorded kernel 034",
+          "vlacpp recorded kernel 035",
+          "vlacpp recorded kernel 036",
+          "vlacpp recorded kernel 037",
+          "vlacpp recorded kernel 038",
+          "vlacpp recorded kernel 039",
+          "vlacpp recorded kernel 040",
+          "vlacpp recorded kernel 041",
+          "vlacpp recorded kernel 042",
+          "vlacpp recorded kernel 043",
+          "vlacpp recorded kernel 044",
+          "vlacpp recorded kernel 045",
+          "vlacpp recorded kernel 046",
+          "vlacpp recorded kernel 047",
+          "vlacpp recorded kernel 048",
+          "vlacpp recorded kernel 049",
+          "vlacpp recorded kernel 050",
+          "vlacpp recorded kernel 051",
+          "vlacpp recorded kernel 052",
+          "vlacpp recorded kernel 053",
+          "vlacpp recorded kernel 054",
+          "vlacpp recorded kernel 055",
+          "vlacpp recorded kernel 056",
+          "vlacpp recorded kernel 057",
+          "vlacpp recorded kernel 058",
+          "vlacpp recorded kernel 059",
+          "vlacpp BF16 GEMM 4096x51x1024",
+          "vlacpp BF16 GEMM 1024x51x4096",
+          "vlacpp BF16 GEMM 2048x51x1024",
+          "vlacpp BF16 GEMM 1024x51x2048",
+          "vlacpp BF16 GEMM 1152x256x4304",
+          "vlacpp BF16 GEMM 256x51x1024",
+          "vlacpp BF16 GEMM 1152x256x1152",
+          "vlacpp BF16 GEMM 2048x304x2048",
+          "vlacpp BF16 GEMM 256x304x2048",
+          "vlacpp BF16 GEMM 2048x256x1152",
+          "vlacpp FP16 GEMM 256x1152x588",
+          "vlacpp FP32 to BF16 conversion 009",
+          "vlacpp FP32 to BF16 conversion 016",
+          "vlacpp FP32 to BF16 conversion 028",
+          "vlacpp FP32 to BF16 conversion 030",
+          "vlacpp FP32 to BF16 conversion 041",
+          "vlacpp FP32 to BF16 conversion 045",
+          "vlacpp FP32 to BF16 conversion 055"
+        ]
+      },
+      "function_family": {
+        "type": "string",
+        "enum": [
+          "gemm",
+          "attention",
+          "normalization",
+          "elementwise",
+          "quantize",
+          "copy",
+          "other"
+        ]
+      },
+      "implementation_family": {
+        "type": "string",
+        "enum": [
+          "cutlass-tensor-core",
+          "cutlass-wmma",
+          "nvjet",
+          "fmha",
+          "fused-elementwise",
+          "layer-normalization",
+          "quantization",
+          "other"
+        ]
+      },
       "precision_path": {
         "type": "object",
-        "required": ["input_dtype_class", "accumulator_dtype_class", "output_dtype_class", "sparsity", "missing"],
+        "required": [
+          "input_dtype_class",
+          "accumulator_dtype_class",
+          "output_dtype_class",
+          "sparsity",
+          "missing"
+        ],
         "additional_properties": false,
         "properties": {
-          "input_dtype_class": {"type": ["string", "null"], "enum": ["fp8_e4m3", "fp16", "fp32", null]},
-          "accumulator_dtype_class": {"type": ["string", "null"], "enum": ["fp16", "fp32", null]},
-          "output_dtype_class": {"type": ["string", "null"], "enum": ["fp16", "fp32", null]},
-          "sparsity": {"type": "string", "enum": ["on", "off", "unknown"]},
+          "input_dtype_class": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "fp8_e4m3",
+              "bf16",
+              "fp16",
+              "fp32",
+              null
+            ]
+          },
+          "accumulator_dtype_class": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "fp16",
+              "fp32",
+              null
+            ]
+          },
+          "output_dtype_class": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "fp16",
+              "fp32",
+              null,
+              "bf16"
+            ]
+          },
+          "sparsity": {
+            "type": "string",
+            "enum": [
+              "on",
+              "off",
+              "unknown"
+            ]
+          },
           "missing": {
             "type": "object",
             "required": [],
             "additional_properties": false,
             "properties": {
-              "input_dtype_class": {"type": "string", "enum": ["not_collected", "precision_conflict"]},
-              "accumulator_dtype_class": {"type": "string", "enum": ["not_collected", "precision_conflict"]},
-              "output_dtype_class": {"type": "string", "enum": ["not_collected", "precision_conflict"]},
-              "sparsity": {"type": "string", "enum": ["not_collected"]}
+              "input_dtype_class": {
+                "type": "string",
+                "enum": [
+                  "not_collected",
+                  "precision_conflict"
+                ]
+              },
+              "accumulator_dtype_class": {
+                "type": "string",
+                "enum": [
+                  "not_collected",
+                  "precision_conflict"
+                ]
+              },
+              "output_dtype_class": {
+                "type": "string",
+                "enum": [
+                  "not_collected",
+                  "precision_conflict"
+                ]
+              },
+              "sparsity": {
+                "type": "string",
+                "enum": [
+                  "not_collected"
+                ]
+              }
             }
           }
         }
       },
-      "classification_method": {"type": "string", "enum": ["source_audit", "allowlisted_symbol_rule", "profiler_metric", "combined"]},
-      "classification_confidence": {"type": "string", "enum": ["high", "medium", "low", "unknown"]},
+      "classification_method": {
+        "type": "string",
+        "enum": [
+          "source_audit",
+          "allowlisted_symbol_rule",
+          "profiler_metric",
+          "combined"
+        ]
+      },
+      "classification_confidence": {
+        "type": "string",
+        "enum": [
+          "high",
+          "medium",
+          "low",
+          "unknown"
+        ]
+      },
       "missing": {
         "type": "object",
         "required": [],
         "additional_properties": false,
         "properties": {
-          "run_precision_linkage": {"type": "string", "enum": ["precision_conflict"]}
+          "run_precision_linkage": {
+            "type": "string",
+            "enum": [
+              "precision_conflict"
+            ]
+          }
         }
       }
     }
