@@ -18,6 +18,11 @@ Explain calculation/data movement and evidence-supported fusion, quantization
 and reuse. Keep facts, modeling assumptions and unknowns distinguishable. Missing
 metrics remain local gaps; do not blank unrelated valid timing or invent a point.
 
+System process diagrams use CPU/GPU lanes and qualitative order. Keep data
+transfers, host submissions and reuse distinguishable; do not turn host enqueue
+order into a GPU-completion dependency or use diagram widths as measured latency.
+Capture boundaries and initialization/prompt preparation follow the selected stack.
+
 Inspect a real browser at a desktop size and one relevant selection/return path.
 Check the screenshot at native scale for overlap, density, readable labels,
 inspector placement and reachable overflow. Check a narrow view when layout changed.

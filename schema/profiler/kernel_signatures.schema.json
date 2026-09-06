@@ -130,7 +130,10 @@
           "vlacpp FP32 to BF16 conversion 030",
           "vlacpp FP32 to BF16 conversion 041",
           "vlacpp FP32 to BF16 conversion 045",
-          "vlacpp FP32 to BF16 conversion 055"
+          "vlacpp FP32 to BF16 conversion 055",
+          "vlacpp FP32 stride copy 036",
+          "vlacpp CUTLASS GEMM 038",
+          "vlacpp CUTLASS GEMM 040"
         ]
       },
       "function_family": {

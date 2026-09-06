@@ -656,7 +656,7 @@ def _nonnegative_number(value: object) -> bool:
 
 def _reader_metrics(section_mode: str) -> tuple[str, ...]:
     if section_mode == "section_set":
-        return tuple(dict.fromkeys((*NCU_READER_METRICS, *SECTION_READER_METRICS, *SCHEDULER_READER_METRICS)))
+        return tuple(dict.fromkeys((*NCU_READER_METRICS, *SECTION_READER_METRICS, *SCHEDULER_READER_METRICS, *MEMORY_WORKLOAD_READER_METRICS)))
     if section_mode == _SCHEDULER_MODE:
         return (
             *SCHEDULER_DIRECT_READER_METRICS,
@@ -763,7 +763,8 @@ def _session_facts(
     if (
         (set(sections) == _LEGACY_SECTION_SET and len(sections) == len(_LEGACY_SECTION_SET)
          or tuple(sections) == _SCHEDULER_SECTION_ORDER
-         or tuple(sections) == ("LaunchStats", "SpeedOfLight", "ComputeWorkloadAnalysis", "MemoryWorkloadAnalysis"))
+         or tuple(sections) == ("LaunchStats", "SpeedOfLight", "ComputeWorkloadAnalysis", "MemoryWorkloadAnalysis")
+         or tuple(sections) == ("LaunchStats", "SpeedOfLight", "SchedulerStats", "MemoryWorkloadAnalysis"))
         and not metric_sets
     ):
         section_mode = "section_set"
@@ -1139,6 +1140,8 @@ def _metrics(
             "sm_cycle_rate_hz",
             "tensor_path_fp4_fp6_fp8_to_fp32_dense_pct_of_peak_elapsed",
             *SCHEDULER_METRIC_NAMES,
+            *(name for name in SCHEDULER_DIRECT_METRIC_NAMES
+              if METRIC_REGISTRY[name]["raw_counter_name"] in MEMORY_WORKLOAD_READER_METRICS),
         ))
     for metric_name in metric_names:
         spec = METRIC_REGISTRY[metric_name]

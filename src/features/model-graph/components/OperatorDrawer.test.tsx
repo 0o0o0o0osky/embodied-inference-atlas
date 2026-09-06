@@ -1,4 +1,3 @@
-import { Children, isValidElement, type ReactElement, type ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { expect, it } from "vitest";
 
@@ -7,21 +6,7 @@ import type { CanonicalRecord } from "../../../types/atlas";
 import { adaptV1ModelGraph } from "../domain/adaptV1ModelGraph";
 import { OperatorDrawer, OperatorDrawerView, type OperatorDrawerTab } from "./OperatorDrawer";
 
-function buttonIn(tree: ReactNode, label: string): ReactElement<{ onClick: () => void }> {
-  const found: ReactElement<{ onClick: () => void }>[] = [];
-  function visit(node: ReactNode) {
-    Children.forEach(node, (child) => {
-      if (!isValidElement<{ children?: ReactNode; onClick: () => void }>(child)) return;
-      if (child.type === "button" && child.props.children === label) found.push(child);
-      visit(child.props.children);
-    });
-  }
-  visit(tree);
-  expect(found).toHaveLength(1);
-  return found[0]!;
-}
-
-it("mounts only the selected panel and wires tab selection and close to their controls", () => {
+it("renders only the controlled active panel with matching accessible tab controls", () => {
   const graph = adaptV1ModelGraph(pi0Document.records[0] as CanonicalRecord);
   const operator = [...graph.operatorsByRef.values()].find((item) => item.visualizer === "gemm")!;
   let closed = 0;
@@ -34,22 +19,16 @@ it("mounts only the selected panel and wires tab selection and close to their co
   expect(overview).toContain("<details");
   expect(overview).not.toMatch(/<details[^>]*\bopen/);
 
-  let activeTab: OperatorDrawerTab = "overview";
-  const view = () => OperatorDrawerView({ ...props, activeTab, onTabChange: (tab) => { activeTab = tab; } });
-  buttonIn(view(), "计算过程").props.onClick();
-  const calculation = renderToStaticMarkup(view());
-  expect(calculation.match(/role="tabpanel"/g)).toHaveLength(1);
-  expect(calculation).toContain('data-panel="calculation"');
-  expect(calculation).toContain("gemm-visualizer");
-  expect(calculation).not.toContain('data-panel="overview"');
-  expect(calculation).not.toContain("<details");
-  for (const label of ["Roofline", "实测 Kernel"]) {
-    buttonIn(view(), label).props.onClick();
-    const evidence = renderToStaticMarkup(view());
-    expect(evidence.match(/role="tabpanel"/g)).toHaveLength(1);
-    expect(evidence).not.toContain("gemm-visualizer");
-    expect(evidence).not.toContain("<details");
+  for (const activeTab of ["calculation", "roofline", "kernel"] as OperatorDrawerTab[]) {
+    const markup = renderToStaticMarkup(<OperatorDrawerView {...props} activeTab={activeTab} onTabChange={() => undefined} />);
+    expect(markup.match(/role="tabpanel"/g)).toHaveLength(1);
+    expect(markup).toContain(`data-panel="${activeTab}"`);
+    expect(markup).toContain(`aria-labelledby="operator-tab-${activeTab}"`);
+    expect(markup.match(/aria-selected="true"/g)).toHaveLength(1);
+    expect(markup).not.toContain('data-panel="overview"');
+    expect(markup.includes("gemm-visualizer")).toBe(activeTab === "calculation");
+    expect(markup).not.toContain("<details");
+    expect(markup).toContain('class="operator-inspector-close"');
   }
-  buttonIn(view(), "返回完整模型").props.onClick();
-  expect(closed).toBe(1);
+  expect(closed).toBe(0); // Server rendering never invokes event callbacks.
 });

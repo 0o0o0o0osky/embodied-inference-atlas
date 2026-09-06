@@ -155,7 +155,19 @@ export function adaptRuntimeRealization(record: CanonicalRecord): RuntimeRealiza
   }
   const launch = record.launch as RawRecord;
   const workload = record.workload_applicability as RawRecord;
+  const flow = record.system_flow as RawRecord | undefined;
   return {
+    ...(flow ? { systemFlow: {
+      semantics: "qualitative_order" as const,
+      nodes: records(flow.nodes).map(node => ({
+        nodeId: text(node.node_id), label: text(node.label), lane: text(node.lane) as "cpu" | "gpu",
+        step: processStep(node.step), operation: text(node.operation),
+        reads: strings(node.reads), writes: strings(node.writes), reuse: nullableText(node.reuse), evidenceIds: strings(node.evidence_ids),
+      })),
+      edges: records(flow.edges).map(edge => ({from: text(edge.from), to: text(edge.to), kind: text(edge.kind) as "data" | "control" | "reuse", label: text(edge.label)})),
+      groups: records(flow.groups).map(group => ({label: text(group.label), kind: text(group.kind) as "backend_graph" | "cuda_graph" | "repeat", nodeIds: strings(group.node_ids)})),
+      notes: strings(flow.notes),
+    }} : {}),
     reuse: records(record.reuse).map(reuseDescriptor),
     realizationId: text(record.realization_id),
     modelId: text(record.model_id),
@@ -189,4 +201,11 @@ export function adaptRuntimeRealization(record: CanonicalRecord): RuntimeRealiza
     executionGroups: records(record.execution_groups).map(executionGroup),
     mappings: records(record.mappings).map(mapping),
   };
+}
+
+function processStep(value: unknown): number {
+  if (typeof value !== 'number' || !Number.isInteger(value) || value < 0 || value > 12) {
+    throw new Error('System process step must be an integer from 0 to 12');
+  }
+  return value;
 }

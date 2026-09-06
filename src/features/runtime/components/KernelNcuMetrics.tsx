@@ -16,6 +16,7 @@ const GROUPS: readonly { title: string; metrics: readonly MetricSpec[] }[] = [
     ['theoretical_occupancy_percent', '理论 occupancy'],
   ] },
   { title: '缓存与访存', metrics: [
+    ['memory_sol_pct_of_peak_sustained_elapsed', '内存子系统吞吐', 'elapsed 周期 / 持续峰值'],
     ['l1tex_sector_hit_rate_percent', 'L1TEX sector 命中率'],
     ['l2_sector_hit_rate_percent', 'L2 sector 命中率'],
     ['l1_throughput_pct_of_peak_sustained_active', 'L1 吞吐', 'active 周期 / 持续峰值'],

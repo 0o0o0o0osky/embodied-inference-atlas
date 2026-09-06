@@ -1,3 +1,4 @@
+import {kernelEntity} from "../../workbench/entityKeys";
 import { renderToStaticMarkup } from "react-dom/server";
 import { expect, it } from "vitest";
 
@@ -286,8 +287,13 @@ it("adapts and renders locked Task 7 NCU evidence while retaining legacy capture
     runtimeId: "flashrt",
     hardwareId: "nvidia-jetson-agx-thor",
     captureId: nsysCapture.capture_id,
-    entity: null,
+    entity: kernelEntity(nsysCapture.capture_id, nsysObservation.observation_id),
   });
+  const unselected = buildTimelineView(data, evidence, indexProfilerEvidence(evidence), {
+    modelId: "pi0", runtimeId: "flashrt", hardwareId: "nvidia-jetson-agx-thor",
+    captureId: nsysCapture.capture_id, entity: null,
+  });
+  expect(unselected.separateReplay).toBeNull();
   expect(timelineView.separateReplay?.observationId).toBe(schedulerObservation.observation_id);
   expect(timelineView.separateReplay?.duration.valueNs).toBe(111_000);
   expect(timelineView.replayMetrics.map((item) => item.metricName)).toContain("scheduler_issue_active_per_active_cycle");
@@ -304,7 +310,7 @@ it("adapts and renders locked Task 7 NCU evidence while retaining legacy capture
     selectedObservationId={schedulerRow.observation.observationId}
     onSelect={() => undefined}
   />);
-  [kernelMarkup, timelineMarkup].forEach((markup) => {
+  [kernelMarkup].forEach((markup) => {
     expect(markup).toContain("warp state stats");
     expect(markup).toContain("SchedulerStats first → one WarpStateStats supplemental replay");
     expect(markup).toContain(schedulerCapture.capture_id);
@@ -333,11 +339,10 @@ it("adapts and renders locked Task 7 NCU evidence while retaining legacy capture
     expect(markup).toContain("Average warp latency / issued instruction");
     expect(markup).toContain("Short scoreboard cycles / issued instruction");
   });
-  expect(timelineMarkup).toContain("ncu gpc cycle rate");
-  expect(timelineMarkup).toContain("jetson clocks show current freq");
-  expect(timelineMarkup).toContain("unknown source");
-  expect(timelineMarkup).toContain("111.000 µs");
-  expect(timelineMarkup).toContain("222.000 µs");
-  expect(timelineMarkup).toContain("reported separately; never added to the SchedulerStats replay");
+  expect(timelineMarkup).toContain("持续时间");
+  expect(timelineMarkup).toContain("系统时间线用于观察时序和重叠");
+  expect(timelineMarkup).toContain("查看算子实现与 Kernel 性能");
+  expect(timelineMarkup).not.toContain("111.000 µs");
+  expect(timelineMarkup).not.toContain("222.000 µs");
   expect(tableMarkup).toContain(">72%<");
 });

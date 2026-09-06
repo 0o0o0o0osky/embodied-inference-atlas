@@ -14,7 +14,6 @@ import { logicalEntity, logicalRefFromEntity, parseEntityKey, runtimeGroupEntity
 import { Pi0ExecutionInspector } from "./Pi0ExecutionInspector";
 import { Pi0RuntimeMappingDisclosure } from "./Pi0RuntimeMappingDisclosure";
 import { RuntimeOverlay } from "./RuntimeOverlay";
-import { RuntimeReuseDiagram } from "./RuntimeReuseDiagram";
 import "./runtimeImplementation.css";
 import { indexRuntimeRealization } from "../domain/indexRuntimeRealization";
 import type { RuntimeRealizationRecord } from "../domain/types";
@@ -40,7 +39,7 @@ function contains(viewport: GraphViewport, box: { x: number; y: number; width: n
 }
 
 export function Pi0ImplementationDagSection({ record, route, activeRealization, selectedRuntimeName, navigate, bounds, initialShowPrecision = false, renderKernelDetails }: Pi0ImplementationDagSectionProps) {
-  const [display, setDisplay] = useState<"theory" | "implementation" | "reuse">("implementation");
+  const [display, setDisplay] = useState<"theory" | "implementation">("implementation");
   const [showPrecision, setShowPrecision] = useState(initialShowPrecision);
   const defaultGraph = useMemo(() => adaptV1ModelGraph(record), [record]);
   const overrides = useMemo(
@@ -120,7 +119,7 @@ export function Pi0ImplementationDagSection({ record, route, activeRealization, 
       <header className="runtime-implementation-header">
         <div><h4>{selectedRuntimeName} 的执行方式</h4><p>查看融合边界、计算路径与执行精度。</p></div>
         <div className="runtime-implementation-switch" aria-label="实现视图">
-          {([["theory", "理论原图"], ["implementation", "实现叠加"], ["reuse", "计算与复用"]] as const).map(([id, label]) =>
+          {([["theory", "理论原图"], ["implementation", "实现叠加"]] as const).map(([id, label]) =>
             <button type="button" key={id} aria-pressed={display === id} onClick={() => setDisplay(id)}>{label}</button>)}
         </div>
       </header>
@@ -129,14 +128,13 @@ export function Pi0ImplementationDagSection({ record, route, activeRealization, 
         <span>无标记：未标注实现差异</span>
         <label><input type="checkbox" checked={showPrecision} onChange={(event) => setShowPrecision(event.target.checked)} />显示精度</label>
       </div>
-      {display === "reuse" && activeRealization ? <RuntimeReuseDiagram dag={dag} realization={activeRealization} /> : null}
       {(layout.diagnostics.length || connectors.invalidHints.length || overlay?.diagnostics.length) ? (
         <div className="graph-diagnostics" role="status">
           {[...layout.diagnostics, ...connectors.invalidHints.map((hint) => `Invalid route hint: ${hint.id}`), ...(overlay?.diagnostics ?? [])].join(" ")}
         </div>
       ) : null}
 
-      <div hidden={display === "reuse"} className={`runtime-implementation-canvas pi0-runtime-dag-grid${drawerOpen ? " is-focused" : ""}`}>
+      <div className={`runtime-implementation-canvas pi0-runtime-dag-grid${drawerOpen ? " is-focused" : ""}`}>
         <section className="logical-graph-panel" aria-label="推理栈实现图">
           <LogicalDagSvg
             dag={dag}

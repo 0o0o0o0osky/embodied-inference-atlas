@@ -8,14 +8,15 @@ from tools.lib.jsonio import write_json_atomic
 from tools.lib.promotion import plan_promotion
 
 def main():
-    p=argparse.ArgumentParser(description=__doc__);p.add_argument('directory',type=Path);p.add_argument('--labels',nargs='+',choices=['gemm-action','gemm-prefix','conversion','conversion-055'],default=['gemm-action','gemm-prefix','conversion']);p.add_argument('--output',type=Path,default=Path('.local/staging/pi0-instance-ncu.json'));a=p.parse_args();root=Path.cwd()
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('directory',type=Path);p.add_argument('--labels',nargs='+',choices=['gemm-action','gemm-prefix','conversion','conversion-055','stride-copy-036'],default=['gemm-action','gemm-prefix','conversion']);p.add_argument('--output',type=Path,default=Path('.local/staging/pi0-instance-ncu.json'));a=p.parse_args();root=Path.cwd()
     if not a.output.resolve().is_relative_to(root/'.local/staging'):p.error('staging output required')
     datasets=load_validated_datasets(root/'data',root)
-    cpu=json.loads((root/'.local/staging/pi0-full-cpu-trace.json').read_text())['datasets'];signatures={s['kernel_signature_id']:s for s in cpu['kernel_signatures']}
+    signatures={s['kernel_signature_id']:s for s in datasets['kernel_signatures']}
     template=next(r for r in datasets['runs'] if r['run_id']=='run-pi0-vlacpp-w5-r10-001')
     c=sqlite3.connect('file:'+str(root/'.local/pi0-instance-batch-001/capture.sqlite')+'?mode=ro',uri=True);c.row_factory=sqlite3.Row
     start,end=c.execute("SELECT start,end FROM NVTX_EVENTS WHERE text='pi0_steady_00'").fetchone()
-    timeline=cpu['timelines'][0];output={'bundle_version':'1.0.0','source_label':'pi0-instance-representatives','datasets':{}}
+    capture=next(c for c in datasets['profiler_captures'] if c.get('analysis_sample',{}).get('window_start_ns')==start and c['tool']=='nsys')
+    timeline=next(t for t in datasets['timelines'] if t['capture_id']==capture['capture_id']);output={'bundle_version':'1.0.0','source_label':'pi0-instance-representatives','datasets':{}}
     for label in a.labels:
         report=a.directory/(label+'.ncu-rep');log=(a.directory/(label+'.log')).read_text()
         details=subprocess.run(['ncu','--config-file','off','--import',str(report),'--csv','--print-kernel-base','function','--print-units','base','--print-fp','--page','details'],capture_output=True,text=True,check=True).stdout
@@ -23,9 +24,10 @@ def main():
         # The selected first symbol match must map to an actual launch in the fixed
         # steady window of the identical unchanged executable/input recipe.
         symbol=identity['Kernel Name']
-        if label.startswith('conversion'):
+        if label.startswith(('conversion','stride-copy')):
             demangled=next(csv.DictReader(io.StringIO(subprocess.run(['ncu','--import',str(report),'--page','details','--csv','--print-kernel-base','demangled'],capture_output=True,text=True,check=True).stdout)))['Kernel Name']
-            if not demangled.startswith('void convert_unary<float, __nv_bfloat16>'):raise ValueError('Conversion template mismatch')
+            expected='void cpy_scalar<&cpy_1_scalar<float, float>>(' if label=='stride-copy-036' else 'void convert_unary<float, __nv_bfloat16>'
+            if not demangled.startswith(expected):raise ValueError('Source-audited template mismatch')
             symbol=demangled
         rr=c.execute('SELECT k.* FROM CUPTI_ACTIVITY_KIND_KERNEL k JOIN StringIds s ON s.id=k.demangledName WHERE k.start>=? AND k.end<=? AND s.value LIKE ? ORDER BY k.start',(start,end,symbol+'%')).fetchall()
         if not rr:raise ValueError('No same-input native trace symbol population')
@@ -44,6 +46,10 @@ def main():
         origins={k:'session_command' for k in ['selection_policy','replay_mode','cache_control_request','clock_control_request']};origins.update(replay_passes='collection_log_manual_audit',warmup_count='harness_source_audit',backing_store_bytes='unavailable',gpu_frequency_not_fixed='collection_log_manual_audit')
         policy=dict(policy_id=context.signature_policy_id,section_mode='section_set',replay_mode='kernel',replay_passes=int(re.search(r'- (\d+) passes',log).group(1)),cache_control_request='none',clock_control_request='none',warmup_count=5,backing_store_bytes=None,warnings=['gpu_frequency_not_fixed'],origins=origins,expected_result_identity=identity,expected_geometry={k:event['launch'][k] for k in ['grid','block']},signature=signature)
         bundle=import_ncu_report(report,context,policy)
+        if label=='stride-copy-036':
+            launch=bundle['datasets']['kernel_observations'][0]['launch']
+            if (launch['grid'],launch['block'],launch['registers_per_thread']) != ([1632,1,1],[64,1,1],32):
+                raise ValueError('Stride-copy launch does not match representative class 036')
         for key,values in bundle['datasets'].items():output['datasets'].setdefault(key,[]).extend(values)
     write_json_atomic(a.output,output)
     try:plan_promotion(output,root)

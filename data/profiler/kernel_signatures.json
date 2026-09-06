@@ -626,6 +626,52 @@
     },
     {
       "classification_confidence": "high",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "gemm",
+      "implementation_family": "cutlass-tensor-core",
+      "kernel_signature_id": "kernel-signature-pi0-vlacpp-cutlass-gemm-038",
+      "label_sanitized": "vlacpp CUTLASS GEMM 038",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "vla-cpp"
+    },
+    {
+      "classification_confidence": "high",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "gemm",
+      "implementation_family": "cutlass-tensor-core",
+      "kernel_signature_id": "kernel-signature-pi0-vlacpp-cutlass-gemm-040",
+      "label_sanitized": "vlacpp CUTLASS GEMM 040",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "vla-cpp"
+    },
+    {
+      "classification_confidence": "high",
       "classification_method": "combined",
       "function_family": "gemm",
       "implementation_family": "other",
@@ -639,6 +685,27 @@
         "missing": {},
         "output_dtype_class": "fp16",
         "sparsity": "off"
+      },
+      "runtime_id": "vla-cpp"
+    },
+    {
+      "classification_confidence": "high",
+      "classification_method": "combined",
+      "function_family": "copy",
+      "implementation_family": "other",
+      "kernel_signature_id": "kernel-signature-pi0-vlacpp-fp32-stride-copy-036",
+      "label_sanitized": "vlacpp FP32 stride copy 036",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": "fp32",
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": "fp32",
+        "sparsity": "unknown"
       },
       "runtime_id": "vla-cpp"
     },
@@ -1599,29 +1666,6 @@
       "classification_method": "allowlisted_symbol_rule",
       "function_family": "other",
       "implementation_family": "other",
-      "kernel_signature_id": "kernel-signature-pi0-vlacpp-recorded-kernel-036",
-      "label_sanitized": "vlacpp recorded kernel 036",
-      "missing": {},
-      "model_id": "pi0",
-      "precision_path": {
-        "accumulator_dtype_class": null,
-        "input_dtype_class": null,
-        "missing": {
-          "accumulator_dtype_class": "not_collected",
-          "input_dtype_class": "not_collected",
-          "output_dtype_class": "not_collected",
-          "sparsity": "not_collected"
-        },
-        "output_dtype_class": null,
-        "sparsity": "unknown"
-      },
-      "runtime_id": "vla-cpp"
-    },
-    {
-      "classification_confidence": "unknown",
-      "classification_method": "allowlisted_symbol_rule",
-      "function_family": "other",
-      "implementation_family": "other",
       "kernel_signature_id": "kernel-signature-pi0-vlacpp-recorded-kernel-037",
       "label_sanitized": "vlacpp recorded kernel 037",
       "missing": {},
@@ -1645,54 +1689,8 @@
       "classification_method": "allowlisted_symbol_rule",
       "function_family": "other",
       "implementation_family": "other",
-      "kernel_signature_id": "kernel-signature-pi0-vlacpp-recorded-kernel-038",
-      "label_sanitized": "vlacpp recorded kernel 038",
-      "missing": {},
-      "model_id": "pi0",
-      "precision_path": {
-        "accumulator_dtype_class": null,
-        "input_dtype_class": null,
-        "missing": {
-          "accumulator_dtype_class": "not_collected",
-          "input_dtype_class": "not_collected",
-          "output_dtype_class": "not_collected",
-          "sparsity": "not_collected"
-        },
-        "output_dtype_class": null,
-        "sparsity": "unknown"
-      },
-      "runtime_id": "vla-cpp"
-    },
-    {
-      "classification_confidence": "unknown",
-      "classification_method": "allowlisted_symbol_rule",
-      "function_family": "other",
-      "implementation_family": "other",
       "kernel_signature_id": "kernel-signature-pi0-vlacpp-recorded-kernel-039",
       "label_sanitized": "vlacpp recorded kernel 039",
-      "missing": {},
-      "model_id": "pi0",
-      "precision_path": {
-        "accumulator_dtype_class": null,
-        "input_dtype_class": null,
-        "missing": {
-          "accumulator_dtype_class": "not_collected",
-          "input_dtype_class": "not_collected",
-          "output_dtype_class": "not_collected",
-          "sparsity": "not_collected"
-        },
-        "output_dtype_class": null,
-        "sparsity": "unknown"
-      },
-      "runtime_id": "vla-cpp"
-    },
-    {
-      "classification_confidence": "unknown",
-      "classification_method": "allowlisted_symbol_rule",
-      "function_family": "other",
-      "implementation_family": "other",
-      "kernel_signature_id": "kernel-signature-pi0-vlacpp-recorded-kernel-040",
-      "label_sanitized": "vlacpp recorded kernel 040",
       "missing": {},
       "model_id": "pi0",
       "precision_path": {

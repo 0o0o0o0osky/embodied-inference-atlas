@@ -88,23 +88,6 @@ describe("roofline analytical contracts", () => {
       expect(metrics.fusedBoundaryByte).toBe(anchor.fusedByte);
     }
 
-    expect(scenarioDocument.records
-      .filter((item) => item.scenario_id.endsWith("runtime_mixed-default"))
-      .map((item) => [item.model_id, {
-        artifact: item.model_artifact_id,
-        representative: item.provenance.derivation?.input_refs.find((ref) => ref.startsWith("run-")),
-        views: item.workload.executed_camera_views,
-        semanticPrompt: item.workload.semantic_prompt_tokens,
-        prompt: item.workload.executed_prompt_tokens,
-        action: item.workload.action_horizon,
-        publicDimension: item.workload.public_action_dimension,
-        internalDimension: item.workload.internal_action_dimension,
-        denoise: item.workload.denoise_steps,
-      }])).toEqual([
-      ["pi0", { artifact: "pi0-flashrt-local-01", representative: "run-flashrt-pi0-matrix-008", views: 3, semanticPrompt: 22, prompt: 22, action: 10, publicDimension: 7, internalDimension: 32, denoise: 10 }],
-      ["pi05", { artifact: "pi05-flashrt-local-01", representative: "run-flashrt-pi05-matrix-008", views: 3, semanticPrompt: 159, prompt: 160, action: 10, publicDimension: 7, internalDimension: 32, denoise: 10 }],
-      ["smolvla", { artifact: "smolvla-lerobot-local-01", representative: "run-lerobot-smolvla-matrix-006", views: 3, semanticPrompt: 21, prompt: 48, action: 50, publicDimension: 6, internalDimension: 32, denoise: 10 }],
-    ]);
     expect(runtimeResolutionWorkload(null, {
       executedCameraViews: 3,
       executedPromptTokens: 22,
@@ -112,14 +95,29 @@ describe("roofline analytical contracts", () => {
       denoiseSteps: 10,
     })).toBe("V=3,L_PROMPT=22,T_ACTION=10,N_DENOISE=10");
 
-    const scenario = scenarioDocument.records.find((item) => item.scenario_id === "scenario-pi0-runtime_mixed-default") as unknown as RooflineScenarioRecord;
+    // Small explicit mixed-path fixture: formula validation must not depend on
+    // keeping historical runtime-matrix runs/scenarios in the published corpus.
+    const fp8 = scenarioDocument.records.find(item => item.scenario_id === "scenario-pi0-fp8_w8a8-default")!;
+    const fp16 = scenarioDocument.records.find(item => item.scenario_id === "scenario-pi0-fp16_dense-default")!;
+    const realization = realizationDocument.records.find(item => item.runtime_id === "flashrt")!;
+    const scenario = {
+      ...structuredClone(fp8), scenario_id: "fixture-pi0-mixed",
+      workload: {...fp8.workload, executed_prompt_tokens: 22, action_horizon: 10},
+      precision_path: {
+        precision_path_id: "runtime_mixed", kind: "mapped_mixed", runtime_support: "proven",
+        realization_ids: [realization.realization_id],
+        segments: [{...structuredClone(fp8.precision_path.segments[0]),
+          selector: {kind: "execution_groups", refs: ["prefix-merged-qkv"]},
+          output: fp16.precision_path.segments[0]!.output}],
+      },
+    } as unknown as RooflineScenarioRecord;
     const ceiling = ceilingDocument.records.find((item) => item.ceiling_id === "thor-t5000-120w-1386mhz") as unknown as RooflineCeilingRecord;
     const interactive = materializeInteractiveRoofline(
       graphDocument.records[0] as unknown as CanonicalRecord,
       scenario,
       ceiling,
       { executedCameraViews: 3, executedPromptTokens: 48, actionHorizon: 10, denoiseSteps: 10 },
-      realizationDocument.records[0] as unknown as CanonicalRecord,
+      realization as unknown as CanonicalRecord,
     );
     expect(interactive.scenario.precision_path.runtime_support).toBe("unproven");
     const keyProjection = interactive.points.find((point) => point.entity.entity_id === "prefix-encoder/prefix-blocks/self-attention/key-projection")!;

@@ -79,6 +79,39 @@ def runtime_realization_problems(
                 "known reuse implementation status requires evidence",
             ))
 
+    flow = record.get("system_flow")
+    if isinstance(flow, Mapping):
+        nodes = _mapping_list(flow.get("nodes"))
+        node_ids = _unique_ids(issues, nodes, "node_id", "$.system_flow.nodes")
+        node_by_id = {n.get("node_id"): n for n in nodes}
+        if not nodes:
+            issues.append(RuntimeRealizationProblem("$.system_flow.nodes", "system_flow_empty", "process requires nodes"))
+        for index, node in enumerate(nodes):
+            base = f"$.system_flow.nodes[{index}]"
+            _check_ids(issues, f"{base}.evidence_ids", node.get("evidence_ids"), evidence_ids)
+            if not _string_list(node.get("evidence_ids")):
+                issues.append(RuntimeRealizationProblem(f"{base}.evidence_ids", "system_flow_evidence", "process node requires evidence"))
+        for index, edge in enumerate(_mapping_list(flow.get("edges"))):
+            base = f"$.system_flow.edges[{index}]"
+            for field in ("from", "to"):
+                if edge.get(field) not in node_ids:
+                    issues.append(_broken(f"{base}.{field}"))
+            source, target = node_by_id.get(edge.get("from")), node_by_id.get(edge.get("to"))
+            if source and target and edge.get("kind") != "reuse":
+                before, after = source.get("step"), target.get("step")
+                if edge.get("from") == edge.get("to") or (isinstance(before, int) and isinstance(after, int) and before > after):
+                    issues.append(RuntimeRealizationProblem(base, "system_flow_order", "data/control edges must follow qualitative order"))
+        for index, group in enumerate(_mapping_list(flow.get("groups"))):
+            base = f"$.system_flow.groups[{index}]"
+            members = _string_list(group.get("node_ids"))
+            _check_ids(issues, f"{base}.node_ids", members, node_ids)
+            if not members or len(members) != len(set(members)):
+                issues.append(RuntimeRealizationProblem(f"{base}.node_ids", "system_flow_group", "process group requires distinct members"))
+            if group.get("kind") in {"backend_graph", "cuda_graph"} and any(node_by_id[n].get("lane") != "gpu" for n in members if n in node_by_id):
+                issues.append(RuntimeRealizationProblem(base, "system_flow_graph_lane", "device graph group cannot include CPU preparation"))
+            if group.get("kind") == "cuda_graph" and record.get("launch", {}).get("cuda_graph_state") != "present":
+                issues.append(RuntimeRealizationProblem(base, "system_flow_cuda_graph", "CUDA graph boundary requires confirmed capture support"))
+
     used_groups: set[str] = set()
     for index, group in enumerate(groups):
         base = f"$.execution_groups[{index}]"

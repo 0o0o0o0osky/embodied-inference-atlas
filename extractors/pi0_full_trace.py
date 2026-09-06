@@ -33,6 +33,27 @@ def unknown_signature(identity,label):
         ['input_dtype_class','accumulator_dtype_class','output_dtype_class','sparsity']}),
         classification_method='allowlisted_symbol_rule',classification_confidence='unknown',missing={})
 
+def audited_signature(ordinal, symbol):
+    """Source-audited families only; template tiles are never tensor shapes.
+
+    ggml/src/ggml-cuda/cpy.cu#cpy_scalar and cpy-utils.cuh#cpy_1_scalar,
+    llama revision 458681e1d5d4a29a1463c4732e03226cf384b997.
+    """
+    if symbol.startswith('void cpy_scalar<&cpy_1_scalar<float, float>>('):
+        label = f'vlacpp FP32 stride copy {ordinal}'
+        result = unknown_signature(f'kernel-signature-pi0-vlacpp-fp32-stride-copy-{ordinal}', label)
+        result.update(function_family='copy', classification_method='combined', classification_confidence='high')
+        result['precision_path'].update(input_dtype_class='fp32', output_dtype_class='fp32')
+        for field in ['input_dtype_class', 'output_dtype_class']:
+            result['precision_path']['missing'].pop(field)
+        return result
+    if symbol == 'void cutlass::Kernel2<cutlass_80_tensorop_s1688gemm_64x64_32x6_tn_align1>(T1::Params)':
+        result = unknown_signature(f'kernel-signature-pi0-vlacpp-cutlass-gemm-{ordinal}', f'vlacpp CUTLASS GEMM {ordinal}')
+        result.update(function_family='gemm', implementation_family='cutlass-tensor-core',
+            classification_method='allowlisted_symbol_rule', classification_confidence='high')
+        return result
+    raise ValueError('Unverified native signature')
+
 def launch_config(row):
     return dict(grid=[row[k] for k in ('gridX','gridY','gridZ')],block=[row[k] for k in ('blockX','blockY','blockZ')],
         registers_per_thread=row['registersPerThread'],static_shared_memory_bytes=row['staticSharedMemory'],

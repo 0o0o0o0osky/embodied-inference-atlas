@@ -17,6 +17,7 @@ import { resolveAnalysisContext } from './domain/resolveAnalysisContext';
 import { pi0PrecisionLabel } from './components/runtimePresentation';
 import { OfflinePerfettoViewer } from '../timeline/perfetto/OfflinePerfettoViewer';
 import { InferenceSampleSummary } from './components/InferenceSampleSummary';
+import { RuntimeSystemFlow } from './components/RuntimeSystemFlow';
 import './components/runtimeImplementation.css';
 import './components/systemWorkbench.css';
 
@@ -76,6 +77,7 @@ export function Pi0RuntimeWorkspace({data, model, record, route, navigate}: Prop
         {([['system','系统耗时'],['hotspots','执行 DAG'],['reuse','计算与复用']] as const).map(([id,label])=><button key={id} type="button" aria-pressed={analysisView === id || id === 'system' && analysisView === 'perfetto'} onClick={()=>navigate({analysisView:id,timelineCapture:nsys.active?.capture.captureId??route.timelineCapture})}>{label}</button>)}
       </nav>
       <div hidden={analysisView !== 'system'}>
+        {implementationRealization?.systemFlow ? <RuntimeSystemFlow key={implementationRealization.realizationId} realization={implementationRealization} /> : null}
         <Pi0NsysSection view={nsys}
           onSelectEvent={event=>nsys.active && navigate({entity:timelineEventEntity(nsys.active.timeline.timelineId,event.eventId)},true)}
           onOpenDetails={()=>navigate({analysisView:'perfetto'})} />

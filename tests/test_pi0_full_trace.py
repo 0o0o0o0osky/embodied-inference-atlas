@@ -41,3 +41,17 @@ class CpuIntervalTests(unittest.TestCase):
         self.assertFalse(bundle['datasets']['profiler_captures'][0]['cpu_capabilities']['thread_states'])
 
         c.close()
+
+class AuditedSignatureTests(unittest.TestCase):
+    def test_stride_copy_and_cutlass_classification_do_not_invent_shapes(self):
+        from extractors.pi0_full_trace import audited_signature
+        copy = audited_signature('036', 'void cpy_scalar<&cpy_1_scalar<float, float>>(const char *, char *, long)')
+        self.assertEqual(copy['function_family'], 'copy')
+        self.assertEqual(copy['precision_path']['input_dtype_class'], 'fp32')
+        self.assertEqual(copy['precision_path']['output_dtype_class'], 'fp32')
+        self.assertNotIn('shape', copy)
+        gemm = audited_signature('040', 'void cutlass::Kernel2<cutlass_80_tensorop_s1688gemm_64x64_32x6_tn_align1>(T1::Params)')
+        self.assertEqual(gemm['function_family'], 'gemm')
+        self.assertIsNone(gemm['precision_path']['input_dtype_class'])
+        with self.assertRaises(ValueError):
+            audited_signature('036', 'unverified kernel')

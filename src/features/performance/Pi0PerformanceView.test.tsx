@@ -32,9 +32,11 @@ it("keeps the full Pi0 profiler register behind the Kernel summary", () => {
 
   const summary = markup.slice(0, disclosureAt);
   const disclosure = markup.slice(disclosureAt);
-  expect(summary.slice(0, summary.indexOf("<details"))).toContain("NCU · Kernel 性能");
+  expect(summary.slice(0, summary.indexOf("<details"))).toContain("NCU · Kernel 诊断");
   expect(summary.slice(0, summary.indexOf("<details"))).not.toContain("Kernel 热点 Top 3");
-  expect(summary.match(/<tbody>[\s\S]*?<\/tbody>/)?.[0].match(/<tr/g)).toHaveLength(3);
+  expect(summary).toContain("pi0-ncu-focus");
+  expect(summary).toContain("单次回放");
+  expect(summary).toContain("pi0-ncu-bar-row");
   expect(summary).not.toContain("SM throughput");
   expect(disclosure).toContain("SM throughput");
   expect(disclosure).toContain("完整 Profiler 证据");

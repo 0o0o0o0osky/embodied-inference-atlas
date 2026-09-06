@@ -75,6 +75,42 @@
             "run-pi0-flashrt-nsys-node-001"
           ],
           "source_id": "source-local-thor"
+        },
+        {
+          "evidence_id": "flashrt-pi0-infer-source",
+          "kind": "source_code",
+          "locator": "flash_rt/frontends/torch/pi0_thor.py#infer",
+          "observation_ids": [],
+          "revision": "054bea4d02ebc63f6a0c45991c6061b1e1caa46c",
+          "run_ids": [],
+          "source_id": "source-flashrt"
+        },
+        {
+          "evidence_id": "flashrt-pi0-jax-infer-source",
+          "kind": "source_code",
+          "locator": "flash_rt/frontends/jax/pi0_thor.py#infer",
+          "observation_ids": [],
+          "revision": "054bea4d02ebc63f6a0c45991c6061b1e1caa46c",
+          "run_ids": [],
+          "source_id": "source-flashrt"
+        },
+        {
+          "evidence_id": "flashrt-pi0-prompt-source",
+          "kind": "source_code",
+          "locator": "flash_rt/frontends/torch/pi0_thor.py#set_prompt",
+          "observation_ids": [],
+          "revision": "054bea4d02ebc63f6a0c45991c6061b1e1caa46c",
+          "run_ids": [],
+          "source_id": "source-flashrt"
+        },
+        {
+          "evidence_id": "flashrt-pi0-vision-capture-source",
+          "kind": "source_code",
+          "locator": "flash_rt/frontends/torch/pi0_thor.py#_capture_siglip_graph",
+          "observation_ids": [],
+          "revision": "054bea4d02ebc63f6a0c45991c6061b1e1caa46c",
+          "run_ids": [],
+          "source_id": "source-flashrt"
         }
       ],
       "execution_groups": [
@@ -572,6 +608,232 @@
       "realization_id": "rr-flashrt-pi0-thor-fp8-v1",
       "runtime_id": "flashrt",
       "runtime_revision": "054bea4d02ebc63f6a0c45991c6061b1e1caa46c",
+      "system_flow": {
+        "edges": [
+          {
+            "from": "input",
+            "kind": "data",
+            "label": "原始输入",
+            "to": "prepare"
+          },
+          {
+            "from": "prepare",
+            "kind": "data",
+            "label": "图像上传",
+            "to": "vision"
+          },
+          {
+            "from": "prepare",
+            "kind": "control",
+            "label": "提交视觉图",
+            "to": "vision"
+          },
+          {
+            "from": "prepare",
+            "kind": "control",
+            "label": "CPU 顺次提交",
+            "to": "submit"
+          },
+          {
+            "from": "submit",
+            "kind": "control",
+            "label": "提交主图",
+            "to": "prefix"
+          },
+          {
+            "from": "vision",
+            "kind": "data",
+            "label": "GPU 多模态 embedding",
+            "to": "prefix"
+          },
+          {
+            "from": "prefix",
+            "kind": "data",
+            "label": "逐层 K/V 与状态 token",
+            "to": "action"
+          },
+          {
+            "from": "action",
+            "kind": "data",
+            "label": "动作下载",
+            "to": "output"
+          },
+          {
+            "from": "prefix",
+            "kind": "reuse",
+            "label": "同观测 K/V 复用",
+            "to": "action"
+          }
+        ],
+        "groups": [
+          {
+            "kind": "cuda_graph",
+            "label": "视觉 CUDA Graph",
+            "node_ids": [
+              "vision"
+            ]
+          },
+          {
+            "kind": "cuda_graph",
+            "label": "Prefix + 动作 CUDA Graph",
+            "node_ids": [
+              "prefix",
+              "action"
+            ]
+          },
+          {
+            "kind": "repeat",
+            "label": "10 步去噪",
+            "node_ids": [
+              "action"
+            ]
+          }
+        ],
+        "nodes": [
+          {
+            "evidence_ids": [
+              "flashrt-pi0-infer-source",
+              "flashrt-pi0-prompt-source"
+            ],
+            "label": "图像 / 状态 / 提示",
+            "lane": "cpu",
+            "node_id": "input",
+            "operation": "本次提供已满足尺寸的图像和状态；语言 embedding 在设置提示时准备。",
+            "reads": [
+              "本次观测",
+              "已设置提示"
+            ],
+            "reuse": "提示不变时复用语言 embedding；这不表示复用整段多模态 Prefix K/V。",
+            "step": 0,
+            "writes": [
+              "预测输入"
+            ]
+          },
+          {
+            "evidence_ids": [
+              "flashrt-pi0-infer-source",
+              "flashrt-pi0-jax-infer-source"
+            ],
+            "label": "输入整理与上传",
+            "lane": "cpu",
+            "node_id": "prepare",
+            "operation": "NumPy 非 FP16 图像在 CPU 归一化并转 FP16；FP16 图像直接使用。Torch Tensor 输入仅在原设备转 FP16 后回读 CPU，不在此分支归一化，调用方须满足值域。主机堆叠图像并上传；状态按来源复制或置零。此接口无裁剪、缩放。",
+            "reads": [
+              "图像像素",
+              "状态"
+            ],
+            "reuse": null,
+            "step": 1,
+            "writes": [
+              "GPU 图像 / 状态"
+            ]
+          },
+          {
+            "evidence_ids": [
+              "flashrt-pi0-vision-capture-source"
+            ],
+            "label": "视觉编码与投影",
+            "lane": "gpu",
+            "node_id": "vision",
+            "operation": "patch embedding、SigLIP、末端归一化与投影，并拼入预备好的语言 embedding。",
+            "reads": [
+              "GPU 图像",
+              "常驻视觉权重",
+              "语言 embedding"
+            ],
+            "reuse": "视觉结果留在 GPU；每次观测重新计算。",
+            "step": 2,
+            "writes": [
+              "GPU 多模态 prefix"
+            ]
+          },
+          {
+            "evidence_ids": [
+              "flashrt-pi0-infer-source",
+              "flashrt-pi0-jax-infer-source"
+            ],
+            "label": "提交主图",
+            "lane": "cpu",
+            "node_id": "submit",
+            "operation": "顺序提交主图。视觉 embedding 不回读主机。初始噪声在主图外准备：Torch 使用 GPU normal_，JAX 使用 CPU 随机数并上传。",
+            "reads": [],
+            "reuse": "复用图提交计划；首次推理的校准与重新捕图属于初始化路径。",
+            "step": 3,
+            "writes": [
+              "主图提交"
+            ]
+          },
+          {
+            "evidence_ids": [
+              "flashrt-pi0-torch-capture-source"
+            ],
+            "label": "状态投影与 VLM",
+            "lane": "gpu",
+            "node_id": "prefix",
+            "operation": "清零 K/V 缓冲区，投影当前状态一次，运行 prefix encoder 生成本次 K/V。",
+            "reads": [
+              "GPU 多模态 prefix",
+              "GPU 状态",
+              "常驻前缀权重"
+            ],
+            "reuse": "状态 token 与 Prefix K/V 在本次去噪步骤间复用；下一观测重新生成。",
+            "step": 4,
+            "writes": [
+              "Prefix K/V",
+              "状态 token"
+            ]
+          },
+          {
+            "evidence_ids": [
+              "flashrt-pi0-decoder-source",
+              "flashrt-pi0-prompt-source"
+            ],
+            "label": "动作专家与更新",
+            "lane": "gpu",
+            "node_id": "action",
+            "operation": "各步读取状态 token、Prefix K/V 和预计算时间投影，执行动作专家及融合的动作更新。",
+            "reads": [
+              "Prefix K/V",
+              "状态 token",
+              "预计算时间投影",
+              "初始动作噪声",
+              "常驻动作权重"
+            ],
+            "reuse": "固定时间步的投影在设置提示阶段预计算；依赖时间计划、权重和形状。",
+            "step": 5,
+            "writes": [
+              "动作块"
+            ]
+          },
+          {
+            "evidence_ids": [
+              "flashrt-pi0-infer-source",
+              "flashrt-pi0-jax-infer-source"
+            ],
+            "label": "同步 / 下载 / 后处理",
+            "lane": "cpu",
+            "node_id": "output",
+            "operation": "同步 GPU 后下载动作，主机反归一化并选择公开动作维度。",
+            "reads": [
+              "动作块"
+            ],
+            "reuse": null,
+            "step": 6,
+            "writes": [
+              "动作输出"
+            ]
+          }
+        ],
+        "notes": [
+          "横向位置仅表示处理顺序，不表示耗时或时间占比；CPU 提交箭头表示源码调用顺序，不表示 GPU 完成触发 CPU 提交。",
+          "初始化上传权重；设置或更新提示时准备语言 embedding、RoPE、全部时间投影、缓冲区及 CUDA Graph。",
+          "Torch 时间投影在 GPU 预计算；JAX 使用 NumPy 在 CPU 计算后上传。前端差异不合并成同一次实测流程。",
+          "首次真实输入可能触发校准与重新捕图；稳定推理图只表达后续路径。",
+          "Prompt embedding、时间投影和执行计划可跨兼容观测复用；多模态 Prefix K/V 每次观测清零重算。",
+          "图像须满足输入尺寸；此 infer 不包含裁剪或缩放。内部 Torch 延时记录不含下载后处理，不替代外部端到端计时。"
+        ],
+        "semantics": "qualitative_order"
+      },
       "workload_applicability": {
         "denoise_steps": 10,
         "evidence_ids": [
@@ -652,6 +914,15 @@
             "run-pi0-vla-cpp-nsys-node-021"
           ],
           "source_id": "source-local-thor"
+        },
+        {
+          "evidence_id": "vlacpp-pi0-preprocess-source",
+          "kind": "source_code",
+          "locator": "src/modules/preprocess.h#preprocess_image_chw",
+          "observation_ids": [],
+          "revision": "4c105b8711b86c60828844d244b48db20619bdf8",
+          "run_ids": [],
+          "source_id": "source-vla-cpp"
         }
       ],
       "execution_groups": [
@@ -1161,6 +1432,218 @@
       ],
       "runtime_id": "vla-cpp",
       "runtime_revision": "4c105b8711b86c60828844d244b48db20619bdf8",
+      "system_flow": {
+        "edges": [
+          {
+            "from": "input",
+            "kind": "data",
+            "label": "原始图像",
+            "to": "prepare"
+          },
+          {
+            "from": "prepare",
+            "kind": "data",
+            "label": "像素上传",
+            "to": "vision"
+          },
+          {
+            "from": "vision",
+            "kind": "data",
+            "label": "视觉 embedding 回读",
+            "to": "main-input"
+          },
+          {
+            "from": "main-input",
+            "kind": "data",
+            "label": "多模态输入上传",
+            "to": "prefix"
+          },
+          {
+            "from": "prefix",
+            "kind": "data",
+            "label": "逐层 K/V",
+            "to": "action"
+          },
+          {
+            "from": "action",
+            "kind": "data",
+            "label": "动作下载",
+            "to": "output"
+          },
+          {
+            "from": "prefix",
+            "kind": "reuse",
+            "label": "同观测 K/V 复用",
+            "to": "action"
+          }
+        ],
+        "groups": [
+          {
+            "kind": "backend_graph",
+            "label": "视觉执行图（后端管理）",
+            "node_ids": [
+              "vision"
+            ]
+          },
+          {
+            "kind": "backend_graph",
+            "label": "主执行图（后端管理）",
+            "node_ids": [
+              "prefix",
+              "action"
+            ]
+          },
+          {
+            "kind": "repeat",
+            "label": "10 步去噪",
+            "node_ids": [
+              "action"
+            ]
+          }
+        ],
+        "nodes": [
+          {
+            "evidence_ids": [
+              "vlacpp-pi0-predict-source"
+            ],
+            "label": "图像 / token / 状态",
+            "lane": "cpu",
+            "node_id": "input",
+            "operation": "调用方提供已满足尺寸的图像、语言 token、状态和可选噪声。预测接口不执行分词。",
+            "reads": [
+              "本次观测",
+              "语言 token"
+            ],
+            "reuse": null,
+            "step": 0,
+            "writes": [
+              "预测输入"
+            ]
+          },
+          {
+            "evidence_ids": [
+              "vlacpp-pi0-preprocess-source",
+              "vlacpp-pi0-predict-source"
+            ],
+            "label": "归一化与布局转换",
+            "lane": "cpu",
+            "node_id": "prepare",
+            "operation": "图像尺寸校验；U8 转浮点、归一化至 [-1,1]，HWC 转 CHW；上传像素。此处不裁剪或缩放。",
+            "reads": [
+              "图像像素"
+            ],
+            "reuse": null,
+            "step": 1,
+            "writes": [
+              "CHW 图像"
+            ]
+          },
+          {
+            "evidence_ids": [
+              "vlacpp-pi0-predict-source"
+            ],
+            "label": "视觉编码与投影",
+            "lane": "gpu",
+            "node_id": "vision",
+            "operation": "逐视角执行 patch 卷积、SigLIP、末端归一化及多模态投影。",
+            "reads": [
+              "CHW 图像",
+              "常驻视觉权重"
+            ],
+            "reuse": "权重常驻；每次观测重新计算视觉结果。",
+            "step": 2,
+            "writes": [
+              "视觉 embedding"
+            ]
+          },
+          {
+            "evidence_ids": [
+              "vlacpp-pi0-predict-source"
+            ],
+            "label": "视觉回读与主图准备",
+            "lane": "cpu",
+            "node_id": "main-input",
+            "operation": "视觉 embedding 回读主机；读取语言 embedding 行，准备状态归一化、位置、mask、初始噪声及每步时间嵌入，再上传主图输入。",
+            "reads": [
+              "视觉 embedding",
+              "语言 token",
+              "状态",
+              "初始噪声或随机源"
+            ],
+            "reuse": "主图计划按图像 token 数、语言 token 数和步数复用；时间嵌入每次预测重新计算与上传。",
+            "step": 3,
+            "writes": [
+              "多模态 embedding",
+              "状态 / 位置 / mask",
+              "时间嵌入 / 噪声"
+            ]
+          },
+          {
+            "evidence_ids": [
+              "vlacpp-pi0-predict-source"
+            ],
+            "label": "VLM / Prefix 编码",
+            "lane": "gpu",
+            "node_id": "prefix",
+            "operation": "拼接图像与语言 embedding，执行前缀 Transformer，生成每层 K/V。",
+            "reads": [
+              "多模态 embedding",
+              "位置",
+              "常驻前缀权重"
+            ],
+            "reuse": "K/V 在本次观测的全部去噪步骤中复用；下一观测重新计算。",
+            "step": 4,
+            "writes": [
+              "Prefix K/V"
+            ]
+          },
+          {
+            "evidence_ids": [
+              "vlacpp-pi0-predict-source"
+            ],
+            "label": "动作专家与更新",
+            "lane": "gpu",
+            "node_id": "action",
+            "operation": "每步构造状态与动作/时间输入，执行动作专家和输出投影，再以 FP32 更新动作噪声。状态投影在每步执行，不标为跨步缓存。",
+            "reads": [
+              "Prefix K/V",
+              "状态 / 位置 / mask",
+              "时间嵌入 / 噪声",
+              "常驻动作权重"
+            ],
+            "reuse": "复用本次 Prefix K/V；动作值逐步更新，执行计划可跨兼容观测复用。",
+            "step": 5,
+            "writes": [
+              "动作块"
+            ]
+          },
+          {
+            "evidence_ids": [
+              "vlacpp-pi0-predict-source"
+            ],
+            "label": "下载与反归一化",
+            "lane": "cpu",
+            "node_id": "output",
+            "operation": "下载动作块，在主机反归一化有效动作维度并清零填充维度。",
+            "reads": [
+              "动作块"
+            ],
+            "reuse": null,
+            "step": 6,
+            "writes": [
+              "动作输出"
+            ]
+          }
+        ],
+        "notes": [
+          "横向位置仅表示处理顺序，不表示耗时或时间占比。",
+          "模型初始化时上传权重并保留缓冲区；逐次预测仍会读取这些权重，不等于免除访存。",
+          "视觉图与主图分开；CPU 准备、上传和回读不属于主图。后端执行图边界不等同于逐节点 CUDA 捕获边界。",
+          "图像须预先满足模型尺寸；裁剪、缩放与文本分词属于调用方，本次固定案例直接提供 token IDs。",
+          "BF16 路径已观测后端 CUDA Graph 使用；Q8 路径的实际 CUDA Graph 启用状态未确认。"
+        ],
+        "semantics": "qualitative_order"
+      },
       "workload_applicability": {
         "denoise_steps": 10,
         "evidence_ids": [
@@ -1212,6 +1695,15 @@
             "run-pi0-vlacpp-target-v1-002"
           ],
           "source_id": "source-local-thor"
+        },
+        {
+          "evidence_id": "vlacpp-pi0-preprocess-source",
+          "kind": "source_code",
+          "locator": "src/modules/preprocess.h#preprocess_image_chw",
+          "observation_ids": [],
+          "revision": "4c105b8711b86c60828844d244b48db20619bdf8",
+          "run_ids": [],
+          "source_id": "source-vla-cpp"
         }
       ],
       "execution_groups": [
@@ -1435,6 +1927,218 @@
       "realization_id": "rr-vla-cpp-pi0-thor-q8-0-v1",
       "runtime_id": "vla-cpp",
       "runtime_revision": "4c105b8711b86c60828844d244b48db20619bdf8",
+      "system_flow": {
+        "edges": [
+          {
+            "from": "input",
+            "kind": "data",
+            "label": "原始图像",
+            "to": "prepare"
+          },
+          {
+            "from": "prepare",
+            "kind": "data",
+            "label": "像素上传",
+            "to": "vision"
+          },
+          {
+            "from": "vision",
+            "kind": "data",
+            "label": "视觉 embedding 回读",
+            "to": "main-input"
+          },
+          {
+            "from": "main-input",
+            "kind": "data",
+            "label": "多模态输入上传",
+            "to": "prefix"
+          },
+          {
+            "from": "prefix",
+            "kind": "data",
+            "label": "逐层 K/V",
+            "to": "action"
+          },
+          {
+            "from": "action",
+            "kind": "data",
+            "label": "动作下载",
+            "to": "output"
+          },
+          {
+            "from": "prefix",
+            "kind": "reuse",
+            "label": "同观测 K/V 复用",
+            "to": "action"
+          }
+        ],
+        "groups": [
+          {
+            "kind": "backend_graph",
+            "label": "视觉执行图（后端管理）",
+            "node_ids": [
+              "vision"
+            ]
+          },
+          {
+            "kind": "backend_graph",
+            "label": "主执行图（后端管理）",
+            "node_ids": [
+              "prefix",
+              "action"
+            ]
+          },
+          {
+            "kind": "repeat",
+            "label": "10 步去噪",
+            "node_ids": [
+              "action"
+            ]
+          }
+        ],
+        "nodes": [
+          {
+            "evidence_ids": [
+              "vlacpp-pi0-q8-predict-source"
+            ],
+            "label": "图像 / token / 状态",
+            "lane": "cpu",
+            "node_id": "input",
+            "operation": "调用方提供已满足尺寸的图像、语言 token、状态和可选噪声。预测接口不执行分词。",
+            "reads": [
+              "本次观测",
+              "语言 token"
+            ],
+            "reuse": null,
+            "step": 0,
+            "writes": [
+              "预测输入"
+            ]
+          },
+          {
+            "evidence_ids": [
+              "vlacpp-pi0-preprocess-source",
+              "vlacpp-pi0-q8-predict-source"
+            ],
+            "label": "归一化与布局转换",
+            "lane": "cpu",
+            "node_id": "prepare",
+            "operation": "图像尺寸校验；U8 转浮点、归一化至 [-1,1]，HWC 转 CHW；上传像素。此处不裁剪或缩放。",
+            "reads": [
+              "图像像素"
+            ],
+            "reuse": null,
+            "step": 1,
+            "writes": [
+              "CHW 图像"
+            ]
+          },
+          {
+            "evidence_ids": [
+              "vlacpp-pi0-q8-predict-source"
+            ],
+            "label": "视觉编码与投影",
+            "lane": "gpu",
+            "node_id": "vision",
+            "operation": "逐视角执行 patch 卷积、SigLIP、末端归一化及多模态投影。",
+            "reads": [
+              "CHW 图像",
+              "常驻视觉权重"
+            ],
+            "reuse": "权重常驻；每次观测重新计算视觉结果。",
+            "step": 2,
+            "writes": [
+              "视觉 embedding"
+            ]
+          },
+          {
+            "evidence_ids": [
+              "vlacpp-pi0-q8-predict-source"
+            ],
+            "label": "视觉回读与主图准备",
+            "lane": "cpu",
+            "node_id": "main-input",
+            "operation": "视觉 embedding 回读主机；读取语言 embedding 行，准备状态归一化、位置、mask、初始噪声及每步时间嵌入，再上传主图输入。",
+            "reads": [
+              "视觉 embedding",
+              "语言 token",
+              "状态",
+              "初始噪声或随机源"
+            ],
+            "reuse": "主图计划按图像 token 数、语言 token 数和步数复用；时间嵌入每次预测重新计算与上传。",
+            "step": 3,
+            "writes": [
+              "多模态 embedding",
+              "状态 / 位置 / mask",
+              "时间嵌入 / 噪声"
+            ]
+          },
+          {
+            "evidence_ids": [
+              "vlacpp-pi0-q8-predict-source"
+            ],
+            "label": "VLM / Prefix 编码",
+            "lane": "gpu",
+            "node_id": "prefix",
+            "operation": "拼接图像与语言 embedding，执行前缀 Transformer，生成每层 K/V。",
+            "reads": [
+              "多模态 embedding",
+              "位置",
+              "常驻前缀权重"
+            ],
+            "reuse": "K/V 在本次观测的全部去噪步骤中复用；下一观测重新计算。",
+            "step": 4,
+            "writes": [
+              "Prefix K/V"
+            ]
+          },
+          {
+            "evidence_ids": [
+              "vlacpp-pi0-q8-predict-source"
+            ],
+            "label": "动作专家与更新",
+            "lane": "gpu",
+            "node_id": "action",
+            "operation": "每步构造状态与动作/时间输入，执行动作专家和输出投影，再以 FP32 更新动作噪声。状态投影在每步执行，不标为跨步缓存。",
+            "reads": [
+              "Prefix K/V",
+              "状态 / 位置 / mask",
+              "时间嵌入 / 噪声",
+              "常驻动作权重"
+            ],
+            "reuse": "复用本次 Prefix K/V；动作值逐步更新，执行计划可跨兼容观测复用。",
+            "step": 5,
+            "writes": [
+              "动作块"
+            ]
+          },
+          {
+            "evidence_ids": [
+              "vlacpp-pi0-q8-predict-source"
+            ],
+            "label": "下载与反归一化",
+            "lane": "cpu",
+            "node_id": "output",
+            "operation": "下载动作块，在主机反归一化有效动作维度并清零填充维度。",
+            "reads": [
+              "动作块"
+            ],
+            "reuse": null,
+            "step": 6,
+            "writes": [
+              "动作输出"
+            ]
+          }
+        ],
+        "notes": [
+          "横向位置仅表示处理顺序，不表示耗时或时间占比。",
+          "模型初始化时上传权重并保留缓冲区；逐次预测仍会读取这些权重，不等于免除访存。",
+          "视觉图与主图分开；CPU 准备、上传和回读不属于主图。后端执行图边界不等同于逐节点 CUDA 捕获边界。",
+          "图像须预先满足模型尺寸；裁剪、缩放与文本分词属于调用方，本次固定案例直接提供 token IDs。",
+          "BF16 路径已观测后端 CUDA Graph 使用；Q8 路径的实际 CUDA Graph 启用状态未确认。"
+        ],
+        "semantics": "qualitative_order"
+      },
       "workload_applicability": {
         "denoise_steps": 10,
         "evidence_ids": [

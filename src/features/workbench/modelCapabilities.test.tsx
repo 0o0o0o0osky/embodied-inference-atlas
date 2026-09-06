@@ -129,10 +129,10 @@ it("retains only target-model-compatible selections and discovers roofline suppo
     basis: "basis-pi05-bf16_dense-stage-default",
   })).toMatchObject({
     runtime: "flashrt",
-    hardware: "nvidia-jetson-agx-thor",
+    hardware: null, // Runtime-specific hardware/precision need retained evidence.
     workload: null,
     precision: "fp8_w8a8",
-    runtimePrecision: "mixed-fp8-e4m3-fp16",
+    runtimePrecision: null,
     basis: null,
   });
   expect(modelSwitchPatch(switchData, "pi05", {
@@ -151,12 +151,9 @@ it("retains only target-model-compatible selections and discovers roofline suppo
     precision: "runtime_mixed",
     runtimePrecision: "mixed-fp8-e4m3-fp16",
     basis: "basis-pi05-runtime_mixed-stage-default",
-  }).basis).toBe("basis-pi05-runtime_mixed-stage-default");
-  const mixedBasisContext = pi05Capabilities.rooflineBasisContexts.get("basis-pi05-runtime_mixed-stage-default")!;
-  expect([...mixedBasisContext.configurationIds]).toEqual(["cfg-flashrt-pi05-matrix-008"]);
-  expect(Object.fromEntries(mixedBasisContext.workloadBindings!)).toMatchObject({
-    V: 3, L_PROMPT: 160, T_ACTION: 10, N_DENOISE: 10,
-  });
+  }).basis).toBeNull();
+  // A removed runtime snapshot must not be reconstructed from another model's runs.
+  expect(pi05Capabilities.rooflineBasisContexts.has("basis-pi05-runtime_mixed-stage-default")).toBe(false);
   const unsupportedGroupId = pi05RealizationDocument.records[0]!.execution_groups[0]!.execution_group_id;
   expect(modelSwitchPatch(switchData, "pi05", {
     ...currentRoute,
@@ -167,19 +164,19 @@ it("retains only target-model-compatible selections and discovers roofline suppo
   }).entity).toBeNull();
   [
     {
-      name: "analytical-only runtime",
+      name: "analytical-only runtime absent from target model",
       current: { runtime: "vla-perf", workload: "cfg-flashrt-pi05-matrix-001", runtimePrecision: "uniform-fp16" },
-      expected: { runtime: "vla-perf", hardware: null, workload: null, runtimePrecision: null },
+      expected: { runtime: null, hardware: "nvidia-jetson-agx-thor", workload: null, runtimePrecision: null },
     },
     {
-      name: "group from a different resolved realization",
+      name: "group without a retained target-model run",
       current: {
         runtime: "flashrt",
         workload: "cfg-flashrt-pi05-matrix-010",
         runtimePrecision: null,
         entity: runtimeGroupEntity(pi05RealizationDocument.records[0]!.realization_id, unsupportedGroupId),
       },
-      expected: { workload: "cfg-flashrt-pi05-matrix-010", entity: null },
+      expected: { workload: null, entity: null },
     },
     {
       name: "assignment-shaped configuration owned by another runtime",
@@ -233,7 +230,7 @@ it("retains only target-model-compatible selections and discovers roofline suppo
     roofline_bases: basisDocument.records as unknown as CanonicalRecord[],
   });
   const pi0Capabilities = createModelCapabilityRegistry(pi0Data).get("pi0")!;
-  expect(pi0Capabilities.captureContexts.get("capture-pi0-flashrt-nsys-graph-001")?.realizationIds.size).toBe(0);
+  expect(pi0Capabilities.captureContexts.has("capture-pi0-flashrt-nsys-graph-001")).toBe(false);
   expect(modelSwitchPatch(pi0Data, "pi0", route({
     model: "pi0",
     timelineCapture: "capture-pi0-flashrt-ncu-encoder-large-gemm-001",

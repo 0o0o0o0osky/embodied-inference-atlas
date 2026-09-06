@@ -97,6 +97,7 @@ export interface RuntimeReuseDescriptor {
 }
 
 export interface RuntimeRealizationRecord {
+  systemFlow?: RuntimeSystemFlow;
   reuse?: readonly RuntimeReuseDescriptor[];
   realizationId: string;
   modelId: string;
@@ -121,6 +122,25 @@ export interface RuntimeRealizationRecord {
   evidence: readonly EvidenceRef[];
   executionGroups: readonly ExecutionGroup[];
   mappings: readonly RuntimeMapping[];
+}
+
+/** A source-supported process diagram: steps are ordering, never durations. */
+export interface RuntimeSystemFlow {
+  semantics: "qualitative_order";
+  nodes: readonly {
+    nodeId: string;
+    label: string;
+    lane: "cpu" | "gpu";
+    step: number;
+    operation: string;
+    reads: readonly string[];
+    writes: readonly string[];
+    reuse: string | null;
+    evidenceIds: readonly string[];
+  }[];
+  edges: readonly { from: string; to: string; kind: "data" | "control" | "reuse"; label: string }[];
+  groups: readonly { label: string; kind: "backend_graph" | "cuda_graph" | "repeat"; nodeIds: readonly string[] }[];
+  notes: readonly string[];
 }
 
 export interface RuntimeRealizationIndex {

@@ -892,6 +892,50 @@
       ]
     },
     {
+      "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-fp32-stride-copy-036-001",
+      "collection_scope": "representative_kernel_launch",
+      "coverage": {
+        "is_complete_for_population": true,
+        "observed_count": 1,
+        "population": "one_replayed_launch"
+      },
+      "evidence": "measured_local",
+      "missing": {
+        "ncu.backing_store_bytes": "unavailable",
+        "nsys": "not_applicable",
+        "target_window_label": "not_applicable"
+      },
+      "ncu": {
+        "backing_store_bytes": null,
+        "cache_control_request": "none",
+        "clock_control_request": "none",
+        "origins": {
+          "backing_store_bytes": "unavailable",
+          "cache_control_request": "session_command",
+          "clock_control_request": "session_command",
+          "gpu_frequency_not_fixed": "collection_log_manual_audit",
+          "replay_mode": "session_command",
+          "replay_passes": "collection_log_manual_audit",
+          "selection_policy": "session_command",
+          "warmup_count": "harness_source_audit"
+        },
+        "replay_mode": "kernel",
+        "replay_passes": 10,
+        "warmup_count": 5
+      },
+      "nsys": null,
+      "run_id": "run-pi0-vla-cpp-ncu-vlacpp-fp32-stride-copy-036-001",
+      "selection_policy": "name_filter_selected_match",
+      "source_id": "source-local-thor",
+      "target_window_count": 1,
+      "target_window_label": null,
+      "tool": "ncu",
+      "tool_version": "2025.3.0.0",
+      "warnings": [
+        "gpu_frequency_not_fixed"
+      ]
+    },
+    {
       "capture_id": "capture-pi0-vla-cpp-ncu-vlacpp-fp32-to-bf16-conversion-009-001",
       "collection_scope": "representative_kernel_launch",
       "coverage": {

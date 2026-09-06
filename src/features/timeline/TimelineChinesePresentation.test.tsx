@@ -29,8 +29,9 @@ it("keeps the Pi0 Nsys detail focused on a localized timeline and folds evidence
   );
 
   expect(markup).toContain("Nsys 时间线");
-  expect(markup).toContain("已记录时间线");
-  expect(markup).toContain("空白为未观测区间，不代表空闲。");
+  expect(markup).toContain("节点级 trace");
+  expect(markup).toContain("GPU Kernel 区间");
+  expect(markup).toContain("空白表示未观测，不代表空闲。");
   expect(markup).not.toContain("Prediction timing instrument");
   expect(markup).toContain('<details class="timeline-capture-archive">');
   expect(markup).not.toContain('type="range"');

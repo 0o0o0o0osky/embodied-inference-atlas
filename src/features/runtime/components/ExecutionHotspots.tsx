@@ -1,4 +1,4 @@
-import { KernelComputation, KernelResources, isVerifiedConversion } from './KernelComputation';
+import { KernelComputation, KernelResources, isVerifiedConversion, isVerifiedStrideCopy } from './KernelComputation';
 import { invocationSelection, invocationPoint } from './kernelInvocation';
 import { KernelNcuMetrics } from './KernelNcuMetrics';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -62,7 +62,7 @@ export function ExecutionHotspots({data, record, route, view, kernels, realizati
   useEffect(()=>{
     if (selected && !graphEntity) detailRef.current?.scrollIntoView({block:'start'});
   },[selected?.id,graphEntity]);
-  const sharedConversions = rows.filter(row=>kernels.rows.some(item=>item.capture.captureId===row.captureId && item.signature.kernelSignatureId===row.kernelSignatureId && isVerifiedConversion(item)));
+  const sharedConversions = rows.filter(row=>kernels.rows.some(item=>item.capture.captureId===row.captureId && item.signature.kernelSignatureId===row.kernelSignatureId && (isVerifiedConversion(item)||isVerifiedStrideCopy(item))));
   const detail = selected ? <aside ref={detailRef} className="execution-hotspot-detail">
         <header><h4>{labelFor(selected)}</h4><button type="button" onClick={()=>navigate({entity:rememberedGraphEntity},true)} aria-label="关闭热点详情">×</button></header>
         <p>{selected.timeMeaning} · 当前类别 {selected.count} 次</p>{selected.category === 'GPU Kernel' ? <p>{selected.events[0]?.launch ? '按当前 trace 的签名与 launch 配置分组。' : '当前类别未记录 launch 配置，同签名内部形状与执行组织是否一致尚未验证。'}</p> : null}
@@ -118,8 +118,8 @@ export function ExecutionHotspots({data, record, route, view, kernels, realizati
   return <section className="execution-hotspots" aria-label="执行热点">
     <header className="pi0-funnel-heading"><h3>执行热点</h3></header>
     <p className="pi0-funnel-note">点击图中的融合组或精度标注，查看对应 Kernel 与性能；完整列表在底部展开。</p>
-    {sharedConversions.length?<details className="dag-shared-conversions"><summary>共享数据转换 · {sharedConversions.length} 个启动配置类别 · {(sharedConversions.reduce((sum,row)=>sum+row.durationNs,0)/1e6).toFixed(3)} ms</summary>
-      <p>FP32 → BF16，多个位置使用，具体算子归属未区分。以下为当前 trace 的真实执行类别，不绘制未经确认的算子依赖箭头。</p>
+    {sharedConversions.length?<details className="dag-shared-conversions"><summary>数据转换与拷贝 · {sharedConversions.length} 个启动配置类别 · {(sharedConversions.reduce((sum,row)=>sum+row.durationNs,0)/1e6).toFixed(3)} ms</summary>
+      <p>逐元素类型转换或步幅拷贝，在多个位置使用，尚不能分配给单一算子。以下为当前 trace 的真实执行类别。</p>
       <ul>{sharedConversions.map(row=><li key={row.id}><button type="button" aria-pressed={selected?.id===row.id} onClick={()=>{setGraphEntity(null);navigate({entity:entityFor(row)},true);}}>{labelFor(row)} · Grid {row.events[0]?.launch?.grid?.join('×') ?? '未知'} · {row.count} 次 · {(row.durationNs/1e6).toFixed(3)} ms</button></li>)}</ul>
     </details>:null}
     {realization ? <div className="hotspot-primary-dag"><Pi0ImplementationDagSection initialShowPrecision record={record}
