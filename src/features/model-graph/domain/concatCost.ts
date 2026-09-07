@@ -1,5 +1,5 @@
 import type {OperatorDetail,MaterializedPort} from './types';
-export type ConcatCostOperation='concat'|'reshape'|'permute-rearrange'|'zero-pad'|'broadcast'|'expanded-layout';
+export type ConcatCostOperation='concat'|'reshape'|'slice'|'permute-rearrange'|'zero-pad'|'broadcast'|'expanded-layout';
 const known=(value:number|null):value is number=>value!==null && Number.isFinite(value) && value>=0;
 /** Element-storage boundary for one invocation; no repeat multiplier or measured traffic. */
 export function concatCostFromDetail(detail:OperatorDetail,bitsPerElement:number) {
@@ -15,7 +15,7 @@ export function concatCostFromDetail(detail:OperatorDetail,bitsPerElement:number
   return Number.isSafeInteger(total)?total:null;
  };
  const inputBytes=bytes(detail.inputs),outputBytes=bytes(detail.outputs);
- let operation=(detail.definitionId==='slice'?'reshape':detail.definitionId) as ConcatCostOperation;
+ let operation=detail.definitionId as ConcatCostOperation;
  if(operation==='reshape'&&inputBytes!==null&&outputBytes!==null&&outputBytes>inputBytes) {
   // These are declared graph operations, not padding inferred from size alone.
   operation=detail.operatorId==='pad-state'&&detail.label==='Zero-pad state'?'zero-pad':detail.operatorId==='broadcast-time'?'broadcast':'expanded-layout';

@@ -14,12 +14,24 @@
 | Pi0.5 的文本与状态输入 | prompt + state | 保留 state 编入 prompt token 的结构差异 |
 | 动作序列元素 | 动作 token | 场景参数写“动作 token 数” |
 | 注意力 | Attention、Self-attention、Cross-attention | DAG 标签、详情标题与说明使用相同拼写 |
+| 投影 | Up、Down、Proj | DAG 的短标签；条件、输入、输出等限定按需保留 |
 | 门控与仿射参数 | gate、bias、scale、shift | bias 表示层的偏置；shift 表示条件化平移参数 |
 | 图像分块与嵌入 | patch、embedding | 保留 RMSNorm、LayerNorm、RoPE、GELU、SiLU 等算子名称 |
 | 张量布局操作 | reshape、concat、slice | 中文说明可以使用“拼接”“按行选择”等动词 |
 
 界面操作仍用中文，例如“缩放模型图”；内存地址描述仍可用“偏移”。
 英文术语与中文之间留一个空格，标点前不加空格。公式、逻辑引用和外源原文保持原有标识。
+
+DAG 使用短标签，详情使用完整功能名称。详情标题由
+[`operatorTitle.ts`](../src/features/model-graph/presentation/operatorTitle.ts)
+按算子角色统一生成，例如 Q projection、MLP Up projection、Attention RMSNorm。
+时间条件投影与 action/time 混合投影分别命名；Attention 的 mask 语义继续保留。
+
+Slice 的概览、计算过程和图中提示共用
+[`slicePresentation.ts`](../src/features/model-graph/presentation/slicePresentation.ts)。
+显示当前轴与范围，例如 `shift = X[:, 1024:2048]`、`Y = X[:, :, 0:6]`。
+示例矩阵沿对应方向选行或选列，完整保留的输出显示恒等选择。
+新算子需要确认选择规则；范围缺失时显示待补充状态。
 
 SmolVLA 的重复单元写为 **Self-attention → Cross-attention ×8**：
 每组依次执行两个 expert 层，每层各有自己的 MLP，每步共 16 层。

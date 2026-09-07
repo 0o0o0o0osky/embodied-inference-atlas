@@ -5,6 +5,7 @@ const detail=(definitionId:string,inputs:(number|null)[][],outputs:(number|null)
 it('counts one invocation using selected precision, preserving unknown shapes',()=>{
  expect(concatCostFromDetail(detail('concat',[[2,4],[3,4]],[[5,4]]),16)).toEqual({operation:'concat',inputBytes:40,outputBytes:40});
  expect(concatCostFromDetail(detail('reshape',[[5,4]],[[4,4]]),32)).toEqual({operation:'reshape',inputBytes:80,outputBytes:64});
+ expect(concatCostFromDetail(detail('slice',[[5,4]],[[4,4]]),32)).toEqual({operation:'slice',inputBytes:80,outputBytes:64});
  expect(concatCostFromDetail(detail('concat',[[null,4],[3,4]],[[null,4]]),16)?.inputBytes).toBeNull();
  expect(concatCostFromDetail(detail('linear',[[2,4]],[[2,4]]),16)).toBeNull();
 });

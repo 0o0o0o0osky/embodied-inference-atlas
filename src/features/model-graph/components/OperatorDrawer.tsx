@@ -3,6 +3,7 @@ import type { OperatorDetail } from "../domain/types";
 import { OperatorVisualizer } from "../visualizers/OperatorVisualizer";
 import { OperatorOverview } from "./OperatorOverview";
 import { useModelText } from "../presentation/ModelDisplay";
+import { operatorTitle } from "../presentation/operatorTitle";
 
 const tabs = [
   { id: "overview", label: "概览" },
@@ -43,7 +44,7 @@ export function OperatorDrawerView({
     <aside className="operator-inspector operator-drawer" aria-labelledby="operator-title">
       <header>
         <button type="button" className="operator-inspector-close" onClick={onClose}>返回完整模型</button>
-        <h2 id="operator-title">{t(operator.label)}</h2>
+        <h2 id="operator-title">{operatorTitle(operator, t)}</h2>
       </header>
       <div className="operator-drawer-tabs" role="tablist" aria-label="算子详情">
         {tabs.map((tab, index) => (

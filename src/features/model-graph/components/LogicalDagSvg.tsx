@@ -15,6 +15,8 @@ import type {
 } from "../domain/types";
 import { effectiveCameraZoom, getCameraPanRanges, graphWheelZoomAction, updateManualCamera, type GraphViewport, type ManualCameraAction } from "../domain/focusViewport";
 import { useModelText, type ModelText } from "../presentation/ModelDisplay";
+import { operatorKindLabel, operatorTitle } from "../presentation/operatorTitle";
+import { slicePresentation } from "../presentation/slicePresentation";
 
 const savedCameras = new Map<string, {zoom:number;x:number;y:number}>();
 
@@ -56,7 +58,7 @@ function nodeAlias(node: LogicalNode, presentation: GraphPresentation) {
 
 function nodeDescription(node: LogicalNode, t: ModelText) {
   if (!node.detail) return t(node.label);
-  return `${t(node.label)}. ${t(node.detail.definitionLabel)}. ${node.detail.formula}`;
+  return `${operatorTitle(node.detail, t)}. ${operatorKindLabel(node.detail, t)}. ${slicePresentation(node.detail)?.formula ?? node.detail.formula}`;
 }
 
 function layoutFingerprint(layout: LogicalLayout) {

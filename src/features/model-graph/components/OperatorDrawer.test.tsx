@@ -15,7 +15,7 @@ it("renders only the controlled active panel with matching accessible tab contro
   expect(overview.match(/role="tabpanel"/g)).toHaveLength(1);
   expect(overview).toContain('data-panel="overview"');
   expect(overview.match(/aria-selected="true"/g)).toHaveLength(1);
-  expect(overview).not.toContain("gemm-visualizer");
+  expect(overview).not.toContain("gemm-computation");
   expect(overview).toContain("<details");
   expect(overview).not.toMatch(/<details[^>]*\bopen/);
 
@@ -30,7 +30,7 @@ it("renders only the controlled active panel with matching accessible tab contro
     expect(markup).toContain(`aria-labelledby="operator-tab-${activeTab}"`);
     expect(markup.match(/aria-selected="true"/g)).toHaveLength(1);
     expect(markup).not.toContain('data-panel="overview"');
-    expect(markup.includes("gemm-visualizer")).toBe(activeTab === "calculation");
+    expect(markup.includes("gemm-computation")).toBe(activeTab === "calculation");
     expect(markup).not.toContain('class="operator-overview"');
     expect(markup).toContain('class="operator-inspector-close"');
   }

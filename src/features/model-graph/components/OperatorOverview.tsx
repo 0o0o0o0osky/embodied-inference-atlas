@@ -1,6 +1,8 @@
 import { expressionLabel } from "../domain/expression";
 import type { MaterializedPort, OperatorDetail } from "../domain/types";
 import { useModelText } from "../presentation/ModelDisplay";
+import { operatorExplanation, operatorKindLabel } from "../presentation/operatorTitle";
+import { slicePresentation } from "../presentation/slicePresentation";
 import "./operatorOverview.css";
 
 function TensorShapes({ ports, direction }: { ports: readonly MaterializedPort[]; direction: string }) {
@@ -20,14 +22,17 @@ function compactCount(value: number | null) {
 
 export function OperatorOverview({ operator }: { operator: OperatorDetail }) {
   const t = useModelText();
+  const slice = slicePresentation(operator);
+  const explanation = slice?.explanation ?? operatorExplanation(operator);
   const bindings = Object.entries(operator.bindings);
   const ports = [...operator.inputs.map((port) => ({ ...port, direction: "输入" })),
     ...operator.outputs.map((port) => ({ ...port, direction: "输出" }))];
   const repeated = (operator.effectiveRepeat ?? 0) > 1;
   return <div className="operator-overview">
     <div className="operator-overview-formula">
-      <span>{t(operator.definitionLabel)}</span>
-      <span className="math-expression">{operator.formula || "计算公式待补充"}</span>
+      <span>{operatorKindLabel(operator, t)}</span>
+      <span className="math-expression">{slice?.formula ?? (operator.formula || "计算公式待补充")}</span>
+      {explanation ? <p>{explanation}</p> : null}
     </div>
     <div className="operator-tensor-flow">
       <section><h3>输入</h3>{operator.inputs.length ? <TensorShapes ports={operator.inputs} direction="输入" /> : <p>输入形状待补充</p>}</section>

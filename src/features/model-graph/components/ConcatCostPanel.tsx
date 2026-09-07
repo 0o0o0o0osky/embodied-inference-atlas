@@ -22,7 +22,7 @@ export function ConcatCostPanel({operation,inputBytes,outputBytes,precisionLabel
  </section>;
  const reshape=operation!=='concat';
  return <section className="concat-cost-panel" aria-label="布局与物化拷贝的理论路径">
-  <header><h3>{operation==='broadcast'?'Broadcast / 广播':operation==='permute-rearrange'?'Permute / 轴重排':reshape?'Reshape / 行选择':'Concat'}：布局与拷贝</h3><p>{precisionLabel} · 单次元素存储边界 · 理论条件</p></header>
+  <header><h3>{operation==='broadcast'?'Broadcast':operation==='permute-rearrange'?'Permute':operation==='slice'?'Slice':reshape?'Reshape':'Concat'}：布局与拷贝</h3><p>{precisionLabel} · 单次元素存储边界 · 理论条件</p></header>
   <BandwidthReferenceBar bandwidth={bandwidthBytesPerSecond}/><div className="concat-cost-path">
    <h4>{operation==='broadcast'?'广播轴使用零步幅视图':reshape?'兼容步幅时只改视图':'生产者直接写目标分区'}</h4>
    <div className="concat-buffer-flow" role="img" aria-label={reshape?'同一 buffer 由另一视图读取':'生产者直接写入目标 buffer 的不同分区'}>

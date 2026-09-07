@@ -2,6 +2,7 @@
 .operator-overview-formula { display: grid; gap: 8px; padding: 14px 16px; background: #f2f6f8; border-left: 3px solid var(--signal-blue-dark); }
 .operator-overview-formula > span:first-child { font-size: 12px; color: #60716e; }
 .operator-overview-formula > .math-expression { color: #234957; }
+.operator-overview-formula > p { margin: 0; font-size: 13px; line-height: 1.6; color: #536963; }
 .operator-tensor-flow { display: grid; grid-template-columns: minmax(0, 1fr) 16px minmax(0, 1fr); gap: 8px; align-items: start; }
 .operator-tensor-flow > section { min-width: 0; }
 .operator-inspector .operator-tensor-flow h3 { font-size: 13px; color: #60716e; margin: 0 0 8px; }

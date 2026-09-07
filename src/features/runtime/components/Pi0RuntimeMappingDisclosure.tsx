@@ -2,6 +2,7 @@ import { useState } from "react";
 
 import type { LogicalDag } from "../../model-graph/domain/types";
 import { useModelText } from "../../model-graph/presentation/ModelDisplay";
+import { operatorTitle } from "../../model-graph/presentation/operatorTitle";
 import { indexRuntimeRealization } from "../domain/indexRuntimeRealization";
 import type { RuntimeMapping, RuntimeRealizationRecord } from "../domain/types";
 import {
@@ -63,7 +64,8 @@ export function Pi0RuntimeMappingDisclosure({
                 const group = groupId ? index.groupById.get(groupId) : undefined;
                 const precision = group ? index.precisionById.get(group.precisionPathId) : undefined;
                 const logicalTargets = mapping?.logicalTargets.map((target) => {
-                  const label = t(dag.nodes.get(target.ref)?.label ?? target.ref);
+                  const node = dag.nodes.get(target.ref);
+                  const label = node?.detail ? operatorTitle(node.detail, t) : t(node?.label ?? target.ref);
                   const repeat = targetRepeatLabel(target, dag)
                     .replace(/layers (\d+)–(\d+)/g, (_, first, last) => `第 ${Number(first) + 1}–${Number(last) + 1} 层`)
                     .replaceAll("denoise", "去噪")

@@ -5,6 +5,7 @@ import type { CanonicalRecord } from "../../../types/atlas";
 import { RuntimeSourceReferences } from "./RuntimeSourceReferences";
 import type { LogicalDag } from "../../model-graph/domain/types";
 import { useModelText } from "../../model-graph/presentation/ModelDisplay";
+import { operatorTitle } from "../../model-graph/presentation/operatorTitle";
 import { logicalRefFromEntity, parseEntityKey } from "../../workbench/entityKeys";
 import { indexRuntimeRealization } from "../domain/indexRuntimeRealization";
 import type { ExecutionGroup, RuntimeMapping, RuntimeRealizationRecord } from "../domain/types";
@@ -114,7 +115,8 @@ export function Pi0ExecutionInspector({
   ]);
   const evidence = realization.evidence.filter((item) => evidenceIds.has(item.evidenceId));
   const logicalCoverage = mappings.flatMap((mapping) => mapping.logicalTargets).map((target) => {
-    const label = t(dag.nodes.get(target.ref)?.label ?? target.ref);
+    const node = dag.nodes.get(target.ref);
+    const label = node?.detail ? operatorTitle(node.detail, t) : t(node?.label ?? target.ref);
     return label;
   });
   const noGroupPresentation = groups.length
@@ -156,7 +158,7 @@ export function Pi0ExecutionInspector({
       <header>
         <p>{group ? "所选计算" : "所选原算子"}</p>
         <h2 id="pi0-runtime-drawer-title">
-          {group ? pi0GroupLabel(group.label) : t(logicalNode?.label ?? "模型算子")}
+          {group ? pi0GroupLabel(group.label) : logicalNode?.detail ? operatorTitle(logicalNode.detail, t) : t(logicalNode?.label ?? "模型算子")}
         </h2>
       </header>
 
