@@ -106,7 +106,7 @@ export function ExecutionHotspots({data, record, route, view, kernels, realizati
           {singlePairs.map(({point})=><div key={point.point_id} className="kernel-measured-summary"><dl>
             <div><dt>计算吞吐</dt><dd>{(point.work.total_flop / point.timing.observed_second! / 1e12).toFixed(2)} TFLOP/s</dd></div>
             <div><dt>单次计算量</dt><dd>{(point.work.total_flop/1e9).toFixed(2)} GFLOP</dd></div>
-            <div><dt>单次边界建模流量</dt><dd>{(point.traffic.total_byte/1e6).toFixed(2)} MB</dd></div></dl><p>Nsys 追踪下的所选调用计时。</p></div>)}
+            <div><dt>单次读写量（{point.traffic.value_kind === 'measured' ? '实测' : '估算'}）</dt><dd>{(point.traffic.total_byte/1e6).toFixed(2)} MB</dd></div></dl><p>Nsys 追踪下的所选调用计时。</p></div>)}
           <button type="button" onClick={()=>navigate({analysisView:'system',timelineCapture:selected.captureId,entity:timelineEventEntity(view.active!.timeline.timelineId,(invocation.selected ?? selected.events[0]!).eventId)})}>在系统时间线定位</button>
         </> : detailView === 'resources' ? <>
           {invocation.selected ? <p>当前 Nsys 调用 {(invocation.selected.durationNs/1e3).toFixed(2)} μs；资源配置来自此调用。</p>:null}

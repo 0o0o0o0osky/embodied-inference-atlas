@@ -63,6 +63,6 @@ export function KernelComputation({row,point,sources}:{row:KernelRow;point?:Roof
  </>:<p>当前证据未给出可核验的逐步计算公式；保留已确认的实现关联与执行耗时。</p>}
  {projection&&dimensions?<p>输出通道 {dimensions[1]}，序列位置 {dimensions[2]}，输入通道 {dimensions[3]}。A 是投影权重，B 是当前输入；Gate 与 Up 使用相同形状，各自执行。</p>:null}
  {downProjection&&dimensions?<p>Down 投影将中间通道 {dimensions[3]} 映射回隐藏通道 {dimensions[1]}，处理 {dimensions[2]} 个序列位置。A 是投影权重，B 是门控后的中间激活。</p>:null}
- {point?<><h5>Kernel 存储边界</h5><div className="kernel-boundary-flow">{point.traffic.components.map(component=><div key={component.component_id}><strong>{component.tensor_ref ?? component.component_id}</strong><span>{component.kind.includes('write')?'写出':'读入'} · {(component.byte/1e6).toFixed(3)} MB</span></div>)}</div><p>单次工作量和字节量来自当前窗口已确认同形状的调用集合。边界流量按输入读取与输出写出建模，并非实测 DRAM 流量；L2、shared memory 与寄存器中的实际复用尚待证据。</p></>:null}
+ {point?<><h5>单次读写量（{point.traffic.value_kind === 'measured' ? '实测' : '估算'}）</h5><div className="kernel-boundary-flow">{point.traffic.components.map(component=><div key={component.component_id}><strong>{component.tensor_ref ?? component.component_id}</strong><span>{component.kind.includes('write')?'写出':'读入'} · {(component.byte/1e6).toFixed(3)} MB</span></div>)}</div><p>{point.traffic.value_kind === 'measured' ? '读写字节数来自采集记录。' : '按输入、权重各读一次，输出写一次估算；字节数由矩阵大小和数据精度计算。'}</p></>:null}
  </section>;
 }

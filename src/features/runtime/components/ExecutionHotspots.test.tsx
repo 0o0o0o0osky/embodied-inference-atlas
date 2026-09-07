@@ -64,7 +64,9 @@ it('renders a real BF16 kernel measurement from one selected prediction window',
   expect(markup).toContain('选择真实调用');
   expect(markup).toContain('GEMM 数学维度');
   expect(markup).toContain('计算吞吐');
-  expect(markup).toContain('并非实测 DRAM 流量');
+  expect(markup).toContain('单次读写量（估算）');
+  expect(markup).toContain('按输入、权重各读一次，输出写一次估算');
+  expect(markup).not.toContain('实际复用尚待证据');
   expect(context.kernels.rows.some(row=>row.signature.kernelSignatureId===event.kernelSignatureId && row.capture.tool==='ncu' && row.capture.captureId!==context.nsys.active!.capture.captureId)).toBe(true);
   expect(markup).toContain('执行与资源');
   expect(markup).not.toContain('Kernel NCU 指标');
