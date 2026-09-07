@@ -1,0 +1,32 @@
+.operator-overview { display: grid; gap: 18px; font-size: 14px; }
+.operator-overview-formula { display: grid; gap: 8px; padding: 14px 16px; background: #f2f6f8; border-left: 3px solid var(--signal-blue-dark); }
+.operator-overview-formula > span { font-size: 12px; color: #60716e; }
+.operator-overview-formula > code { color: #234957; }
+.operator-tensor-flow { display: grid; grid-template-columns: minmax(0, 1fr) 16px minmax(0, 1fr); gap: 8px; align-items: start; }
+.operator-tensor-flow > section { min-width: 0; }
+.operator-inspector .operator-tensor-flow h3 { font-size: 13px; color: #60716e; margin: 0 0 8px; }
+.operator-tensor-arrow { align-self: center; color: #829893; }
+.operator-tensor-shapes { display: grid; gap: 10px; margin: 0; }
+.operator-tensor-shapes > div { display: grid; gap: 3px; }
+.operator-tensor-shapes dt { color: #234957; font-weight: 600; }
+.operator-tensor-shapes dd { margin: 0; font-size: 13px; font-variant-numeric: tabular-nums; }
+.operator-overview-counts { display: grid; margin: 0; border-top: 1px solid #e0e7e4; }
+.operator-overview-counts > div { display: flex; justify-content: space-between; gap: 16px; padding: 9px 0; border-bottom: 1px solid #e0e7e4; }
+.operator-overview-counts dt { color: #60716e; }
+.operator-overview-counts dd { margin: 0; color: #234957; font-weight: 600; font-variant-numeric: tabular-nums; text-align: right; }
+.operator-overview-detail { font-size: 13px; color: #536963; }
+.operator-overview-detail summary { cursor: pointer; color: #234957; }
+.operator-overview-detail[open] summary { margin-bottom: 12px; }
+.operator-overview-detail table { width: 100%; border-collapse: collapse; font-size: inherit; }
+.operator-overview-detail :is(th, td) { border-bottom: 1px solid #e0e7e4; padding: 6px 8px 6px 0; text-align: left; font-weight: 400; }
+.operator-overview-detail thead th { color: #60716e; }
+.operator-symbol-values { display: flex; flex-wrap: wrap; gap: 8px 24px; margin: 12px 0 0; }
+.operator-symbol-values > div { display: flex; gap: 8px; }
+.operator-symbol-values dd { margin: 0; font-variant-numeric: tabular-nums; }
+.operator-repeat-factors { margin: 0 0 8px; display: grid; gap: 4px; }
+.operator-repeat-factors > div { display: flex; gap: 12px; }
+.operator-repeat-factors dd { margin: 0; }
+@media (max-width: 420px) {
+  .operator-tensor-flow { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .operator-tensor-arrow { display: none; }
+}

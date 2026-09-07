@@ -21,8 +21,7 @@ export function Pi0PerformanceNavigation({ route, navigate, surface }: Pi0Perfor
   if (isPi0ModelTheory(route)) return (
     <nav className="pi0-performance-navigation" aria-label="模型理论导航">
       <ol className="pi0-performance-breadcrumb">
-        <li><RouteLink route={route} navigate={navigate} patch={pi0TheoryNavigationPatch(route, "logical")}>模型理论 / DAG</RouteLink></li>
-        <li><span aria-hidden="true">/</span><span aria-current="page">Roofline · {ROOFLINE_LEVEL_LABELS[route.rooflineLevel]}</span></li>
+        <li><span aria-current="page">Roofline · {ROOFLINE_LEVEL_LABELS[route.rooflineLevel]}</span></li>
       </ol>
       <div className="pi0-performance-navigation-actions">
         <RouteLink route={route} navigate={navigate} patch={pi0TheoryNavigationPatch(route, "logical")}>返回 DAG{logicalRefFromEntity(route.entity) ? " 与当前算子" : ""}</RouteLink>
@@ -31,13 +30,11 @@ export function Pi0PerformanceNavigation({ route, navigate, surface }: Pi0Perfor
   );
   const comparison = pi0PerformanceNavigationPatch("comparison");
   const isDetail = surface !== "runtime";
+  if (!isDetail && !route.runtime) return null;
   return (
     <nav className="pi0-performance-navigation" aria-label="模型性能工作台导航">
       <ol className="pi0-performance-breadcrumb">
-        <li><RouteLink route={route} navigate={navigate} patch={pi0PerformanceNavigationPatch("logical")}>模型理论</RouteLink></li>
-        <li><span aria-hidden="true">/</span>{isDetail || route.runtime ? (
-          <RouteLink route={route} navigate={navigate} patch={comparison}>性能对比</RouteLink>
-        ) : <span aria-current="page">性能对比</span>}</li>
+        <li><span aria-current={isDetail ? undefined : "page"}>推理栈分析</span></li>
         {surface === "roofline" ? (
           <>
             <li><span aria-hidden="true">/</span><span>理论 Roofline</span></li>

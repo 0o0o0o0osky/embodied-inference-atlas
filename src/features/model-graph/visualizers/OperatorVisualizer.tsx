@@ -3,6 +3,7 @@ import { AttentionVisualizer } from "./AttentionVisualizer";
 import { GemmVisualizer } from "./GemmVisualizer";
 import { PatchVisualizer } from "./PatchVisualizer";
 import { SemanticVisualizer } from "./SemanticVisualizer";
+import { RmsNormVisualizer } from "./RmsNormVisualizer";
 
 export function OperatorVisualizer({
   operator,
@@ -11,6 +12,9 @@ export function OperatorVisualizer({
   operator: OperatorDetail;
   resetKey: string;
 }) {
+  if (operator.definitionId === "rms-norm") {
+    return <RmsNormVisualizer key={resetKey} operator={operator} resetKey={resetKey} />;
+  }
   if (operator.visualizer === "gemm") {
     return <GemmVisualizer key={resetKey} operator={operator} resetKey={resetKey} />;
   }

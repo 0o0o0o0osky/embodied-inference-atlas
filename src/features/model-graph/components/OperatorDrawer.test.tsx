@@ -19,7 +19,11 @@ it("renders only the controlled active panel with matching accessible tab contro
   expect(overview).toContain("<details");
   expect(overview).not.toMatch(/<details[^>]*\bopen/);
 
-  for (const activeTab of ["calculation", "roofline", "kernel"] as OperatorDrawerTab[]) {
+  expect(overview).not.toContain("实测 Kernel");
+  expect(overview.match(/role="tab"/g)).toHaveLength(3);
+  expect(overview).not.toContain(operator.ref);
+  expect(overview).not.toContain("符号、定义来源与分析");
+  for (const activeTab of ["calculation", "roofline"] as OperatorDrawerTab[]) {
     const markup = renderToStaticMarkup(<OperatorDrawerView {...props} activeTab={activeTab} onTabChange={() => undefined} />);
     expect(markup.match(/role="tabpanel"/g)).toHaveLength(1);
     expect(markup).toContain(`data-panel="${activeTab}"`);
@@ -27,7 +31,7 @@ it("renders only the controlled active panel with matching accessible tab contro
     expect(markup.match(/aria-selected="true"/g)).toHaveLength(1);
     expect(markup).not.toContain('data-panel="overview"');
     expect(markup.includes("gemm-visualizer")).toBe(activeTab === "calculation");
-    expect(markup).not.toContain("<details");
+    expect(markup).not.toContain('class="operator-overview"');
     expect(markup).toContain('class="operator-inspector-close"');
   }
   expect(closed).toBe(0); // Server rendering never invokes event callbacks.

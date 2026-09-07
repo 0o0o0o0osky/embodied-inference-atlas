@@ -1,0 +1,42 @@
+.patch-computation, .rms-computation { color: var(--computation-ink, #234957); }
+.patch-computation-top { display: grid; grid-template-columns: minmax(0,1fr) 18px minmax(0,1fr); align-items: center; gap: 4px; }
+.patch-computation-card { min-width: 0; border: 1px solid #d7e2e4; border-radius: 8px; padding: 10px 6px; text-align: center; background: #fff; }
+.patch-computation-card strong, .patch-computation-card small { display: block; }
+.patch-computation-card strong { font-size: 13px; }
+.patch-computation-card small { font-size: 12px; line-height: 1.5; color: #59717a; }
+.patch-computation-card svg { display: block; width: 100%; max-height: 146px; margin: 3px auto; }
+.patch-computation-card svg text { fill: #234957; font-size: 13px; }
+.patch-computation-grid { stroke: #65858d; stroke-width: .6; fill: none; }
+.patch-computation-arrow { color: #167b78; text-align: center; }
+.patch-computation-projection { display: grid; grid-template-columns: minmax(0,1fr) 14px minmax(0,1.25fr) 14px minmax(0,1fr); align-items: center; gap: 3px; border: 1px solid #d7e2e4; border-radius: 8px; padding: 14px 6px; margin-top: 12px; background: #fff; }
+.patch-computation-projection > span { text-align: center; min-width: 0; }
+.patch-computation-projection strong, .patch-computation-projection code { display: block; font-size: 12px; white-space: nowrap; }
+.patch-computation-projection code { margin-top: 8px; font-family: inherit; }
+.patch-computation-projection b { font-size: 15px; color: #167b78; }
+.patch-computation-weight { padding: 8px 2px; border: 1px solid #8daeb2; border-radius: 3px; background: #f2f7f7; }
+.patch-computation-sequence { padding: 12px; margin-top: 12px; border: 1px solid #d7e2e4; border-radius: 8px; text-align: center; }
+.patch-computation-sequence > strong { font-size: 13px; }
+.patch-computation-sequence > div { display: flex; gap: 6px; justify-content: center; align-items: center; margin: 10px 0; }
+.patch-computation-sequence span { padding: 8px 10px; border: 1px solid #abc2c5; border-radius: 3px; background: #fff; }
+.patch-computation-sequence i { font-style: normal; }
+.patch-computation-sequence small { color: #59717a; font-size: 12px; }
+.patch-computation-sequence .is-selected { background: #fff0c9; border-color: #bd8d37; }
+.patch-computation .is-active { border-color: var(--computation-accent,#167b78); background: var(--computation-soft,#e9f5f2); }
+.rms-computation-figure { margin: 0; }
+.rms-computation-figure figcaption { font-size: 13px; color: #59717a; margin-bottom: 12px; }
+.rms-computation-row { display: grid; grid-template-columns: 52px minmax(0,1fr); gap: 6px; align-items: center; padding: 8px 4px; border: 1px solid transparent; border-radius: 6px; }
+.rms-computation-row > strong { font-size: 12px; }
+.rms-computation-row > div { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 5px; }
+.rms-computation-row span { display: grid; gap: 3px; text-align: center; padding: 8px 2px; border: 1px solid #b5cbce; border-radius: 4px; background: #fff; font-size: 15px; font-variant-numeric: tabular-nums; }
+.rms-computation-row small { font-size: 12px; color: #61767d; }
+.rms-computation-reduction { margin-left: 62px; text-align: center; border: 1px solid transparent; border-radius: 6px; padding-bottom: 10px; }
+.rms-computation-figure svg { display: block; width: 100%; height: 28px; }
+.rms-computation-figure svg path { fill: none; stroke: #638f96; stroke-width: 1.5; }
+.rms-computation-reduction strong { font-size: 13px; }
+.rms-computation-scale { margin: 2px 0 0 62px; border: 1px solid #bdd2d3; border-radius: 7px; text-align: center; padding: 4px 10px 10px; background: #f5f9f8; }
+.rms-computation-scale > * { display: block; }
+.rms-computation-scale strong { font-size: 15px; padding: 4px 0; }
+.rms-computation-scale small { color: #59717a; font-size: 12px; }
+.rms-computation-broadcast { border: 1px solid transparent; border-radius: 6px; }
+.rms-computation-broadcast > svg { width: calc(100% - 62px); margin-left: 62px; }
+.rms-computation .is-active { border-color: var(--computation-accent,#167b78); background: var(--computation-soft,#e9f5f2); }

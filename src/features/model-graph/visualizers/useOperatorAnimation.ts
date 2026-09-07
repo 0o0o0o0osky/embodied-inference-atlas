@@ -9,6 +9,7 @@ export interface OperatorAnimation {
   toggle: () => void;
   step: () => void;
   reset: () => void;
+  seek: (frame: number) => void;
   setSpeed: (speed: number) => void;
 }
 
@@ -61,6 +62,10 @@ export function useOperatorAnimation(
   const toggle = useCallback(() => {
     if (!reducedMotion) setPlaying((current) => !current);
   }, [reducedMotion]);
+  const seek = useCallback((next: number) => {
+    setPlaying(false);
+    setFrame(Math.max(0, Math.min(frameCount - 1, Math.trunc(next))));
+  }, [frameCount]);
 
   return {
     frame,
@@ -71,6 +76,7 @@ export function useOperatorAnimation(
     toggle,
     step,
     reset,
+    seek,
     setSpeed,
   };
 }

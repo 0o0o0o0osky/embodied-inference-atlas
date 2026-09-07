@@ -1,7 +1,8 @@
+import { useState } from "react";
 import type { OperatorDetail } from "../domain/types";
-import { AnimationControls } from "./AnimationControls";
+import { ComputationStepper } from "./ComputationStepper";
 import { useOperatorAnimation } from "./useOperatorAnimation";
-import { useModelText } from "../presentation/ModelDisplay";
+import "./gemmComputation.css";
 
 function dimensions(operator: OperatorDetail) {
   const { M, N, K } = operator.bindings;
@@ -20,90 +21,50 @@ function dimensions(operator: OperatorDetail) {
   };
 }
 
-function Matrix({
-  name,
-  role,
-  lane,
-  focus,
-  complete,
-}: {
-  name: string;
-  role: string;
-  lane: (row: number, column: number) => boolean;
-  focus: (row: number, column: number) => boolean;
-  complete?: (row: number, column: number) => boolean;
-}) {
-  return (
-    <div className="gemm-matrix" data-matrix-role={role}>
-      <strong>{name}</strong>
-      <div className="gemm-grid">
-        {Array.from({ length: 9 }, (_, index) => {
-          const row = Math.floor(index / 3);
-          const column = index % 3;
-          return (
-            <i
-              key={index}
-              className={[
-                lane(row, column) ? "is-lane" : "",
-                focus(row, column) ? "is-focus" : "",
-                complete?.(row, column) ? "is-complete" : "",
-              ].filter(Boolean).join(" ")}
-            />
-          );
-        })}
-      </div>
-    </div>
-  );
-}
+
+const exampleX = [[1, 2, 3], [0, 1, 2], [2, 0, 1]];
+const exampleW = [[2, 1, 0], [0, 1, 2], [1, 0, 1]];
+const steps = [
+  { label: "选取行与列", description: "输出位置 (i, j) 使用 X 的第 i 行和 W 的第 j 列，共有 K 对元素。" },
+  { label: "对应元素相乘", description: "沿 K 维逐对相乘，得到每一项对这个输出元素的贡献。" },
+  { label: "累加得到输出", description: "将 K 项乘积相加，得到 yᵢⱼ。对所有行列组合重复，形成 M × N 输出。" },
+];
 
 export function GemmVisualizer({ operator, resetKey }: { operator: OperatorDetail; resetKey: string }) {
-  const t = useModelText();
-  const animation = useOperatorAnimation(36, resetKey);
-  const outputTile = Math.floor(animation.frame / 4);
-  const phase = animation.frame % 4;
-  const row = Math.floor(outputTile / 3);
-  const column = outputTile % 3;
-  const kTile = Math.min(phase, 2);
-  const written = phase === 3;
+  const animation = useOperatorAnimation(steps.length, resetKey);
+  const [selected, setSelected] = useState(0);
+  const row = Math.floor(selected / 3), column = selected % 3;
   const dims = dimensions(operator);
-  const status = written
-    ? t("Write D tile row {row}, column {column}.", { row: row + 1, column: column + 1 })
-    : t("D tile row {row}, column {column}: accumulate K tile {tile} of 3.", { row: row + 1, column: column + 1, tile: kTile + 1 });
-  return (
-    <section className="operator-visualizer gemm-visualizer">
-      <header>
-        <h3>{t("GEMM tile microscope")}</h3>
-        <code>D = A @ B + C</code>
-      </header>
-      <div className="visualizer-dimensions">
-        <span>M {dims.M?.toLocaleString() ?? "?"}</span>
-        <span>N {dims.N?.toLocaleString() ?? "?"}</span>
-        <span>K {dims.K?.toLocaleString() ?? "?"}</span>
-        <span>{t("Schematic 3 × 3 output tiles")}</span>
-      </div>
-      <div className="gemm-diagram" aria-label={t("Three by three GEMM tile traversal")}>
-        <Matrix name="A [M × K]" role="a-matrix" lane={(r) => r === row} focus={(r, c) => !written && r === row && c === kTile} />
-        <b aria-hidden="true">@</b>
-        <Matrix name="B [K × N]" role="b-matrix" lane={(_, c) => c === column} focus={(r, c) => !written && r === kTile && c === column} />
-        <b aria-hidden="true">+</b>
-        <span className="gemm-bias">C</span>
+  const terms = exampleX[row]!.map((value, k) => value * exampleW[k]![column]!);
+  return <ComputationStepper title="矩阵乘：一行与一列生成一个输出" formula={operator.formula}
+    className="gemm-visualizer gemm-computation" animation={animation} steps={steps}
+    dimensions={[{ label: "输入行 M", value: dims.M?.toLocaleString() ?? "未填写" },
+      { label: "输出列 N", value: dims.N?.toLocaleString() ?? "未填写" },
+      { label: "相乘累加长度 K", value: dims.K?.toLocaleString() ?? "未填写" }]}
+    footnote={<a href="https://docs.pytorch.org/docs/stable/generated/torch.mm.html">PyTorch · 矩阵乘法与形状约定</a>}>
+    <div className="gemm-example">
+      <p>3 × 3 数值示例 · 点击 Y 中的位置，查看所用的行和列。</p>
+      <div className="gemm-example-matrices">
+        <div><strong>X</strong><div className="gemm-example-grid">{exampleX.flatMap((values, r) => values.map((value, c) =>
+          <span key={`${r}/${c}`} className={r === row ? "is-active" : ""}>{value}</span>))}</div></div>
+        <b aria-hidden="true">×</b>
+        <div><strong>W</strong><div className="gemm-example-grid">{exampleW.flatMap((values, r) => values.map((value, c) =>
+          <span key={`${r}/${c}`} className={c === column ? "is-active" : ""}>{value}</span>))}</div></div>
         <b aria-hidden="true">=</b>
-        <Matrix
-          name="D [M × N]"
-          role="d-matrix"
-          lane={(r, c) => r === row && c === column}
-          focus={(r, c) => r === row && c === column}
-          complete={(r, c) => r * 3 + c < outputTile || (written && r === row && c === column)}
-        />
+        <div><strong>Y</strong><div className="gemm-example-grid">{Array.from({ length: 9 }, (_, index) =>
+          <button type="button" key={index} aria-label={`输出第 ${Math.floor(index / 3) + 1} 行第 ${index % 3 + 1} 列`}
+            aria-pressed={index === selected} onClick={() => setSelected(index)}>
+            {index === selected && animation.frame === 2 ? terms.reduce((a, b) => a + b, 0) : "·"}
+          </button>)}</div></div>
       </div>
-      <div className="gemm-reduction">
-        {[0, 1, 2].map((index) => (
-          <span className={index < kTile || written ? "is-complete" : index === kTile ? "is-active" : ""} key={index}>
-            {t("K tile {index}", { index: index + 1 })}
-          </span>
-        ))}
+      <div className="gemm-example-expression">
+        <span>X 的第 {row + 1} 行 × W 的第 {column + 1} 列</span>
+        <div>{exampleX[row]!.map((value, k) => <span key={k}>
+          <code>{value} × {exampleW[k]![column]}</code>
+          {animation.frame >= 1 ? <strong>{terms[k]}</strong> : null}
+        </span>)}</div>
+        {animation.frame === 2 ? <p>{terms.join(" + ")} = <strong>{terms.reduce((a, b) => a + b, 0)}</strong></p> : null}
       </div>
-      <AnimationControls animation={animation} status={status} />
-    </section>
-  );
+    </div>
+  </ComputationStepper>;
 }

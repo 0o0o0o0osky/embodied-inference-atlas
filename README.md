@@ -1,5 +1,7 @@
 # Embodied Inference Atlas
 
+English | [简体中文](README.zh-CN.md)
+
 Offline, evidence-backed views of VLA, world-model, and world-action-model inference behavior.
 
 The maintained project is a small, repeatable workflow for parsing evidence,
@@ -39,12 +41,13 @@ Then open `http://127.0.0.1:8000/`. The application makes no runtime internet
 requests. Direct `file://` viewing is not a release target because browsers may
 block the generated JSON request.
 
-Source import commands accept an external file path through `--input` and write
-sanitized bundles only under `.local/staging/`. The input path is used to read
-the source and is never persisted in a staging bundle, canonical `data/`, or the
-generated site. Review a promotion diff before applying it, for example:
+Source importers read local reports and write sanitized candidate bundles under
+`.local/staging/`. Input flags differ by importer; consult its `--help`, for example
+`python3 -m extractors.fixed_case --help`. Keep source paths and raw reports local.
+Review a promotion diff before applying it:
 
 ```bash
+python3 -m tools.promote .local/staging/<bundle>.json
 python3 -m tools.promote .local/staging/<bundle>.json --apply
 ```
 

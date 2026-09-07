@@ -21,7 +21,7 @@ import { layoutLogicalDag } from "./layout/paperLayout";
 import { resolveConnectorHints } from "./layout/routeConnectors";
 import { resolvePresentationProfile } from "./presentation/registry";
 import { ModelDisplayProvider, useModelText } from "./presentation/ModelDisplay";
-import { pi0PerformanceNavigationPatch, pi0TheoryNavigationPatch } from "../runtime/domain/pi0PerformanceNavigation";
+import { pi0TheoryNavigationPatch } from "../runtime/domain/pi0PerformanceNavigation";
 import { serializeInteractiveWorkload } from "../roofline/data/materialize";
 import { materializeCurrentPi0Roofline } from "../roofline/presentation/buildOperatorRooflineSummary";
 
@@ -231,8 +231,6 @@ function ResolvedModelGraph({
             cameraResetKey={`${model.model_id}|${route.workload ?? "defaults"}`}
             toolbar={isPi0 ? <>
               <h2 id="logical-graph-title">Pi0 <span>v{graph.version}</span></h2>
-              <span className="graph-view-current">理论 DAG</span>
-              <RouteLink route={route} navigate={navigate} patch={pi0PerformanceNavigationPatch("comparison")}>性能对比</RouteLink>
               {workloadControls}
             </> : undefined}
             scenario={isPi0 ? <>
@@ -267,14 +265,9 @@ function ResolvedModelGraph({
                   : route.hardware,
               }}>展开此算子的 Roofline</RouteLink>}
             /> : undefined}
-            evidenceLinks={{
-              roofline: <RouteLink route={route} navigate={navigate} patch={{
-                ...pi0TheoryNavigationPatch(route, "expanded"),
-              }}>展开此算子的 Roofline</RouteLink>,
-              kernel: <RouteLink route={route} navigate={navigate} patch={isPi0 ? pi0PerformanceNavigationPatch("comparison") : {
-                tab: "roofline-kernels", rooflineLevel: "kernel", basis: null, entity: logicalEntity(operator.ref),
-              }}>{isPi0 ? "选择推理栈查看 Kernel" : "查看实测 Kernel 证据"}</RouteLink>,
-            }}
+            rooflineLink={<RouteLink route={route} navigate={navigate} patch={{
+              ...pi0TheoryNavigationPatch(route, "expanded"),
+            }}>展开此算子的 Roofline</RouteLink>}
           />
         ) : null}
       </div>

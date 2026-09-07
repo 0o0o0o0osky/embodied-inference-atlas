@@ -67,6 +67,7 @@ export function ContextBar({ data, model, route, navigate, compact = false }: Co
   if (compact) {
     const runtimeOverview = route.tab === "runtime" && route.runtime === null;
     const compactRooflinePrecision = route.tab === "logical" || route.tab === "roofline-kernels";
+    const displayedTheoryPrecision = route.precision ?? "bf16_dense";
     const displayedRuntimePrecision = runtimeKnown
       ? route.runtimePrecision ?? (precisionIds.length === 1 ? precisionIds[0]! : "")
       : "";
@@ -117,14 +118,13 @@ export function ContextBar({ data, model, route, navigate, compact = false }: Co
         {compactRooflinePrecision && route.rooflineLevel !== "kernel" ? (
           <label>
             <span>理论精度</span>
-            <select value={route.precision ?? ""} onChange={(event) => navigate({
+            <select value={displayedTheoryPrecision} onChange={(event) => navigate({
               precision: event.target.value || null,
               basis: null,
               entity: modelTheory ? route.entity : route.tab === "roofline-kernels" ? null : route.entity,
             }, true)}>
-              <option value="">场景默认</option>
               {runtimeBoundPrecision ? <option value={route.precision!} disabled>推理栈绑定配置（只读）</option>
-                : route.precision && !rooflinePrecisionIds.includes(route.precision) ? <option value={route.precision}>{precisionLabel(route.precision)}</option> : null}
+                : !rooflinePrecisionIds.includes(displayedTheoryPrecision) ? <option value={displayedTheoryPrecision}>{precisionLabel(displayedTheoryPrecision)}</option> : null}
               {rooflinePrecisionIds.map((precisionId) => <option key={precisionId} value={precisionId}>{precisionLabel(precisionId)}</option>)}
             </select>
           </label>

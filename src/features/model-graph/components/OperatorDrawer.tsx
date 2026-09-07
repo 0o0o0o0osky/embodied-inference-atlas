@@ -1,14 +1,13 @@
 import { useEffect, useState, type KeyboardEvent, type ReactNode } from "react";
-import { expressionLabel } from "../domain/expression";
-import type { MaterializedPort, OperatorDetail } from "../domain/types";
+import type { OperatorDetail } from "../domain/types";
 import { OperatorVisualizer } from "../visualizers/OperatorVisualizer";
+import { OperatorOverview } from "./OperatorOverview";
 import { useModelText } from "../presentation/ModelDisplay";
 
 const tabs = [
   { id: "overview", label: "概览" },
   { id: "calculation", label: "计算过程" },
   { id: "roofline", label: "Roofline" },
-  { id: "kernel", label: "实测 Kernel" },
 ] as const;
 
 export type OperatorDrawerTab = (typeof tabs)[number]["id"];
@@ -17,74 +16,13 @@ export interface OperatorDrawerProps {
   operator: OperatorDetail;
   resetKey: string;
   onClose: () => void;
-  evidenceLinks?: { roofline: ReactNode; kernel: ReactNode };
+  rooflineLink?: ReactNode;
   rooflinePanel?: ReactNode;
-}
-
-function ShapeRows({ ports, symbolic = false }: { ports: readonly MaterializedPort[]; symbolic?: boolean }) {
-  const t = useModelText();
-  return ports.length ? ports.map((port) => (
-    <span className="drawer-shape" key={port.port}>
-      <span>{t(port.port)}</span>
-      <code>[{port.tensor
-        ? (symbolic
-          ? port.tensor.axes.map((axis) => expressionLabel(axis.expression))
-          : port.tensor.shape.map((value) => value?.toLocaleString() ?? "?"))
-          .join(" × ")
-        : t("unresolved")}]</code>
-    </span>
-  )) : <span>无已声明张量</span>;
-}
-
-function OperatorOverview({ operator }: { operator: OperatorDetail }) {
-  const t = useModelText();
-  return (
-    <>
-      <dl className="drawer-facts">
-        <div><dt>公式</dt><dd><code>{operator.formula}</code></dd></div>
-        <div>
-          <dt>重复</dt>
-          <dd>
-            {operator.stageRepeat ?? "?"} 阶段 × ({operator.moduleRepeat ?? "?"} 完整块
-            {operator.tailRepeat ? ` + ${operator.tailRepeat} 必需尾段` : ""}) × {operator.intrinsicRepeat ?? "?"} 算子内重复
-            <span className="drawer-repeat-total">共 {operator.effectiveRepeat?.toLocaleString() ?? "?"} 次逻辑调用</span>
-            {operator.tailRepeat ? <p>L18 尾段仅执行生成 K/V 所需的算子，不执行注意力、输出投影或 FFN。</p> : null}
-            {operator.operatorId === "select-action-rows" ? <p>逻辑行选择：保留末尾动作词元行供速度投影使用，无算术计算。</p> : null}
-          </dd>
-        </div>
-        <div><dt>输入</dt><dd><ShapeRows ports={operator.inputs} /></dd></div>
-        <div><dt>输出</dt><dd><ShapeRows ports={operator.outputs} /></dd></div>
-      </dl>
-      <details className="drawer-technical-details">
-        <summary>符号、定义来源与分析</summary>
-        <p>逻辑定义：{t(operator.definitionLabel)} · <code>{operator.definitionId}</code></p>
-        <p><code>{operator.ref}</code></p>
-        <p>类别：{t(operator.category)}</p>
-        <h3>符号形状</h3>
-        <ShapeRows ports={operator.inputs} symbolic />
-        <ShapeRows ports={operator.outputs} symbolic />
-        <h3>算子参数</h3>
-        <p><code>{Object.entries(operator.bindings).map(([symbol, value]) => `${symbol} = ${value ?? "?"}`).join(" · ") || "无已声明参数"}</code></p>
-        {operator.unresolvedSymbols.length ? <p>未解析符号：{operator.unresolvedSymbols.join(", ")}</p> : null}
-        <h3>逻辑分析</h3>
-        {operator.analysis.length ? operator.analysis.map((metric) => (
-          <p key={metric.metric}>
-            <strong>{t(metric.metric)}</strong><br />
-            单次：{metric.value?.toLocaleString() ?? t("unresolved")} {t(metric.unit)}；
-            图内总计：{metric.value === null || operator.effectiveRepeat === null
-              ? t("unresolved") : (metric.value * operator.effectiveRepeat).toLocaleString()} {t(metric.unit)}<br />
-            {t(metric.scope)}
-          </p>
-        )) : <p>此算子没有已声明的分析计数。</p>}
-        <p>以上为逻辑图计数。运行时可能增加或消除工作；这些计数不代表实测耗时。</p>
-      </details>
-    </>
-  );
 }
 
 // Controlled presentation keeps panel selection testable without a browser environment.
 export function OperatorDrawerView({
-  operator, resetKey, onClose, evidenceLinks, rooflinePanel, activeTab, onTabChange,
+  operator, resetKey, onClose, rooflineLink, rooflinePanel, activeTab, onTabChange,
 }: OperatorDrawerProps & {
   activeTab: OperatorDrawerTab;
   onTabChange: (tab: OperatorDrawerTab) => void;
@@ -123,17 +61,11 @@ export function OperatorDrawerView({
       >
         {activeTab === "overview" ? <OperatorOverview operator={operator} />
           : activeTab === "calculation" ? <OperatorVisualizer operator={operator} resetKey={resetKey} />
-          : activeTab === "roofline" ? rooflinePanel ?? (
+          : rooflinePanel ?? (
             <div className="drawer-availability">
-              <h3>当前抽屉未绑定精确 Roofline 证据</h3>
-              <p>逻辑公式不能单独确定 Roofline 点位。前往分析页核对工作负载、精度、硬件与统计口径。</p>
-              {evidenceLinks?.roofline}
-            </div>
-          ) : (
-            <div className="drawer-availability">
-              <h3>当前抽屉未绑定精确实测 Kernel</h3>
-              <p>这里展示模型定义的运算，尚未考虑推理栈的融合实现，不一定对应一个 Kernel。实际执行方式与测量见推理栈页面。</p>
-              {evidenceLinks?.kernel}
+              <h3>此算子的 Roofline 待补充</h3>
+              <p>需要当前形状的计算量、读写量与硬件上限。</p>
+              {rooflineLink}
             </div>
           )}
       </section>

@@ -1,0 +1,14 @@
+.gemm-example { border: 1px solid #d2dfdb; border-radius: 6px; padding: 14px; }
+.operator-inspector .gemm-example > p { margin-bottom: 16px; font-size: 12px; color: #60716e; }
+.gemm-example-matrices { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.gemm-example-matrices > div { display: grid; gap: 6px; flex: 1; max-width: 120px; text-align: center; color: #234957; }
+.gemm-example-grid { display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid #d2dfdb; }
+.gemm-example-grid > :is(span, button) { min-width: 0; display: grid; place-items: center; aspect-ratio: 1; border: 1px solid #e3ece9; background: #fafcfb; color: #687975; font: inherit; }
+.gemm-example-grid > .is-active { background: #e2f2ed; color: #115e5c; font-weight: 700; }
+.gemm-example-grid > button { cursor: pointer; }
+.gemm-example-grid > button[aria-pressed="true"] { background: #d6ebe6; border-color: #167b78; color: #115e5c; font-weight: 700; }
+.gemm-example-expression { display: grid; gap: 10px; border-top: 1px solid #e0e7e4; margin-top: 20px; padding-top: 12px; font-size: 13px; }
+.gemm-example-expression > span { color: #60716e; }
+.gemm-example-expression > div { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.gemm-example-expression > div > span { display: grid; gap: 4px; padding: 8px; background: #f2f7f5; text-align: center; }
+.gemm-example-expression strong { color: #115e5c; }
