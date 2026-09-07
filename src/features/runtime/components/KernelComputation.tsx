@@ -19,22 +19,29 @@ export function isVerifiedStrideCopy(row:KernelRow):boolean {
   && row.signature.functionFamily==='copy' && row.signature.precisionPath.inputDtypeClass==='fp32'
   && row.signature.precisionPath.outputDtypeClass==='fp32';
 }
-export function KernelPrecisionSummary({row}:{row:KernelRow}) {
+export function KernelPrecisionSummary({row,implementationOutput}:{row:KernelRow;implementationOutput?:string | undefined}) {
  const precision=row.signature.precisionPath;
  const conflict=[...Object.values(row.signature.missing),...Object.values(precision.missing)].includes('precision_conflict');
- return <><p>输入 {dtype(precision.inputDtypeClass)}{isVerifiedConversion(row)||isVerifiedStrideCopy(row)?'':`；累加 ${dtype(precision.accumulatorDtypeClass)}`}；输出 {dtype(precision.outputDtypeClass)}</p>{conflict?<p role="status">精度证据冲突：运行级精度不能替代本 Kernel 的执行精度。</p>:null}</>;
+ return <><p>输入 {dtype(precision.inputDtypeClass)}{isVerifiedConversion(row)||isVerifiedStrideCopy(row)?'':`；累加 ${dtype(precision.accumulatorDtypeClass)}`}；输出 {precision.outputDtypeClass == null && implementationOutput ? `${dtype(implementationOutput)}（实现关联）` : dtype(precision.outputDtypeClass)}</p>{conflict?<p role="status">精度证据冲突：运行级精度不能替代本 Kernel 的执行精度。</p>:null}</>;
 }
 export function KernelComputation({row,point}:{row:KernelRow;point?:RooflinePointRecord | undefined}) {
  const precision=row.signature.precisionPath;
  const conversion=isVerifiedConversion(row),strideCopy=isVerifiedStrideCopy(row);
  const fusedGate=row.signature.kernelSignatureId==='kernel-signature-pi0-realtime-vla-gate-up-fusion-017';
+ const mergedFlashProjection=row.signature.kernelSignatureId==='kernel-signature-pi0-flashrt-large-gemm-027'
+  && precision.inputDtypeClass==='fp8_e4m3' && precision.accumulatorDtypeClass==='fp32'
+  && row.links.some(link=>link.status==='resolved' && link.executionGroupIds.includes('prefix-merged-gate-up'));
  const fp8Geglu=FLASH_GEGLU.has(row.signature.kernelSignatureId);
  const dimensions=point?.entity.shape_or_coverage.match(/M\s*=\s*(\d+).*N\s*=\s*(\d+).*K\s*=\s*(\d+)/);
  const projection=['kernel-signature-pi0-vlacpp-bf16-gemm-4096x51x1024','kernel-signature-pi0-vlacpp-bf16-gemm-16384x304x2048'].includes(row.signature.kernelSignatureId);
  const downProjection=['kernel-signature-pi0-vlacpp-bf16-gemm-2048x304x16384','kernel-signature-pi0-vlacpp-bf16-gemm-1024x51x4096'].includes(row.signature.kernelSignatureId);
  return <section className="kernel-computation" aria-label="计算与数据流"><h4>计算与数据流</h4>
- <KernelPrecisionSummary row={row} />
- {dimensions?<><div className="kernel-matrix-flow" aria-label="GEMM 数学维度"><div><strong>A</strong><span>{dimensions[1]} × {dimensions[3]}</span><small>{dtype(precision.inputDtypeClass)}</small></div><b>×</b><div><strong>B</strong><span>{dimensions[3]} × {dimensions[2]}</span><small>{dtype(precision.inputDtypeClass)}</small></div><b>→</b><div><strong>C</strong><span>{dimensions[1]} × {dimensions[2]}</span><small>{dtype(precision.outputDtypeClass)}</small></div></div><p>Cᵢⱼ = Σₖ Aᵢₖ Bₖⱼ；维度为数学视图，未表示物理 stride 或实际线程 tile。</p></>:fusedGate?<>
+ <KernelPrecisionSummary row={row} implementationOutput={mergedFlashProjection && row.observation?.observationKind !== 'ncu_replayed_launch' ? 'fp16' : undefined} />
+ {dimensions?<><div className="kernel-matrix-flow" aria-label="GEMM 数学维度"><div><strong>A</strong><span>{dimensions[1]} × {dimensions[3]}</span><small>{dtype(precision.inputDtypeClass)}</small></div><b>×</b><div><strong>B</strong><span>{dimensions[3]} × {dimensions[2]}</span><small>{dtype(precision.inputDtypeClass)}</small></div><b>→</b><div><strong>C</strong><span>{dimensions[1]} × {dimensions[2]}</span><small>{dtype(precision.outputDtypeClass)}</small></div></div><p>Cᵢⱼ = Σₖ Aᵢₖ Bₖⱼ；维度为数学视图，未表示物理 stride 或实际线程 tile。</p></>:mergedFlashProjection?<>
+  <div className="kernel-matrix-flow" aria-label="前缀 Gate/Up 合并 GEMM"><div><strong>X</strong><span>304 × 2048</span><small>FP8 E4M3</small></div><b>×</b><div><strong>[Wgate, Wup]</strong><span>2048 × 32768</span><small>FP8 E4M3</small></div><b>→</b><div><strong>[Gate, Up]</strong><span>304 × 32768</span><small>FP16</small></div></div>
+  <p>[Gate, Up] = FP16(α · X[Wgate, Wup])；FP32 累加，α 在 epilogue 缩放，β = 0。两组投影合并为一次 GEMM。</p>
+  <p>输出合并的 Gate/Up 中间值；GELU、乘积及 FP8 转换由后续 028 Kernel 执行。维度来自已核实的固定输入调用与源码，不表示物理 stride 或线程 tile，也不是 NCU 直接记录的矩阵维度。</p>
+ </>:fusedGate?<>
   <div className="kernel-matrix-flow" aria-label="Gate Up 融合计算"><div><strong>共享输入 X</strong><span>BF16 输入与两组权重</span></div><b>→</b><div><strong>Gate / Up 矩阵乘</strong><span>两组 FP32 累加器</span></div><b>→</b><div><strong>GELU(Gate) × Up</strong><span>写出 BF16</span></div></div>
   <p>G = XWgate，U = XWup，Y = BF16(GELU(G) ⊙ U)。两次矩阵乘、原生 GELU 近似和逐元素乘法在同一次 Kernel 中完成；计算两组投影时共用已读取的输入块。</p>
   <p>Gate 与 Up 中间结果保存在 Kernel 内部，存储边界应按融合后的输入和最终输出计算。实际缓存与调度指标见「执行与资源」。</p>

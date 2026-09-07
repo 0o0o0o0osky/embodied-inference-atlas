@@ -140,6 +140,46 @@
             "run-pi0-flashrt-nsys-node-002"
           ],
           "source_id": "source-local-thor"
+        },
+        {
+          "evidence_id": "flashrt-pi0-t1-template-source",
+          "kind": "source_code",
+          "locator": "csrc/gemm/gemm_types_sm100.h#sm100_t1",
+          "observation_ids": [],
+          "revision": "054bea4d02ebc63f6a0c45991c6061b1e1caa46c",
+          "run_ids": [],
+          "source_id": "source-flashrt"
+        },
+        {
+          "evidence_id": "flashrt-pi0-t1-wrapper-source",
+          "kind": "source_code",
+          "locator": "csrc/gemm/cutlass_sm100.cu#cutlass_fp8_t1",
+          "observation_ids": [],
+          "revision": "054bea4d02ebc63f6a0c45991c6061b1e1caa46c",
+          "run_ids": [],
+          "source_id": "source-flashrt"
+        },
+        {
+          "evidence_id": "flashrt-pi0-gate-up-weight-source",
+          "kind": "source_code",
+          "locator": "flash_rt/frontends/torch/_thor_spec_common.py#paligemma_encoder_block",
+          "observation_ids": [],
+          "revision": "054bea4d02ebc63f6a0c45991c6061b1e1caa46c",
+          "run_ids": [],
+          "source_id": "source-flashrt"
+        },
+        {
+          "evidence_id": "flashrt-fixed-prefix-gate-up-trace",
+          "kind": "profiler_correlation",
+          "locator": null,
+          "observation_ids": [
+            "kernel-observation-pi0-flashrt-nsys-node_r002_027"
+          ],
+          "revision": null,
+          "run_ids": [
+            "run-pi0-flashrt-nsys-node-002"
+          ],
+          "source_id": "source-local-thor"
         }
       ],
       "execution_groups": [
@@ -284,6 +324,52 @@
               "indices": [],
               "scope_ref": "action-flow-decoder/action-expert-blocks",
               "selection": "all"
+            }
+          ],
+          "unmapped_reason_code": null
+        },
+        {
+          "dependency_group_ids": [],
+          "evidence_ids": [
+            "flashrt-pi0-encoder-source",
+            "flashrt-pi0-torch-capture-source",
+            "flashrt-pi0-t1-template-source",
+            "flashrt-pi0-t1-wrapper-source",
+            "flashrt-pi0-gate-up-weight-source",
+            "flashrt-fixed-prefix-gate-up-trace"
+          ],
+          "execution_group_id": "prefix-merged-gate-up",
+          "implementation": "前缀第 1–17 层：FP8 X[304,2048] × 合并权重[2048,32768]，FP32 累加与 alpha 缩放，输出 FP16 Gate/Up。后续 GEGLU 独立执行。层覆盖由唯一调用点与同 stream 顺序关联，原 trace 未标层号。",
+          "kernel_resolution": "resolved",
+          "kernel_signature_ids": [
+            "kernel-signature-pi0-flashrt-large-gemm-027"
+          ],
+          "kind": "backend_op",
+          "label": "前缀 Gate/Up 合并投影",
+          "precision_path_id": "flashrt-gate-up-fp8-fp16",
+          "repeat_selectors": [
+            {
+              "indices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15,
+                16
+              ],
+              "scope_ref": "prefix-encoder/prefix-blocks",
+              "selection": "indices"
             }
           ],
           "unmapped_reason_code": null
@@ -583,6 +669,84 @@
           "path": "primary",
           "reason_code": null,
           "relation": "fused"
+        },
+        {
+          "certainty": "exact",
+          "confidence": "high",
+          "evidence_ids": [
+            "flashrt-pi0-encoder-source",
+            "flashrt-pi0-torch-capture-source",
+            "flashrt-pi0-t1-template-source",
+            "flashrt-pi0-t1-wrapper-source",
+            "flashrt-pi0-gate-up-weight-source",
+            "flashrt-fixed-prefix-gate-up-trace"
+          ],
+          "execution_group_ids": [
+            "prefix-merged-gate-up"
+          ],
+          "logical_targets": [
+            {
+              "ref": "prefix-encoder/prefix-blocks/feed-forward/gate-projection",
+              "repeat_selectors": [
+                {
+                  "indices": [
+                    0,
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                    16
+                  ],
+                  "scope_ref": "prefix-encoder/prefix-blocks",
+                  "selection": "indices"
+                }
+              ]
+            },
+            {
+              "ref": "prefix-encoder/prefix-blocks/feed-forward/up-projection",
+              "repeat_selectors": [
+                {
+                  "indices": [
+                    0,
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                    16
+                  ],
+                  "scope_ref": "prefix-encoder/prefix-blocks",
+                  "selection": "indices"
+                }
+              ]
+            }
+          ],
+          "mapping_id": "map-prefix-merged-gate-up",
+          "method": "source_audit",
+          "path": "primary",
+          "reason_code": null,
+          "relation": "fused"
         }
       ],
       "model_artifact_ids": [
@@ -636,6 +800,24 @@
           "precision_path_id": "flashrt-geglu-fp16-fp8",
           "quant_scheme": "activation_static_fp8_e4m3",
           "weight_dtype": null
+        },
+        {
+          "accumulation_dtype": "fp32",
+          "activation_dtype": "fp8_e4m3",
+          "evidence_ids": [
+            "flashrt-pi0-encoder-source",
+            "flashrt-pi0-torch-capture-source",
+            "flashrt-pi0-t1-template-source",
+            "flashrt-pi0-t1-wrapper-source",
+            "flashrt-pi0-gate-up-weight-source"
+          ],
+          "label": "FP8 E4M3 输入与权重 → FP32 累加 → FP16 Gate/Up",
+          "missing_fields": [],
+          "missing_reason_code": null,
+          "output_dtype": "fp16",
+          "precision_path_id": "flashrt-gate-up-fp8-fp16",
+          "quant_scheme": "static_fp8_e4m3",
+          "weight_dtype": "fp8_e4m3"
         }
       ],
       "realization_id": "rr-flashrt-pi0-thor-fp8-v1",

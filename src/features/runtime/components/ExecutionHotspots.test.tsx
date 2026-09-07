@@ -70,3 +70,42 @@ it('renders a real BF16 kernel measurement from one selected prediction window',
   expect(markup).not.toContain('Kernel NCU 指标');
   expect(context.selectedRun?.run_id).toBe(run.run_id);
 });
+
+it('offers direct DAG location and a readable path for a uniquely mapped selected call',()=>{
+  const data=atlasDocument as unknown as AtlasData;
+  const model=data.datasets.models.find(item=>item.model_id==='pi0')!;
+  const record=data.datasets.model_graphs.find(item=>item.model_id==='pi0')!;
+  const run=data.datasets.runs.find(item=>item.run_id==='run-pi0-vlacpp-w5-r10-001')!;
+  const route=readRoute(`?model=pi0&tab=runtime&analysisView=hotspots&runtime=vla-cpp&runtimePrecision=${run.precision.precision_id}&workload=${run.configuration_id}&selectedRun=${run.run_id}`);
+  const context=resolveAnalysisContext({data,model,record,route});
+  const row=context.kernels.rows.find(item=>item.observation.observationKind==='nsys_window_aggregate' && item.links.some(link=>link.realizationId===context.implementationRealization?.realizationId && link.status==='resolved' && link.executionGroupIds.length===1))!;
+  const event=context.nsys.active!.timeline.events.find(item=>item.kernelSignatureId===row.signature.kernelSignatureId)!;
+  route.entity=timelineEventEntity(context.nsys.active!.timeline.timelineId,event.eventId);
+  const markup=renderToStaticMarkup(<ExecutionHotspots data={context.scopedData} record={record} route={route}
+    view={context.nsys} kernels={context.kernels} realization={context.implementationRealization} workload={context.normalizedWorkload} navigate={()=>undefined}/>);
+  expect(markup).toContain('aria-label="当前 Kernel 的 DAG 位置"');
+  expect(markup).toContain('aria-label="定位当前 Kernel 对应的 DAG 执行组"');
+  expect(markup).toContain('选择真实调用');
+  expect(markup).not.toContain('在图中选择对应执行组');
+  expect(markup).toContain('<details class="hotspot-kernel-inventory">');
+});
+
+it('asks for an explicit DAG position when a legacy signature is shared by two groups',()=>{
+  const data=atlasDocument as unknown as AtlasData;
+  const model=data.datasets.models.find(item=>item.model_id==='pi0')!;
+  const record=data.datasets.model_graphs.find(item=>item.model_id==='pi0')!;
+  const run=data.datasets.runs.find(item=>item.run_id==='run-pi0-flashrt-nsys-node-001')!;
+  const route=readRoute(`?model=pi0&runtime=flashrt&hardware=${run.device_id}&runtimePrecision=${run.precision.precision_id}&workload=${run.configuration_id}`);
+  route.timelineCapture='capture-pi0-flashrt-nsys-node-001';
+  const context=resolveAnalysisContext({data,model,record,route});
+  const event=context.nsys.active!.timeline.events.find(item=>item.kernelSignatureId==='kernel-signature-pi0-encoder-geglu')!;
+  route.entity=timelineEventEntity(context.nsys.active!.timeline.timelineId,event.eventId);
+  const markup=renderToStaticMarkup(<ExecutionHotspots data={context.scopedData} record={record} route={route}
+    view={context.nsys} kernels={context.kernels} realization={context.implementationRealization} workload={context.normalizedWorkload} navigate={()=>undefined}/>);
+  expect(markup).toContain('选择 DAG 位置');
+  expect(markup).not.toContain('aria-label="定位当前 Kernel 对应的 DAG 执行组"');
+  expect(markup).toContain('前缀编码 /');
+  expect(markup).toContain('动作专家 /');
+  expect(markup).toContain('第1–17层');
+  expect(markup).not.toContain('Prefix GELU × up + FP8 cast');
+});

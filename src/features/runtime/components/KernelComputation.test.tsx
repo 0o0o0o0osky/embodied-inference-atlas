@@ -42,3 +42,17 @@ it('shows the real stride-copy class with symbolic bytes and an independent NCU 
  expect(markup).not.toMatch(/\d+(?:\.\d+)?\s*(?:MB|GB|TFLOP)/);
  expect(markup).not.toContain('GEMM 数学维度');
 });
+
+it('shows the audited FlashRT merged projection only with its resolved implementation link',()=>{
+ const row={links:[{status:'resolved',executionGroupIds:['prefix-merged-gate-up']}],observation:{observationKind:'nsys_window_aggregate'},signature:{kernelSignatureId:'kernel-signature-pi0-flashrt-large-gemm-027',precisionPath:{inputDtypeClass:'fp8_e4m3',accumulatorDtypeClass:'fp32',outputDtypeClass:null,missing:{}},missing:{}}} as unknown as KernelRow;
+ const markup=renderToStaticMarkup(<KernelComputation row={row}/>);
+ expect(markup).toContain('前缀 Gate/Up 合并 GEMM');
+ expect(markup).toContain('304 × 2048');expect(markup).toContain('2048 × 32768');
+ expect(markup).toContain('FP32 累加');expect(markup).toContain('α');
+ expect(markup).toContain('028');expect(markup).not.toContain('TFLOP/s');
+ expect(markup).toContain('FP16（实现关联）');
+ const unconfirmed={...row,links:[]};
+ expect(renderToStaticMarkup(<KernelComputation row={unconfirmed}/>)).not.toContain('304 × 2048');
+ const replay={...row,observation:{...row.observation,observationKind:'ncu_replayed_launch' as const}};
+ expect(renderToStaticMarkup(<KernelComputation row={replay}/>)).toContain('输出 未记录');
+});

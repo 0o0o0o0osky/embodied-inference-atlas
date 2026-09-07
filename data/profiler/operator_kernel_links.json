@@ -124,6 +124,87 @@
         "capture-pi0-flashrt-nsys-node-002"
       ],
       "execution_group_ids": [
+        "prefix-merged-gate-up"
+      ],
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-large-gemm-027",
+      "link_id": "operator-kernel-link-pi0-flashrt-nsys-node_r002_027_001",
+      "logical_targets": [
+        {
+          "ref": "prefix-encoder/prefix-blocks/feed-forward/gate-projection",
+          "repeat_selectors": [
+            {
+              "indices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15,
+                16
+              ],
+              "scope_ref": "prefix-encoder/prefix-blocks",
+              "selection": "indices"
+            }
+          ]
+        },
+        {
+          "ref": "prefix-encoder/prefix-blocks/feed-forward/up-projection",
+          "repeat_selectors": [
+            {
+              "indices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15,
+                16
+              ],
+              "scope_ref": "prefix-encoder/prefix-blocks",
+              "selection": "indices"
+            }
+          ]
+        }
+      ],
+      "mapping_method": "combined",
+      "model_graph_id": "pi0-logical-v1",
+      "observation_id": "kernel-observation-pi0-flashrt-nsys-node_r002_027",
+      "realization_id": "rr-flashrt-pi0-thor-fp8-v1",
+      "reason_code": null,
+      "run_id": "run-pi0-flashrt-nsys-node-002",
+      "status": "resolved"
+    },
+    {
+      "confidence": "high",
+      "coverage": {
+        "mapped_launches": 17,
+        "population_launches": 17,
+        "unit": "launch"
+      },
+      "evidence_ids": [
+        "capture-pi0-flashrt-nsys-node-002"
+      ],
+      "execution_group_ids": [
         "prefix-geglu-fp8"
       ],
       "kernel_signature_id": "kernel-signature-pi0-flashrt-geglu-fp8-028",
