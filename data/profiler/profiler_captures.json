@@ -943,7 +943,7 @@
         "status": "stable",
         "system_medians": {
           "api_wall_union_ns": 41725796.5,
-          "cpu_core_time_ns": 7797547.5,
+          "cpu_core_time_ns": 7712102.5,
           "gpu_activity_union_ns": 39778614.0
         },
         "wall": {
@@ -988,7 +988,8 @@
       "tool": "nsys",
       "tool_version": "2025.3.2.367",
       "warnings": [
-        "intrusive_node_trace"
+        "intrusive_node_trace",
+        "profiler_scheduler_activity_present"
       ]
     },
     {

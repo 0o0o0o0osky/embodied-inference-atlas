@@ -1,3 +1,4 @@
+import { isWheelZoomGesture } from "../../workbench/wheelZoom";
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 
 import type {
@@ -222,7 +223,7 @@ export function LogicalDagSvg({
     const svg = svgRef.current;
     if (!compactControls || !svg) return;
     const wheel = (event: WheelEvent) => {
-      if (event.deltaY === 0) return;
+      if (!isWheelZoomGesture(event)) return;
       event.preventDefault();
       const anchor = framePoint(event.clientX, event.clientY);
       if (anchor) changeCamera(graphWheelZoomAction(camera.zoom, event.deltaY, anchor));
@@ -272,7 +273,7 @@ export function LogicalDagSvg({
             ? ` · ${connectors.coverage.uncoveredEdgeIds.length} uncovered`
             : ""}
         </span>
-        </> : <span className="graph-direction-hint">横向并行，纵向依赖</span>}
+        </> : <span className="graph-direction-hint">横向并行，纵向依赖 · Ctrl + 滚轮缩放</span>}
         {!compactControls || panBounds.left || panBounds.right ? <>
         <button type="button" onClick={() => pan(-1)} disabled={compactControls && !panBounds.left} aria-label={compactControls ? "向左平移模型图" : "Pan logical graph left"}>
           {compactControls ? "←" : "← Pan left"}
@@ -295,7 +296,7 @@ export function LogicalDagSvg({
         className="logical-canvas"
         ref={canvasRef}
         role="region"
-        aria-label={compactControls ? "模型结构图；在图内滚轮缩放，内容超出视图时可拖动空白处平移；图外滚轮正常滚动页面" : "Authored-scale logical graph; use the pan buttons or scroll horizontally on narrower screens"}
+        aria-label={compactControls ? "模型结构图；Ctrl + 滚轮缩放，拖动空白处平移；普通滚轮滚动页面" : "Authored-scale logical graph; use the pan buttons or scroll horizontally on narrower screens"}
         tabIndex={0}
       >
       {!compactControls ? <div className="logical-legend" aria-hidden="true">

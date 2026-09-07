@@ -2,7 +2,7 @@ import { expect, it } from "vitest";
 
 import * as camera from "./focusViewport";
 
-it("maps an ordinary vertical graph-wheel gesture to cursor-anchored zoom", () => {
+it("maps an activated vertical graph-wheel gesture to cursor-anchored zoom", () => {
   const anchor = { x: 320, y: 180 };
   expect(camera.graphWheelZoomAction(120, -18, anchor)).toEqual({
     type: "zoom",

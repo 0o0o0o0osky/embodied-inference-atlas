@@ -86,3 +86,25 @@
 
 .system-capture-capabilities { display:flex; flex-wrap:wrap; gap:1.25rem; }
 .system-capture-capabilities dd { margin:.4rem 0 0; }
+.system-capture-detail { padding: 0 24px 20px; }
+.system-capture-detail > p { margin: 16px 0; color: var(--slate); font-size: 13px; }
+.system-capture-detail > h4 { margin: 22px 0 10px; font-size: 14px; }
+.system-overlap-table, .system-sample-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; table-layout: fixed; }
+.system-overlap-table th, .system-overlap-table td, .system-sample-table th, .system-sample-table td { padding: 12px 14px; border-bottom: 1px solid var(--line); vertical-align: top; overflow-wrap: normal; }
+.system-overlap-table thead th, .system-sample-table thead th { color: var(--slate); background: #f4f7fa; font-weight: 500; }
+.system-overlap-table tbody th, .system-sample-table tbody th { font-weight: 500; }
+.system-overlap-table th:first-child { width: 32%; }
+.system-overlap-table th:nth-child(2) { width: 18%; }
+.system-overlap-table td:nth-child(2), .system-sample-table td { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.system-overlap-table td:last-child { color: var(--slate); line-height: 1.6; }
+.system-capture-detail .system-capture-capabilities { display: grid; gap: 0; margin: 0; }
+.system-capture-detail .system-capture-capabilities > div { display: grid; grid-template-columns: 140px minmax(0, 1fr); gap: 16px; padding: 9px 0; }
+.system-capture-detail .system-capture-capabilities dt { color: var(--slate); }
+.system-capture-detail .system-capture-capabilities dd { margin: 0; }
+@media (max-width: 650px) {
+  .system-capture-detail { padding: 0 16px 16px; }
+  .system-overlap-table th, .system-overlap-table td, .system-sample-table th, .system-sample-table td { padding: 10px 6px; font-size: 12px; }
+  .system-overlap-table th:first-child { width: 31%; }
+  .system-overlap-table th:nth-child(2) { width: 25%; }
+  .system-capture-detail .system-capture-capabilities > div { grid-template-columns: 96px minmax(0, 1fr); gap: 12px; font-size: 13px; }
+}

@@ -107,7 +107,7 @@ it('retains the ten-sample summary while rendering only the real representative 
   const markup = renderToStaticMarkup(createElement(Pi0NsysSection, {
     view: context.nsys, onSelectEvent: () => undefined, onOpenDetails: () => undefined,
   }));
-  expect(markup).toContain('本采集批次的总体指标：10 次中位数');
-  expect(markup).toContain('<dt>Nsys 请求墙钟</dt><dd>168.813 ms</dd>');
-  expect(markup).toContain('预测窗口 170.194 ms');
+  expect(markup).toContain('Nsys 采集统计 · 10 次中位数');
+  expect(markup).toContain('<dt>Nsys 请求耗时</dt><dd>168.813 ms</dd>');
+  expect(markup).toContain('窗口 170.194 ms');
 });

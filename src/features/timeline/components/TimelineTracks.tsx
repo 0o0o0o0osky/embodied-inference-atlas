@@ -1,14 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import type { TimelineEvent, TimelineRecord } from "../../profiler/domain/types";
-import { eventTitle, laneTitle, timeLabel } from "./timelineLabels";
+import { eventTitle, laneTitle, laneActivity, timeLabel } from "./timelineLabels";
 import { timelinePixels } from '../domain/timelinePixels';
 
 const groups = [
   { id: "gpu", title: "GPU 执行阶段", kinds: ["cuda_graph"], open: true },
-  { id: "cpu", title: "CPU 线程 · 调度运行", kinds: ["cpu_thread", "cpu_aggregate"], open: true },
-  { id: "api", title: "CUDA API · 主机调用", kinds: ["cuda_api"], open: false },
+  { id: "cpu", title: "CPU 实际运行", kinds: ["cpu_thread", "cpu_aggregate"], open: true },
+  { id: "api", title: "GPU 提交与等待", kinds: ["cuda_api"], open: true },
   { id: "sync", title: "CUDA 同步记录", kinds: ["cuda_sync"], open: false },
-  { id: "osrt", title: "CPU 系统调用与等待", kinds: ["osrt"], open: false },
+  { id: "osrt", title: "线程等待与驱动调用", kinds: ["osrt"], open: false },
   { id: "copy", title: "数据传输", kinds: ["gpu_memcpy"], open: false },
   { id: "kernel", title: "GPU Kernel 区间", kinds: ["gpu_kernel"], open: true },
   { id: "profiler", title: "采集器 · 已排除", kinds: ["profiler_overhead"], open: false },
@@ -59,13 +59,15 @@ export function TimelineTracks({ timeline, windowStartNs, windowDurationNs, sele
       </svg></div>
     </div>
     {groups.map((group) => {
-      const members = lanes.filter((lane) => group.kinds.includes(lane.kind));
+      const members = lanes.filter((lane) => eventsByLane.has(lane.laneId) &&
+        (group.id === 'profiler' ? lane.kind === 'profiler_overhead' || lane.role === 'profiler-excluded'
+          : lane.role !== 'profiler-excluded' && group.kinds.includes(lane.kind)));
       if (!members.length || (group.id === "profiler" && !members.some((lane) => eventsByLane.has(lane.laneId)))) return null;
       return <details className="timeline-track-group" key={`${timeline.timelineId}/${group.id}`} open={group.open || undefined}>
         <summary><strong>{group.title}</strong><span>{members.length} 条轨道</span></summary>
         {members.map((lane) => <div className="timeline-lane-row" key={lane.laneId} data-lane-id={lane.laneId}>
           <div className="timeline-lane-label"><strong>{laneTitle(lane)}</strong>
-            <span>{lane.coverage === "partial" ? "部分记录" : lane.kind === "cpu_thread" ? "已记录的调度片段" : lane.kind === "cuda_api" ? "调用持续时间，包含等待" : "点击区间查看详情"}</span>
+            <span>{laneActivity(lane, eventsByLane.get(lane.laneId) ?? [])}</span>
           </div>
           <svg viewBox={`0 0 ${width} 44`} aria-label={`${laneTitle(lane)}时间轨道`}>
             {Array.from({ length: 6 }, (_, i) => <line className="timeline-grid-line" key={i} x1={i * width / 5} x2={i * width / 5} y1={0} y2={44} />)}

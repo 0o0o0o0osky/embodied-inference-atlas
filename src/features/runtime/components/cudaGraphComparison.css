@@ -1,26 +1,22 @@
-.graph-comparison { min-width: 0; }
-.graph-comparison-lane { display: flex; align-items: baseline; gap: .6rem; margin: 1rem 0 .6rem; color: #263f53; font-weight: 600; }
-.graph-comparison-lane > span { color: #617283; font-size: .8rem; font-weight: 400; }
-.graph-comparison-groups { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .65rem; }
-.graph-comparison-submit-group { display: flex; align-items: center; justify-content: center; min-width: 0; min-height: 3rem; padding: .35rem; background: #f3f6f9; border: 1px solid #d7e0e8; border-radius: 5px; }
-.graph-comparison-submissions { display: flex; align-items: center; justify-content: center; gap: .25rem; min-width: 0; font-size: .75rem; color: #718193; }
-.graph-comparison-submit { display: inline-block; padding: .35rem .3rem; color: #734918; background: #fff5e9; border: 1px solid #cf9d64; border-radius: 3px; white-space: nowrap; font-size: .78rem; }
-.graph-comparison-submit.is-graph { padding: .45rem .65rem; border-color: #7ba595; color: #245641; background: #f5fbf7; font-weight: 600; }
-.graph-comparison-more { font-size: 1rem; }
-.graph-comparison-links { padding-top: .35rem; }
-.graph-comparison-arrow { position: relative; width: 1px; height: 1.4rem; margin: 0 auto; background: #73889a; }
-.graph-comparison-arrow::after { position: absolute; bottom: -1px; left: -4px; content: ''; border-left: 4px solid transparent; border-right: 4px solid transparent; border-top: 6px solid #73889a; }
-.graph-comparison-links + .graph-comparison-lane { margin-top: .5rem; }
-.graph-comparison-gpu-group { min-width: 0; padding: .65rem .4rem; border: 1px solid #c8d1d8; border-radius: 5px; background: #f5f7f9; text-align: center; }
-.graph-comparison-gpu-group > strong { display: block; margin-bottom: .65rem; color: #263f53; font-size: .85rem; font-weight: 600; }
-.graph-comparison-kernels { display: flex; justify-content: center; align-items: center; gap: .25rem; color: #53616d; font-size: .7rem; }
-.graph-comparison-kernels > span:nth-child(odd) { padding: .25rem .2rem; border: 1px solid #c8d1d8; background: #fff; border-radius: 3px; }
-.graph-comparison-order { margin: .7rem 0 0; color: #60786d; font-size: .78rem; text-align: center; }
-.graph-comparison-preparation { display: flex; gap: .65rem; margin-top: 1rem; padding-top: .75rem; border-top: 1px solid #d9e3df; font-size: .8rem; line-height: 1.6; color: #617283; }
-.graph-comparison-preparation > strong { flex: none; color: #3d5e51; font-weight: 500; }
-.graph-comparison-result { margin-bottom: 0; }
-@media (max-width: 380px) {
-  .graph-comparison-groups { gap: .4rem; }
-  .graph-comparison-submissions, .graph-comparison-kernels { gap: .15rem; }
-  .graph-comparison-submit { padding-inline: .2rem; }
-}
+.graph-comparison { min-width:0; }
+.graph-comparison-scroll { overflow-x:auto; border:1px solid var(--line,#ccd8e1); border-radius:4px; background:white; }
+.graph-comparison-scroll:focus-visible { outline:2px solid var(--signal-blue,#228097); outline-offset:3px; }
+.graph-comparison-scroll svg { display:block; width:100%; min-width:1024px; }
+.graph-comparison-scroll text { font-family:inherit; }
+.graph-comparison-title { font-size:17px; font-weight:600; fill:#233f51; }
+.graph-comparison-count { font-size:13px; fill:#526675; }
+.graph-comparison-cpu-lane { fill:#f7f9fa; }
+.graph-comparison-gpu-lane { fill:#f5f7f9; }
+.graph-comparison-lane-label { font-size:16px; font-weight:600; fill:#233f51; }
+.graph-comparison-launch { fill:#fff1de; stroke:#cb914e; }
+.graph-comparison-launch.is-more { stroke-dasharray:3 3; }
+.graph-comparison-launch.is-graph { fill:#edf6f0; stroke:#6c9f88; }
+.graph-comparison-launch-label { fill:#734918; font-size:13px; }
+.graph-comparison-launch-label.is-graph { fill:#315e4e; }
+.graph-comparison-link { fill:none; stroke:#8399a7; stroke-width:1.2; }
+.graph-comparison-kernel rect { fill:#edf2f6; stroke:#aebfcb; }
+.graph-comparison-kernel text { fill:#365569; font-size:15px; }
+.graph-comparison-saved { stroke:#8dad9b; stroke-dasharray:4 3; }
+.graph-comparison-saved-label { fill:#315e4e; font-size:15px; }
+.graph-comparison-stage, .graph-comparison-time { fill:#617787; font-size:13px; }
+.graph-comparison-axis { stroke:#9dafbb; stroke-width:1; }

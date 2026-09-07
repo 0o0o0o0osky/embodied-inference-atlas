@@ -40772,7 +40772,7 @@
               "label_sanitized": "other"
             }
           ],
-          "lane_id": "lane-007",
+          "lane_id": "lane-001",
           "sample_id": "sample-00001",
           "time_ns": 17755,
           "weight": 1
@@ -40784,7 +40784,7 @@
               "label_sanitized": "other"
             }
           ],
-          "lane_id": "lane-007",
+          "lane_id": "lane-001",
           "sample_id": "sample-00002",
           "time_ns": 2737829,
           "weight": 1
@@ -40796,7 +40796,7 @@
               "label_sanitized": "other"
             }
           ],
-          "lane_id": "lane-007",
+          "lane_id": "lane-001",
           "sample_id": "sample-00003",
           "time_ns": 5455394,
           "weight": 1
@@ -125660,7 +125660,7 @@
           "evidence_semantics": "exact_interval",
           "kernel_signature_id": null,
           "label": "osrt-call",
-          "lane_id": "lane-008",
+          "lane_id": "lane-007",
           "start_ns": 0
         },
         {
@@ -125674,7 +125674,7 @@
           "evidence_semantics": "exact_interval",
           "kernel_signature_id": null,
           "label": "osrt-call",
-          "lane_id": "lane-009",
+          "lane_id": "lane-008",
           "start_ns": 0
         },
         {
@@ -125688,7 +125688,7 @@
           "evidence_semantics": "exact_interval",
           "kernel_signature_id": null,
           "label": "osrt-call",
-          "lane_id": "lane-010",
+          "lane_id": "lane-009",
           "start_ns": 741139
         },
         {
@@ -125702,7 +125702,7 @@
           "evidence_semantics": "exact_interval",
           "kernel_signature_id": null,
           "label": "osrt-call",
-          "lane_id": "lane-010",
+          "lane_id": "lane-009",
           "start_ns": 6997611
         },
         {
@@ -125716,7 +125716,7 @@
           "evidence_semantics": "exact_interval",
           "kernel_signature_id": null,
           "label": "osrt-call",
-          "lane_id": "lane-010",
+          "lane_id": "lane-009",
           "start_ns": 42736852
         }
       ],
@@ -125729,11 +125729,11 @@
           "role": "target-main"
         },
         {
-          "coverage": "complete",
-          "kind": "cpu_thread",
+          "coverage": "excluded",
+          "kind": "cpu_aggregate",
           "lane_id": "lane-002",
           "ordinal": 1,
-          "role": "target-worker"
+          "role": "profiler-excluded"
         },
         {
           "coverage": "complete",
@@ -125765,30 +125765,23 @@
         },
         {
           "coverage": "complete",
-          "kind": "cpu_thread",
+          "kind": "osrt",
           "lane_id": "lane-007",
           "ordinal": 6,
-          "role": "target-main"
+          "role": "target-worker"
         },
         {
           "coverage": "complete",
           "kind": "osrt",
           "lane_id": "lane-008",
           "ordinal": 7,
-          "role": "target-worker"
+          "role": "cuda-event-handler"
         },
         {
           "coverage": "complete",
           "kind": "osrt",
           "lane_id": "lane-009",
           "ordinal": 8,
-          "role": "target-worker"
-        },
-        {
-          "coverage": "complete",
-          "kind": "osrt",
-          "lane_id": "lane-010",
-          "ordinal": 9,
           "role": "target-main"
         }
       ],
@@ -125823,36 +125816,31 @@
           "denominator": "predict_window",
           "derivation_version": "interval-sum-v1",
           "input_refs": [
-            "lane-001",
-            "lane-002"
+            "lane-001"
           ],
           "metric_name": "target_scheduled_core_time_over_full_window",
           "unit": "ns",
-          "value": 7578927
+          "value": 7471455
         },
         {
           "denominator": "recorded_gpu_activity_union",
           "derivation_version": "interval-intersection-v1",
           "input_refs": [
             "lane-001",
-            "lane-002",
             "lane-003",
-            "lane-004",
-            "lane-007"
+            "lane-004"
           ],
           "metric_name": "target_scheduled_core_time_overlapping_recorded_gpu_activity",
           "unit": "ns",
-          "value": 4558520
+          "value": 4557400
         },
         {
           "denominator": "recorded_gpu_activity_union",
           "derivation_version": "interval-intersection-v1",
           "input_refs": [
             "lane-001",
-            "lane-002",
             "lane-003",
-            "lane-004",
-            "lane-007"
+            "lane-004"
           ],
           "metric_name": "target_wall_overlap_with_recorded_gpu_activity",
           "unit": "ns",

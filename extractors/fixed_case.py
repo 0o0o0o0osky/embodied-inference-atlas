@@ -11,7 +11,7 @@ import math
 import re
 import statistics
 
-from extractors.nsys import parse_nsys_sqlite
+from extractors.nsys import parse_nsys_sqlite, target_thread_role
 from extractors.profiler_common import ProfilerImportContext, profiler_record_id
 from extractors.pi0_full_trace import API_NAMES, LAUNCH_KEYS, launch_config
 from tools.lib.representative_data import _batch_summary
@@ -60,11 +60,14 @@ def _supplement_cpu(c, capture, timeline, symbols, target, start, end):
     samples = 'COMPOSITE_EVENTS' in tables and 'SAMPLING_CALLCHAINS' in tables
     capture['cpu_capabilities']=dict(scheduler_running=bool(c.execute('SELECT 1 FROM SCHED_EVENTS LIMIT 1').fetchone()),
         thread_states=False,function_samples=samples,task_markers=False,association_events=False)
-    lanes={}
+    names = dict(c.execute("SELECT t.globalTid,s.value FROM ThreadNames t JOIN StringIds s ON t.nameId=s.id")) if 'ThreadNames' in tables else {}
+    # The parser's target-main lane is defined by this exact NVTX globalTid.
+    mains = [l for l in timeline['lanes'] if l['kind']=='cpu_thread' and l['role']=='target-main']
+    lanes = {(target, 'cpu_thread'): mains[0]['lane_id']} if len(mains)==1 else {}
     def lane(tid,kind):
         if (tid,kind) not in lanes:
             identity=f'lane-{max([int(l["lane_id"].split("-")[-1]) for l in timeline["lanes"]]+[0])+1:03d}';lanes[tid,kind]=identity
-            timeline['lanes'].append(dict(lane_id=identity,kind=kind,role='target-main' if tid==target else 'target-worker',ordinal=len(timeline['lanes']),coverage='complete'))
+            timeline['lanes'].append(dict(lane_id=identity,kind=kind,role=target_thread_role(tid,target,names.get(tid)),ordinal=len(timeline['lanes']),coverage='complete'))
         return lanes[tid,kind]
     if samples:
         frames=collections.defaultdict(list)

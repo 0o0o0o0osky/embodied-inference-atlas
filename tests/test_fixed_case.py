@@ -46,6 +46,30 @@ class FixedCaseTests(unittest.TestCase):
         self.assertEqual(stage['datasets']['profiler_captures'][0]['analysis_summary']['sample_count'],10)
         self.assertFalse(stage['datasets']['profiler_captures'][0]['cpu_capabilities']['scheduler_running'])
 
+    def test_cpu_roles_and_samples_reuse_only_proven_main_thread(self):
+        from extractors.nsys import target_thread_role
+        from extractors.fixed_case import _supplement_cpu
+        self.assertEqual(target_thread_role(2,1,'[NSys]'),'profiler-excluded')
+        self.assertEqual(target_thread_role(2,1,'cuda-EvtHandlr'),'cuda-event-handler')
+        self.assertEqual(target_thread_role(2,1,'python'),'target-worker')
+        c=sqlite3.connect(':memory:'); c.row_factory=sqlite3.Row
+        self.addCleanup(c.close)
+        c.executescript("""CREATE TABLE StringIds(id,value);
+          INSERT INTO StringIds VALUES(1,'cuda-EvtHandlr'),(2,'poll');
+          CREATE TABLE ThreadNames(globalTid,nameId); INSERT INTO ThreadNames VALUES(2,1);
+          CREATE TABLE SCHED_EVENTS(start); INSERT INTO SCHED_EVENTS VALUES(0);
+          CREATE TABLE SAMPLING_CALLCHAINS(id,symbol,unresolved,stackDepth);
+          CREATE TABLE COMPOSITE_EVENTS(id,start,globalTid);
+          INSERT INTO COMPOSITE_EVENTS VALUES(1,2,1),(2,3,2);
+          CREATE TABLE OSRT_API(start,end,globalTid,nameId);
+          INSERT INTO OSRT_API VALUES(0,20,2,2);""")
+        timeline=dict(lanes=[dict(lane_id='lane-001',kind='cpu_thread',role='target-main')],events=[])
+        _supplement_cpu(c,{},timeline,{1:'cuda-EvtHandlr',2:'poll'},1,0,10)
+        self.assertEqual(timeline['cpu_samples'][0]['lane_id'],'lane-001')
+        self.assertNotEqual(timeline['cpu_samples'][1]['lane_id'],'lane-001')
+        self.assertEqual([l['role'] for l in timeline['lanes']],['target-main','cuda-event-handler','cuda-event-handler'])
+        self.assertEqual(timeline['events'][0]['duration_ns'],10)
+
     def test_e2e_is_independent_stable_batch_and_has_no_profiler_duration(self):
         results=dict(samples_ms=[10,11,10,10,10,10,10,10,10,10],warmup=5,profiled=False,finite=True,input_case_id='input-fixed',batch_id='batch-e2e',input_recipe='synthetic-fixed',output_shape=[50,32])
         run=dict(run_id='run-fixed-e2e-001',source_id='source-local-thor',timing={'timing_boundary_id':'cpu-to-cpu'})

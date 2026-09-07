@@ -30,7 +30,7 @@ export function Pi0NsysSection({ view: model, onSelectEvent, onOpenDetails }: Pi
     return clipped ? [clipped] : [];
   })) : null;
   const primary = [
-    {label:"Nsys 请求墙钟", value:savedSummary?.wall.medianNs ?? batchMedian(o=>o.timeline.window.durationNs), note:"采集期间的请求起止时间"},
+    {label:"Nsys 请求耗时", value:savedSummary?.wall.medianNs ?? batchMedian(o=>o.timeline.window.durationNs), note:"采集期间的请求起止时间"},
     {label:"CPU 多线程运行累计",value:savedSummary ? savedSummary.systemMedians.cpuCoreTimeNs : batchMedian(o=>summary(o,"target_scheduled_core_time_over_full_window")),note:"各线程实际运行时间之和"},
     {label:"GPU 活动时长",value:node ? savedSummary ? savedSummary.systemMedians.gpuActivityUnionNs : batchMedian(o=>summary(o,"recorded_gpu_activity_union")) : null,note:node ? "已记录的 Kernel 与拷贝，重叠部分计一次" : "需要逐 Kernel 活动记录"},
     {label:"CUDA API 调用时长",value:savedSummary?savedSummary.systemMedians.apiWallUnionNs:completeBatch?batchMedian(o=>{
@@ -46,10 +46,12 @@ export function Pi0NsysSection({ view: model, onSelectEvent, onOpenDetails }: Pi
     ["Graph 执行期间 CPU 累计运行", "target_scheduled_core_time_overlapping_graph_spans", "Graph 范围内的各线程运行时间之和"],
     ["数据拷贝时长", "recorded_copy_activity_union", "已记录拷贝区间，重叠部分计一次"],
   ];
+  const samples = active?.timeline.cpuSamples ?? [];
+  const sampleGroups = cpuSampleGroups(samples);
   const capabilities = [
     ["CPU 线程调度", active?.capture.nsys?.schedulerTracePresent ? '已记录' : null],
     ["线程状态", active?.capture.cpuCapabilities?.threadStates ? '已记录' : null],
-    ["函数采样", active?.timeline.cpuSamples?.length ? `${active.timeline.cpuSamples.length} 个样本` : null],
+    ["函数采样", samples.length ? `${samples.length} 条${sampleGroups.hasNamed ? "" : "，未分到具体函数"}` : null],
     ["CPU 任务标记", active?.capture.cpuCapabilities?.taskMarkers ? '已记录' : null],
     ["关联事件", active?.capture.cpuCapabilities?.associationEvents ? '已记录' : null],
   ].filter(([,value]) => value !== null);
@@ -71,14 +73,16 @@ export function Pi0NsysSection({ view: model, onSelectEvent, onOpenDetails }: Pi
         </div>
         <details className="pi0-runtime-mapping-disclosure">
           <summary>采集信息与重叠统计</summary>
-          <p>{captureLabel(active, model.options)} · 窗口 {(active.timeline.window.durationNs / 1e6).toFixed(3)} ms</p>
-          <dl className="pi0-nsys-ledger">
-            {records.map(([label, metric, note]) => {
+          <div className="system-capture-detail"><p>{captureLabel(active, model.options)} · 窗口 {(active.timeline.window.durationNs / 1e6).toFixed(3)} ms</p>
+          {records.some(([, metric])=>model.summariesByName.has(metric!)) ? <table className="system-overlap-table">
+            <thead><tr><th scope="col">统计项</th><th scope="col">耗时</th><th scope="col">说明</th></tr></thead>
+            <tbody>{records.map(([label, metric, note]) => {
               const summary = model.summariesByName.get(metric!);
-              return summary ? <div key={metric}><dt>{label}</dt><dd>{summary.unit === "ns" ? `${(summary.value / 1e6).toFixed(3)} ms` : `${summary.value.toFixed(2)} ${summary.unit === "percent" ? "%" : "核"}`}</dd><small>{note}</small></div> : null;
-            })}
-          </dl>
+              return summary ? <tr key={metric}><th scope="row">{label}</th><td>{summary.unit === "ns" ? `${(summary.value / 1e6).toFixed(3)} ms` : `${summary.value.toFixed(2)} ${summary.unit === "percent" ? "%" : "核"}`}</td><td>{note}</td></tr> : null;
+            })}</tbody>
+          </table> : null}
           {capabilities.length ? <><h4>已采集信息</h4><dl className="system-capture-capabilities">{capabilities.map(([label,value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl></> : null}
+          </div>
         </details>
         {active.timeline.cpuSamples?.length ? <CpuSampleSummary samples={active.timeline.cpuSamples} /> : null}
       </>}
@@ -86,16 +90,24 @@ export function Pi0NsysSection({ view: model, onSelectEvent, onOpenDetails }: Pi
   );
 }
 
-function CpuSampleSummary({samples}:{samples:NonNullable<import('../../profiler/domain/types').TimelineRecord['cpuSamples']>}) {
+type CpuSamples=NonNullable<import('../../profiler/domain/types').TimelineRecord['cpuSamples']>;
+function cpuSampleGroups(samples:CpuSamples) {
   const counts=new Map<string,number>();
   for(const sample of samples){
     const leaf=[...sample.frames].sort((a,b)=>a.depth-b.depth)[0];
-    const label=leaf?.labelSanitized??'unresolved';counts.set(label,(counts.get(label)??0)+sample.weight);
+    const label=leaf?.labelSanitized ?? 'unresolved';
+    counts.set(label,(counts.get(label)??0)+sample.weight);
   }
-  const total=[...counts.values()].reduce((a,b)=>a+b,0);
-  const labels:Record<string,string>={'native-predict':'推理入口','cuda-runtime':'CUDA 运行时','thread-wait':'线程等待函数',other:'其他函数',unresolved:'未解析函数'};
+  return {counts,total:[...counts.values()].reduce((a,b)=>a+b,0),hasNamed:[...counts.keys()].some(label=>label!=='other' && label!=='unresolved')};
+}
+function CpuSampleSummary({samples}:{samples:CpuSamples}) {
+  const {counts,total,hasNamed}=cpuSampleGroups(samples);
+  if(!hasNamed)return null;
+  const labels:Record<string,string>={'native-predict':'推理入口','cuda-runtime':'CUDA 运行时','thread-wait':'线程等待函数',other:'未归因样本',unresolved:'未解析样本'};
   return <details className="system-capabilities"><summary>当前 trace 的 CPU 函数采样</summary>
-    <p>函数采样分布，按采样权重统计占比。</p>
-    <dl>{[...counts].sort((a,b)=>b[1]-a[1]).map(([label,count])=><div key={label}><dt>{labels[label]??label}</dt><dd>{count} 个 · {total>0?(count/total*100).toFixed(1):'—'}%</dd></div>)}</dl>
+    <p>按采样权重统计，占比包含未归因样本。</p>
+    <table className="system-sample-table"><thead><tr><th scope="col">函数类别</th><th scope="col">采样权重</th><th scope="col">占比</th></tr></thead>
+      <tbody>{[...counts].sort((a,b)=>b[1]-a[1]).map(([label,count])=><tr key={label}><th scope="row">{labels[label]??label}</th><td>{count}</td><td>{total>0?`${(count/total*100).toFixed(1)}%`:'—'}</td></tr>)}</tbody>
+    </table>
   </details>;
 }

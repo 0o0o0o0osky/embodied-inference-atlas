@@ -662,6 +662,17 @@ def _overhead_rows(
     ]
 
 
+def target_thread_role(global_tid, target_tid, thread_name, handler_names=()):
+    """Classify only explicit names; target-process membership alone is no task attribution."""
+    if global_tid == target_tid:
+        return "target-main"
+    if thread_name in {"[NSys]", "[NSys Comms]", "CUPTI worker thread"}:
+        return "profiler-excluded"
+    if thread_name == "cuda-EvtHandlr" or thread_name in handler_names:
+        return "cuda-event-handler"
+    return "target-worker"
+
+
 def _scheduler_intervals(
     connection: sqlite3.Connection,
     window_start: int,
@@ -717,12 +728,7 @@ def _scheduler_intervals(
         start_ns, end_ns = _clip(begin, end, window_start, window_end, context, "scheduler")
         process_id = _global_pid(global_tid)
         if process_id == target_pid:
-            if global_tid == target_tid:
-                role = "target-main"
-            elif thread_names.get(global_tid) in handler_names:
-                role = "cuda-event-handler"
-            else:
-                role = "target-worker"
+            role = target_thread_role(global_tid, target_tid, thread_names.get(global_tid), handler_names)
             if global_tid not in worker_ordinals:
                 worker_ordinals[global_tid] = len(worker_ordinals)
             lane_key: object = (role, worker_ordinals[global_tid])
