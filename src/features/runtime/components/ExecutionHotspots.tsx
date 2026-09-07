@@ -65,16 +65,16 @@ export function ExecutionHotspots({data, record, route, view, kernels, realizati
   const sharedConversions = rows.filter(row=>kernels.rows.some(item=>item.capture.captureId===row.captureId && item.signature.kernelSignatureId===row.kernelSignatureId && (isVerifiedConversion(item)||isVerifiedStrideCopy(item))));
   const detail = selected ? <aside ref={detailRef} className="execution-hotspot-detail">
         <header><h4>{labelFor(selected)}</h4><button type="button" onClick={()=>navigate({entity:rememberedGraphEntity},true)} aria-label="关闭热点详情">×</button></header>
-        <p>{selected.timeMeaning} · 当前类别 {selected.count} 次</p>{selected.category === 'GPU Kernel' ? <p>{selected.events[0]?.launch ? '按当前 trace 的签名与 launch 配置分组。' : '当前类别未记录 launch 配置，同签名内部形状与执行组织是否一致尚未验证。'}</p> : null}
+        <p>{selected.category === 'GPU Kernel' ? `本次推理 · 1 个 trace · 此类 Kernel 调用 ${selected.count} 次` : `当前类别 ${selected.count} 次`}。{selected.timeMeaning}</p>{selected.category === 'GPU Kernel' ? <p>{selected.events[0]?.launch ? '按 Kernel 签名与启动配置归为一类。' : '当前类别未记录 launch 配置，同签名内部形状与执行组织是否一致尚未验证。'}</p> : null}
         <nav aria-label="当前热点分析">{([['timing','计算与数据'],['resources','执行与资源'],['roofline','Roofline']] as const).map(([id,label])=><button key={id} type="button" aria-pressed={detailView === id} onClick={()=>setDetailView(id)}>{label}</button>)}</nav>
         {detailView === 'timing' ? <>
           <dl><div><dt>累计时长</dt><dd>{(selected.durationNs/1e6).toFixed(3)} ms</dd></div><div><dt>证据来源</dt><dd>当前 Nsys 采集</dd></div>{kernel?.signature.implementationFamily ? <div><dt>计算路径</dt><dd>{kernel.signature.implementationFamily}</dd></div> : null}</dl>
           <p>{selected.category === 'CPU 调度执行' ? '调度记录证明线程执行，尚不能归因到准备、图构建或后处理函数。函数采样比例也不是精确函数耗时。' : ''} </p>
           {signatureClasses.length>1?<label className="kernel-invocation-selector">同签名启动配置类别<select aria-label="选择启动配置类别" value={selected.id} onChange={event=>{const row=signatureClasses.find(item=>item.id===event.target.value)!;navigate({entity:entityFor(row)},true);}}>{signatureClasses.map((row,i)=><option key={row.id} value={row.id}>类别 {i+1} · Grid {row.events[0]?.launch?.grid?.join('×') ?? '未知'} / Block {row.events[0]?.launch?.block?.join('×') ?? '未知'} · {row.count} 次 · {(row.durationNs/1e6).toFixed(3)} ms</option>)}</select></label>:null}
           {invocation.selected ? <>
-            <label className="kernel-invocation-selector">当前 trace 的真实调用
+            <label className="kernel-invocation-selector">查看同一 trace 内的单次调用（共 {invocation.events.length} 次）
               <select aria-label="选择真实调用" value={invocation.selected.eventId} onChange={event=>navigate({entity:timelineEventEntity(view.active!.timeline.timelineId,event.target.value)},true)}>
-                {invocation.events.map((event,i)=><option key={event.eventId} value={event.eventId}>第 {i+1} 次 · {(event.startNs/1e6).toFixed(3)} ms 开始 · {(event.durationNs/1e3).toFixed(2)} μs</option>)}
+                {invocation.events.map((event,i)=><option key={event.eventId} value={event.eventId}>第 {i+1} 次调用 · {(event.startNs/1e6).toFixed(3)} ms 开始 · {(event.durationNs/1e3).toFixed(2)} μs</option>)}
               </select>
             </label>
             <svg className="kernel-duration-distribution" viewBox="0 0 400 48" role="img" aria-label="当前类别各次调用耗时分布，实心点为所选调用">
