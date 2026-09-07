@@ -3,7 +3,7 @@ import { RouteLink } from "../../../components/RouteLink";
 import type { Pi0AnalyticalResult } from "../../roofline/presentation/buildOperatorRooflineSummary";
 import { formatTime } from "../../roofline/presentation/viewModel";
 import { serializeInteractiveWorkload } from "../../roofline/data/materialize";
-import { pi0TheoryNavigationPatch } from "../../runtime/domain/pi0PerformanceNavigation";
+import { theoryNavigationPatch } from "../../runtime/domain/analysisNavigation";
 
 export function ModelTheorySummary({ result, route, navigate }: {
   result: Pi0AnalyticalResult;
@@ -13,7 +13,7 @@ export function ModelTheorySummary({ result, route, navigate }: {
   const total = result.status === "available" ? result.value.modelTotal : null;
   const scenario = result.status === "available" ? result.value.scenario : null;
   const expansion = {
-    ...pi0TheoryNavigationPatch(route, "expanded"),
+    ...theoryNavigationPatch(route, "expanded"),
     ...(scenario ? {
       workload: serializeInteractiveWorkload({
         executedCameraViews: scenario.workload.executed_camera_views,

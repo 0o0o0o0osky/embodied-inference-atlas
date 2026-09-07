@@ -1,7 +1,7 @@
 import type { RoutePatch, RouteState } from "../../app/routes";
 import type { AtlasData, ModelRecord } from "../../types/atlas";
 import { isInferenceRuntimeForModel } from "../runtime/domain/runtimeCatalog";
-import { isPi0ModelTheory } from "../runtime/domain/pi0PerformanceNavigation";
+import { isModelTheory } from "../runtime/domain/analysisNavigation";
 
 interface ContextBarProps {
   data: AtlasData;
@@ -16,34 +16,17 @@ export function ContextBar({ data, model, route, navigate }: ContextBarProps) {
     const runtime = runtimeById.get(runtimeId);
     return !runtime || isInferenceRuntimeForModel(runtime, model.model_id);
   };
-  const scopedRunIds = scopedEvidenceRunIds(data, route.tab);
-  const scopedRuns = data.datasets.runs.filter((run) =>
-    run.model_id === model.model_id
-    && (!scopedRunIds || scopedRunIds.has(run.run_id)),
-  );
-  const runtimeIds = new Set(scopedRuns
-    .filter((run) => isInferenceRuntimeId(run.runtime_id))
-    .map((run) => run.runtime_id));
-  const deviceIds = new Set(scopedRuns
-    .filter((run) => isInferenceRuntimeId(run.runtime_id) && (!route.runtime || run.runtime_id === route.runtime))
-    .map((run) => run.device_id));
-  const evidenceFiltered = route.tab === "end-to-end" || route.tab === "timeline";
-  const runtimes = data.datasets.runtimes.filter((runtime) =>
-    isInferenceRuntimeForModel(runtime, model.model_id)
-    && (evidenceFiltered ? runtimeIds.has(runtime.runtime_id) : true));
-  const devices = data.datasets.devices.filter((device) => evidenceFiltered ? deviceIds.has(device.device_id) : true);
+  const scopedRuns = data.datasets.runs.filter(run => run.model_id === model.model_id);
+  const runtimes = data.datasets.runtimes.filter(runtime => isInferenceRuntimeForModel(runtime, model.model_id));
+  const devices = data.datasets.devices;
   const runtimeKnown = runtimes.some(
     (runtime) => runtime.runtime_id === route.runtime,
   );
   const hardwareKnown = devices.some(
     (device) => device.device_id === route.hardware,
   );
-  const modelTheory = route.tab === "logical" || isPi0ModelTheory(route);
-  const compactActualPrecision = !modelTheory && (
-    (route.tab === "runtime" && route.runtime !== null)
-    || route.tab === "timeline"
-    || route.tab === "roofline-kernels"
-  );
+  const modelTheory = route.tab === "logical" || isModelTheory(route);
+  const compactActualPrecision = !modelTheory && route.runtime !== null;
   const precisionIds = [...new Set(scopedRuns
     .filter((run) => (
       isInferenceRuntimeId(run.runtime_id)
@@ -60,7 +43,7 @@ export function ContextBar({ data, model, route, navigate }: ContextBarProps) {
   });
 
     const runtimeOverview = route.tab === "runtime" && route.runtime === null;
-    const compactRooflinePrecision = route.tab === "logical" || route.tab === "roofline-kernels";
+    const compactRooflinePrecision = route.tab === "logical";
     const displayedTheoryPrecision = route.precision ?? "bf16_dense";
     const displayedRuntimePrecision = runtimeKnown
       ? route.runtimePrecision ?? (precisionIds.length === 1 ? precisionIds[0]! : "")
@@ -115,7 +98,7 @@ export function ContextBar({ data, model, route, navigate }: ContextBarProps) {
             <select value={displayedTheoryPrecision} onChange={(event) => navigate({
               precision: event.target.value || null,
               basis: null,
-              entity: modelTheory ? route.entity : route.tab === "roofline-kernels" ? null : route.entity,
+              entity: route.entity,
             }, true)}>
               {runtimeBoundPrecision ? <option value={route.precision!} disabled>推理栈绑定配置（只读）</option>
                 : !rooflinePrecisionIds.includes(displayedTheoryPrecision) ? <option value={displayedTheoryPrecision}>{precisionLabel(displayedTheoryPrecision)}</option> : null}
@@ -137,18 +120,6 @@ function runtimePrecisionLabel(precisionId: string): string {
     "mixed-bf16-fp32": "BF16 / FP32 混合执行",
     "q8_0-weight-only": "Q8_0 仅权重量化 / FP32 激活",
   } as Readonly<Record<string, string>>)[precisionId] ?? precisionId;
-}
-
-function scopedEvidenceRunIds(data: AtlasData, tab: RouteState["tab"]): Set<string> | null {
-  if (tab === "end-to-end") {
-    return new Set(data.datasets.end_to_end.flatMap((record) => typeof record.run_id === "string" ? [record.run_id] : []));
-  }
-  if (tab === "timeline") {
-    return new Set(data.datasets.profiler_captures.flatMap((record) =>
-      record.tool === "nsys" && typeof record.run_id === "string" ? [record.run_id] : [],
-    ));
-  }
-  return null;
 }
 
 function rooflinePrecisions(data: AtlasData, modelId: string): string[] {

@@ -1,0 +1,6 @@
+[
+  {"name":"median tie keeps earlier real sample", "walls":[100,101,102,103,104,105,106,107,108,109], "kernel_ns":[40,40,40,40,40,40,40,40,40,40], "calls":[1,1,1,1,1,1,1,1,1,1], "representative_index":4},
+  {"name":"stable wall cannot hide unstable hotspot", "walls":[100,100,100,100,100,100,100,100,100,100], "kernel_ns":[40,40,40,40,40,40,40,40,40,80], "calls":[1,1,1,1,1,1,1,1,1,1], "representative_index":null},
+  {"name":"stable timing cannot hide changed calls", "walls":[100,100,100,100,100,100,100,100,100,100], "kernel_ns":[40,40,40,40,40,40,40,40,40,40], "calls":[1,1,1,1,1,1,1,1,1,2], "representative_index":null},
+  {"name":"incomplete batch has no representative", "walls":[100,100], "kernel_ns":[40,40], "calls":[1,1], "representative_index":null}
+]

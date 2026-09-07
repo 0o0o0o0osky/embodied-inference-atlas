@@ -11,9 +11,29 @@ from tools.lib.runtime_realization import runtime_realization_problems
 SYMBOL='gate_geglu_merged_fp8_kernel_fp16(const __half *, __nv_fp8_e4m3 *, int, int, const float *)'
 
 
+def attach_time_precompute_recipe(record):
+    """Promote the already-audited Torch preparation recipe, preserving its evidence."""
+    record = copy.deepcopy(record)
+    if record['model_id'] != 'pi0' or record['runtime_id'] != 'flashrt' or record['runtime_revision'] != REVISION:
+        raise ValueError('Audited FlashRT implementation required')
+    item = next((r for r in record.get('reuse', []) if r['reuse_id'] == 'flashrt-time-projection'), None)
+    if item is None:
+        return record
+    proof = next(e for e in record['evidence'] if e['evidence_id'] in item['evidence_ids']
+                 and e['kind'] == 'source_code' and e['revision'] == REVISION
+                 and e['locator'] == 'flash_rt/frontends/torch/pi0_thor.py#set_prompt')
+    item['mechanism'] = dict(kind='time_precompute', model_id=record['model_id'], runtime_id=record['runtime_id'],
+        revision=REVISION, evidence_id=proof['evidence_id'], source_locator=proof['locator'],
+        preparation_device='GPU', execution_device='GPU',
+        preparation_scope='设置 prompt 时准备；后续观测继续读取这张表。', repeat_scope='每次观测的每个去噪步骤',
+        feature_operation='sin / cos', projection_operation='时间投影 + bias', action_operation='动作分支投影',
+        output_operations=['相加', 'SiLU', '输出投影'])
+    return record
+
+
 def extend_fixed_geglu(record,manifest,observations,capture_id,configuration_ids):
     if record['runtime_id']!='flashrt' or record['runtime_revision']!=REVISION: raise ValueError('Audited FlashRT revision required')
-    record=copy.deepcopy(record);links=[]
+    record=attach_time_precompute_recipe(record);links=[]
     # Source wrapper launches ceil((S*H/4)/256); Torch has S=304/H=16384
     # for prefix and S_dec=11/H=4096 for actions. Last prefix MLP is skipped.
     for gid,seq,hidden,calls in zip(GROUP_IDS,[304,11],[16384,4096],[17,180]):

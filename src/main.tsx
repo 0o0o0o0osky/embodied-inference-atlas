@@ -6,10 +6,9 @@ import "./styles/shell.css";
 import "./styles/model-graph.css";
 import "./styles/runtime.css";
 import "./styles/roofline.css";
-import "./styles/end-to-end.css";
 import "./styles/timeline.css";
 import "./styles/performance.css";
-import "./features/runtime/components/pi0PerformanceNavigation.css";
+import "./features/runtime/components/analysisNavigation.css";
 
 const root = document.getElementById("root");
 

@@ -81,6 +81,11 @@ Attention 固定沿用 Q/K/V 左中右顺序，RoPE 和 K/V 适配保持对应�
 精度不串值；缺失模块有明确状态；选择和返回沿用共享导航。未采集不等于接入失败，
 没有说明缺什么才是接入缺口。
 
+页面只保留模型理论与运行表现两个入口。理论 Roofline 是 `logical` 的
+`theoryView=roofline` 子视图；旧页面 URL 由 [routes](../src/app/routes.ts) 归一化，
+不维护独立的旧 E2E、时间线或 Kernel 页壳。选择与返回使用
+[AnalysisNavigation](../src/features/runtime/components/AnalysisNavigation.tsx)。
+
 ## 直接复用的模块
 
 | 模块 | 维护入口 | 改变实例时提供什么 |
@@ -98,10 +103,11 @@ Attention 固定沿用 Q/K/V 左中右顺序，RoPE 和 K/V 适配保持对应�
 | 逐元素运算与图块投影 | [单次公式](../src/features/roofline/domain/localOperatorEstimate.ts)、[局部图表适配](../src/features/model-graph/components/LocalOperatorRooflinePanel.tsx) | 加法、乘法、Euler 更新的形状；图块尺寸、共享投影权重、输入与输出位宽。普通加乘、融合乘加与矩阵计算分别选择上限 |
 | 归一化、激活与嵌入 | [计算配方](../src/features/roofline/domain/remainingOperatorEstimate.ts)、[共享面板适配](../src/features/model-graph/components/RemainingOperatorRooflinePanel.tsx) | LayerNorm 的中心方差、GELU 的 tanh 近似、SiLU、给定系数表的 RoPE、正弦时间编码和查表。普通算术与特殊函数分别计数，所选配方写在标题及折叠条件中 |
 | Attention 两种理论路径 | [公式](../src/features/roofline/domain/attentionEstimate.ts)、[共享图表](../src/features/roofline/components/AttentionRooflinePanel.tsx) | 单次 Q/K/V 形状、各张量字节数、mask 与 Tensor/CUDA/SFU/带宽速率；硬件 profile 单独配置并标注参考假设 |
+| Slice 索引范围 | [slicePresentation](../src/features/model-graph/presentation/slicePresentation.ts)、[模型声明 schema](../schema/model_graphs.schema.json) | 算子 `slice` 声明提供轴、范围、正步长表达式与是否去轴；读取当前 scope bindings 并校验结果形状，新模型无需前端 ID 分支 |
 | 布局与物化拷贝 | [ConcatCostPanel](../src/features/model-graph/components/ConcatCostPanel.tsx)、[带宽标尺](../src/features/roofline/components/BandwidthReferenceBar.tsx) | concat/reshape/slice/permute、单次输入与输出字节数、激活位宽与带宽；同一模板呈现预布局和物化条件。零 FLOP 的布局与查表用线性 GB/s 视图 |
 | 执行优化卡片与机制图 | [RuntimeReuseDiagram](../src/features/runtime/components/RuntimeReuseDiagram.tsx)、[机制配置](../src/features/runtime/presentation/reuseMechanisms.ts) | 复用类型、生命周期、依赖、失效条件；已核对的机制配置决定选哪幅图 |
 | 色彩、字体与交互 | [base.css](../src/styles/base.css)、[wheelZoom](../src/features/workbench/wheelZoom.ts) | 使用共享语义 token；不为每种硬件新建主题或缩放实现 |
-| 离线构建与截图 | [build](../tools/build.py)、[render_review](../tools/render_review.mjs) | 已解析数据、完整页面 URL、视窗和截图选择器；产物留 `.local/` |
+| 离线构建与截图 | [build](../tools/build.py)、[render_review](../tools/render_review.mjs) | 已解析数据、完整页面 URL、视窗和截图选择器；离线产物为 ignored `site/`；截图与日志留 `.local/` |
 
 页面与图形都用现有 React、SVG、CSS。机制图的布局是代码资产，输入来自 typed 配置；
 不为每个输入保存一张位图。真实截图是本次审阅记录，留本机。已有模型的 DAG 几何保持不变。

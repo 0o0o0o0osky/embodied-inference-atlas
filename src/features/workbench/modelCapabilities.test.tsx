@@ -49,7 +49,7 @@ function atlas(overrides: Partial<AtlasDatasets>): AtlasData {
 
 function route(overrides: Partial<RouteState> = {}): RouteState {
   return {
-    model: "pi0", tab: "roofline-kernels", runtime: null, hardware: null,
+    model: "pi0", tab: "logical", runtime: null, hardware: null,
     workload: null, precision: null, runtimePrecision: null, runtimeFacet: null, entity: null,
     timelineCapture: null, rooflineLevel: "overview", basis: null,
     ...overrides,
@@ -300,7 +300,7 @@ it("retains only target-model-compatible selections and discovers roofline suppo
       navigate={() => undefined}
     />,
   );
-  expect(markup).toContain("Roofline &amp; kernels");
+  expect(markup).toContain("当前场景的理论 Roofline 暂不可用");
 
   const sourceCeiling = ceilingDocument.records.find((item) =>
     item.ceiling_id === "thor-t5000-120w-1386mhz",

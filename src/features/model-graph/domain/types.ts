@@ -42,7 +42,19 @@ export interface MaterializedMetric {
   value: number | null;
 }
 
+export interface SliceDeclaration {
+  axis: Expr;
+  start: Expr;
+  stop: Expr;
+  step: Expr;
+  drop_axis: boolean;
+  output_symbol: string;
+  explanation: string;
+  identity_explanation?: string;
+}
+
 export interface OperatorDetail {
+  slice?: SliceDeclaration | undefined;
   ref: LogicalRef;
   operatorId: string;
   label: string;

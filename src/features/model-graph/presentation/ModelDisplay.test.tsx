@@ -1,3 +1,4 @@
+import { dagLabel } from "./operatorCatalog";
 import { expect, it } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
 import pi0 from '../../../../data/model_graphs/pi0.json';
@@ -51,6 +52,8 @@ it('uses shared terminology for all models while retaining their own scopes and 
 
 it('normalizes source synonyms through one vocabulary, including future model entries', () => {
   for (const model of ['pi0', 'pi05', 'smolvla', 'new-model']) {
+    expect(["prompt", "state", "patch", "reshape", "concat", "scale", "shift", "× gate", "x₀", "Qₛ RoPE"].map(dagLabel))
+      .toEqual(["Prompt", "State", "Patch", "Reshape", "Concat", "Scale", "Shift", "× Gate", "x₀", "Qₛ RoPE"]);
     const t = (label: string) => modelDisplayText(model, label);
     expect(['Images', 'Executed images', '512² execution'].map(t)).toEqual(['图像', '图像', '图像']);
     expect(['Prompt', 'Prompt tokens', 'Prompt token IDs'].map(t)).toEqual(['prompt', 'prompt', 'prompt']);

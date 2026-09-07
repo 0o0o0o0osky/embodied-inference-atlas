@@ -31,11 +31,11 @@ python3 -m http.server 8000 --bind 127.0.0.1 --directory site
 
 打开 **http://127.0.0.1:8000/**。
 
-准备命令会取得固定版本的 Perfetto 查看器；构建命令校验数据并生成 `site/`。如果已有发行包，可用 `python3 tools/vendor_perfetto.py --archive perfetto-ui.zip` 准备查看器，详见 [Perfetto 离线配置](docs/offline-perfetto.md)。
+准备命令会取得固定版本的 Perfetto 查看器；构建命令检查数据并生成可部署的 `site/` 目录。该目录由构建生成，已加入 Git 忽略列表。如果已有发行包，可用 `python3 tools/vendor_perfetto.py --archive perfetto-ui.zip` 准备查看器，详见 [Perfetto 离线配置](docs/offline-perfetto.md)。
 
 ## 开发或添加分析
 
-前端使用 TypeScript、React 与 Vite；Python 工具负责解析报告、校验证据和生成站点。使用 `npm run dev` 启动前端开发服务器，使用 `npm run typecheck` 检查类型。
+前端使用 TypeScript、React 与 Vite；Python 工具负责解析报告、校验证据和生成站点。运行 `npm run dev` 即可启动开发服务器，直接查看 `data/` 中的当前数据。完成改动和相关测试后，运行 `python3 -m tools.build` 检查并生成离线页面，再用浏览器审阅。
 
 - [完整分析流程](docs/single-inference-analysis.md)：从固定输入和性能问题出发，完成采集、分析、渲染与审阅。
 - [组件目录与接入契约](docs/analysis-components.md)：添加模型、推理栈或硬件时，复用已有页面和组件。

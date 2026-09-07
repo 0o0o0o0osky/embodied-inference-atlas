@@ -121,7 +121,16 @@ function optionalCost(value: unknown): number | null {
 }
 
 function reuseDescriptor(raw: RawRecord): RuntimeReuseDescriptor {
+  const recipe = raw.mechanism as RawRecord | undefined;
   return {
+    ...(recipe?.kind === 'time_precompute' ? {mechanism: {
+      kind: 'time_precompute' as const, modelId: text(recipe.model_id), runtimeId: text(recipe.runtime_id),
+      revision: text(recipe.revision), evidenceId: text(recipe.evidence_id), sourceLocator: text(recipe.source_locator),
+      preparationDevice: text(recipe.preparation_device), executionDevice: text(recipe.execution_device),
+      preparationScope: text(recipe.preparation_scope), repeatScope: text(recipe.repeat_scope),
+      featureOperation: text(recipe.feature_operation), projectionOperation: text(recipe.projection_operation),
+      actionOperation: text(recipe.action_operation), outputOperations: strings(recipe.output_operations),
+    }} : {}),
     reuseId: text(raw.reuse_id), label: text(raw.label),
     kind: text(raw.kind) as RuntimeReuseDescriptor["kind"],
     producerRefs: strings(raw.producer_refs), consumerRefs: strings(raw.consumer_refs),

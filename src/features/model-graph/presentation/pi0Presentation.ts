@@ -1,3 +1,4 @@
+import { operatorAliases } from "./operatorCatalog";
 import type {
   ConnectorHint,
   GraphPresentation,
@@ -24,50 +25,7 @@ const ACTION_ATTENTION = "action-flow-decoder/action-expert-blocks/self-attentio
 const ACTION_MLP = "action-flow-decoder/action-expert-blocks/feed-forward";
 const ACTION_HEAD = "action-flow-decoder/velocity-euler-update";
 
-const operatorAliases: Readonly<Record<string, string>> = {
-  "patch-project": "Patch",
-  "attention-norm": "Norm",
-  "query-projection": "Q",
-  "key-projection": "K",
-  "value-projection": "V",
-  attention: "Attn",
-  "output-projection": "O",
-  "attention-residual": "Add",
-  "mlp-norm": "MLP Norm",
-  "mlp-up-projection": "Up",
-  "mlp-gelu": "GELU",
-  "mlp-down-projection": "Down",
-  "mlp-residual": "Add",
-  normalize: "Final Norm",
-  project: "Project",
-  "flatten-views": "reshape",
-  "embed-prompt": "Token embed",
-  "build-prefix": "concat",
-  "query-rope": "Q RoPE",
-  "key-rope": "K RoPE",
-  "cache-output": "Prefix KV",
-  "gate-projection": "Gate",
-  "up-projection": "Up",
-  "gate-gelu": "GELU",
-  "gate-product": "Mul",
-  "down-projection": "Down",
-  "state-projection": "State",
-  "action-projection": "Action",
-  "time-embedding": "Sin/Cos",
-  "action-time-concat": "concat",
-  "time-mlp-in": "MLP in",
-  "time-mlp-silu": "SiLU",
-  "time-mlp-out": "MLP out",
-  "suffix-concat": "concat",
-  "extract-prefix-key": "Prefix K",
-  "extract-prefix-value": "Prefix V",
-  "key-concat": "K view",
-  "value-concat": "V view",
-  "final-norm": "Final RMSNorm",
-  "select-action-rows": "Row slice",
-  "velocity-projection": "Velocity proj",
-  "euler-update": "Euler",
-};
+const pi0LayoutAliases: Readonly<Record<string, string>> = { ...operatorAliases, "mlp-norm": "MLP Norm", "normalize": "Final Norm", "state-projection": "State", "action-time-concat": "concat", "velocity-projection": "Velocity proj" };
 
 const scopeOperators: Readonly<Record<string, readonly string[]>> = {
   "vision-encoder/image-patch-embedding": ["patch-project"],
@@ -161,7 +119,7 @@ const aliases: Record<LogicalRef, string> = {
 
 Object.entries(scopeOperators).forEach(([scope, operatorIds]) => {
   operatorIds.forEach((operatorId) => {
-    aliases[`${scope}/${operatorId}`] = operatorAliases[operatorId] ?? operatorId;
+    aliases[`${scope}/${operatorId}`] = pi0LayoutAliases[operatorId] ?? operatorId;
   });
 });
 

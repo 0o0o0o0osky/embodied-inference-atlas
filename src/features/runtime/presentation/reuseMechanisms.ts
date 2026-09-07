@@ -1,4 +1,4 @@
-import type { RuntimeRealizationRecord, RuntimeReuseDescriptor } from '../domain/types';
+import type { RuntimeRealizationRecord, RuntimeReuseDescriptor, TimePrecomputeMechanism } from '../domain/types';
 
 // Display-only translations of audited evidence; unknown values retain their text.
 const EVIDENCE_LABELS: Readonly<Record<string,string>> = {
@@ -33,26 +33,11 @@ export function repeatedWork(item: RuntimeReuseDescriptor, realization: RuntimeR
   return '后续使用时直接读取已有结果，省去有效范围内的重复计算。';
 }
 
-export interface TimePrecomputeConfig {
-  preparationDevice: string;
-  executionDevice: string;
+export interface TimePrecomputeConfig extends Omit<TimePrecomputeMechanism,
+  'kind' | 'modelId' | 'runtimeId' | 'revision' | 'evidenceId' | 'sourceLocator'> {
   scheduleLabel: string;
   tableLabel: string;
-  preparationScope: string;
-  repeatScope: string;
-  featureOperation: string;
-  projectionOperation: string;
-  actionOperation: string;
-  outputOperations: readonly string[];
 }
-
-const FLASHRT_TIME = {
-  preparationDevice: 'GPU', executionDevice: 'GPU',
-  preparationScope: '设置 prompt 时准备；后续观测继续读取这张表。',
-  repeatScope: '每次观测的每个去噪步骤',
-  featureOperation: 'sin / cos', projectionOperation: '时间投影 + bias',
-  actionOperation: '动作分支投影', outputOperations: ['相加', 'SiLU', '输出投影'],
-} as const;
 
 export const confirmedGraphReplay = (record: RuntimeRealizationRecord) =>
   record.launch.cudaGraphState === 'present' && record.launch.submissionMode === 'cuda_graph_replay';
@@ -62,18 +47,18 @@ export function resolveReuseMechanisms(record: RuntimeRealizationRecord) {
     && item.producerRefs.some(ref => ref.startsWith('prefix-encoder/') && ref.endsWith('/key-projection'))));
   const graph = confirmedGraphReplay(record);
   const timeConfigurations = new Map<string, TimePrecomputeConfig>();
-  // This split is audited for this implementation and revision only.
-  if (record.modelId === 'pi0'
-    && record.runtimeId === 'flashrt' && record.runtimeRevision === '054bea4d02ebc63f6a0c45991c6061b1e1caa46c') {
-    const item = items.find(item => item.reuseId === 'flashrt-time-projection' && item.implementationStatus === 'implemented'
-      && item.kind === 'computed_result' && item.lifetime === 'across_observations'
-      && item.evidenceIds.some(id => record.evidence.some(evidence => evidence.evidenceId === id
-        && evidence.kind === 'source_code' && evidence.sourceId === 'source-flashrt'
-        && evidence.revision === record.runtimeRevision
-        && evidence.locator === 'flash_rt/frontends/torch/pi0_thor.py#set_prompt')));
+  for (const item of items) {
+    const recipe = item.mechanism;
     const steps = record.workloadApplicability?.denoiseSteps;
-    if (item && steps != null && steps > 0) timeConfigurations.set(item.reuseId, {
-      ...FLASHRT_TIME, scheduleLabel: `固定 ${steps} 步时间表`, tableLabel: `存好 ${steps} 步结果`,
+    if (!recipe || recipe.kind !== 'time_precompute' || item.implementationStatus !== 'implemented'
+      || item.kind !== 'computed_result' || item.lifetime !== 'across_observations'
+      || recipe.modelId !== record.modelId || recipe.runtimeId !== record.runtimeId
+      || recipe.revision !== record.runtimeRevision || steps == null || steps <= 0) continue;
+    const proven = item.evidenceIds.includes(recipe.evidenceId) && record.evidence.some(evidence =>
+      evidence.evidenceId === recipe.evidenceId && evidence.kind === 'source_code'
+      && evidence.revision === recipe.revision && evidence.locator === recipe.sourceLocator);
+    if (proven) timeConfigurations.set(item.reuseId, {
+      ...recipe, scheduleLabel: `固定 ${steps} 步时间表`, tableLabel: `存好 ${steps} 步结果`,
     });
   }
   const graphItems = new Set(items.filter(item => graph && item.kind === 'execution_plan' && item.implementationStatus === 'implemented').map(item => item.reuseId));

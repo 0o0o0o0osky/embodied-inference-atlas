@@ -87,3 +87,18 @@ it('reuses the audited Torch mechanism on another device but rejects another mod
  expect(resolve({...otherDevice,runtimeRevision:'other-revision'})).toBe(0);
  expect(resolve({...otherDevice,evidence:otherDevice.evidence.map(item=>({...item,locator:'another/frontend#set_prompt'}))})).toBe(0);
 });
+
+it('requires an explicit source-bound time recipe instead of inferring it from the runtime name', () => {
+ const flash=adaptRuntimeRealization(atlasSnapshot.datasets.runtime_realizations.find(record=>record.realization_id==='rr-flashrt-pi0-thor-fp8-v1')!);
+ const withoutRecipe={...flash,reuse:flash.reuse!.map(({mechanism,...item})=>item)};
+ expect(resolveReuseMechanisms(withoutRecipe).timeConfigurations.size).toBe(0);
+});
+
+it('renders a separately declared recipe for a different model and runtime', () => {
+ const original=adaptRuntimeRealization(atlasSnapshot.datasets.runtime_realizations.find(record=>record.realization_id==='rr-flashrt-pi0-thor-fp8-v1')!);
+ const record={...original,modelId:'new-model',runtimeId:'new-runtime',runtimeRevision:'new-revision',
+   evidence:original.evidence.map(e=>({...e,revision:'new-revision'})),
+   reuse:original.reuse!.map(item=>item.mechanism?{...item,mechanism:{...item.mechanism,
+     modelId:'new-model',runtimeId:'new-runtime',revision:'new-revision',preparationDevice:'CPU'}}:item)};
+ expect(resolveReuseMechanisms(record).timeConfigurations.get('flashrt-time-projection')?.preparationDevice).toBe('CPU');
+});

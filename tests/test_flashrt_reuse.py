@@ -24,4 +24,17 @@ class FlashrtReuseTests(unittest.TestCase):
         invalid=deepcopy(record);invalid['reuse'][0]['evidence_ids']=[]
         self.assertIn('reuse_evidence',{i.code for i in runtime_realization_problems(invalid,graph)})
 
+    def test_time_recipe_is_reproducible_and_source_bound(self):
+        from extractors.flashrt_fixed_realization import attach_time_precompute_recipe
+        from tools.lib.contracts import validate_document
+        document = load_json(ROOT/'data/runtime_realizations/pi0.json')
+        record = next(r for r in document['records'] if r['runtime_id'] == 'flashrt')
+        graph = load_json(ROOT/'data/model_graphs/pi0.json')['records'][0]
+        self.assertEqual(attach_time_precompute_recipe(record), record)
+        self.assertEqual(validate_document('runtime_realizations', document, ROOT), [])
+        changed = deepcopy(record)
+        item = next(r for r in changed['reuse'] if r['reuse_id'] == 'flashrt-time-projection')
+        item['mechanism']['revision'] = 'unreviewed-version'
+        self.assertIn('reuse_mechanism_source', {p.code for p in runtime_realization_problems(changed, graph)})
+
 if __name__=='__main__':unittest.main()

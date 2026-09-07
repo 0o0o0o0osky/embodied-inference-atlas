@@ -1,3 +1,4 @@
+import { dagLabel } from "../presentation/operatorCatalog";
 import { routedEdgeSemantics } from "../domain/edgeSemantics";
 import { isWheelZoomGesture } from "../../workbench/wheelZoom";
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
@@ -107,7 +108,7 @@ function NodeShape({
 }) {
   const t = useModelText();
   const visual = nodeVisual(node, presentation);
-  const label = t(nodeAlias(node, presentation));
+  const label = dagLabel(t(nodeAlias(node, presentation)));
   if (visual === "inline") {
     const symbol = node.definitionId === "residual-add" ? "+" : "×";
     return (

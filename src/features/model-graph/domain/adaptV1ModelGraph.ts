@@ -18,6 +18,7 @@ import type {
   MaterializedTemplate,
   MaterializedTemplateTensor,
   OperatorDetail,
+  SliceDeclaration,
 } from "./types";
 
 interface RawSymbol {
@@ -69,6 +70,7 @@ interface RawDefinition {
 }
 
 interface RawOperator {
+  slice?: SliceDeclaration;
   operator_id: string;
   label: string;
   definition_id: string;
@@ -359,6 +361,7 @@ function materializeAtomicTemplate(
       visualizer: definition.visualizer,
       bindings,
       scopeBindings: environment,
+      ...(operator.slice ? {slice: operator.slice} : {}),
       inputs: materializePorts(operator.inputs, tensorsById),
       outputs: materializePorts(operator.outputs, tensorsById),
       analysis,

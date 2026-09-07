@@ -1,17 +1,15 @@
 import type { RoutePatch, RouteState } from "../../../app/routes";
 import { logicalEntity, logicalRefFromEntity } from "../../workbench/entityKeys";
 
-export function isPi0ModelTheory(route: RouteState): boolean {
-  return route.tab === "logical" || (
-    route.tab === "roofline-kernels" && !route.runtime
-    && ["overview", "stage", "atomic"].includes(route.rooflineLevel)
-  );
+export function isModelTheory(route: RouteState): boolean {
+  return route.tab === "logical";
 }
 
-export function pi0TheoryNavigationPatch(route: RouteState, destination: "logical" | "expanded"): RoutePatch {
+export function theoryNavigationPatch(route: RouteState, destination: "logical" | "expanded"): RoutePatch {
   const ref = logicalRefFromEntity(route.entity);
   return {
-    tab: destination === "logical" ? "logical" : "roofline-kernels",
+    tab: "logical",
+    theoryView: destination === "logical" ? null : "roofline",
     runtime: null, runtimePrecision: null, runtimeFacet: null,
     timelineCapture: null, basis: null,
     entity: ref ? logicalEntity(ref) : null,
@@ -29,19 +27,19 @@ interface EmbeddedTimelineSelection {
   entity: string;
 }
 
-export function pi0PerformanceNavigationPatch(
+export function performanceNavigationPatch(
   destination: "logical" | "comparison" | "stack",
 ): RoutePatch {
   return {
     tab: destination === "logical" ? "logical" : "runtime",
-    ...(destination === "logical" ? {entity:null,timelineCapture:null} : {}),
+    ...(destination === "logical" ? {entity:null,timelineCapture:null,theoryView:null} : {}),
     basis: null,
     rooflineLevel: "overview",
     ...(destination === "stack" ? {} : { runtime: null, runtimePrecision: null, runtimeFacet: null }),
   };
 }
 
-export function pi0EmbeddedTimelineSelectionPatch(selection: EmbeddedTimelineSelection): RoutePatch {
+export function embeddedTimelineSelectionPatch(selection: EmbeddedTimelineSelection): RoutePatch {
   return {
     tab: "runtime",
     runtime: selection.runtime,

@@ -78,8 +78,27 @@ export interface WorkloadApplicability {
   evidenceIds: readonly string[];
 }
 
+/** A reviewed computation recipe, explicitly bound to its implementation source. */
+export interface TimePrecomputeMechanism {
+  kind: 'time_precompute';
+  modelId: string;
+  runtimeId: string;
+  revision: string;
+  evidenceId: string;
+  sourceLocator: string;
+  preparationDevice: string;
+  executionDevice: string;
+  preparationScope: string;
+  repeatScope: string;
+  featureOperation: string;
+  projectionOperation: string;
+  actionOperation: string;
+  outputOperations: readonly string[];
+}
+
 /** Optional source-backed lifecycle evidence; duration fields are never inferred. */
 export interface RuntimeReuseDescriptor {
+  mechanism?: TimePrecomputeMechanism;
   reuseId: string;
   label: string;
   kind: "computed_result" | "execution_plan" | "storage";

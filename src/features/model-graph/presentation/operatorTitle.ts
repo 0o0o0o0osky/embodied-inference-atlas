@@ -1,70 +1,6 @@
+import { OPERATOR_CATALOG, OPERATOR_KIND_NAMES as kinds } from "./operatorCatalog";
 import type { OperatorDetail } from "../domain/types";
 import type { ModelText } from "./ModelDisplay";
-
-const roles: Readonly<Record<string, string>> = {
-  "query-projection": "Q projection",
-  "key-projection": "K projection",
-  "value-projection": "V projection",
-  "output-projection": "Attention output projection",
-  "up-projection": "MLP Up projection",
-  "mlp-up-projection": "MLP Up projection",
-  "down-projection": "MLP Down projection",
-  "mlp-down-projection": "MLP Down projection",
-  "gate-projection": "MLP Gate projection",
-  "patch-project": "Patch projection",
-  "project": "Vision projection",
-  "connector-projection": "Vision connector projection",
-  "condition-projection": "Condition projection",
-  "final-condition-projection": "Condition projection",
-  "state-projection": "State projection",
-  "action-projection": "Action projection",
-  "velocity-projection": "Velocity projection",
-  "key-adapter": "Cross-attention K projection",
-  "value-adapter": "Cross-attention V projection",
-  "query-rope": "Q RoPE",
-  "key-rope": "K RoPE",
-  "time-embedding": "Sinusoidal time embedding",
-  "embed-prompt": "Prompt embedding",
-  "scale-slice": "Select scale",
-  "final-scale-slice": "Select scale",
-  "shift-slice": "Select shift",
-  "final-shift-slice": "Select shift",
-  "gate-slice": "Select Gate",
-  "scale-product": "RMSNorm × scale",
-  "final-scale-product": "RMSNorm × scale",
-  "scale-offset": "RMSNorm residual addition",
-  "final-scale-offset": "RMSNorm residual addition",
-  "shift-add": "Add shift",
-  "final-shift-add": "Add shift",
-  "residual-gate": "Residual Gate multiplication",
-  "residual-add": "Gated residual addition",
-  "attention-residual": "Attention residual addition",
-  "mlp-residual": "MLP residual addition",
-  "gate-product": "MLP Gate multiplication",
-  "action-time-concat": "Action/time concat",
-  "suffix-concat": "State/action concat",
-  "image-language-concat": "Vision/prompt concat",
-  "key-concat": "Prefix/suffix K concat",
-  "value-concat": "Prefix/suffix V concat",
-  "extract-prefix-key": "Prefix K selection",
-  "extract-prefix-value": "Prefix V selection",
-  "key-cache-output": "K cache view",
-  "value-cache-output": "V cache view",
-  "pair-key-layers": "K layer indexing",
-  "pair-value-layers": "V layer indexing",
-  "select-action-rows": "Action token selection",
-  "public-action-slice": "Public action selection",
-};
-
-const kinds: Readonly<Record<string, string>> = {
-  "linear": "Linear projection", "patch-embedding": "Patch embedding",
-  "token-embedding": "Embedding lookup", "layer-norm": "LayerNorm", "rms-norm": "RMSNorm",
-  "attention-core": "Attention", "rope": "RoPE", "gelu": "GELU", "silu": "SiLU",
-  "slice": "Slice", "reshape": "Reshape", "concat": "Concat",
-  "permute-rearrange": "Permute", "residual-add": "Elementwise addition",
-  "elementwise-multiply": "Elementwise multiplication", "scalar-scale": "Scalar multiplication",
-  "sinusoidal-time-embedding": "Sinusoidal time embedding", "euler-update": "Euler update",
-};
 
 /** Full detail names use the operator role; compact DAG aliases stay separate. */
 export function operatorTitle(operator: OperatorDetail, t: ModelText): string {
@@ -90,7 +26,7 @@ export function operatorTitle(operator: OperatorDetail, t: ModelText): string {
     return hasState ? "Vision/prompt/state concat" : "Vision/prompt concat";
   }
   if (kind === "gelu" || kind === "silu") return kinds[kind]!;
-  return roles[id] ?? t(operator.label);
+  return OPERATOR_CATALOG[id]?.title ?? t(operator.label);
 }
 
 export function operatorKindLabel(operator: OperatorDetail, t: ModelText): string {
@@ -98,15 +34,5 @@ export function operatorKindLabel(operator: OperatorDetail, t: ModelText): strin
 }
 
 export function operatorExplanation(operator: OperatorDetail): string | null {
-  if (["key-adapter", "value-adapter"].includes(operator.operatorId) && operator.definitionId === "linear") {
-    const name = operator.operatorId === "key-adapter" ? "K" : "V";
-    return `用学习到的权重对缓存的 prefix ${name} 做线性投影，供 action expert 的 Cross-attention 使用。`;
-  }
-  if (["shift-add", "final-shift-add"].includes(operator.operatorId)) {
-    return "shift 来自时间条件投影，沿 token 轴广播后逐元素相加。";
-  }
-  if (["scale-offset", "final-scale-offset"].includes(operator.operatorId)) {
-    return "加回原 RMSNorm 结果，得到 RMSNorm(X) × (1 + scale)。";
-  }
-  return null;
+  return OPERATOR_CATALOG[operator.operatorId]?.explanation ?? null;
 }

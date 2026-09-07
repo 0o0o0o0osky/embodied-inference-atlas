@@ -33,10 +33,14 @@ maintained code and evidence small; it is not a collection of every experiment.
   case review. A missing graph must not hide valid timing or Kernel details.
 - Additional collection must resolve a named evidence gap. Stop once the
   question is answerable; do not expand to all kernels, metrics or input combinations.
-- Check changed behavior, typecheck, canonical validation, offline build and a
-  real browser. Keep tests bounded; do not add stress/combination suites for UI edits.
+- Run relevant incremental tests, then one `python -m tools.build` (includes
+  typecheck, canonical validation and offline asset checks), and inspect the changed
+  browser path. Use `--check` instead only when output must remain untouched.
+  Do not repeat the same checks before/after that build without new changes.
+  Keep tests bounded; do not add stress/combination suites for UI edits.
 - Before finishing, report useful findings, evidence limits, changed data/asset
   size and relevant checks. The deliverable is a readable analysis plus a repeatable process.
 - Pinned third-party UI binaries are reproducible local dependencies, not source
-  to vendor repeatedly. Generated `site/perfetto/` and local reports stay out of Git.
+  to vendor repeatedly. Generated `site/` and local reports stay out of Git. Development serves canonical
+  records directly; deployment requires building the offline directory first.
   Do not download models, change clocks/power, or alter the inference implementation.

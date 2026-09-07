@@ -21,9 +21,10 @@ import { layoutLogicalDag } from "./layout/paperLayout";
 import { resolveConnectorHints } from "./layout/routeConnectors";
 import { resolvePresentationProfile } from "./presentation/registry";
 import { ModelDisplayProvider, useModelText } from "./presentation/ModelDisplay";
-import { pi0TheoryNavigationPatch } from "../runtime/domain/pi0PerformanceNavigation";
+import { theoryNavigationPatch } from "../runtime/domain/analysisNavigation";
 import { serializeInteractiveWorkload } from "../roofline/data/materialize";
 import { materializeCurrentModelRoofline } from "../roofline/presentation/buildOperatorRooflineSummary";
+import { ModelRooflineAnalysis } from "./components/ModelRooflineAnalysis";
 
 interface ModelGraphWorkspaceProps {
   data: AtlasData;
@@ -72,13 +73,13 @@ export function ModelGraphWorkspace({
 
   return (
     <ModelDisplayProvider modelId={model.model_id}>
-    <ResolvedModelGraph
+    {route.theoryView === "roofline" ? <ModelRooflineAnalysis data={data} model={model} route={route} navigate={navigate} /> : <ResolvedModelGraph
       data={data}
       record={record}
       model={model}
       route={route}
       navigate={navigate}
-    />
+    />}
     </ModelDisplayProvider>
   );
 }
@@ -225,7 +226,7 @@ function ResolvedModelGraph({
               detail={operator}
               logicalRef={operator.ref}
               fullAnalysisLink={<RouteLink route={route} navigate={navigate} patch={{
-                ...pi0TheoryNavigationPatch(route, "expanded"),
+                ...theoryNavigationPatch(route, "expanded"),
                 workload: modelRoofline.status === "available" ? serializeInteractiveWorkload({
                   executedCameraViews: modelRoofline.value.scenario.workload.executed_camera_views,
                   executedPromptTokens: modelRoofline.value.scenario.workload.executed_prompt_tokens,
@@ -241,7 +242,7 @@ function ResolvedModelGraph({
               }}>展开此算子的 Roofline</RouteLink>}
             /> : undefined}
             rooflineLink={<RouteLink route={route} navigate={navigate} patch={{
-              ...pi0TheoryNavigationPatch(route, "expanded"),
+              ...theoryNavigationPatch(route, "expanded"),
             }}>展开此算子的 Roofline</RouteLink>}
           />
         ) : null}

@@ -3644,7 +3644,24 @@
                   "tensor_id": "scale"
                 }
               ],
-              "bindings": []
+              "bindings": [],
+              "slice": {
+                "axis": 1,
+                "start": 0,
+                "stop": {
+                  "op": "mul",
+                  "args": [
+                    1,
+                    {
+                      "symbol": "D"
+                    }
+                  ]
+                },
+                "step": 1,
+                "drop_axis": false,
+                "output_symbol": "scale",
+                "explanation": "从长度为 3 × D 的条件向量中取第一段，每段 D={D}。三段依次是 scale、shift、Gate，索引范围采用左闭右开区间。"
+              }
             },
             {
               "operator_id": "shift-slice",
@@ -3663,7 +3680,32 @@
                   "tensor_id": "shift"
                 }
               ],
-              "bindings": []
+              "bindings": [],
+              "slice": {
+                "axis": 1,
+                "start": {
+                  "op": "mul",
+                  "args": [
+                    1,
+                    {
+                      "symbol": "D"
+                    }
+                  ]
+                },
+                "stop": {
+                  "op": "mul",
+                  "args": [
+                    2,
+                    {
+                      "symbol": "D"
+                    }
+                  ]
+                },
+                "step": 1,
+                "drop_axis": false,
+                "output_symbol": "shift",
+                "explanation": "从长度为 3 × D 的条件向量中取第二段，每段 D={D}。三段依次是 scale、shift、Gate，索引范围采用左闭右开区间。shift 是时间条件生成的 bias，用于逐元素相加。"
+              }
             },
             {
               "operator_id": "gate-slice",
@@ -3682,7 +3724,32 @@
                   "tensor_id": "gate"
                 }
               ],
-              "bindings": []
+              "bindings": [],
+              "slice": {
+                "axis": 1,
+                "start": {
+                  "op": "mul",
+                  "args": [
+                    2,
+                    {
+                      "symbol": "D"
+                    }
+                  ]
+                },
+                "stop": {
+                  "op": "mul",
+                  "args": [
+                    3,
+                    {
+                      "symbol": "D"
+                    }
+                  ]
+                },
+                "step": 1,
+                "drop_axis": false,
+                "output_symbol": "gate",
+                "explanation": "从长度为 3 × D 的条件向量中取第三段，每段 D={D}。三段依次是 scale、shift、Gate，索引范围采用左闭右开区间。"
+              }
             },
             {
               "operator_id": "scale-product",
@@ -8336,7 +8403,24 @@
                   "tensor_id": "scale"
                 }
               ],
-              "bindings": []
+              "bindings": [],
+              "slice": {
+                "axis": 1,
+                "start": 0,
+                "stop": {
+                  "op": "mul",
+                  "args": [
+                    1,
+                    {
+                      "symbol": "D"
+                    }
+                  ]
+                },
+                "step": 1,
+                "drop_axis": false,
+                "output_symbol": "scale",
+                "explanation": "从长度为 3 × D 的条件向量中取第一段，每段 D={D}。三段依次是 scale、shift、Gate，索引范围采用左闭右开区间。"
+              }
             },
             {
               "operator_id": "final-shift-slice",
@@ -8355,7 +8439,32 @@
                   "tensor_id": "shift"
                 }
               ],
-              "bindings": []
+              "bindings": [],
+              "slice": {
+                "axis": 1,
+                "start": {
+                  "op": "mul",
+                  "args": [
+                    1,
+                    {
+                      "symbol": "D"
+                    }
+                  ]
+                },
+                "stop": {
+                  "op": "mul",
+                  "args": [
+                    2,
+                    {
+                      "symbol": "D"
+                    }
+                  ]
+                },
+                "step": 1,
+                "drop_axis": false,
+                "output_symbol": "shift",
+                "explanation": "从长度为 3 × D 的条件向量中取第二段，每段 D={D}。三段依次是 scale、shift、Gate，索引范围采用左闭右开区间。shift 是时间条件生成的 bias，用于逐元素相加。"
+              }
             },
             {
               "operator_id": "final-scale-product",
@@ -8730,7 +8839,19 @@
                   "tensor_id": "output"
                 }
               ],
-              "bindings": []
+              "bindings": [],
+              "slice": {
+                "axis": 2,
+                "start": 0,
+                "stop": {
+                  "symbol": "DOUT"
+                },
+                "step": 1,
+                "drop_axis": false,
+                "output_symbol": "Y",
+                "explanation": "沿最后一轴（action width）取前 {DOUT} 个分量，保留 batch 与 action horizon。当前内部 {DIN} 维动作输出为公开 {DOUT} 维。",
+                "identity_explanation": "当前 {DIN}→{DOUT} 覆盖整个轴，数值与形状保持不变。"
+              }
             }
           ],
           "components": []

@@ -12,7 +12,7 @@ import { adaptRuntimeRealization, isRuntimeRealizationRecord } from "./adaptRunt
 import { buildRuntimeStackSummaries, resolveRuntimeCandidates } from "./resolveRuntimeRealization";
 import { resolveRuntimeBounds } from "./runtimeBounds";
 import { runtimeProfilerSlice, scopeRuntimeProfiler, selectIndependentNcuReplayEvidence, selectRuntimeProfilerCaptures } from "./scopeRuntimeProfiler";
-import { buildTraceBatches, endToEndBatch } from './analysisSamples';
+import { endToEndBatch } from './analysisSamples';
 
 export interface AnalysisContextInput {
   data: AtlasData;
@@ -128,10 +128,13 @@ export function resolveAnalysisContext({ data, model, record, route, facetContex
     ? scopedProfiler.timelines.find(item => item.timelineId === selectedEntity.timelineId)?.captureId ?? null
     : selectedEntity?.kind === "kernel" ? selectedEntity.captureId : null;
   const batch = endToEndBatch(selectedRun);
-  const traceBatches = buildTraceBatches(scopedProfiler).filter(item=>!batch || item.inputCaseId===batch.inputCaseId);
-  const storedSummary = scopedProfiler.captures.map(c=>c.analysisSummary).find(s=>s?.status==='stable' && (!batch || s.inputCaseId===batch.inputCaseId));
-  const representative = storedSummary?.representativeCaptureId ?? traceBatches.find(item=>item.status==='stable')?.representativeCaptureId ?? null;
-  const defaultCapture = representative ?? traceBatches[0]?.samples[0]?.captureId
+  const storedSummary = scopedProfiler.captures.find(capture => {
+    const summary = capture.analysisSummary;
+    return capture.tool === 'nsys' && summary?.status === 'stable'
+      && summary.representativeCaptureId === capture.captureId
+      && (!batch || summary.inputCaseId === batch.inputCaseId);
+  })?.analysisSummary;
+  const defaultCapture = storedSummary?.representativeCaptureId
     ?? scopedProfiler.captures.find(item=>item.nsys?.reportMode==='node')?.captureId ?? null;
   const profilerCaptureSelection = selectRuntimeProfilerCaptures(scopedProfiler, route.timelineCapture ?? entityCapture ?? defaultCapture);
   const timeline = buildTimelineView(scopedData, scopedProfiler, indexProfilerEvidence(scopedProfiler), {
@@ -180,7 +183,7 @@ export function resolveAnalysisContext({ data, model, record, route, facetContex
   return { defaultGraph, normalizedWorkload, overrides, workload, realizations, summaries, candidates,
     actualPrecision, activeRealization, implementationRealization, slice, scopedData, scopedProfiler,
     partialContextRunIds, independentNcu, kernelPartialContextRunIds, profilerCaptureSelection,
-    nsys, kernels, selectedRun, selectedEvidence, runtimeBounds, reasons, captureIdentities, batch, traceBatches, traceSummary };
+    nsys, kernels, selectedRun, selectedEvidence, runtimeBounds, reasons, captureIdentities, batch, traceSummary };
 }
 
 export type AnalysisContext = ReturnType<typeof resolveAnalysisContext>;

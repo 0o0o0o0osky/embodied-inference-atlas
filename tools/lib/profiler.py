@@ -14,6 +14,7 @@ from extractors.profiler_common import (
     valid_warp_trigger,
 )
 from tools.lib.contracts import Issue
+from tools.lib.analysis_policy import WARMUP, SAMPLES, CV_LIMIT
 from tools.lib.model_graph import materialize_model_graph
 
 
@@ -150,12 +151,12 @@ def profiler_semantic_issues(datasets: Mapping[str, list[Mapping]]) -> list[Issu
             def stable_stat(stat):
                 median, cv = stat.get("median_ns"), stat.get("cv")
                 return (isinstance(median, (int, float)) and math.isfinite(median) and median > 0
-                        and isinstance(cv, (int, float)) and math.isfinite(cv) and 0 <= cv <= .05)
+                        and isinstance(cv, (int, float)) and math.isfinite(cv) and 0 <= cv <= CV_LIMIT)
             valid = (
                 tool == "nsys" and summary.get("status") == "stable"
                 and summary.get("representative_capture_id") == capture.get("capture_id")
-                and summary.get("sample_count") == sample.get("measured_iterations") == 10
-                and summary.get("warmup_iterations") == sample.get("warmup_iterations") == 5
+                and summary.get("sample_count") == sample.get("measured_iterations") == SAMPLES
+                and summary.get("warmup_iterations") == sample.get("warmup_iterations") == WARMUP
                 and summary.get("batch_id") == sample.get("batch_id")
                 and summary.get("input_case_id") == sample.get("input_case_id")
                 and capture.get("coverage", {}).get("is_complete_for_population") is True

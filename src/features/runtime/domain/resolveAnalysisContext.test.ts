@@ -144,3 +144,16 @@ it('preserves explicitly selected input dimensions without a logical graph',()=>
  expect(context.overrides).toEqual({V:2,L_PROMPT:48,T_ACTION:50,N_DENOISE:10});
  expect(context.nsys.active).toBeNull();
 });
+
+it("uses the persisted representative while keeping an explicit unsummarized trace readable", () => {
+  const selected = data.datasets.runs.find(item => item.run_id === 'run-pi0-flashrt-nsys-node-001')!;
+  const historicRoute = {...route, runtime:selected.runtime_id, runtimePrecision:selected.precision.precision_id,
+    workload:selected.configuration_id, timelineCapture:'capture-pi0-flashrt-nsys-node-001'};
+  const historical = resolve({data,model,record,route:historicRoute});
+  expect(historical.nsys.active?.capture.captureId).toBe('capture-pi0-flashrt-nsys-node-001');
+  expect(historical.nsys.active?.timeline.window.durationNs).toBeGreaterThan(0);
+  expect(historical.traceSummary).toBeNull();
+  const current = resolve({data,model,record,route});
+  expect(current.nsys.active?.capture.captureId).toBe(current.traceSummary?.representativeCaptureId);
+  expect(current.traceSummary?.status).toBe('stable');
+});

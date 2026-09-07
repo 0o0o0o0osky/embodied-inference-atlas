@@ -2,7 +2,7 @@ import type { AtlasData } from "../types/atlas";
 import type { RoutePatch, RouteState } from "../app/routes";
 import { RouteLink } from "./RouteLink";
 import { ContextBar } from "../features/workbench/ContextBar";
-import { isPi0ModelTheory, pi0PerformanceNavigationPatch, pi0TheoryNavigationPatch } from "../features/runtime/domain/pi0PerformanceNavigation";
+import { isModelTheory, performanceNavigationPatch, theoryNavigationPatch } from "../features/runtime/domain/analysisNavigation";
 
 interface AtlasHeaderProps {
   data: AtlasData;
@@ -26,10 +26,10 @@ const HOME_ROUTE: RoutePatch = {
 export function AtlasHeader({ data, route, navigate }: AtlasHeaderProps) {
   const { models } = data.datasets;
   const model = models.find((item) => item.model_id === route.model);
-  const modelTheory = route.tab === "logical" || isPi0ModelTheory(route);
+  const modelTheory = route.tab === "logical" || isModelTheory(route);
   const topEntries = [
-    { tab: "logical" as const, label: "模型理论", patch: modelTheory ? pi0TheoryNavigationPatch(route, "logical") : pi0PerformanceNavigationPatch("logical") },
-    { tab: "runtime" as const, label: "运行表现", patch: pi0PerformanceNavigationPatch("comparison") },
+    { tab: "logical" as const, label: "模型理论", patch: modelTheory ? theoryNavigationPatch(route, "logical") : performanceNavigationPatch("logical") },
+    { tab: "runtime" as const, label: "运行表现", patch: performanceNavigationPatch("comparison") },
   ];
 
   return (

@@ -19,6 +19,27 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class ValidationTests(unittest.TestCase):
+    def test_declared_slice_semantics_reject_invalid_step_and_shape(self):
+        graph = load_json(ROOT / "data/model_graphs/pi0.json")["records"][0]
+        operator = next(o for t in graph["component_templates"] for o in t["operators"] if o.get("slice"))
+        self.assertEqual(graph_semantic_problems(graph), [])
+        operator["slice"]["step"] = 0
+        self.assertIn("invalid_slice", [p.code for p in graph_semantic_problems(graph)])
+        operator["slice"]["step"] = 1
+        operator["slice"]["stop"] = 9
+        self.assertIn("invalid_slice", [p.code for p in graph_semantic_problems(graph)])
+
+    def test_slice_checks_real_scope_width_not_unit_template_parameters(self):
+        graph = load_json(ROOT / "data/model_graphs/pi05.json")["records"][0]
+        operator = next(o for t in graph["component_templates"] for o in t["operators"] if o["operator_id"] == "scale-slice")
+        operator["slice"]["stop"] = 1
+        self.assertIn("invalid_slice", [p.code for p in graph_semantic_problems(graph)])
+        with self.assertRaises(ValueError):
+            materialize_model_graph(graph)
+        del operator["slice"]
+        self.assertEqual(graph_semantic_problems(graph), [])
+        materialize_model_graph(graph)
+
     def test_json_privacy_boundary(self):
         issues = scan_json({"checkpoint_path": "/home/isrc/private/model"})
         self.assertEqual({issue.code for issue in issues}, {"forbidden_key", "local_path"})

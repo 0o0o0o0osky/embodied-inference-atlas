@@ -197,6 +197,103 @@
           "required": ["reuse_id", "label", "kind", "producer_refs", "consumer_refs", "lifetime", "repeat_scope", "value_dependencies", "invalidation_conditions", "implementation_status", "evidence_ids", "storage_bytes", "preparation_ns", "read_ns"],
           "additional_properties": false,
           "properties": {
+            "mechanism": {
+              "type": "object",
+              "required": [
+                "kind",
+                "model_id",
+                "runtime_id",
+                "revision",
+                "evidence_id",
+                "source_locator",
+                "preparation_device",
+                "execution_device",
+                "preparation_scope",
+                "repeat_scope",
+                "feature_operation",
+                "projection_operation",
+                "action_operation",
+                "output_operations"
+              ],
+              "additional_properties": false,
+              "properties": {
+                "model_id": {
+                  "type": "string",
+                  "min_length": 1,
+                  "max_length": 300
+                },
+                "runtime_id": {
+                  "type": "string",
+                  "min_length": 1,
+                  "max_length": 300
+                },
+                "revision": {
+                  "type": "string",
+                  "min_length": 1,
+                  "max_length": 300
+                },
+                "evidence_id": {
+                  "type": "string",
+                  "min_length": 1,
+                  "max_length": 300
+                },
+                "source_locator": {
+                  "type": "string",
+                  "min_length": 1,
+                  "max_length": 300
+                },
+                "preparation_device": {
+                  "type": "string",
+                  "min_length": 1,
+                  "max_length": 300
+                },
+                "execution_device": {
+                  "type": "string",
+                  "min_length": 1,
+                  "max_length": 300
+                },
+                "preparation_scope": {
+                  "type": "string",
+                  "min_length": 1,
+                  "max_length": 300
+                },
+                "repeat_scope": {
+                  "type": "string",
+                  "min_length": 1,
+                  "max_length": 300
+                },
+                "feature_operation": {
+                  "type": "string",
+                  "min_length": 1,
+                  "max_length": 300
+                },
+                "projection_operation": {
+                  "type": "string",
+                  "min_length": 1,
+                  "max_length": 300
+                },
+                "action_operation": {
+                  "type": "string",
+                  "min_length": 1,
+                  "max_length": 300
+                },
+                "kind": {
+                  "type": "string",
+                  "enum": [
+                    "time_precompute"
+                  ]
+                },
+                "output_operations": {
+                  "type": "array",
+                  "min_items": 1,
+                  "items": {
+                    "type": "string",
+                    "min_length": 1,
+                    "max_length": 160
+                  }
+                }
+              }
+            },
             "reuse_id": {"type": "string", "min_length": 1, "max_length": 120},
             "label": {"type": "string", "min_length": 1, "max_length": 160},
             "kind": {"type": "string", "enum": ["computed_result", "execution_plan", "storage"]},

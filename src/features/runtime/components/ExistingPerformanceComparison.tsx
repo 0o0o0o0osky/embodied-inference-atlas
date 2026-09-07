@@ -4,7 +4,7 @@ import type { AtlasData, ModelRecord } from '../../../types/atlas';
 import type { RoutePatch, RouteState } from '../../../app/routes';
 import type { EvidenceRow } from '../../end-to-end/domain/buildEvidenceRows';
 import { existingComparisons, existingComparisonKey, existingShapeLabel } from '../domain/modelAnalysisDescriptor';
-import { runtimeEvidenceSelectionPatch } from '../domain/pi0PerformanceNavigation';
+import { runtimeEvidenceSelectionPatch } from '../domain/analysisNavigation';
 import { isInferenceRuntimeForModel } from '../domain/runtimeCatalog';
 import { pi0PrecisionLabel } from './runtimePresentation';
 import { RuntimePerformanceChart, performanceStatisticLabel, type RuntimePerformanceColumn } from './RuntimePerformanceChart';

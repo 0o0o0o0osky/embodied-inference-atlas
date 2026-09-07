@@ -32,10 +32,21 @@ it("explains each declared slice with its actual axis and range", () => {
 
 it("does not infer a slice offset from a coincident shape or unknown operator name", () => {
   const known = graphs[0]!.operatorsByRef.get("action-flow-decoder/velocity-euler-update/select-action-rows")!;
-  expect(slicePresentation({ ...known, ref: "new-model/component/select-action-rows" })!.explanation)
-    .toContain("范围待补充");
+  expect(slicePresentation({ ...known, ref: "new-model/component/select-action-rows", operatorId: "new-id" })!.formula).toBe(slicePresentation(known)!.formula);
+  expect(slicePresentation({ ...known, slice: undefined })!.explanation).toContain("范围待补充");
   expect(slicePresentation({ ...known, definitionId: "reshape" })).toBeNull();
   const changed = graphs[1]!.operatorsByRef.get("action-flow-decoder/action-expert-blocks/attention-adarms/scale-slice")!;
   expect(slicePresentation({ ...changed, scopeBindings: { ...changed.scopeBindings, D: 512 } })!.explanation)
     .toContain("范围待补充");
+});
+
+it("validates generic step and leading-index slices independently of model identity", () => {
+  const base=graphs[0]!.operatorsByRef.get("action-flow-decoder/velocity-euler-update/select-action-rows")!;
+  const input={...base.inputs[0]!,tensor:{...base.inputs[0]!.tensor!,shape:[1,6,4]}};
+  const output={...base.outputs[0]!,tensor:{...base.outputs[0]!.tensor!,shape:[1,3,4]}};
+  const generic={...base,ref:"new/slice",inputs:[input],outputs:[output],slice:{axis:1,start:0,stop:6,step:2,drop_axis:false,output_symbol:"Y",explanation:"每隔一个元素读取。"}};
+  expect(slicePresentation(generic)?.formula).toBe("Y = X[:, 0:6:2, :]");
+  expect(slicePresentation({...generic,slice:{...generic.slice,step:0}})?.axis).toBeNull();
+  expect(slicePresentation({...generic,slice:{...generic.slice,stop:7}})?.axis).toBeNull();
+  expect(slicePresentation({...generic,outputs:[{...output,tensor:{...output.tensor,shape:[1,2,4]}}]})?.axis).toBeNull();
 });

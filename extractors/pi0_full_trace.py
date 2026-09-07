@@ -16,9 +16,8 @@ from tools.lib.profiler_privacy import scan_profiler_bundle
 from tools.lib.promotion import plan_promotion
 from tools.lib.roofline import roofline_problems
 
-API_NAMES=['cudaGraphLaunch', 'cudaStreamSynchronize', 'cudaDeviceSynchronize', 'cudaEventSynchronize', 'cudaMemcpyAsync', 'cudaMemcpy', 'cudaMalloc', 'cudaFree', 'cudaLaunchKernel', 'cudaLaunchKernelExC', 'cuLaunchKernel', 'cuLaunchKernelEx', 'pthread_cond_wait', 'pthread_cond_timedwait', 'pthread_mutex_lock', 'pthread_mutex_trylock', 'pthread_cond_broadcast', 'sem_timedwait', 'poll', 'read', 'write', 'ioctl']
-
-LAUNCH_KEYS=('gridX','gridY','gridZ','blockX','blockY','blockZ','registersPerThread','staticSharedMemory','dynamicSharedMemory')
+from extractors.nsys_common import API_NAMES, LAUNCH_KEYS, launch_config
+from extractors.nsys_cpu import supplement_cpu, prepare_cpu_metadata
 
 def group_launches(rows, exact_shapes):
     groups=collections.defaultdict(list)
@@ -54,10 +53,6 @@ def audited_signature(ordinal, symbol):
         return result
     raise ValueError('Unverified native signature')
 
-def launch_config(row):
-    return dict(grid=[row[k] for k in ('gridX','gridY','gridZ')],block=[row[k] for k in ('blockX','blockY','blockZ')],
-        registers_per_thread=row['registersPerThread'],static_shared_memory_bytes=row['staticSharedMemory'],
-        dynamic_shared_memory_bytes=row['dynamicSharedMemory'],waves_per_sm=None)
 
 def build_full_bundle(connection, all_groups, datasets):
     connection.row_factory=sqlite3.Row
@@ -195,6 +190,7 @@ def add_cpu_evidence(c,bundle):
     tables={r[0] for r in c.execute("SELECT name FROM sqlite_master WHERE type='table'")}
     if 'SCHED_EVENTS' not in tables:return
     symbols={r['id']:r['value'] for r in c.execute('SELECT id,value FROM StringIds')}
+    cpu_metadata = prepare_cpu_metadata(c, symbols, (('vla::predict', 'native-predict'),))
     active={};intervals=[]
     for r in c.execute('SELECT * FROM SCHED_EVENTS ORDER BY start'):
         key=(r['cpu'],r['globalTid'])
@@ -202,14 +198,8 @@ def add_cpu_evidence(c,bundle):
         else:
             begin=active.pop(key,None)
             if begin is not None and r['start']>begin:intervals.append((begin,r['start'],r['globalTid']))
-    all_samples=[dict(r) for r in c.execute('SELECT * FROM COMPOSITE_EVENTS ORDER BY start')] if 'COMPOSITE_EVENTS' in tables else []
-    frames=collections.defaultdict(list)
-    for r in c.execute('SELECT * FROM SAMPLING_CALLCHAINS ORDER BY id,stackDepth'):
-        symbol=symbols.get(r['symbol'],'');label='unresolved' if r['unresolved'] else 'native-predict' if 'vla::predict' in symbol else 'thread-wait' if any(x in symbol for x in ['pthread_cond_wait','futex_wait','sem_timedwait']) else 'cuda-runtime' if symbol.startswith(('cuda','cuLaunch')) else 'other'
-        frames[r['id']].append(dict(label_sanitized=label,depth=r['stackDepth']))
     for capture,t in zip(bundle['datasets']['profiler_captures'],bundle['datasets']['timelines']):
         a=capture['analysis_sample'];start,end=a['window_start_ns'],a['window_end_ns'];capture['nsys']['scheduler_trace_present']=True
-        capture['cpu_capabilities']=dict(scheduler_running=True,thread_states=False,function_samples=bool(all_samples),task_markers=False,association_events=False)
         lanes={};target=c.execute("SELECT globalTid FROM NVTX_EVENTS WHERE text=?",(f"pi0_steady_{a['sample_index']:02d}",)).fetchone()[0]
         def lane(tid,kind='cpu_thread'):
             key=(tid,kind)
@@ -224,14 +214,8 @@ def add_cpu_evidence(c,bundle):
             if tid>>24 != target>>24:continue
             left,right=max(begin,start),min(finish,end);core+=right-left
             t['events'].append(dict(event_id=f'event-{len(t["events"])+1:05d}',lane_id=lane(tid),event_kind='scheduler',label='predict',start_ns=left-start,duration_ns=right-left,count=1,kernel_signature_id=None,bytes=None,copy_direction=None,evidence_semantics='scheduler_running_interval'))
-        t['cpu_samples']=[]
-        for r in all_samples:
-            if start<=r['start']<end and r['globalTid']>>24==target>>24:
-                t['cpu_samples'].append(dict(sample_id=f'sample-{len(t["cpu_samples"])+1:05d}',lane_id=lane(r['globalTid']),time_ns=r['start']-start,frames=frames.get(r['id'],[]),weight=1))
-        for r in c.execute('SELECT * FROM OSRT_API WHERE start<? AND end>? ORDER BY start,end',(end,start)):
-            if r['globalTid']>>24 != target>>24:continue
-            name=symbols[r['nameId']];name=name if name in API_NAMES else 'unknown'
-            t['events'].append(dict(event_id=f'event-{len(t["events"])+1:05d}',lane_id=lane(r['globalTid'],'osrt'),event_kind='osrt',label='osrt-call',api_name=name,start_ns=max(start,r['start'])-start,duration_ns=min(end,r['end'])-max(start,r['start']),count=1,kernel_signature_id=None,bytes=None,copy_direction=None,evidence_semantics='exact_interval'))
+        supplement_cpu(c, capture, t, symbols, target, start, end, api_names=API_NAMES,
+                       metadata=cpu_metadata, lane_resolver=lane)
         t['summaries'].append(dict(metric_name='target_scheduled_core_time_over_full_window',value=core,unit='ns',denominator='predict_window',derivation_version='interval-sum-v1',input_refs=[v for (tid,kind),v in lanes.items() if kind=='cpu_thread']))
 
 

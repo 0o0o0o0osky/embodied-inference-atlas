@@ -1,140 +1,27 @@
-import type { RoutePatch, RouteState } from "../../../app/routes";
 import type { InteractiveWorkload, InteractiveWorkloadBounds } from "../data/materialize";
 import type { RooflineViewModel } from "../presentation/viewModel";
-import { formatNumber, humanize, provenanceLabel } from "../presentation/viewModel";
-import { isPi0ModelTheory } from "../../runtime/domain/pi0PerformanceNavigation";
+import { formatNumber } from "../presentation/viewModel";
 import { IntegerInput } from "../../../components/IntegerInput";
 import { WORKLOAD_LABELS } from "../../model-graph/presentation/terminology";
 
-function deviceLabel(deviceId: string) {
-  return deviceId === "nvidia-jetson-agx-thor" ? "Jetson AGX Thor T5000" : deviceId;
-}
-
-export function RooflineBasisBar({
-  route,
-  model,
-  workload,
-  workloadBounds,
-  navigate,
-  onWorkload,
-}: {
-  route: RouteState;
+export function RooflineBasisBar({model, workload, workloadBounds, onWorkload}: {
   model: RooflineViewModel;
-  workload: InteractiveWorkload | null;
+  workload: InteractiveWorkload;
   workloadBounds: InteractiveWorkloadBounds;
-  navigate: (patch: RoutePatch, replace?: boolean) => void;
   onWorkload: (value: InteractiveWorkload) => void;
 }) {
   const basis = model.activeBasis;
-  const scenario = model.activeScenario;
-  if (!basis || !scenario) return null;
-  const precisionOptions = [...new Map(model.availableBases.filter((item) => !item.runtimeBound).map((item) => [item.precisionPathId, item])).values()];
-  const update = (field: keyof InteractiveWorkload, value: number) => {
-    if (!workload) return;
-    onWorkload({ ...workload, [field]: value });
-  };
-  const runtimeState = basis.realization_id
-    ? `Exact realization · ${basis.realization_id}`
-    : route.runtime
-      ? "Analytical tuple remains independent of the runtime hardware filter"
-      : "Analytical tuple · no runtime evidence selected";
+  if (!basis) return null;
+  const update = (field: keyof InteractiveWorkload, value: number) => onWorkload({...workload,[field]:value});
   const bandwidth = model.curves[0];
-  const modelTheory = isPi0ModelTheory(route);
-  if (modelTheory) return <section className="theory-basis-controls">
-    {workload ? <div className="roofline-workload-controls">
-      <label><span>{WORKLOAD_LABELS.V}</span><IntegerInput aria-label={WORKLOAD_LABELS.V} min={1} value={workload.executedCameraViews} onValueChange={(value) => update("executedCameraViews", value)} /></label>
-      <label><span>{WORKLOAD_LABELS.L_PROMPT}</span><IntegerInput aria-label={WORKLOAD_LABELS.L_PROMPT} min={workloadBounds.promptMinimum} max={workloadBounds.promptMaximum ?? undefined} value={workload.executedPromptTokens} onValueChange={(value) => update("executedPromptTokens", value)} /></label>
-      <label><span>{WORKLOAD_LABELS.T_ACTION}</span><IntegerInput aria-label={WORKLOAD_LABELS.T_ACTION} min={1} value={workload.actionHorizon} onValueChange={(value) => update("actionHorizon", value)} /></label>
-      <label><span>{WORKLOAD_LABELS.N_DENOISE}</span><IntegerInput aria-label={WORKLOAD_LABELS.N_DENOISE} min={1} value={workload.denoiseSteps} onValueChange={(value) => update("denoiseSteps", value)} /></label>
-    </div> : null}
-    <p>计算上限：{model.curves.map((curve) => `${formatNumber(curve.computeFlopPerSecond / 1e12)} TFLOP/s`).join("；") || "未建立"}；带宽上限：{bandwidth ? `${formatNumber(bandwidth.bandwidthBytePerSecond / 1e9)} GB/s` : "未建立"}。</p>
-    <p>这些是所选硬件条件下的理论值，运行时频率与实测利用率需另行验证。</p>
+  return <section className="theory-basis-controls">
+    <div className="roofline-workload-controls">
+      <label><span>{WORKLOAD_LABELS.V}</span><IntegerInput aria-label={WORKLOAD_LABELS.V} min={1} value={workload.executedCameraViews} onValueChange={value => update("executedCameraViews",value)} /></label>
+      <label><span>{WORKLOAD_LABELS.L_PROMPT}</span><IntegerInput aria-label={WORKLOAD_LABELS.L_PROMPT} min={workloadBounds.promptMinimum} max={workloadBounds.promptMaximum ?? undefined} value={workload.executedPromptTokens} onValueChange={value => update("executedPromptTokens",value)} /></label>
+      <label><span>{WORKLOAD_LABELS.T_ACTION}</span><IntegerInput aria-label={WORKLOAD_LABELS.T_ACTION} min={1} value={workload.actionHorizon} onValueChange={value => update("actionHorizon",value)} /></label>
+      <label><span>{WORKLOAD_LABELS.N_DENOISE}</span><IntegerInput aria-label={WORKLOAD_LABELS.N_DENOISE} min={1} value={workload.denoiseSteps} onValueChange={value => update("denoiseSteps",value)} /></label>
+    </div>
+    <p>计算上限：{model.curves.map(curve => `${formatNumber(curve.computeFlopPerSecond / 1e12)} TFLOP/s`).join("；") || "未建立"}；带宽上限：{bandwidth ? `${formatNumber(bandwidth.bandwidthBytePerSecond / 1e9)} GB/s` : "未建立"}。</p>
     <details><summary>完整计算口径</summary><code>{basis.basis_id}</code><p>{basis.provenance.condition}</p></details>
   </section>;
-  return (
-    <section className="roofline-basis-bar" aria-labelledby="roofline-basis-title">
-      <header>
-        <div>
-          <p>One indivisible accounting tuple</p>
-          <h2 id="roofline-basis-title">{basis.label}</h2>
-          <code>{basis.basis_id}</code>
-        </div>
-        <label>
-          <span>Canonical basis</span>
-          <select value={basis.basis_id} onChange={(event) => navigate({ basis: event.target.value, precision: model.availableBases.find((item) => item.basisId === event.target.value)?.precisionPathId ?? null, workload: null, entity: null })}>
-            {model.availableBases.map((item) => <option key={item.basisId} value={item.basisId}>{item.label}</option>)}
-          </select>
-        </label>
-      </header>
-      <div className="roofline-basis-controls">
-        <section className="roofline-control-group" aria-labelledby="roofline-what-if-title">
-          <h3 id="roofline-what-if-title">Analytical what-if</h3>
-          <label>
-            <span>Precision scenario</span>
-            <select value={scenario.precision_path.precision_path_id} onChange={(event) => {
-              const selected = precisionOptions.find((item) => item.precisionPathId === event.target.value);
-              navigate({ precision: event.target.value, basis: selected?.basisId ?? null, workload: null, entity: null });
-            }}>
-              {scenario.precision_path.kind === "mapped_mixed" ? <option value={scenario.precision_path.precision_path_id} disabled>Runtime-bound configuration (read-only)</option> : null}
-              {precisionOptions.map((item) => <option key={item.precisionPathId} value={item.precisionPathId}>{humanize(item.precisionPathId)}</option>)}
-            </select>
-          </label>
-          {workload ? (
-            <div className="roofline-workload-controls">
-              <label><span>Views</span><IntegerInput aria-label="Executed camera views" min={1} value={workload.executedCameraViews} onValueChange={(value) => update("executedCameraViews", value)} /></label>
-              <label><span>Prompt</span><IntegerInput aria-label="Executed prompt tokens" min={workloadBounds.promptMinimum} max={workloadBounds.promptMaximum ?? undefined} value={workload.executedPromptTokens} onValueChange={(value) => update("executedPromptTokens", value)} /></label>
-              <label><span>Action</span><IntegerInput aria-label="Action horizon" min={1} value={workload.actionHorizon} onValueChange={(value) => update("actionHorizon", value)} /></label>
-              <label><span>Denoise</span><IntegerInput aria-label="Denoise steps" min={1} value={workload.denoiseSteps} onValueChange={(value) => update("denoiseSteps", value)} /></label>
-            </div>
-          ) : <p className="roofline-control-note">{scenario.origin === "legacy_import" ? "Legacy inventory is a published migration snapshot; interactive rematerialization is intentionally disabled." : "Runtime-mixed allocation stays bound to its exact default realization."}</p>}
-          <span className="roofline-origin">{humanize(scenario.origin)}</span>
-        </section>
-        <div className="roofline-match-state" role="status">{runtimeState}</div>
-        <section className="roofline-control-group roofline-runtime-controls" aria-labelledby="roofline-runtime-title">
-          <h3 id="roofline-runtime-title">Runtime evidence</h3>
-          <dl>
-            <div><dt>Runtime</dt><dd>{route.runtime ?? "Not selected"}</dd></div>
-            <div><dt>Actual precision</dt><dd>{route.runtimePrecision ?? "Not established"}</dd></div>
-            <div><dt>Capture</dt><dd>{basis.capture_id ?? "No canonical capture"}</dd></div>
-          </dl>
-          <button type="button" disabled>Use matching observed basis</button>
-        </section>
-      </div>
-      {scenario.precision_path.kind === "mapped_mixed" ? (
-        <p className="roofline-runtime-workload-note">
-          <strong>Representative runtime-matrix coordinates.</strong> Views and executed/semantic prompt lengths come directly from one bound configuration; action horizon, public/internal dimensions, and denoise steps come from realization applicability. This tuple is distinct from the logical BF16 default, and the representative run contributes no latency or telemetry.
-        </p>
-      ) : null}
-      <dl className="roofline-basis-fingerprint">
-        <div><dt>Level</dt><dd>{humanize(basis.level)}</dd></div>
-        <div><dt>Time</dt><dd>{humanize(basis.time_basis)}</dd></div>
-        <div><dt>Traffic</dt><dd>{humanize(basis.traffic_basis)}</dd></div>
-        <div><dt>Precision</dt><dd>{humanize(basis.precision_path_id)}</dd></div>
-        <div><dt>Work unit</dt><dd>{humanize(basis.work_unit)}</dd></div>
-        <div><dt>Device</dt><dd>{deviceLabel(basis.device_id)}</dd></div>
-        <div><dt>Operating point</dt><dd>{basis.operating_point_id}</dd></div>
-        <div><dt>Coverage</dt><dd>{humanize(basis.comparison_mode)}</dd></div>
-      </dl>
-      <section className="roofline-basis-ceilings" aria-label="Active compute and bandwidth ceiling provenance">
-        <article>
-          <h3>Compute ceiling</h3>
-          {model.curves.length ? model.curves.map((curve) => (
-            <p key={curve.curveId}>
-              <code>{curve.computeCeilingId}</code>
-              <strong>{formatNumber(curve.computeFlopPerSecond / 1e12)} TFLOP/s · {provenanceLabel(curve.computeProvenance)}</strong>
-              <span>{curve.computeProvenance.condition ?? "No additional compute condition declared."}</span>
-            </p>
-          )) : <p><strong>No active compute curve</strong><span>A required compute ceiling or matched sparsity observation is missing.</span></p>}
-        </article>
-        <article>
-          <h3>Bandwidth ceiling</h3>
-          {bandwidth ? <p>
-            <code>{bandwidth.bandwidthCeilingId}</code>
-            <strong>{formatNumber(bandwidth.bandwidthBytePerSecond / 1e9)} GB/s · {provenanceLabel(bandwidth.bandwidthProvenance)}</strong>
-            <span>{bandwidth.bandwidthProvenance.condition ?? "No additional bandwidth condition declared."}</span>
-          </p> : <p><strong>No active bandwidth curve</strong><span>The selected basis has no eligible bandwidth ceiling.</span></p>}
-        </article>
-      </section>
-    </section>
-  );
 }

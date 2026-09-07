@@ -209,9 +209,10 @@ Python 管解析/验证/构建；Node 和 TypeScript 管类型与前端；React 
 ## 8. 浏览器、离线与体积验收
 
 ```bash
-npm run typecheck
-python -m tools.build --check
+# 先运行本次改动的增量测试；开发服务直接读取 canonical，无需 site
 npm run dev -- --port 4186
+# 完成改动后统一执行一次：类型检查、canonical 校验、离线资产检查与输出
+python -m tools.build
 # 另一个终端：URL 应包含本次选中对象的实际路由
 node tools/render_review.mjs --url "$REVIEW_URL" --output .local/review \
   --viewport 1440x1000 --selector "$REVIEW_SELECTOR"
@@ -224,8 +225,10 @@ Chromium，`--playwright-module` 可指定已有 Playwright 模块。Playwright 
 Perfetto 使用固定版本的本地资产，经本机 HTTP 和就绪握手载入脱敏 trace。
 数据/资产变更时检查断网的新浏览器环境冷加载、切换/定位窗口及远端请求记录，
 不依赖旧缓存或 file://。记录首屏 payload 与构建体积，检查重复 trace、理论
-快照和无关资产。`tools.build --check` 不替换 site；发布本机页面使用
-`python -m tools.build`。截图、日志和试验输出仍留 `.local/`。
+快照和无关资产。`site/` 是 Git 忽略的构建产物，部署前执行一次 `python -m tools.build`。
+仅需验证且不替换产物时，改用 `tools.build --check`；同一版本无需两者连跑，
+也无需在构建前后重复类型检查与全量校验。开发审阅使用 dev，离线交付审阅使用
+构建后的 site；只复查相关路径。截图、日志和试验输出仍留 `.local/`。
 
 ## 9. 扩展与停点
 

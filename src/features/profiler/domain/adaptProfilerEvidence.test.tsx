@@ -1,5 +1,4 @@
 import {kernelEntity} from "../../workbench/entityKeys";
-import { renderToStaticMarkup } from "react-dom/server";
 import { expect, it } from "vitest";
 
 import captureDocument from "../../../../data/profiler/profiler_captures.json";
@@ -10,10 +9,7 @@ import { readFileSync } from "node:fs";
 import runDocument from "../../../../data/measurements/runs.json";
 import type { RouteState } from "../../../app/routes";
 import type { AtlasData, AtlasDatasets, CanonicalRecord } from "../../../types/atlas";
-import { KernelInspector } from "../../performance/components/KernelInspector";
-import { KernelTable } from "../../performance/components/KernelTable";
 import type { KernelRow, KernelRowsModel } from "../../performance/domain/buildKernelRows";
-import { TimelineInspector } from "../../timeline/components/TimelineInspector";
 import { buildTimelineView } from "../../timeline/domain/buildTimelineView";
 import { adaptProfilerEvidence } from "./adaptProfilerEvidence";
 import { indexProfilerEvidence } from "./indexProfilerEvidence";
@@ -38,7 +34,7 @@ function atlas(overrides: Partial<AtlasDatasets>): AtlasData {
 }
 
 const route: RouteState = {
-  model: "pi0", tab: "roofline-kernels", runtime: "flashrt", hardware: "nvidia-jetson-agx-thor",
+  model: "pi0", tab: "logical", runtime: "flashrt", hardware: "nvidia-jetson-agx-thor",
   workload: null, precision: null, runtimePrecision: null, runtimeFacet: null, entity: null,
   timelineCapture: null, rooflineLevel: "overview", basis: null,
 };
@@ -268,20 +264,6 @@ it("adapts and renders locked Task 7 NCU evidence while retaining legacy capture
     null,
   ]);
 
-  const metricsFor = (observationId: string) => evidence.metrics.filter((item) => item.subject.id === observationId);
-  const warpRow = {
-    observation: adaptedWarpObservation, signature: evidence.signatures[0]!, capture: adaptedWarpCapture, run: warpRun,
-    metrics: new Map(metricsFor(adaptedWarpObservation.observationId).map((item) => [item.metricName, item])), links: [], telemetry: [],
-  };
-  const schedulerRow = {
-    observation: adaptedSchedulerObservation, signature: evidence.signatures[0]!, capture: adaptedSchedulerCapture, run: schedulerRun,
-    metrics: new Map(metricsFor(adaptedSchedulerObservation.observationId).map((item) => [item.metricName, item])), links: [], telemetry: evidence.telemetry,
-  };
-  const kernelMarkup = renderToStaticMarkup(<KernelInspector
-    model={{ selectedRow: warpRow, relatedNsys: null, relatedNcu: null } as unknown as KernelRowsModel}
-    route={route}
-    navigate={() => undefined}
-  />);
   const timelineView = buildTimelineView(data, evidence, indexProfilerEvidence(evidence), {
     modelId: "pi0",
     runtimeId: "flashrt",
@@ -300,49 +282,4 @@ it("adapts and renders locked Task 7 NCU evidence while retaining legacy capture
   expect(timelineView.warpSupplement?.observation.observationId).toBe(warpObservation.observation_id);
   expect(timelineView.warpSupplement?.observation.duration.valueNs).toBe(222_000);
   expect(timelineView.warpSupplement?.metrics.map((item) => item.metricName)).toContain("long_scoreboard_cycles_per_issued_instruction");
-  const timelineMarkup = renderToStaticMarkup(<TimelineInspector
-    view={timelineView}
-    route={route}
-    navigate={() => undefined}
-  />);
-  const tableMarkup = renderToStaticMarkup(<KernelTable
-    rows={[schedulerRow as unknown as KernelRow]}
-    selectedObservationId={schedulerRow.observation.observationId}
-    onSelect={() => undefined}
-  />);
-  [kernelMarkup].forEach((markup) => {
-    expect(markup).toContain("warp state stats");
-    expect(markup).toContain("SchedulerStats first → one WarpStateStats supplemental replay");
-    expect(markup).toContain(schedulerCapture.capture_id);
-    expect(markup).toContain(schedulerObservation.observation_id);
-    expect(markup).toContain("reviewed scheduler evidence");
-    expect(markup).toContain("0.55 &lt; 0.6");
-    expect(markup).toContain("8 ≥ 1");
-    expect(markup).toContain("0.5 &lt; 1");
-    expect(markup).toContain("launch and occupancy do not explain issue gap");
-    expect(markup).toContain("manual review of same capture evidence");
-    expect(markup).toContain("kernel observation.launch");
-    expect(markup).toContain("Stored collection gate only; no bottleneck conclusion is inferred.");
-    expect(markup).toContain("Issued warps / scheduler active cycle");
-    expect(markup).toContain("One or more eligible");
-    expect(markup).toContain("No eligible");
-    expect(markup).toContain("Tensor active");
-    expect(markup).toContain("Active warps / active cycle");
-    expect(markup).toContain("Eligible warps / active cycle");
-    expect(markup).toContain("Maximum warps / active cycle");
-    expect(markup).toContain("Active warps / peak sustained");
-    expect(markup).toContain("L2 sysmem fill sectors");
-    expect(markup).toContain("L2 sysmem write sectors");
-    expect(markup).toContain("L2 sysmem lookup-miss sectors");
-    expect(markup).toContain("Do not add; not LPDDR traffic or utilization");
-    expect(markup).toContain("Long scoreboard cycles / issued instruction");
-    expect(markup).toContain("Average warp latency / issued instruction");
-    expect(markup).toContain("Short scoreboard cycles / issued instruction");
-  });
-  expect(timelineMarkup).toContain("持续时间");
-  expect(timelineMarkup).toContain("系统时间线用于观察时序和重叠");
-  expect(timelineMarkup).toContain("查看算子实现与 Kernel 性能");
-  expect(timelineMarkup).not.toContain("111.000 µs");
-  expect(timelineMarkup).not.toContain("222.000 µs");
-  expect(tableMarkup).toContain(">72%<");
 });

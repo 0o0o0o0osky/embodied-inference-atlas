@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "warmup_iterations": 5,
+  "measured_iterations": 10,
+  "cv_limit": 0.05,
+  "representative_relative_distance_limit": 0.05,
+  "gemm_hotspot_count": 2,
+  "non_gemm_hotspot_count": 1
+}

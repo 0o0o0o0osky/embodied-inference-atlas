@@ -1286,6 +1286,26 @@
           "kind": "computed_result",
           "label": "时间嵌入与投影预计算",
           "lifetime": "across_observations",
+          "mechanism": {
+            "action_operation": "动作分支投影",
+            "evidence_id": "flashrt-pi0-prompt-source",
+            "execution_device": "GPU",
+            "feature_operation": "sin / cos",
+            "kind": "time_precompute",
+            "model_id": "pi0",
+            "output_operations": [
+              "相加",
+              "SiLU",
+              "输出投影"
+            ],
+            "preparation_device": "GPU",
+            "preparation_scope": "设置 prompt 时准备；后续观测继续读取这张表。",
+            "projection_operation": "时间投影 + bias",
+            "repeat_scope": "每次观测的每个去噪步骤",
+            "revision": "054bea4d02ebc63f6a0c45991c6061b1e1caa46c",
+            "runtime_id": "flashrt",
+            "source_locator": "flash_rt/frontends/torch/pi0_thor.py#set_prompt"
+          },
           "preparation_ns": null,
           "producer_refs": [
             "action-flow-decoder/action-suffix-builder/time-embedding",

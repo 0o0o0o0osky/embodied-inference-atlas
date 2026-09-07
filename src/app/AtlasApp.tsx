@@ -37,7 +37,7 @@ export function AtlasApp() {
 
   useEffect(() => {
     const label = loadState.kind === "ready" ? loadState.data.datasets.models.find(model => model.model_id === route.model)?.display_name : route.model;
-    const view = ({logical: "理论 DAG", runtime: "运行表现", timeline: "系统时间线", "roofline-kernels": "Roofline", "end-to-end": "总延时"} as const)[route.tab];
+    const view = ({logical: "模型理论", runtime: "运行表现"} as const)[route.tab];
     document.title = label ? `${label} ${view} — Atlas` : "模型目录 — Atlas";
   }, [loadState, route.model, route.tab]);
 

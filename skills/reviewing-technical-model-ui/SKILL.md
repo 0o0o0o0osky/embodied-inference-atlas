@@ -25,3 +25,5 @@ visible failures and recheck that path; do not build a screenshot platform or
 repeat broad reviews. Raw captures and detailed review logs stay local.
 
 Every new entry must satisfy the [shared page contract](../../docs/analysis-components.md#新页面接入契约): identity, current input, navigation and required capability states. Inspect an available and a missing case; missing data uses shared defaults, not copied components, zeros or generated explanations.
+
+Use the [shared verification step](../../docs/single-inference-analysis.md#8-浏览器离线与体积验收): relevant incremental tests, one offline build that includes type/data checks, and review of the changed browser path. Generated `site/` stays outside Git; do not repeat build/check cycles for unchanged inputs.

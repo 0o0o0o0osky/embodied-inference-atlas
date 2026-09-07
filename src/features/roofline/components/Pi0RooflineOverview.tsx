@@ -1,22 +1,21 @@
 import type { RoutePatch } from "../../../app/routes";
 import type { AtlasData } from "../../../types/atlas";
-import { indexRoofline, type RooflineIndex } from "../data/indexRoofline";
+import { SHARED_TERMINOLOGY } from "../../model-graph/presentation/terminology";
 import { serializeInteractiveWorkload } from "../data/materialize";
-import type { RooflineLevel, RooflinePointRecord } from "../domain/types";
-import type { Pi0AnalyticalResult, Pi0AnalyticalSlice } from "../presentation/buildOperatorRooflineSummary";
+import type { RooflinePointRecord } from "../domain/types";
+import type { Pi0AnalyticalResult } from "../presentation/buildOperatorRooflineSummary";
 import { formatQuantity, formatTime } from "../presentation/viewModel";
 
 interface Pi0RooflineOverviewProps {
   data: AtlasData;
   result: Pi0AnalyticalResult;
   navigate: (patch: RoutePatch, replace?: boolean) => void;
-  modelTheory?: boolean;
 }
 
 const STAGE_LABELS: Record<string, string> = {
-  "vision-encoder": "视觉编码器",
-  "prefix-encoder": "前缀编码器",
-  "action-flow-decoder": "动作流解码器",
+  "vision-encoder": SHARED_TERMINOLOGY["Vision Encoder"]!,
+  "prefix-encoder": SHARED_TERMINOLOGY["Prefix Encoder"]!,
+  "action-flow-decoder": SHARED_TERMINOLOGY["Action Flow Decoder"]!,
 };
 
 function stageLabel(point: RooflinePointRecord) {
@@ -34,39 +33,11 @@ function limiterLabel(point: RooflinePointRecord) {
   }
 }
 
-function statusForLevel(index: RooflineIndex, slice: Pi0AnalyticalSlice, level: RooflineLevel) {
-  const workload = slice.scenario.workload;
-  const scenarioIds = new Set(index.scenarios.filter((scenario) =>
-    scenario.model_id === slice.scenario.model_id
-    && scenario.origin !== "legacy_import"
-    && scenario.precision_path.precision_path_id === slice.scenario.precision_path.precision_path_id
-    && scenario.workload.executed_camera_views === workload.executed_camera_views
-    && scenario.workload.executed_prompt_tokens === workload.executed_prompt_tokens
-    && scenario.workload.action_horizon === workload.action_horizon
-    && scenario.workload.denoise_steps === workload.denoise_steps,
-  ).map((scenario) => scenario.scenario_id));
-  const bases = index.bases.filter((basis) =>
-    basis.level === level
-    && basis.device_id === slice.atomicBasis.device_id
-    && scenarioIds.has(basis.scenario_id),
-  );
-  if (!bases.length) return "unavailable" as const;
-  return bases.some((basis) => (index.pointsByBasisId.get(basis.basis_id) ?? []).length)
-    ? "available" as const
-    : "empty" as const;
-}
-
-function statusLabel(status: "available" | "empty" | "unavailable") {
-  if (status === "available") return "有独立证据";
-  if (status === "empty") return "已有口径，暂无点位";
-  return "尚无同口径证据";
-}
-
-export function Pi0RooflineOverview({ data, result, navigate, modelTheory = false }: Pi0RooflineOverviewProps) {
+export function Pi0RooflineOverview({ data, result, navigate }: Pi0RooflineOverviewProps) {
   if (result.status === "unavailable") {
     return (
       <section className="pi0-analytical-overview is-unavailable" role="status">
-        <strong>当前场景无法生成 Pi0 解析下界</strong>
+        <strong>当前场景的模型理论分析暂不可用</strong>
         <span>{result.reason}</span>
       </section>
     );
@@ -88,16 +59,13 @@ export function Pi0RooflineOverview({ data, result, navigate, modelTheory = fals
     hardware: slice.atomicBasis.device_id,
   });
   const total = slice.modelTotal;
-  const canonical = indexRoofline(data);
-  const fusedStatus = statusForLevel(canonical, slice, "fused");
-  const kernelStatus = statusForLevel(canonical, slice, "kernel");
 
   return (
     <section className="pi0-analytical-overview" aria-labelledby="pi0-analytical-overview-title">
       <header>
         <div>
           <h4 id="pi0-analytical-overview-title">模型解析下界</h4>
-          <p>Thor · {slice.scenario.precision_path.precision_path_id} · V{workload.executed_camera_views} / P{workload.executed_prompt_tokens} / A{workload.action_horizon} / N{workload.denoise_steps}</p>
+          <p>{data.datasets.devices.find(device => device.device_id === slice.atomicBasis.device_id)?.display_name ?? slice.atomicBasis.device_id} · {slice.scenario.precision_path.precision_path_id} · V{workload.executed_camera_views} / P{workload.executed_prompt_tokens} / A{workload.action_horizon} / N{workload.denoise_steps}</p>
         </div>
         <div className="pi0-analytical-primary">
           <strong>{total?.derived.roof_second === null || !total ? "—" : formatTime(total.derived.roof_second)}</strong>
@@ -126,10 +94,6 @@ export function Pi0RooflineOverview({ data, result, navigate, modelTheory = fals
         <button type="button" onClick={() => openLevel("atomic")}>查看模型算子</button>
       </div>
 
-      {!modelTheory ? <dl className="pi0-secondary-bases">
-        <div><dt>融合算子</dt><dd>{statusLabel(fusedStatus)}</dd></div>
-        <div><dt>实测 Kernel</dt><dd>{statusLabel(kernelStatus)}；需精确 runtime / capture 映射</dd></div>
-      </dl> : null}
     </section>
   );
 }

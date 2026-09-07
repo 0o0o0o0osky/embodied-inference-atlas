@@ -6,6 +6,7 @@ import copy
 import math
 import statistics
 from collections import defaultdict
+from tools.lib.analysis_policy import POLICY, WARMUP, SAMPLES, CV_LIMIT, NEAR_LIMIT
 
 
 def _stats(values):
@@ -52,8 +53,8 @@ def _batch_summary(captures, timelines, signatures):
                 value[0] += event["duration_ns"]
                 value[1] += event["count"]
         samples.append((capture, timeline, kernels))
-    complete = len(samples) == 10 and {c["analysis_sample"]["sample_index"] for c in ordered} == set(range(10)) and all(
-        c["analysis_sample"]["warmup_iterations"] == 5 and c["analysis_sample"]["measured_iterations"] == 10 and c["coverage"]["is_complete_for_population"] for c in ordered)
+    complete = len(samples) == SAMPLES and {c["analysis_sample"]["sample_index"] for c in ordered} == set(range(SAMPLES)) and all(
+        c["analysis_sample"]["warmup_iterations"] == WARMUP and c["analysis_sample"]["measured_iterations"] == SAMPLES and c["coverage"]["is_complete_for_population"] for c in ordered)
     if not complete:
         return None
     wall = _stats([t["window"]["duration_ns"] for _, t, _ in samples])
@@ -69,11 +70,11 @@ def _batch_summary(captures, timelines, signatures):
             "calls": values[0][1] if values[0] is not None else None,
             "rank": statistics.median(v[0] for v in values if v is not None)})
     candidates.sort(key=lambda item: (-item["rank"], item["id"]))
-    checked = [c for c in candidates if c["gemm"]][:2] + [c for c in candidates if c["non_gemm"]][:1]
-    stable = lambda summary: summary is not None and summary["cv"] is not None and summary["cv"] <= .05
+    checked = [c for c in candidates if c["gemm"]][:POLICY["gemm_hotspot_count"]] + [c for c in candidates if c["non_gemm"]][:POLICY["non_gemm_hotspot_count"]]
+    stable = lambda summary: summary is not None and summary["cv"] is not None and summary["cv"] <= CV_LIMIT
     if not stable(wall) or not checked or any(not h["counts_match"] or not stable(h["summary"]) for h in checked):
         return None
-    near = lambda value, median: median > 0 and abs(value - median) / median <= .05
+    near = lambda value, median: median > 0 and abs(value - median) / median <= NEAR_LIMIT
     eligible = [(c, t) for c, t, kernels in samples if near(t["window"]["duration_ns"], wall["median_ns"])
                 and all(near(kernels[h["key"]][0], h["summary"]["median_ns"]) for h in checked)]
     if not eligible:
@@ -84,7 +85,7 @@ def _batch_summary(captures, timelines, signatures):
         return statistics.median(values) if all(v is not None for v in values) else None
     apis = [_api_union(t) for _, t, _ in samples]
     meta = ordered[0]["analysis_sample"]
-    return {"batch_id": meta["batch_id"], "input_case_id": meta["input_case_id"], "sample_count": 10, "warmup_iterations": 5,
+    return {"batch_id": meta["batch_id"], "input_case_id": meta["input_case_id"], "sample_count": SAMPLES, "warmup_iterations": WARMUP,
         "status": "stable", "representative_capture_id": selected["capture_id"], "wall": wall,
         "hotspots": [{name: value for name, value in h.items() if name in ("id", "label", "calls", "counts_match")} | h["summary"] for h in checked],
         "system_medians": {"cpu_core_time_ns": median_metric("target_scheduled_core_time_over_full_window"),
@@ -119,7 +120,7 @@ def select_representative_data(datasets):
                 scheduler = all(c.get("nsys", {}).get("scheduler_trace_present") for c in batch)
                 summaries.append((not scheduler, summary["batch_id"], summary))
         if summaries:
-            summary = min(summaries, key=lambda item: item[:2])[2]
+            summary = min(summaries, key=lambda item: item[:POLICY["gemm_hotspot_count"]])[2]
             capture = next(c for c in captures if c["capture_id"] == summary["representative_capture_id"])
             kept[capture["capture_id"]] = {**capture, "analysis_summary": summary}
         else:

@@ -11,15 +11,17 @@ import math
 import re
 import statistics
 
-from extractors.nsys import parse_nsys_sqlite, target_thread_role
+from extractors.nsys import parse_nsys_sqlite
 from extractors.profiler_common import ProfilerImportContext, profiler_record_id
-from extractors.pi0_full_trace import API_NAMES, LAUNCH_KEYS, launch_config
+from extractors.nsys_common import API_NAMES, LAUNCH_KEYS, launch_config
+from extractors.nsys_cpu import supplement_cpu, prepare_cpu_metadata
 from tools.lib.representative_data import _batch_summary
+from tools.lib.analysis_policy import WARMUP, SAMPLES, CV_LIMIT
 
 
 def validate_results(results, profiled):
     values = results['samples_ms']
-    if results['warmup'] != 5 or len(values) != 10 or results['profiled'] != profiled:
+    if results['warmup'] != WARMUP or len(values) != SAMPLES or results['profiled'] != profiled:
         raise ValueError('Expected one independent five-warmup ten-sample batch')
     if not results['finite'] or any(not math.isfinite(x) or x <= 0 for x in values):
         raise ValueError('Invalid measured output or duration')
@@ -28,64 +30,50 @@ def validate_results(results, profiled):
 
 def build_e2e_bundle(results, run):
     values = validate_results(results, False)
-    if statistics.stdev(values) / statistics.mean(values) > .05:
+    if statistics.stdev(values) / statistics.mean(values) > CV_LIMIT:
         raise ValueError('E2E batch exceeds five-percent CV')
     run = copy.deepcopy(run)
     run['analysis_batch'] = dict(batch_id=results['batch_id'], input_case_id=results['input_case_id'],
-        input_recipe=results['input_recipe'], warmup_iterations=5,
+        input_recipe=results['input_recipe'], warmup_iterations=WARMUP,
         samples=[dict(sample_index=i,wall_time_ns=round(v*1e6)) for i,v in enumerate(values)],
         output_finite=True,output_shape=results['output_shape'])
     measurement = dict(measurement_id=run['run_id'].replace('run-','e2e-',1),run_id=run['run_id'],
         source_id=run['source_id'],evidence='measured_local',measurement_method='wall_clock',metric='latency',
-        missing_reason=None,percentile_method='linear_interpolation',sample_count=10,
+        missing_reason=None,percentile_method='linear_interpolation',sample_count=SAMPLES,
         statistics=[dict(statistic=name,unit='ms',value=value) for name,value in
             [('min',min(values)),('mean',statistics.mean(values)),('p50',statistics.median(values)),('max',max(values))]],
         timing_boundary_id=run['timing']['timing_boundary_id'],work_unit='action_chunk')
-    return dict(bundle_version='1.0.0',source_label='pi0-fixed-e2e',datasets=dict(runs=[run],end_to_end=[measurement]))
+    return dict(bundle_version='1.0.0',source_label=f"{run.get('model_id', 'fixed')}-fixed-e2e",datasets=dict(runs=[run],end_to_end=[measurement]))
 
 
-def _signature(identity, runtime, rule):
+def _signature(identity, runtime, rule, model):
     precision = dict(input_dtype_class=None,accumulator_dtype_class=None,output_dtype_class=None,sparsity='unknown',
         missing={k:'not_collected' for k in ['input_dtype_class','accumulator_dtype_class','output_dtype_class','sparsity']})
     if rule.get('precision_path'):precision=copy.deepcopy(rule['precision_path'])
-    return dict(kernel_signature_id=identity,runtime_id=runtime,model_id='pi0',
-        label_sanitized=identity.removeprefix('kernel-signature-pi0-').replace('-', ' '),function_family=rule.get('function_family','other'),
+    return dict(kernel_signature_id=identity,runtime_id=runtime,model_id=model,
+        label_sanitized=identity.removeprefix(f'kernel-signature-{model}-').replace('-', ' '),function_family=rule.get('function_family','other'),
         implementation_family=rule.get('implementation_family','other'),precision_path=precision,
         classification_method='allowlisted_symbol_rule',classification_confidence=rule.get('confidence','unknown'),missing={})
 
 
-def _supplement_cpu(c, capture, timeline, symbols, target, start, end):
-    """Preserve samples separately from scheduler intervals already parsed above."""
-    tables={r[0] for r in c.execute("SELECT name FROM sqlite_master WHERE type='table'")}
-    samples = 'COMPOSITE_EVENTS' in tables and 'SAMPLING_CALLCHAINS' in tables
-    capture['cpu_capabilities']=dict(scheduler_running=bool(c.execute('SELECT 1 FROM SCHED_EVENTS LIMIT 1').fetchone()),
-        thread_states=False,function_samples=samples,task_markers=False,association_events=False)
-    names = dict(c.execute("SELECT t.globalTid,s.value FROM ThreadNames t JOIN StringIds s ON t.nameId=s.id")) if 'ThreadNames' in tables else {}
-    # The parser's target-main lane is defined by this exact NVTX globalTid.
-    mains = [l for l in timeline['lanes'] if l['kind']=='cpu_thread' and l['role']=='target-main']
-    lanes = {(target, 'cpu_thread'): mains[0]['lane_id']} if len(mains)==1 else {}
-    def lane(tid,kind):
-        if (tid,kind) not in lanes:
-            identity=f'lane-{max([int(l["lane_id"].split("-")[-1]) for l in timeline["lanes"]]+[0])+1:03d}';lanes[tid,kind]=identity
-            timeline['lanes'].append(dict(lane_id=identity,kind=kind,role=target_thread_role(tid,target,names.get(tid)),ordinal=len(timeline['lanes']),coverage='complete'))
-        return lanes[tid,kind]
-    if samples:
-        frames=collections.defaultdict(list)
-        for r in c.execute('SELECT * FROM SAMPLING_CALLCHAINS ORDER BY id,stackDepth'):
-            symbol=symbols.get(r['symbol'],'')
-            label='unresolved' if r['unresolved'] else 'thread-wait' if any(s in symbol for s in ('pthread_cond_wait','futex_wait','sem_timedwait')) else 'cuda-runtime' if symbol.startswith(('cuda','cuLaunch')) else 'other'
-            frames[r['id']].append(dict(label_sanitized=label,depth=r['stackDepth']))
-        timeline['cpu_samples']=[]
-        for r in c.execute('SELECT * FROM COMPOSITE_EVENTS WHERE start>=? AND start<? ORDER BY start',(start,end)):
-            if r['globalTid']>>24!=target>>24:continue
-            timeline['cpu_samples'].append(dict(sample_id=f'sample-{len(timeline["cpu_samples"])+1:05d}',lane_id=lane(r['globalTid'],'cpu_thread'),time_ns=r['start']-start,frames=frames.get(r['id'],[]),weight=1))
-    for r in c.execute('SELECT * FROM OSRT_API WHERE start<? AND end>? ORDER BY start,end',(end,start)):
-        if r['globalTid']>>24!=target>>24:continue
-        name=symbols[r['nameId']]
-        timeline['events'].append(dict(event_id=f'event-{len(timeline["events"])+1:05d}',lane_id=lane(r['globalTid'],'osrt'),event_kind='osrt',label='osrt-call',api_name=name if name in API_NAMES else 'unknown',start_ns=max(start,r['start'])-start,duration_ns=min(end,r['end'])-max(start,r['start']),count=1,kernel_signature_id=None,bytes=None,copy_direction=None,evidence_semantics='exact_interval'))
+def _supplement_cpu(c, capture, timeline, symbols, target, start, end, metadata=None):
+    return supplement_cpu(c, capture, timeline, symbols, target, start, end, api_names=API_NAMES, metadata=metadata)
 
 
-def build_fixed_case_bundle(connection, results, run_template, signature_rules, *, ordinal_start=1, retained_ordinal=None):
+def case_identity(results, run, window_prefix=None):
+    model = run['model_id']
+    runtime = run['runtime_id']
+    if results.get('runtime', runtime) != runtime:
+        raise ValueError('Result runtime differs from the audited run template')
+    if results.get('model_id', model) != model:
+        raise ValueError('Result model differs from the audited run template')
+    prefix = window_prefix or results.get('nvtx_window_prefix') or f'{model}_steady_'
+    if not isinstance(prefix, str) or not prefix:
+        raise ValueError('A nonempty NVTX window prefix is required')
+    return model, runtime, prefix
+
+
+def build_fixed_case_bundle(connection, results, run_template, signature_rules, *, ordinal_start=1, retained_ordinal=None, window_prefix=None):
     """Return representative staging, local signature manifest, complete local bundle.
 
     Each signature rule is keyed by an exact raw symbol and contains only reviewed
@@ -94,11 +82,14 @@ def build_fixed_case_bundle(connection, results, run_template, signature_rules, 
     import sqlite3
     validate_results(results, True)
     connection.row_factory=sqlite3.Row
-    windows=[dict(r) for r in connection.execute("SELECT text,start,end,globalTid FROM NVTX_EVENTS WHERE text LIKE 'pi0_steady_%' ORDER BY start")]
-    if [w['text'] for w in windows]!=[f'pi0_steady_{i:02d}' for i in range(10)]:
+    model, runtime, marker = case_identity(results, run_template, window_prefix)
+    # Exact prefix matching avoids treating underscores in marker names as SQL wildcards.
+    windows=[dict(r) for r in connection.execute("SELECT text,start,end,globalTid FROM NVTX_EVENTS WHERE substr(text,1,?)=? ORDER BY start", (len(marker), marker))]
+    if [w['text'] for w in windows]!=[f'{marker}{i:02d}' for i in range(SAMPLES)]:
         raise ValueError('Ten unique ordered prediction windows required')
     symbols={r['id']:r['value'] for r in connection.execute('SELECT id,value FROM StringIds')}
-    runtime=results['runtime'];prefix=f'pi0-{runtime}-nsys-node'
+    cpu_metadata = prepare_cpu_metadata(connection, symbols)
+    prefix=f'{model}-{runtime}-nsys-node'
     records=collections.defaultdict(list);signature_keys={};manifest=[]
     for index,w in enumerate(windows):
         run=copy.deepcopy(run_template);run['run_id']=f'run-{prefix}-{index+ordinal_start:03d}';run['configuration_id']=f'config-{prefix}-{index+ordinal_start:03d}';run['capture_method']='nsys';run.pop('analysis_batch',None)
@@ -118,7 +109,7 @@ def build_fixed_case_bundle(connection, results, run_template, signature_rules, 
             return identities.get(value,value) if isinstance(value,str) else value
         data=remap(data);capture=data['profiler_captures'][0];timeline=data['timelines'][0]
         new=capture['capture_id']
-        capture['analysis_sample']=dict(batch_id=results['batch_id'],input_case_id=results['input_case_id'],input_recipe=results['input_recipe'],sample_index=index,warmup_iterations=5,measured_iterations=10,window_start_ns=w['start'],window_end_ns=w['end'],output_finite=True,output_shape=results['output_shape'])
+        capture['analysis_sample']=dict(batch_id=results['batch_id'],input_case_id=results['input_case_id'],input_recipe=results['input_recipe'],sample_index=index,warmup_iterations=WARMUP,measured_iterations=SAMPLES,window_start_ns=w['start'],window_end_ns=w['end'],output_finite=True,output_shape=results['output_shape'])
         # Rebuild GPU and API lanes with exact streams/full launches; scheduler stays.
         removed={l['lane_id'] for l in timeline['lanes'] if l['kind'] in ('gpu_kernel','gpu_memcpy','cuda_api')}
         timeline['lanes']=[l for l in timeline['lanes'] if l['lane_id'] not in removed]
@@ -143,8 +134,8 @@ def build_fixed_case_bundle(connection, results, run_template, signature_rules, 
                 title=signature_rules.get(symbol,{}).get('label','recorded kernel')
                 title=re.sub(r'^Realtime ', '',title, flags=re.I)
                 slug=re.sub(r'[^a-z0-9]+','-',title.lower()).strip('-')
-                sid=f'kernel-signature-pi0-{runtime}-{slug}-{len(signature_keys)+1:03d}';signature_keys[key]=sid
-                sig=_signature(sid,runtime,signature_rules.get(symbol,{}));records['kernel_signatures'].append(sig)
+                sid=f'kernel-signature-{model}-{runtime}-{slug}-{len(signature_keys)+1:03d}';signature_keys[key]=sid
+                sig=_signature(sid,runtime,signature_rules.get(symbol,{}),model);records['kernel_signatures'].append(sig)
                 manifest.append(dict(kernel_signature_id=sid,symbol=symbol,launch=launch_config(row),first_sample_index=index,same_symbol_ordinal=ordinal[symbol]-1,source=signature_rules.get(symbol,{}).get('source')))
             sid=signature_keys[key];grouped[sid].append(row);add(row,'kernel',sid)
         total=sum(r['end']-r['start'] for rows in grouped.values() for r in rows)
@@ -160,14 +151,14 @@ def build_fixed_case_bundle(connection, results, run_template, signature_rules, 
                 summary['input_refs']=[lid for (kind,_),lid in lanes.items() if kind in kinds]
         capture['warnings']=[v for v in capture['warnings'] if v!='partial_kernel_signature_coverage']
         timeline['missing'].pop('kernel_signature_coverage',None)
-        _supplement_cpu(connection,capture,timeline,symbols,w['globalTid'],w['start'],w['end'])
+        _supplement_cpu(connection,capture,timeline,symbols,w['globalTid'],w['start'],w['end'],cpu_metadata)
         for summary in timeline['summaries']:
             if summary['metric_name'] in ('target_scheduled_core_time_overlapping_recorded_gpu_activity','target_wall_overlap_with_recorded_gpu_activity'):
                 summary['input_refs']=[l['lane_id'] for l in timeline['lanes'] if l['kind'] in ('gpu_kernel','gpu_memcpy','cpu_thread') and l['role']!='profiler-excluded']
         for i,event in enumerate(timeline['events']):event['event_id']=f'event-{i+1:05d}'
         for name,items in data.items():records[name].extend(items)
     summary=_batch_summary(records['profiler_captures'],{t['capture_id']:t for t in records['timelines']},{s['kernel_signature_id']:s for s in records['kernel_signatures']})
-    full=dict(bundle_version='1.0.0',source_label=f'pi0-{runtime}-fixed',datasets=dict(records))
+    full=dict(bundle_version='1.0.0',source_label=f'{model}-{runtime}-fixed',datasets=dict(records))
     if summary is None:return None,manifest,full
     cid=summary['representative_capture_id'];selected=copy.deepcopy(full)
     for name,items in selected['datasets'].items():
@@ -203,6 +194,7 @@ def main():
     parser.add_argument('--sqlite',type=Path)
     parser.add_argument('--signature-rules',type=Path)
     parser.add_argument('--local-evidence-dir',type=Path)
+    parser.add_argument('--nvtx-window-prefix', help='Exact marker prefix followed by the two-digit sample index; defaults to MODEL_steady_')
     parser.add_argument('--ordinal-start',type=int,default=1)
     parser.add_argument('--retained-ordinal',type=int)
     args=parser.parse_args()
@@ -212,7 +204,7 @@ def main():
             parser.error('Nsys requires sqlite, signature-rules and local-evidence-dir')
         connection=sqlite3.connect(f'file:{args.sqlite.resolve()}?mode=ro&immutable=1',uri=True)
         try:
-            bundle,manifest,full=build_fixed_case_bundle(connection,results,run,json.loads(args.signature_rules.read_text()),ordinal_start=args.ordinal_start,retained_ordinal=args.retained_ordinal)
+            bundle,manifest,full=build_fixed_case_bundle(connection,results,run,json.loads(args.signature_rules.read_text()),ordinal_start=args.ordinal_start,retained_ordinal=args.retained_ordinal,window_prefix=args.nvtx_window_prefix)
         finally:connection.close()
         args.local_evidence_dir.mkdir(parents=True,exist_ok=True)
         write_json_atomic(args.local_evidence_dir/'signature-manifest.json',manifest)

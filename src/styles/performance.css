@@ -368,17 +368,6 @@
 }
 
 /* Pi0 keeps the analytical plane first and reveals capture detail on demand. */
-.performance-workspace--pi0 .pi0-roofline-summary,
-.performance-workspace--pi0 .pi0-profiler-section {
-  margin-top: 12px;
-  border: 1px solid var(--line);
-}
-
-.performance-workspace--pi0 .pi0-funnel-heading > div > p {
-  margin: 3px 0 0;
-  color: #657483;
-  font-size: 13px;
-}
 
 .pi0-roofline-levels {
   display: flex;
@@ -405,41 +394,6 @@
   background: var(--white);
   box-shadow: inset 0 -3px var(--signal-blue-dark);
   font-weight: 600;
-}
-
-.pi0-roofline-active-level > .roofline-workspace {
-  padding: 0 24px 20px;
-}
-
-.pi0-roofline-active-level .roofline-intro,
-.pi0-roofline-active-level .roofline-mode-tabs {
-  display: none;
-}
-
-.pi0-roofline-active-level .roofline-basis-bar > header > div > p,
-.pi0-roofline-active-level .roofline-basis-bar > header code,
-.pi0-roofline-active-level .roofline-match-state,
-.pi0-roofline-active-level .roofline-runtime-controls,
-.pi0-roofline-active-level .roofline-basis-fingerprint,
-.pi0-roofline-active-level .roofline-origin {
-  display: none;
-}
-
-.pi0-roofline-active-level .roofline-basis-bar > header {
-  padding: 12px 16px;
-}
-
-.pi0-roofline-active-level .roofline-basis-bar > header h2 {
-  font-size: 24px;
-}
-
-.pi0-roofline-active-level .roofline-basis-controls {
-  grid-template-columns: minmax(0, 1fr);
-}
-
-.pi0-roofline-active-level .roofline-basis-ceilings code,
-.pi0-roofline-active-level .roofline-basis-ceilings span {
-  display: none;
 }
 
 .pi0-profiler-section .pi0-funnel-heading > span {
@@ -502,7 +456,6 @@
 }
 
 @media (max-width: 54rem) {
-  .pi0-roofline-active-level > .roofline-workspace,
   .pi0-profiler-evidence-body {
     padding-right: 16px;
     padding-left: 16px;

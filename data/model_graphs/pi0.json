@@ -3310,7 +3310,16 @@
                   "tensor_id": "prefix-key"
                 }
               ],
-              "bindings": []
+              "bindings": [],
+              "slice": {
+                "axis": 0,
+                "start": 0,
+                "stop": 1,
+                "step": 1,
+                "drop_axis": true,
+                "output_symbol": "Kₚ",
+                "explanation": "当前 expert 层的 prefix KV 已选定；沿第 0 轴（kv）取 0，得到K。保留 batch、prefix sequence、KV head 与 head dimension 四个轴。"
+              }
             },
             {
               "operator_id": "extract-prefix-value",
@@ -3329,7 +3338,16 @@
                   "tensor_id": "prefix-value"
                 }
               ],
-              "bindings": []
+              "bindings": [],
+              "slice": {
+                "axis": 0,
+                "start": 1,
+                "stop": 2,
+                "step": 1,
+                "drop_axis": true,
+                "output_symbol": "Vₚ",
+                "explanation": "当前 expert 层的 prefix KV 已选定；沿第 0 轴（kv）取 1，得到V。保留 batch、prefix sequence、KV head 与 head dimension 四个轴。"
+              }
             },
             {
               "operator_id": "attention-norm",
@@ -6703,7 +6721,28 @@
                   "tensor_id": "action-hidden"
                 }
               ],
-              "bindings": []
+              "bindings": [],
+              "slice": {
+                "axis": 1,
+                "start": {
+                  "op": "sub",
+                  "args": [
+                    {
+                      "symbol": "S"
+                    },
+                    {
+                      "symbol": "T"
+                    }
+                  ]
+                },
+                "stop": {
+                  "symbol": "S"
+                },
+                "step": 1,
+                "drop_axis": false,
+                "output_symbol": "Y",
+                "explanation": "沿第 1 轴（suffix tokens）保留最后 {T} 个 action token，即 [S−T, S)。第 0 行是 state token，在这里移除。batch 与 hidden width 保持不变。"
+              }
             },
             {
               "operator_id": "velocity-projection",

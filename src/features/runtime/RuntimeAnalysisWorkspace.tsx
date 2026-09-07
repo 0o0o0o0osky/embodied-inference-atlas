@@ -1,5 +1,5 @@
 import { AnalysisPlaceholder, type AnalysisPlaceholderProps } from '../../components/AnalysisPlaceholder';
-import { runtimeEvidenceSelectionPatch } from './domain/pi0PerformanceNavigation';
+import { runtimeEvidenceSelectionPatch } from './domain/analysisNavigation';
 import { modelAnalysisDescriptor } from './domain/modelAnalysisDescriptor';
 import { ExistingPerformanceComparison } from './components/ExistingPerformanceComparison';
 import { useMemo } from 'react';
@@ -8,7 +8,7 @@ import type { AtlasData, CanonicalRecord, ModelRecord } from '../../types/atlas'
 import { adaptV1ModelGraph } from '../model-graph/domain/adaptV1ModelGraph';
 import { adaptLogicalDag } from '../model-graph/domain/adaptLogicalDag';
 import { timelineEventEntity } from '../workbench/entityKeys';
-import { Pi0PerformanceNavigation } from './components/Pi0PerformanceNavigation';
+import { AnalysisNavigation } from './components/AnalysisNavigation';
 import { Pi0PerformanceOverviewChart, type Pi0RoutablePerformanceSelection } from './components/Pi0PerformanceOverviewChart';
 import { Pi0SelectedRuntimeSummary } from './components/Pi0SelectedRuntimeSummary';
 import { Pi0NsysSection } from './components/Pi0NsysSection';
@@ -71,7 +71,7 @@ export function RuntimeAnalysisWorkspace({data, model, record, route, navigate}:
   });
   return <section className="model-graph-workspace model-workspace pi0-runtime-workspace runtime-analysis-workspace" aria-labelledby="runtime-analysis-title">
     <h2 id="runtime-analysis-title" className="visually-hidden">{model.display_name} 运行表现</h2>
-    <Pi0PerformanceNavigation route={route} navigate={navigate} surface="runtime" />
+    <AnalysisNavigation route={route} navigate={navigate} />
     <div hidden={Boolean(route.runtime)}>
       {isPi0 ? <Pi0PerformanceOverviewChart model={overview!} selectedRunId={route.selectedRun ?? null} coordinate={coordinate}
         onCoordinateChange={next=>navigate({inputShape:`v=${next.cameraViews},p=48,a=${next.actionChunk},n=10`},true)}

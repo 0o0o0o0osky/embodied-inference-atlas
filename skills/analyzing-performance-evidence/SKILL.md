@@ -20,3 +20,5 @@ launch behavior and hardware ceilings again. Separate observations, supported
 explanations and the smallest unresolved evidence gap.
 
 For new models, runtimes or devices, supply the [minimum structured content](../../docs/analysis-components.md#新页面接入契约): identity, actual input/precision, evidence and applicability. Preserve unlinked timing; do not invent values or prose to make every capability appear complete.
+
+Use the [shared verification step](../../docs/single-inference-analysis.md#8-浏览器离线与体积验收): relevant incremental tests, one offline build that includes type/data checks, and review of the changed browser path. Generated `site/` stays outside Git; do not repeat build/check cycles for unchanged inputs.

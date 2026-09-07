@@ -3,14 +3,12 @@ import { useCallback, useEffect, useRef, useState } from "react";
 export const WORKBENCH_TABS = [
   "logical",
   "runtime",
-  "end-to-end",
-  "timeline",
-  "roofline-kernels",
 ] as const;
 
 export type WorkbenchTab = (typeof WORKBENCH_TABS)[number];
 
 export interface RouteState {
+  theoryView?: "dag" | "roofline" | null;
   inputShape?: string | null;
   analysisView?: "system" | "hotspots" | "reuse" | "perfetto";
   selectedRun?: string | null;
@@ -32,6 +30,7 @@ export type RoutePatch = Partial<RouteState>;
 
 const ROUTE_FIELDS = [
   "model",
+  "theoryView",
   "inputShape",
   "analysisView",
   "selectedRun",
@@ -49,19 +48,24 @@ const ROUTE_FIELDS = [
 export function readRoute(search = window.location.search): RouteState {
   const params = new URLSearchParams(search);
   const requestedTab = params.get("tab");
-  const isPi0 = (readValue(params, "model") ?? "pi0") === "pi0";
   const runtime = readValue(params, "runtime");
-  const legacyView = !isPi0 ? null : requestedTab === "timeline" ? "system" : requestedTab === "roofline-kernels" && runtime ? "hotspots" : null;
+  const legacyView = requestedTab === "timeline" ? "system" : requestedTab === "roofline-kernels" && runtime ? "hotspots" : null;
   const requestedView = params.get("analysisView");
   const analysisView = ["system", "hotspots", "reuse", "perfetto"].includes(requestedView ?? "")
     ? requestedView as RouteState["analysisView"] : legacyView;
-  const legacyRuntime = legacyView !== null || isPi0 && requestedTab === "end-to-end";
+  const legacyRuntime = legacyView !== null || requestedTab === "end-to-end";
+  const tab = legacyRuntime ? "runtime" : isWorkbenchTab(requestedTab) ? requestedTab : "logical";
+  const theoryRoofline = params.get("theoryView") === "roofline" || requestedTab === "roofline-kernels" && !runtime;
+  const requestedLevel = readRooflineLevel(params.get("roofline-level"));
+  const rooflineLevel = tab === 'logical' && theoryRoofline && (requestedLevel === 'kernel' || requestedLevel === 'fused')
+    ? 'overview' : requestedLevel;
   return {
+    ...(theoryRoofline ? {theoryView: "roofline" as const} : {}),
     ...(params.has("inputShape") ? { inputShape: readValue(params, "inputShape") } : {}),
     ...(params.has("selectedRun") ? { selectedRun: readValue(params, "selectedRun") } : {}),
     ...(analysisView ? { analysisView } : {}),
     model: readValue(params, "model") ?? "pi0",
-    tab: legacyRuntime ? "runtime" : isWorkbenchTab(requestedTab) ? requestedTab : "logical",
+    tab,
     runtime: readValue(params, "runtime"),
     hardware: readValue(params, "hardware") ?? "nvidia-jetson-agx-thor",
     workload: readValue(params, "workload"),
@@ -70,7 +74,7 @@ export function readRoute(search = window.location.search): RouteState {
     runtimeFacet: readValue(params, "runtimeFacet"),
     entity: readValue(params, "entity"),
     timelineCapture: readValue(params, "timelineCapture"),
-    rooflineLevel: readRooflineLevel(params.get("roofline-level")),
+    rooflineLevel,
     basis: readValue(params, "basis"),
   };
 }
@@ -123,7 +127,7 @@ export function useRouteState(): [
     (patch: RoutePatch, replace = false) => {
       const sameModel = !patch.model || patch.model === route.model;
       if (route.tab === "logical" && patch.tab && patch.tab !== "logical" && route.model) {
-        theoryViews.current.set(route.model, {entity:route.entity,workload:route.workload,precision:route.precision});
+        theoryViews.current.set(route.model, {entity:route.entity,workload:route.workload,precision:route.precision,theoryView:route.theoryView ?? null,rooflineLevel:route.rooflineLevel});
       }
       const restored = sameModel && patch.tab === "logical" && route.tab !== "logical" && route.model
         ? theoryViews.current.get(route.model) ?? {} : {};

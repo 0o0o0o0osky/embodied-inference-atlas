@@ -4099,7 +4099,16 @@
                   "tensor_id": "prefix-key"
                 }
               ],
-              "bindings": []
+              "bindings": [],
+              "slice": {
+                "axis": 0,
+                "start": 0,
+                "stop": 1,
+                "step": 1,
+                "drop_axis": true,
+                "output_symbol": "Kₚ",
+                "explanation": "沿第 0 轴（layer_slot）取当前层组的第 1 层：self-attention 对应全局层 2p，p 从 0 开始。K 与 V 各自读取对应层，保留 batch、head、prefix sequence、head dimension。"
+              }
             },
             {
               "operator_id": "extract-prefix-value",
@@ -4118,7 +4127,16 @@
                   "tensor_id": "prefix-value"
                 }
               ],
-              "bindings": []
+              "bindings": [],
+              "slice": {
+                "axis": 0,
+                "start": 0,
+                "stop": 1,
+                "step": 1,
+                "drop_axis": true,
+                "output_symbol": "Vₚ",
+                "explanation": "沿第 0 轴（layer_slot）取当前层组的第 1 层：self-attention 对应全局层 2p，p 从 0 开始。K 与 V 各自读取对应层，保留 batch、head、prefix sequence、head dimension。"
+              }
             },
             {
               "operator_id": "query-projection",
@@ -5224,7 +5242,16 @@
                   "tensor_id": "cross-key"
                 }
               ],
-              "bindings": []
+              "bindings": [],
+              "slice": {
+                "axis": 0,
+                "start": 1,
+                "stop": 2,
+                "step": 1,
+                "drop_axis": true,
+                "output_symbol": "Kₚ",
+                "explanation": "沿第 0 轴（layer_slot）取当前层组的第 2 层：cross-attention 对应全局层 2p+1，p 从 0 开始。K 与 V 各自读取对应层，保留 batch、head、prefix sequence、head dimension。"
+              }
             },
             {
               "operator_id": "extract-prefix-value",
@@ -5243,7 +5270,16 @@
                   "tensor_id": "cross-value"
                 }
               ],
-              "bindings": []
+              "bindings": [],
+              "slice": {
+                "axis": 0,
+                "start": 1,
+                "stop": 2,
+                "step": 1,
+                "drop_axis": true,
+                "output_symbol": "Vₚ",
+                "explanation": "沿第 0 轴（layer_slot）取当前层组的第 2 层：cross-attention 对应全局层 2p+1，p 从 0 开始。K 与 V 各自读取对应层，保留 batch、head、prefix sequence、head dimension。"
+              }
             },
             {
               "operator_id": "flatten-prefix-key",
@@ -9265,7 +9301,19 @@
                   "tensor_id": "output"
                 }
               ],
-              "bindings": []
+              "bindings": [],
+              "slice": {
+                "axis": 2,
+                "start": 0,
+                "stop": {
+                  "symbol": "DOUT"
+                },
+                "step": 1,
+                "drop_axis": false,
+                "output_symbol": "Y",
+                "explanation": "沿最后一轴（action width）取前 {DOUT} 个分量，保留 batch 与 action horizon。当前内部 {DIN} 维动作输出为公开 {DOUT} 维。",
+                "identity_explanation": "当前 {DIN}→{DOUT} 覆盖整个轴，数值与形状保持不变。"
+              }
             }
           ],
           "components": []

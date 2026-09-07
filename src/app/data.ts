@@ -28,7 +28,7 @@ const DATASET_NAMES = [
 ] as const;
 
 export async function loadAtlasData(): Promise<AtlasData> {
-  const response = await fetch(import.meta.env.DEV ? "./site/assets/data/atlas-data.json" : "./assets/data/atlas-data.json", {
+  const response = await fetch("./assets/data/atlas-data.json", {
     cache: "no-store",
   });
   if (!response.ok) {

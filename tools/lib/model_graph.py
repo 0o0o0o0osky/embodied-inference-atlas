@@ -279,6 +279,45 @@ def _problem_value(
         return None
 
 
+def _validate_slice_declaration(operator, tensors, environment, path, problems, *, check_shape=True):
+    declaration = operator.get("slice")
+    if declaration is None:
+        return
+    try:
+        if operator.get("definition_id") != "slice" or not isinstance(declaration, Mapping):
+            raise ValueError("slice declaration requires a slice operator")
+        axis, start, stop, step = (
+            _safe_non_negative_integer(evaluate_expression(declaration.get(key), environment), key)
+            for key in ("axis", "start", "stop", "step")
+        )
+        if not check_shape:
+            if step <= 0:
+                raise ValueError("slice step must be positive")
+            return
+        def shape(direction):
+            ports = _mapping_list(operator.get(direction))
+            if len(ports) != 1:
+                raise ValueError("slice requires one input and one output")
+            tensor = tensors.get(ports[0].get("tensor_id"))
+            if not isinstance(tensor, Mapping):
+                raise ValueError("slice tensor does not resolve")
+            return [evaluate_expression(item.get("expression"), environment) for item in _mapping_list(tensor.get("axes"))]
+        source, target = shape("inputs"), shape("outputs")
+        if axis >= len(source) or step <= 0 or start > stop or stop > source[axis]:
+            raise ValueError("slice range or positive step is invalid")
+        expected = list(source)
+        if declaration.get("drop_axis"):
+            if stop != start + 1 or step != 1:
+                raise ValueError("index selection must select exactly one element")
+            expected.pop(axis)
+        else:
+            expected[axis] = ceil((stop - start) / step)
+        if expected != target:
+            raise ValueError("slice range does not produce the declared output shape")
+    except (ValueError, TypeError) as error:
+        problems.append(GraphProblem(f"{path}.slice", "invalid_slice", str(error)))
+
+
 def _validate_bindings(
     bindings: object,
     expected: object,
@@ -665,6 +704,7 @@ def _validate_atomic_template(
             problems.append(GraphProblem(f"{operator_path}.definition_id", "broken_reference", "operator definition does not resolve"))
             continue
         _require_count(operator.get("multiplicity"), template_environment, f"{operator_path}.multiplicity", problems)
+        _validate_slice_declaration(operator, tensors, template_environment, operator_path, problems, check_shape=False)
         definition_bindings = _validate_bindings(
             operator.get("bindings"),
             definition.get("parameters"),
@@ -795,6 +835,7 @@ def graph_semantic_problems(record: Mapping[str, object]) -> list[GraphProblem]:
                 problems.append(GraphProblem(f"{operator_path}.definition_id", "broken_reference", "operator definition does not resolve"))
                 continue
             _require_count(operator.get("multiplicity"), template_environment, f"{operator_path}.multiplicity", problems)
+            _validate_slice_declaration(operator, tensors, template_environment, operator_path, problems, check_shape=False)
             definition_bindings = _validate_bindings(
                 operator.get("bindings"),
                 definition.get("parameters"),
@@ -1242,6 +1283,25 @@ def graph_semantic_problems(record: Mapping[str, object]) -> list[GraphProblem]:
         loop_outputs | repeat_carried_outputs,
         "$", problems, loop_endpoints,
     )
+    if not problems:
+        try:
+            environment = resolve_symbols(_mapping_list(record.get("shape_symbols")))
+            def check_template(template, bindings, path):
+                tensors = {t["tensor_id"]: t for t in _mapping_list(template.get("tensors"))}
+                for operator in _mapping_list(template.get("operators")):
+                    _validate_slice_declaration(operator, tensors, bindings, f"{path}/{operator['operator_id']}", problems)
+            for stage in _mapping_list(record.get("stages")):
+                for module in _mapping_list(stage.get("modules")):
+                    template = templates[module["template_id"]]
+                    bindings = _evaluate_bindings(module.get("bindings"), template.get("parameters"), environment)
+                    path = f"{stage['stage_id']}/{module['module_id']}"
+                    check_template(template, bindings, path)
+                    for component in _mapping_list(template.get("components")):
+                        child = component_templates[component["template_id"]]
+                        child_bindings = _evaluate_bindings(component.get("bindings"), child.get("parameters"), bindings)
+                        check_template(child, child_bindings, f"{path}/{component['component_id']}")
+        except (ValueError, KeyError) as error:
+            problems.append(GraphProblem("$.slice", "invalid_slice", str(error)))
     return problems
 
 
@@ -1273,7 +1333,12 @@ def _materialize_atomic_template(
     template_copy = dict(template)
     template_copy["tensors"] = _concrete_tensors(template.get("tensors"), environment)
     materialized_operators: list[dict[str, object]] = []
+    tensors = {t["tensor_id"]: t for t in _mapping_list(template.get("tensors"))}
     for operator in _mapping_list(template.get("operators")):
+        slice_problems: list[GraphProblem] = []
+        _validate_slice_declaration(operator, tensors, environment, f"{key_prefix}/{operator['operator_id']}", slice_problems)
+        if slice_problems:
+            raise ValueError(f"{slice_problems[0].path}: {slice_problems[0].message}")
         operator_copy = dict(operator)
         definition = definitions[operator["definition_id"]]
         definition_bindings = _evaluate_bindings(

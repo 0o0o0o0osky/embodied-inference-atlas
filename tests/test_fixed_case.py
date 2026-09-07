@@ -45,6 +45,40 @@ class FixedCaseTests(unittest.TestCase):
         self.assertNotEqual(signatures[0]['kernel_signature_id'],signatures[1]['kernel_signature_id'])
         self.assertEqual(stage['datasets']['profiler_captures'][0]['analysis_summary']['sample_count'],10)
         self.assertFalse(stage['datasets']['profiler_captures'][0]['cpu_capabilities']['scheduler_running'])
+        # Reuse the same measured fixture through a new model's explicit marker contract.
+        c.execute("UPDATE NVTX_EVENTS SET text=replace(text, 'pi0_steady_', 'predict-')")
+        new_run = dict(run, model_id='new-model')
+        with patch('extractors.fixed_case.parse_nsys_sqlite', side_effect=parsed):
+            new_stage, new_manifest, _ = build_fixed_case_bundle(
+                c, dict(result, nvtx_window_prefix='predict-'), new_run,
+                {'reviewed_gemm': dict(label='GEMM', function_family='gemm', confidence='high')})
+        self.assertTrue(all(item['model_id'] == 'new-model' for item in new_stage['datasets']['kernel_signatures']))
+        self.assertTrue(all(item['kernel_signature_id'].startswith('kernel-signature-new-model-') for item in new_manifest))
+        self.assertTrue(new_stage['datasets']['runs'][0]['run_id'].startswith('run-new-model-'))
+
+
+    def test_model_namespace_and_explicit_window_contract(self):
+        from extractors.fixed_case import case_identity
+        self.assertEqual(case_identity({'runtime': 'rt'}, {'model_id': 'new-model', 'runtime_id': 'rt'}),
+                         ('new-model', 'rt', 'new-model_steady_'))
+        self.assertEqual(case_identity({'runtime': 'rt', 'nvtx_window_prefix': 'sample-'},
+                                       {'model_id': 'new-model', 'runtime_id': 'rt'}),
+                         ('new-model', 'rt', 'sample-'))
+        with self.assertRaises(ValueError):
+            case_identity({'runtime': 'wrong'}, {'model_id': 'new-model', 'runtime_id': 'rt'})
+
+    def test_shared_cpu_policy_is_explicit_and_missing_tables_stay_missing(self):
+        from extractors.nsys_cpu import supplement_cpu, sample_label
+        self.assertEqual(sample_label('vla::predict', False), 'other')
+        self.assertEqual(sample_label('vla::predict', False, (('vla::predict', 'native-predict'),)), 'native-predict')
+        self.assertEqual(sample_label('vla::predict', True, (('vla::predict', 'native-predict'),)), 'unresolved')
+        c = sqlite3.connect(':memory:')
+        self.addCleanup(c.close)
+        timeline, capture = {'lanes': [], 'events': []}, {}
+        supplement_cpu(c, capture, timeline, {}, 1, 0, 10, api_names=())
+        self.assertFalse(capture['cpu_capabilities']['function_samples'])
+        self.assertFalse(capture['cpu_capabilities']['scheduler_running'])
+        self.assertNotIn('cpu_samples', timeline)
 
     def test_cpu_roles_and_samples_reuse_only_proven_main_thread(self):
         from extractors.nsys import target_thread_role

@@ -31,11 +31,11 @@ python3 -m http.server 8000 --bind 127.0.0.1 --directory site
 
 Open **http://127.0.0.1:8000/**.
 
-The setup command prepares the pinned Perfetto viewer; the build validates the data and creates `site/`. To prepare Perfetto from an existing archive, use `python3 tools/vendor_perfetto.py --archive perfetto-ui.zip`. See [offline Perfetto setup](docs/offline-perfetto.md) for details.
+The setup command prepares the pinned Perfetto viewer; the build validates the data and creates the ignored `site/` build output. Deploy that directory after building; generated files are not tracked in Git. To prepare Perfetto from an existing archive, use `python3 tools/vendor_perfetto.py --archive perfetto-ui.zip`. See [offline Perfetto setup](docs/offline-perfetto.md) for details.
 
 ## Develop or add an analysis
 
-The frontend uses TypeScript, React and Vite. Python tools parse reports, validate evidence and generate the site. Start the frontend development server with `npm run dev`; run type checks with `npm run typecheck`.
+The frontend uses TypeScript, React and Vite. Python tools parse reports, validate evidence and generate the site. Run `npm run dev` to start the development server with the current records from `data/`. After making changes and running relevant tests, use `python3 -m tools.build` to check and generate the offline site, then review it in your browser.
 
 - [Analysis workflow](docs/single-inference-analysis.md): go from a fixed input and profiling question to a reviewed, interactive analysis.
 - [Component catalog and integration contract](docs/analysis-components.md): reuse the existing views when adding a model, runtime or device.

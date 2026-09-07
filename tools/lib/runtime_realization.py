@@ -71,6 +71,21 @@ def runtime_realization_problems(
     for index, item in enumerate(reuse):
         base = f"$.reuse[{index}]"
         _check_ids(issues, f"{base}.evidence_ids", item.get("evidence_ids"), evidence_ids)
+        recipe = item.get("mechanism")
+        if isinstance(recipe, Mapping):
+            proof = next((e for e in evidence if e.get("evidence_id") == recipe.get("evidence_id")), {})
+            valid = (recipe.get("model_id") == record.get("model_id")
+                     and recipe.get("runtime_id") == record.get("runtime_id")
+                     and recipe.get("revision") == record.get("runtime_revision")
+                     and recipe.get("evidence_id") in _string_list(item.get("evidence_ids"))
+                     and proof.get("kind") == "source_code"
+                     and proof.get("revision") == recipe.get("revision")
+                     and proof.get("locator") == recipe.get("source_locator")
+                     and item.get("kind") == "computed_result"
+                     and item.get("lifetime") == "across_observations")
+            if not valid:
+                issues.append(RuntimeRealizationProblem(f"{base}.mechanism", "reuse_mechanism_source",
+                    "time recipe requires matching implementation identity and source evidence"))
         for field in ("producer_refs", "consumer_refs"):
             _check_ids(issues, f"{base}.{field}", item.get(field), logical_refs | group_ids)
         if item.get("implementation_status") in {"implemented", "not_implemented"} and not _string_list(item.get("evidence_ids")):
