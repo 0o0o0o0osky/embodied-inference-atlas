@@ -9,14 +9,14 @@
 .graph-comparison-gpu-lane { fill:#f5f7f9; }
 .graph-comparison-lane-label { font-size:16px; font-weight:600; fill:#233f51; }
 .graph-comparison-launch { fill:#fff1de; stroke:#cb914e; }
-.graph-comparison-launch.is-more { stroke-dasharray:3 3; }
 .graph-comparison-launch.is-graph { fill:#edf6f0; stroke:#6c9f88; }
 .graph-comparison-launch-label { fill:#734918; font-size:13px; }
 .graph-comparison-launch-label.is-graph { fill:#315e4e; }
-.graph-comparison-link { fill:none; stroke:#8399a7; stroke-width:1.2; }
 .graph-comparison-kernel rect { fill:#edf2f6; stroke:#aebfcb; }
 .graph-comparison-kernel text { fill:#365569; font-size:15px; }
-.graph-comparison-saved { stroke:#8dad9b; stroke-dasharray:4 3; }
 .graph-comparison-saved-label { fill:#315e4e; font-size:15px; }
-.graph-comparison-stage, .graph-comparison-time { fill:#617787; font-size:13px; }
+.graph-comparison-explanation, .graph-comparison-time { fill:#617787; font-size:13px; }
 .graph-comparison-axis { stroke:#9dafbb; stroke-width:1; }
+.graph-comparison-runtime { margin:8px 0; color:#315e4e; font-size:14px; line-height:1.6; }
+.graph-comparison-reference { color:#617787; font-size:13px; line-height:1.6; }
+.graph-comparison-reference summary { cursor:pointer; }

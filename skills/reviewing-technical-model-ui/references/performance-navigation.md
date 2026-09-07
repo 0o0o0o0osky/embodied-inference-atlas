@@ -41,13 +41,13 @@ request-wide bound instead of repeating why partial bounds cannot supply it.
 The “执行优化” view uses before/after diagrams for CUDA Graph submission and
 time-feature precomputation. Show removed submissions or calculations, work moved
 to preparation, and work that still executes. The “before” side is a mechanism
-illustration, not an existing ablation measurement. For CUDA Graph, stack two CPU/GPU timelines comparing individual Kernel launches with two Graph launches, highlighting reduced CPU submission work while retaining identical GPU nodes.
+illustration, not an existing ablation measurement. For CUDA Graph, use a short Kernel sequence within one graph to compare individual launches with one graph replay. Show asynchronous CPU/GPU overlap, label host-submission gaps and remaining device launch/scheduling gaps, and preserve the same Kernel work. State the selected runtime's graph count separately. Consult the [official PyTorch Figure 1](https://pytorch.org/blog/accelerating-pytorch-with-cuda-graphs/); avoid unexplained spacing and redundant dependency arrows.
 Keep these timelines qualitative: no microseconds, percentages or invented ablation results, and no Kernel-count reduction attributed to graph fusion. Omit ordinary
 within-observation Prefix K/V sharing from this page. Keep dependencies, rebuild
 conditions and the concrete commit version in folded detail; omit empty cost
 tables and repeated per-item repository links. Distinguish reused results from
 reused execution plans.
-When CPU samples contain only other/unresolved labels, use one short explanation instead of a meaningless 100% ranking.
+When CPU samples contain only other/unresolved labels, show “CPU 函数分析：暂无可用数据”; hide the uninformative sample count and percentage ranking.
 Require Ctrl + wheel for DAG and timeline zoom; ordinary wheel scrolls the page.
 Use observed thread roles and call purposes as labels; track ordinals are not thread IDs.
 Explain CV as timing variability, with its formula in folded detail.

@@ -116,7 +116,7 @@ DAG 关联先核对精确 Kernel 类型、唯一实现调用点和代表 trace �
 
 **输出解释**：「执行优化」分别用前后对照图展示 CUDA Graph 与时间嵌入／投影预计算，
 标出省去的重复提交或计算、移到准备阶段的工作，以及优化后仍执行的工作；基础观测内 Prefix K/V 共享不在此页展示。
-CUDA Graph 用上下两幅 CPU/GPU 时间线对照逐 Kernel launch 与两次 Graph launch，突出减少的 CPU 提交工作，两侧保留相同 GPU 节点。
+CUDA Graph 用一张图内的短 Kernel 序列说明逐次提交与整图重放：CPU 连续提交并与 GPU 执行重叠，明确标出等待后续提交的间隙和图内启动／调度间隙。两侧保留相同计算；FlashRT 的视觉图、主推理图各重放一次单列说明。参考 [PyTorch 官方 Figure 1](https://pytorch.org/blog/accelerating-pytorch-with-cuda-graphs/) 和 [NVIDIA 异步提交时间线](https://developer.nvidia.com/blog/cuda-graphs/)。
 时间线是流程示意，不填写微秒、百分比或虚构消融结果，也不把 Graph 画成减少 Kernel 数的融合。
 重做条件、依赖与具体 commit 版本放入折叠说明，未知成本不生成空表。
 遥测注明与采集的时间对齐程度，未对齐记录只作为运行条件旁证。

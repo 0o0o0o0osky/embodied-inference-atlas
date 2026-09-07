@@ -1,54 +1,56 @@
 import { useId } from 'react';
 import './cudaGraphComparison.css';
 
-// A symbolic sequence, not sampled durations or the complete Kernel inventory.
-const KERNELS = ['V₁', 'V₂', '…', 'M₁', 'M₂', '…'] as const;
-const xAt = (index: number) => 148 + index * 174;
+// Qualitative launch-bound example, following the official PyTorch Figure 1.
+// The omitted middle of the sequence is symbolic; dimensions are not timings.
+const KERNELS = ['K₁', 'K₂', 'K₃', '…', 'Kₙ'] as const;
+const kernelWidth = 118;
+const launchX = (index: number) => 160 + index * 180;
+const kernelX = (graph: boolean, index: number) => graph ? 420 + index * 126 : 380 + index * 180;
 
-/** Compare host launch work; the same GPU nodes appear in both rows. */
 export function CudaGraphComparison() {
   const uid = useId().replace(/:/g, '');
   return <figure className="optimization-comparison graph-comparison" aria-label="CUDA Graph 提交前后对照">
-    <figcaption>CPU 提交：逐个 Kernel launch → 视觉图、主推理图各 launch 一次</figcaption>
+    <figcaption>一张 Graph 内的短 Kernel：逐次提交与整图重放</figcaption>
     <div className="graph-comparison-scroll" tabIndex={0} role="region" aria-label="Kernel launch 对照时间线，可横向滚动">
-      <svg viewBox="0 0 1280 552" role="img" aria-label="上方逐个 Kernel launch，下方两次 Graph launch；CPU 提交减少，GPU Kernel 保留">
+      <svg viewBox="0 0 1280 568" role="img" aria-label="短 Kernel 受提交开销限制的机制示意；CPU 连续提交并与 GPU 执行重叠，Graph 减少重复提交与等待">
         <defs>
           <marker id={`${uid}-arrow`} viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#718797" /></marker>
-          <pattern id={`${uid}-saved`} width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(35)"><line x1="0" y1="0" x2="0" y2="10" stroke="#dbe9e2" strokeWidth="2" /></pattern>
+          <pattern id={`${uid}-wait`} width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(35)"><line x1="0" y1="0" x2="0" y2="8" stroke="#d4b589" strokeWidth="2" /></pattern>
         </defs>
-        {([false, true] as const).map(graph => <g key={String(graph)} transform={`translate(0 ${graph ? 282 : 0})`} className="graph-comparison-panel" data-mode={graph ? 'graph' : 'individual'}>
-          <text x="18" y="26" className="graph-comparison-title">{graph ? 'CUDA Graph · 当前实现' : '逐个 Kernel launch'}</text>
-          <text x="1250" y="26" textAnchor="end" className="graph-comparison-count">{graph ? '图内任务：2 次 Graph launch' : '图内任务：N 次 Kernel launch'}</text>
-          <rect x="112" y="50" width="1138" height="57" rx="4" className="graph-comparison-cpu-lane" />
-          <rect x="112" y="158" width="1138" height="57" rx="4" className="graph-comparison-gpu-lane" />
-          <text x="20" y="85" className="graph-comparison-lane-label">CPU</text>
-          <text x="20" y="192" className="graph-comparison-lane-label">GPU</text>
+        {([false, true] as const).map(graph => <g key={String(graph)} transform={`translate(0 ${graph ? 288 : 0})`} className="graph-comparison-panel" data-mode={graph ? 'graph' : 'individual'}>
+          <text x="20" y="28" className="graph-comparison-title">{graph ? 'CUDA Graph 重放' : '逐个 Kernel launch'}</text>
+          <text x="1250" y="28" textAnchor="end" className="graph-comparison-count">{graph ? '整图提交 1 次' : '逐个提交 N 次'}</text>
+          <rect x="148" y="60" width="1102" height="56" rx="3" className="graph-comparison-cpu-lane" />
+          <rect x="148" y="174" width="1102" height="56" rx="3" className="graph-comparison-gpu-lane" />
+          <text x="20" y="93" className="graph-comparison-lane-label">CPU 提交</text>
+          <text x="20" y="207" className="graph-comparison-lane-label">GPU 执行</text>
           {graph ? <>
-            <rect x="493" y="59" width="739" height="39" rx="3" fill={`url(#${uid}-saved)`} className="graph-comparison-saved" />
-            <rect x="682" y="66" width="359" height="26" rx="3" fill="#f3f8f5" />
-            <text x="862" y="84" textAnchor="middle" className="graph-comparison-saved-label">省去逐 Kernel launch 的 CPU 开销</text>
-            {['视觉 Graph launch', '主图 Graph launch'].map((label,index) => <g key={label} className="graph-comparison-host-launch">
-              <rect x={xAt(index)} y="59" width="147" height="39" rx="3" className="graph-comparison-launch is-graph" />
-              <text x={xAt(index)+73.5} y="83" textAnchor="middle" className="graph-comparison-launch-label is-graph">{label}</text>
-            </g>)}
-            <path d={`M ${xAt(0)+74} 101 V 163`} className="graph-comparison-link" markerEnd={`url(#${uid}-arrow)`} />
-            <path d={`M ${xAt(1)+74} 101 V 126 H ${xAt(3)+74} V 163`} className="graph-comparison-link" markerEnd={`url(#${uid}-arrow)`} />
+            <g className="graph-comparison-host-launch">
+              <rect x="160" y="69" width="220" height="38" rx="3" className="graph-comparison-launch is-graph" />
+              <text x="270" y="94" textAnchor="middle" className="graph-comparison-launch-label is-graph">cudaGraphLaunch</text>
+            </g>
+            <text x="420" y="93" className="graph-comparison-saved-label">整段工作已提交，省去逐 Kernel launch</text>
           </> : KERNELS.map((kernel,index) => <g key={index} className="graph-comparison-host-launch">
-            <rect x={xAt(index)} y="59" width="112" height="39" rx="3" className={`graph-comparison-launch${kernel==='…'?' is-more':''}`} />
-            <text x={xAt(index)+56} y="83" textAnchor="middle" className="graph-comparison-launch-label">{kernel==='…'?'…':'Kernel launch'}</text>
-            <path d={`M ${xAt(index)+56} 101 V 133 H ${xAt(index)+74} V 163`} className="graph-comparison-link" markerEnd={`url(#${uid}-arrow)`} />
+            <rect x={launchX(index)} y="69" width="180" height="38" className="graph-comparison-launch" />
+            <text x={launchX(index)+90} y="94" textAnchor="middle" className="graph-comparison-launch-label">{kernel==='…'?'…':`提交 ${kernel}`}</text>
           </g>)}
+          <text x={graph ? 420 : 380} y="149" className="graph-comparison-explanation">{graph ? 'GPU 按图中依赖推进整段计算' : 'CPU 提交 K₂ 时，GPU 已可执行 K₁'}</text>
           {KERNELS.map((kernel,index) => <g key={index} className="graph-comparison-kernel" data-kernel={kernel}>
-            <rect x={xAt(index)+12} y="166" width="124" height="39" rx="3" />
-            <text x={xAt(index)+74} y="191" textAnchor="middle">{kernel}</text>
+            <rect x={kernelX(graph,index)} y="183" width={kernelWidth} height="38" rx="2" />
+            <text x={kernelX(graph,index)+kernelWidth/2} y="208" textAnchor="middle">{kernel}</text>
           </g>)}
-          <text x="385" y="234" textAnchor="middle" className="graph-comparison-stage">视觉计算的 Kernel</text>
-          <text x="906" y="234" textAnchor="middle" className="graph-comparison-stage">主推理计算的 Kernel</text>
-          <line x1="112" y1="254" x2="1208" y2="254" className="graph-comparison-axis" markerEnd={`url(#${uid}-arrow)`} />
-          <text x="1250" y="257" textAnchor="end" className="graph-comparison-time">时间</text>
+          {!graph ? KERNELS.slice(1).map((_,index)=><rect key={index} className="graph-comparison-wait" x={kernelX(false,index)+kernelWidth} y="183" width={180-kernelWidth} height="38" fill={`url(#${uid}-wait)`} />) : null}
+          <text x={graph ? 420 : 380} y="251" className="graph-comparison-explanation">{graph ? '窄间隙：图内启动／调度开销' : '斜线间隙：逐次提交／启动带来的等待'}</text>
+          <line x1="148" y1="270" x2="1208" y2="270" className="graph-comparison-axis" markerEnd={`url(#${uid}-arrow)`} />
+          <text x="1250" y="274" textAnchor="end" className="graph-comparison-time">时间</text>
         </g>)}
       </svg>
     </div>
-    <p className="optimization-comparison-note">时间线示意。橙色为逐次 launch 开销，斜线区域为省去的 CPU 提交工作。准备时捕获两张图，后续推理重复使用。</p>
+    <p className="optimization-comparison-note">机制示意：短 Kernel 受提交开销限制；相同 Kernel 用相同宽度表示计算，间隙表示等待。</p>
+    <p className="graph-comparison-runtime">FlashRT 每次推理分别重放视觉图与主推理图，各一次。</p>
+    <details className="graph-comparison-reference"><summary>参考图与说明</summary>
+      <p><a href="https://pytorch.org/blog/accelerating-pytorch-with-cuda-graphs/" target="_blank" rel="noreferrer">PyTorch 官方 Figure 1：CUDA Graph 前后对照</a>；<a href="https://developer.nvidia.com/blog/cuda-graphs/" target="_blank" rel="noreferrer">NVIDIA：提交与 GPU 执行重叠</a>。</p>
+    </details>
   </figure>;
 }

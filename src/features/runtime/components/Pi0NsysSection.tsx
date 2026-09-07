@@ -51,7 +51,7 @@ export function Pi0NsysSection({ view: model, onSelectEvent, onOpenDetails }: Pi
   const capabilities = [
     ["CPU 线程调度", active?.capture.nsys?.schedulerTracePresent ? '已记录' : null],
     ["线程状态", active?.capture.cpuCapabilities?.threadStates ? '已记录' : null],
-    ["函数采样", samples.length ? `${samples.length} 条${sampleGroups.hasNamed ? "" : "，未分到具体函数"}` : null],
+    ["CPU 函数分析", samples.length ? sampleGroups.hasNamed ? '可查看采样分布' : '暂无可用数据' : null],
     ["CPU 任务标记", active?.capture.cpuCapabilities?.taskMarkers ? '已记录' : null],
     ["关联事件", active?.capture.cpuCapabilities?.associationEvents ? '已记录' : null],
   ].filter(([,value]) => value !== null);

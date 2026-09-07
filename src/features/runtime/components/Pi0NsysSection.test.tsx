@@ -12,7 +12,8 @@ const render=(value= view)=>renderToStaticMarkup(<Pi0NsysSection view={value} on
 it('shows unresolved sample records as a short capture fact and renders aligned overlap columns',()=>{
  expect(view.active!.timeline.cpuSamples).toHaveLength(3);
  const markup=render();
- expect(markup).toContain('3 条，未分到具体函数');
+ expect(markup).toContain('<dt>CPU 函数分析</dt><dd>暂无可用数据</dd>');
+ expect(markup).not.toContain('3 条，未分到具体函数');
  expect(markup).not.toContain('当前 trace 的 CPU 函数采样');
  expect(markup).not.toContain('100.0%');
  expect(markup).toContain('<th scope="col">统计项</th>');

@@ -42,7 +42,7 @@ it('shows FlashRT extra optimizations and a single pinned version, without routi
  expect(markup).toContain('SiLU');expect(markup).toContain('输出投影');
  expect(markup).toContain('<details class="optimization-version">');
  expect(markup).toContain('https://github.com/flashrt-project/FlashRT/commit/054bea4d02ebc63f6a0c45991c6061b1e1caa46c');
- expect(markup.match(/<a /g)).toHaveLength(1);expect(markup).toContain('commit 054bea4');
+ expect(markup.match(/href="https:\/\/github.com\/flashrt-project\/FlashRT\/commit\//g)).toHaveLength(1);expect(markup).toContain('commit 054bea4');
  expect(markup).not.toContain('参考来源');expect(markup).not.toContain('准备：');expect(markup).not.toContain('下一阶段');
 });
 
