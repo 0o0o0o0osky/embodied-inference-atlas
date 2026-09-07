@@ -131,7 +131,85 @@
           "reason": "missing_compute_ceiling",
           "detail": "SFU exp/reciprocal throughput is not sourced."
         }
-      ]
+      ],
+      "operation_rates": {
+        "device_id": "nvidia-jetson-agx-thor",
+        "operating_point_id": "thor-maxn-published",
+        "gpu_clock_hz": 1575000000.0,
+        "rates": [
+          {
+            "operations": [
+              "fp32_scalar",
+              "fp32_reduce_add"
+            ],
+            "resource": "cuda_fp32",
+            "operation_per_second": 4032000000000.0,
+            "provenance": {
+              "evidence": "analytical",
+              "class": "analytical_model",
+              "source_ids": [
+                "source-nvidia-thor-datasheet-v1-5"
+              ],
+              "derivation": {
+                "kind": "formula",
+                "expression": "8064000000000.0 / 2",
+                "input_refs": [
+                  "source-nvidia-thor-datasheet-v1-5"
+                ]
+              },
+              "condition": "Data Sheet v1.5 FP32 FMA FLOP/s divided by two gives ordinary add/mul results/s; reduction adds share the CUDA resource."
+            }
+          },
+          {
+            "operations": [
+              "fp32_max"
+            ],
+            "resource": "cuda_fp32",
+            "operation_per_second": 4032000000000.0,
+            "provenance": {
+              "evidence": "analytical",
+              "class": "analytical_model",
+              "source_ids": [
+                "source-nvidia-thor-datasheet-v1-5"
+              ],
+              "derivation": {
+                "kind": "formula",
+                "expression": "20 * 128 * 1575000000.0",
+                "input_refs": [
+                  "source-nvidia-thor-datasheet-v1-5"
+                ]
+              },
+              "condition": "Reference assumption: 20 SM, 128 FP32 min/max results per SM/cycle. CUDA native instruction table does not explicitly specify CC 11.0; not a measured instruction rate."
+            }
+          },
+          {
+            "operations": [
+              "exp2",
+              "reciprocal",
+              "rsqrt",
+              "sin",
+              "cos"
+            ],
+            "resource": "sfu",
+            "operation_per_second": 504000000000.0,
+            "provenance": {
+              "evidence": "analytical",
+              "class": "analytical_model",
+              "source_ids": [
+                "source-nvidia-thor-datasheet-v1-5"
+              ],
+              "derivation": {
+                "kind": "formula",
+                "expression": "20 * 16 * 1575000000.0",
+                "input_refs": [
+                  "source-nvidia-thor-datasheet-v1-5"
+                ]
+              },
+              "condition": "Reference assumption: 20 SM, 16 approximate results per SM/cycle sharing SFU. CC 11.0 throughput is not explicitly listed; sin/cos require the declared reduced-range approximate algorithm. Not measured throughput."
+            }
+          }
+        ]
+      }
     },
     {
       "schema_version": "2.0.0",
@@ -195,7 +273,85 @@
           }
         }
       ],
-      "missing": []
+      "missing": [],
+      "operation_rates": {
+        "device_id": "nvidia-jetson-agx-thor",
+        "operating_point_id": "thor-120w-published-caps",
+        "gpu_clock_hz": 1386000000.0,
+        "rates": [
+          {
+            "operations": [
+              "fp32_scalar",
+              "fp32_reduce_add"
+            ],
+            "resource": "cuda_fp32",
+            "operation_per_second": 3548000000000.0,
+            "provenance": {
+              "evidence": "analytical",
+              "class": "analytical_model",
+              "source_ids": [
+                "source-nvidia-thor-datasheet-v1-5"
+              ],
+              "derivation": {
+                "kind": "formula",
+                "expression": "7096000000000.0 / 2",
+                "input_refs": [
+                  "source-nvidia-thor-datasheet-v1-5"
+                ]
+              },
+              "condition": "Data Sheet v1.5 FP32 FMA FLOP/s divided by two gives ordinary add/mul results/s; reduction adds share the CUDA resource."
+            }
+          },
+          {
+            "operations": [
+              "fp32_max"
+            ],
+            "resource": "cuda_fp32",
+            "operation_per_second": 3548160000000.0,
+            "provenance": {
+              "evidence": "analytical",
+              "class": "analytical_model",
+              "source_ids": [
+                "source-nvidia-thor-datasheet-v1-5"
+              ],
+              "derivation": {
+                "kind": "formula",
+                "expression": "20 * 128 * 1386000000.0",
+                "input_refs": [
+                  "source-nvidia-thor-datasheet-v1-5"
+                ]
+              },
+              "condition": "Reference assumption: 20 SM, 128 FP32 min/max results per SM/cycle. CUDA native instruction table does not explicitly specify CC 11.0; not a measured instruction rate."
+            }
+          },
+          {
+            "operations": [
+              "exp2",
+              "reciprocal",
+              "rsqrt",
+              "sin",
+              "cos"
+            ],
+            "resource": "sfu",
+            "operation_per_second": 443520000000.0,
+            "provenance": {
+              "evidence": "analytical",
+              "class": "analytical_model",
+              "source_ids": [
+                "source-nvidia-thor-datasheet-v1-5"
+              ],
+              "derivation": {
+                "kind": "formula",
+                "expression": "20 * 16 * 1386000000.0",
+                "input_refs": [
+                  "source-nvidia-thor-datasheet-v1-5"
+                ]
+              },
+              "condition": "Reference assumption: 20 SM, 16 approximate results per SM/cycle sharing SFU. CC 11.0 throughput is not explicitly listed; sin/cos require the declared reduced-range approximate algorithm. Not measured throughput."
+            }
+          }
+        ]
+      }
     },
     {
       "schema_version": "2.0.0",
@@ -367,7 +523,85 @@
           "reason": "missing_compute_ceiling",
           "detail": "SFU throughput is not sourced."
         }
-      ]
+      ],
+      "operation_rates": {
+        "device_id": "nvidia-jetson-agx-thor",
+        "operating_point_id": "thor-120w-1386mhz-analytical",
+        "gpu_clock_hz": 1386000000.0,
+        "rates": [
+          {
+            "operations": [
+              "fp32_scalar",
+              "fp32_reduce_add"
+            ],
+            "resource": "cuda_fp32",
+            "operation_per_second": 3548000000000.0,
+            "provenance": {
+              "evidence": "analytical",
+              "class": "analytical_model",
+              "source_ids": [
+                "source-nvidia-thor-datasheet-v1-5"
+              ],
+              "derivation": {
+                "kind": "formula",
+                "expression": "7096000000000.0 / 2",
+                "input_refs": [
+                  "source-nvidia-thor-datasheet-v1-5"
+                ]
+              },
+              "condition": "Data Sheet v1.5 FP32 FMA FLOP/s divided by two gives ordinary add/mul results/s; reduction adds share the CUDA resource."
+            }
+          },
+          {
+            "operations": [
+              "fp32_max"
+            ],
+            "resource": "cuda_fp32",
+            "operation_per_second": 3548160000000.0,
+            "provenance": {
+              "evidence": "analytical",
+              "class": "analytical_model",
+              "source_ids": [
+                "source-nvidia-thor-datasheet-v1-5"
+              ],
+              "derivation": {
+                "kind": "formula",
+                "expression": "20 * 128 * 1386000000.0",
+                "input_refs": [
+                  "source-nvidia-thor-datasheet-v1-5"
+                ]
+              },
+              "condition": "Reference assumption: 20 SM, 128 FP32 min/max results per SM/cycle. CUDA native instruction table does not explicitly specify CC 11.0; not a measured instruction rate."
+            }
+          },
+          {
+            "operations": [
+              "exp2",
+              "reciprocal",
+              "rsqrt",
+              "sin",
+              "cos"
+            ],
+            "resource": "sfu",
+            "operation_per_second": 443520000000.0,
+            "provenance": {
+              "evidence": "analytical",
+              "class": "analytical_model",
+              "source_ids": [
+                "source-nvidia-thor-datasheet-v1-5"
+              ],
+              "derivation": {
+                "kind": "formula",
+                "expression": "20 * 16 * 1386000000.0",
+                "input_refs": [
+                  "source-nvidia-thor-datasheet-v1-5"
+                ]
+              },
+              "condition": "Reference assumption: 20 SM, 16 approximate results per SM/cycle sharing SFU. CC 11.0 throughput is not explicitly listed; sin/cos require the declared reduced-range approximate algorithm. Not measured throughput."
+            }
+          }
+        ]
+      }
     },
     {
       "schema_version": "2.0.0",

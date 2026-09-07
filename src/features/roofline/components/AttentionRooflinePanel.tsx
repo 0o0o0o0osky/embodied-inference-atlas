@@ -8,11 +8,10 @@ import './attentionRoofline.css';
 
 export interface AttentionRooflinePanelProps {
  input:AttentionEstimateInput;precisionLabel:string;ceilingLabel:string;
- assumptions:readonly string[];sources:readonly {label:string;url:string}[];
 }
 const labels={qk:'Q @ Kᵀ',softmax:'缩放与 Softmax',pv:'P @ V',fused:'融合执行'};
 const names={tensor:'Tensor 计算',cuda:'CUDA 算术',sfu:'指数 / 倒数',memory:'存储读写'};
-export function AttentionRooflinePanel({input,precisionLabel,ceilingLabel,assumptions,sources}:AttentionRooflinePanelProps) {
+export function AttentionRooflinePanel({input,precisionLabel,ceilingLabel}:AttentionRooflinePanelProps) {
  const [externalMask,setExternalMask]=useState(input.mask.kind==='additive');
  const effective={...input,mask:externalMask?{kind:'additive' as const,bytesPerElement:input.mask.kind==='additive'?input.mask.bytesPerElement:4}:{kind:'none' as const}};
  const estimate=estimateAttention(effective),paths=[estimate.separate,estimate.fused],shape=input.shape;
@@ -41,7 +40,5 @@ export function AttentionRooflinePanel({input,precisionLabel,ceilingLabel,assump
   })}))}/>
   <p>分项：每阶段取计算与读写的较大值，再相加。融合：取 Tensor、CUDA、特殊函数、读写需求的最大值。同一资源上的操作先相加。</p>
   <p>等效吞吐以 QK/PV 矩阵 FLOP 除以时间；指数、归约和比较单独限制时间。实际分块重读、在线 Softmax 重缩放、线程通信与提交开销另需实现模型。</p>
-  {assumptions.map(note=><p key={note}>{note}</p>)}
-  <p>{sources.map((s,i)=><span key={s.url}>{i?' · ':''}<a href={s.url} target="_blank" rel="noreferrer">{s.label}</a></span>)}</p>
  </TheoryRooflinePanel>;
 }

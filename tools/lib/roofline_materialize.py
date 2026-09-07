@@ -94,6 +94,17 @@ COMPUTE_CLASSES = [
 ]
 
 
+def operation_rates_schema():
+    return obj({
+        "device_id": string(80), "operating_point_id": string(120), "gpu_clock_hz": number(nullable=True),
+        "rates": array(obj({
+            "operations": array(enum("fp32_scalar", "fp32_reduce_add", "fp32_max", "exp2", "reciprocal", "rsqrt", "sin", "cos")),
+            "resource": enum("cuda_fp32", "sfu"), "operation_per_second": number(nullable=True),
+            "provenance": provenance_schema(),
+        })),
+    })
+
+
 def write_schemas():
     provenance = provenance_schema()
     missing = missing_schema()
@@ -134,7 +145,7 @@ def write_schemas():
         "device_id": string(80),
         "operating_point": obj({
             "operating_point_id": string(120),
-            "power_mode": enum("120W", "maximum_specification", None),
+            "power_mode": string(120, nullable=True),
             "gpu_clock_hz": number(nullable=True),
             "emc_clock_hz": number(nullable=True),
             "clock_basis": enum("published_max", "mode_assumption", "observed_locked", "unknown"),
@@ -156,6 +167,7 @@ def write_schemas():
         })),
         "missing": array(missing),
     })
+    ceiling_record["properties"]["operation_rates"] = operation_rates_schema()
     scenario_record = obj({
         "schema_version": enum(VERSION),
         "scenario_id": string(160),
@@ -334,6 +346,19 @@ def bandwidth_item(item_id, rate, emc, provenance):
 
 
 def ceilings():
+    # Canonical ceilings are authoritative, including device-specific instruction
+    # recipes. The historical seeds below only bootstrap an absent catalog.
+    path = ROOT / 'data' / 'analysis' / 'roofline_ceilings.json'
+    if path.exists():
+        from tools.lib.roofline import _validate_operation_rates
+        records = json.loads(path.read_text())['records']
+        issues = []
+        for index, record in enumerate(records):
+            _validate_operation_rates(issues, record, f'$.roofline_ceilings[{index}]')
+        if issues:
+            raise ValueError(f'Invalid retained instruction-rate profile: {issues}')
+        return records
+
     ds = "source-nvidia-thor-datasheet-v1-5"
     migration = "source-nvidia-thor-migration-note-v1-2"
     max_compute = [
@@ -361,12 +386,13 @@ def ceilings():
         compute_item("compute-thor-120w-scalar-fp32", "scalar_fp32", None, False, prov("analytical", "missing", [], condition="No source-backed scalar FP32 ceiling is available.")),
         compute_item("compute-thor-120w-sfu", "sfu_exp_reciprocal", None, False, prov("analytical", "missing", [], condition="No source-backed SFU exp/reciprocal ceiling is available.")),
     ]
-    return [
+    records = [
         {"schema_version": VERSION, "ceiling_id": "thor-t5000-published-max", "label": "Thor T5000 published MAXN ceilings", "device_id": DEVICE, "operating_point": {"operating_point_id": "thor-maxn-published", "power_mode": "maximum_specification", "gpu_clock_hz": 1.575e9, "emc_clock_hz": 4.266e9, "clock_basis": "published_max", "sparsity_on": None}, "compute": max_compute, "bandwidth": [bandwidth_item("bw-thor-maxn-published-273gbps", 273e9, 4.266e9, PUBLISHED([ds], "Data Sheet v1.5 Table 1-1, printed p. 3 / PDF p. 10; decimal peak LPDDR5X bandwidth paired with 4266 MHz maximum."))], "missing": max_missing},
         {"schema_version": VERSION, "ceiling_id": "thor-t5000-published-120w-rounded", "label": "Thor T5000 published 120W rounded compute ceilings", "device_id": DEVICE, "operating_point": {"operating_point_id": "thor-120w-published-caps", "power_mode": "120W", "gpu_clock_hz": 1.386e9, "emc_clock_hz": 4.266e9, "clock_basis": "published_max", "sparsity_on": False}, "compute": rounded, "bandwidth": [bandwidth_item("bw-thor-120w-published-273gbps-conditional", 273e9, 4.266e9, PUBLISHED([ds], "The published 273 GB/s peak is conditional on the 4266 MHz maximum; it is not observed traffic."))], "missing": []},
         {"schema_version": VERSION, "ceiling_id": CEILING, "label": "Thor T5000 120W / 1.386 GHz analytical roof", "device_id": DEVICE, "operating_point": {"operating_point_id": "thor-120w-1386mhz-analytical", "power_mode": "120W", "gpu_clock_hz": 1.386e9, "emc_clock_hz": 4.266e9, "clock_basis": "mode_assumption", "sparsity_on": False}, "compute": scaled, "bandwidth": [bandwidth_item(BANDWIDTH, 273e9, 4.266e9, SCALED([ds], "273e9 * 4.266e9 / 4.266e9", ["bw-thor-maxn-published-273gbps"], "Conditional analysis curve. Without a matched observed EMC clock, measured efficiency and gap are prohibited.", "scale_by_emc"))], "missing": [missing("compute.compute-thor-120w-scalar-fp32.flop_per_second", "missing_compute_ceiling", "Scalar FP32 throughput is not sourced."), missing("compute.compute-thor-120w-sfu.flop_per_second", "missing_compute_ceiling", "SFU throughput is not sourced.")]},
         {"schema_version": VERSION, "ceiling_id": "thor-t5000-vla-perf-legacy", "label": "Legacy VLA-Perf Thor assumptions", "device_id": DEVICE, "operating_point": {"operating_point_id": "vla-perf-legacy-assumption", "power_mode": None, "gpu_clock_hz": None, "emc_clock_hz": None, "clock_basis": "unknown", "sparsity_on": False}, "compute": [compute_item("compute-vla-perf-fp16-400t", "tensor_fp16_dense", 400e12, False, LEGACY("Pinned VLA-Perf system config; not an official Thor operating point.")), compute_item("compute-vla-perf-fp8-800t", "tensor_fp8_e4m3_dense", 800e12, False, LEGACY("Pinned VLA-Perf system config; uniform FP8 model, not a FlashRT mixed path."))], "bandwidth": [bandwidth_item("bw-vla-perf-270gib", 270 * 2**30, None, LEGACY("Pinned VLA-Perf binary conversion of the configured value 270."))], "missing": [missing("operating_point.gpu_clock_hz", "not_reported", "VLA-Perf does not bind this assumption to an observed GPU clock."), missing("operating_point.emc_clock_hz", "not_reported", "VLA-Perf does not bind this assumption to an observed EMC clock.")]},
     ]
+    return records
 
 
 def raw_encoding(fmt, bits, provenance, tensor_scale=0):

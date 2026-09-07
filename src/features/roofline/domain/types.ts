@@ -151,14 +151,29 @@ export interface BandwidthCeiling {
   provenance: Provenance;
 }
 
+export type InstructionOperation = 'fp32_scalar' | 'fp32_reduce_add' | 'fp32_max'
+  | 'exp2' | 'reciprocal' | 'rsqrt' | 'sin' | 'cos';
+export interface OperationRateProfile {
+  device_id: string;
+  operating_point_id: string;
+  gpu_clock_hz: number | null;
+  rates: readonly {
+    operations: readonly InstructionOperation[];
+    resource: 'cuda_fp32' | 'sfu';
+    operation_per_second: number | null;
+    provenance: Provenance;
+  }[];
+}
+
 export interface RooflineCeilingRecord {
+  operation_rates?: OperationRateProfile;
   schema_version: "2.0.0";
   ceiling_id: string;
   label: string;
   device_id: string;
   operating_point: {
     operating_point_id: string;
-    power_mode: "120W" | "maximum_specification" | null;
+    power_mode: string | null;
     gpu_clock_hz: number | null;
     emc_clock_hz: number | null;
     clock_basis: "published_max" | "mode_assumption" | "observed_locked" | "unknown";

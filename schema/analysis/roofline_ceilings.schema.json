@@ -59,11 +59,8 @@
               "string",
               "null"
             ],
-            "enum": [
-              "120W",
-              "maximum_specification",
-              null
-            ]
+            "min_length": 1,
+            "max_length": 120
           },
           "gpu_clock_hz": {
             "type": [
@@ -411,6 +408,175 @@
               "type": "string",
               "min_length": 1,
               "max_length": 500
+            }
+          }
+        }
+      },
+      "operation_rates": {
+        "type": "object",
+        "required": [
+          "device_id",
+          "operating_point_id",
+          "gpu_clock_hz",
+          "rates"
+        ],
+        "additional_properties": false,
+        "properties": {
+          "device_id": {
+            "type": "string",
+            "min_length": 1,
+            "max_length": 80
+          },
+          "operating_point_id": {
+            "type": "string",
+            "min_length": 1,
+            "max_length": 120
+          },
+          "gpu_clock_hz": {
+            "type": [
+              "number",
+              "null"
+            ],
+            "minimum": 0
+          },
+          "rates": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "operations",
+                "resource",
+                "operation_per_second",
+                "provenance"
+              ],
+              "additional_properties": false,
+              "properties": {
+                "operations": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "min_length": 1,
+                    "max_length": 240,
+                    "enum": [
+                      "fp32_scalar",
+                      "fp32_reduce_add",
+                      "fp32_max",
+                      "exp2",
+                      "reciprocal",
+                      "rsqrt",
+                      "sin",
+                      "cos"
+                    ]
+                  }
+                },
+                "resource": {
+                  "type": "string",
+                  "min_length": 1,
+                  "max_length": 240,
+                  "enum": [
+                    "cuda_fp32",
+                    "sfu"
+                  ]
+                },
+                "operation_per_second": {
+                  "type": [
+                    "number",
+                    "null"
+                  ],
+                  "minimum": 0
+                },
+                "provenance": {
+                  "type": "object",
+                  "required": [
+                    "evidence",
+                    "class",
+                    "source_ids",
+                    "derivation",
+                    "condition"
+                  ],
+                  "additional_properties": false,
+                  "properties": {
+                    "evidence": {
+                      "type": "string",
+                      "min_length": 1,
+                      "max_length": 240,
+                      "enum": [
+                        "measured_local",
+                        "analytical",
+                        "reported_external"
+                      ]
+                    },
+                    "class": {
+                      "type": "string",
+                      "min_length": 1,
+                      "max_length": 240,
+                      "enum": [
+                        "published_fact",
+                        "mode_scaled_analytical",
+                        "analytical_model",
+                        "legacy_tool_assumption",
+                        "measured_empirical",
+                        "missing"
+                      ]
+                    },
+                    "source_ids": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "min_length": 1,
+                        "max_length": 80
+                      }
+                    },
+                    "derivation": {
+                      "type": [
+                        "object",
+                        "null"
+                      ],
+                      "required": [
+                        "kind",
+                        "expression",
+                        "input_refs"
+                      ],
+                      "additional_properties": false,
+                      "properties": {
+                        "kind": {
+                          "type": "string",
+                          "min_length": 1,
+                          "max_length": 240,
+                          "enum": [
+                            "divide_sparse_peak",
+                            "scale_by_clock",
+                            "scale_by_emc",
+                            "legacy_copy",
+                            "formula"
+                          ]
+                        },
+                        "expression": {
+                          "type": "string",
+                          "min_length": 1,
+                          "max_length": 500
+                        },
+                        "input_refs": {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "min_length": 1,
+                            "max_length": 300
+                          }
+                        }
+                      }
+                    },
+                    "condition": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "min_length": 1,
+                      "max_length": 500
+                    }
+                  }
+                }
+              }
             }
           }
         }

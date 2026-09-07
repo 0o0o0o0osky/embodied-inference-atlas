@@ -7,7 +7,7 @@ import type {RooflineScenarioRecord,RooflineCeilingRecord,PrecisionSegment} from
 import {attentionShapeFromDetail,operationPrecision,plainAttentionStorage} from '../../roofline/presentation/attentionInput';
 import {rmsNormFromOperator} from "../../roofline/domain/rmsNormFromOperator";
 import {NormalizationRooflinePanel} from "../../roofline/components/NormalizationRooflinePanel";
-import {resolveAttentionHardwareProfile,resolveNormalizationHardwareProfile,resolveRemainingHardwareProfile} from '../../roofline/domain/attentionHardwareProfile';
+import {resolveAttentionHardwareProfile,resolveNormalizationHardwareProfile,resolveRemainingHardwareProfile} from '../../roofline/domain/operatorHardwareProfile';
 import {AttentionRooflinePanel} from '../../roofline/components/AttentionRooflinePanel';
 import {ConcatCostPanel} from './ConcatCostPanel';
 import {concatCostFromDetail} from '../domain/concatCost';
@@ -46,13 +46,13 @@ export function OperatorExecutionEstimate({detail,scenario,ceiling,bandwidth}:{
   const work=remainingOperatorWork(detail,segment.activation.bits_per_value/8,segment.output.bits_per_value/8,segment.weight.bits_per_value/8);
   if(!work)return <AnalysisPlaceholder state="not_recorded" title="当前算子的形状待补充" detail="需要匹配的输入输出及归一化或旋转维度。"/>;
   const profile=resolveRemainingHardwareProfile(ceiling);
-  return <RemainingOperatorRooflinePanel work={work} precisionLabel={segment.activation.format.toUpperCase()} rateNotes={profile.notes} rateSources={profile.sources} rates={{...profile.rates,globalByte:bandwidth}}/>;
+  return <RemainingOperatorRooflinePanel work={work} precisionLabel={segment.activation.format.toUpperCase()} rates={{...profile.rates,globalByte:bandwidth}}/>;
  }
  if(detail.definitionId==='rms-norm') {
   if(!plainAttentionStorage(segment)) return <AnalysisPlaceholder state="not_recorded" title="当前量化归一化路径待补充" detail="需要输入、输出转换与缩放元数据。"/>;
   const profile=resolveNormalizationHardwareProfile(ceiling);
   const estimate=rmsNormFromOperator(detail,{input:segment.activation.bits_per_value/8,output:segment.output.bits_per_value/8},{...profile.rates,globalByte:bandwidth});
-  return estimate?<NormalizationRooflinePanel estimate={estimate} profile={profile} bandwidth={bandwidth} precisionLabel={segment.activation.format.toUpperCase()}/>
+  return estimate?<NormalizationRooflinePanel estimate={estimate} bandwidth={bandwidth} precisionLabel={segment.activation.format.toUpperCase()}/>
    :<AnalysisPlaceholder state="not_recorded" title="RMSNorm 形状待补充" detail="需要输入和输出的归一化维度。"/>;
  }
  const shape=attentionShapeFromDetail(detail);
@@ -63,7 +63,6 @@ export function OperatorExecutionEstimate({detail,scenario,ceiling,bandwidth}:{
  return <AttentionRooflinePanel key={`${detail.ref}|${scenario.precision_path.precision_path_id}`} input={{shape,
   bytes:{query:segment.activation.bits_per_value/8,key:segment.activation.bits_per_value/8,value:segment.activation.bits_per_value/8,score:segment.output.bits_per_value/8,probability:segment.activation.bits_per_value/8,output:segment.output.bits_per_value/8},
   mask:{kind:'none'},rates:{...profile.rates,matmulFlop:matmul,globalByte:bandwidth}}}
-  precisionLabel={segment.activation.format.toUpperCase()} ceilingLabel={ceiling.operating_point.gpu_clock_hz?`${(ceiling.operating_point.gpu_clock_hz/1e6).toLocaleString('zh-CN')} MHz 理论频率`:'硬件频率待补充'}
-  assumptions={profile.notes} sources={[...profile.sources,{label:'FlashAttention-3：资源重叠',url:'https://tridao.me/blog/2024/flash3/'},{label:'Triton：Softmax 读写模型',url:'https://triton-lang.org/main/getting-started/tutorials/02-fused-softmax.html'}]}/>
+  precisionLabel={segment.activation.format.toUpperCase()} ceilingLabel={ceiling.operating_point.gpu_clock_hz?`${(ceiling.operating_point.gpu_clock_hz/1e6).toLocaleString('zh-CN')} MHz 理论频率`:'硬件频率待补充'}/>
 }
 export const supportsExecutionEstimate=(detail:OperatorDetail)=>['attention-core','concat','reshape','slice','rms-norm','permute-rearrange',...remainingOperatorKinds,...localOperatorKinds].includes(detail.definitionId);

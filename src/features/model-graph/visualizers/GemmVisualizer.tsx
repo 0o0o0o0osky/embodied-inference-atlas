@@ -39,7 +39,7 @@ export function GemmVisualizer({operator,resetKey,title="GEMM：沿 K 块累加�
  const wActive=Array.from({length:4},(_,i)=>(state.k+Math.floor(i/2))*4+column+i%2);
  return <ComputationStepper title={title} formula="C_tile = Σₖ X_tile,k · W_k,tile" animation={animation} steps={steps} className="gemm-computation"
  dimensions={[{label:'当前 M',value:dims.M??'未填写'},{label:'当前 N',value:dims.N??'未填写'},{label:'当前 K',value:dims.K??'未填写'}]}
- footnote={<><p>4×4教学矩阵，tile为2×2；所示分块独立于实际Kernel配置。</p><a href="https://triton-lang.org/main/getting-started/tutorials/03-matrix-multiplication.html">Triton · 分块矩阵乘</a></>}>
+ footnote={<><p>4×4教学矩阵，tile为2×2；所示分块独立于实际Kernel配置。</p></>}>
  {context?<p>{context}</p>:null}
  <p>4×4 数值例 · 点击 C 的任意格，选择所在的 2×2 输出块。</p>
  <div className="gemm-tile-sources">

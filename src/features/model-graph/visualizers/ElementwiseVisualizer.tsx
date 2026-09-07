@@ -27,7 +27,7 @@ export function ElementwiseVisualizer({operator,resetKey}:{operator:OperatorDeta
  return <ComputationStepper title={`${titles[kind]}：逐块处理连续元素`} formula={formula} animation={animation} steps={steps}
   className={`elementwise-computation ${kind}-computation`}
   dimensions={[{label:'当前输入形状',value:vectorShape(operator.inputs[0]?.tensor?.shape)},{label:'当前输出形状',value:vectorShape(operator.outputs[0]?.tensor?.shape)}]}
-  footnote={<>{activation?<p><a target="_blank" rel="noreferrer" href={gelu?'https://docs.pytorch.org/docs/main/generated/torch.nn.modules.activation.GELU.html':'https://docs.pytorch.org/docs/main/generated/torch.nn.SiLU.html'}>PyTorch · {titles[kind]} 公式</a></p>:<p>同一输出索引确定所需的输入元素；广播通过索引映射取得数值。</p>}
+  footnote={<>{!activation?<p>同一输出索引确定所需的输入元素；广播通过索引映射取得数值。</p>:null}
    <p>演示用 8 个元素、每块 4 个；当前模型的张量尺寸见上方。</p></>}>
   <div className="tile-example">
    <p>演示：每行一个 4 元素数据块；可切换查看另一块。</p>

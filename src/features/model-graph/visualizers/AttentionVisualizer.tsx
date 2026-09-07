@@ -21,7 +21,7 @@ export function AttentionVisualizer({operator,resetKey}:{operator:OperatorDetail
  const show=(values:number[][],visible:boolean)=>visible?values.flat().map(number):['—','—','—','—'];
  return <ComputationStepper title="Attention：固定 Q tile，遍历 K/V 块" formula="m′=max(m,max S)；l′=αl+ΣP̃；A′=αA+P̃V；O=A/l" animation={animation} steps={steps} className="attention-computation"
  dimensions={[{label:'当前 Q 长度',value:shape?.queryTokens??'未填写'},{label:'当前 K/V 长度',value:shape?.keyTokens??'未填写'},{label:'当前 dₖ / dᵥ',value:shape?`${shape.qkDimension} / ${shape.valueDimension}`:'未填写'}]}
- footnote={<><p>教学例：2个query、4个key，dₖ=dᵥ=2，KV块大小2。分块与mask用于数学演算；当前实际形状另列。</p><p>自然指数与教程的exp2 scale 形式等价。当前头数{shape?` ${shape.queryHeads} Q / ${shape.kvHeads} KV`:'待填写'}。</p><a href="https://triton-lang.org/main/getting-started/tutorials/06-fused-attention.html">Triton · 在线分块 Attention</a></>}>
+ footnote={<><p>教学例：2个query、4个key，dₖ=dᵥ=2，KV块大小2。分块与mask用于数学演算；当前实际形状另列。</p><p>当前头数{shape?` ${shape.queryHeads} Q / ${shape.kvHeads} KV`:'待填写'}。</p></>}>
  <p>2×2 Q tile 驻留 · K/V 块 {block+1}/2 · 数值教学例</p>
  <div className="attention-tile-sources">
   <TileMatrix label="Q · 固定查询块" rows={2} columns={2} values={attentionTileInput.q.flat()} selected={[0,1,2,3]}/>

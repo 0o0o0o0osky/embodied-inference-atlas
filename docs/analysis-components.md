@@ -156,3 +156,27 @@ CUDA 算术与归约共享资源，指数与倒数共享 SFU；相同资源先�
 
 检验复用时换一个模型或设备描述，确认视图沿用同一组件、参数来自新记录；
 只检查改动涉及的选择、返回、缺失状态和一张真实截图。
+
+## 计算图的来源与设备边界
+
+公式、计算过程和解释共用同一组件；设备数据、运行点与速率假设来自 canonical 配置。
+新增设备补配置与关联，缺少速率时用共享缺省。算子页保留示例与计算条件，
+不逐处展示参考文献，也不加入硬件专用说明段落。
+
+硬件参数集中在 [roofline_ceilings.json](../data/analysis/roofline_ceilings.json)：
+`compute` 提供矩阵算力，`bandwidth` 提供带宽，`operation_rates` 提供普通算术、归约和特殊函数速率。
+[operatorHardwareProfile](../src/features/roofline/domain/operatorHardwareProfile.ts) 按设备与运行点读取这些值，供各算子共用。
+新增设备还需关联对应的 Stage/Atomic basis；页面公式与说明无需新增硬件分支。
+
+教学公式的维护来源集中在此：分块矩阵乘与在线 Attention 使用
+[Triton 矩阵乘教程](https://triton-lang.org/main/getting-started/tutorials/03-matrix-multiplication.html)、
+[在线 Attention 教程](https://triton-lang.org/main/getting-started/tutorials/06-fused-attention.html)；
+归一化使用 [LayerNorm 教程](https://triton-lang.org/main/getting-started/tutorials/05-layer-norm.html) 与
+[RMSNorm](https://arxiv.org/abs/1910.07467)；位置与图块示例使用
+[RoFormer](https://arxiv.org/abs/2104.09864)、[正弦位置编码](https://arxiv.org/abs/1706.03762) 与
+[ViT](https://arxiv.org/abs/2010.11929)。布局、查表与激活公式分别参考
+[Tensor Views](https://docs.pytorch.org/docs/stable/tensor_view.html)、
+[Embedding](https://docs.pytorch.org/docs/stable/generated/torch.nn.Embedding.html)、
+[GELU](https://docs.pytorch.org/docs/main/generated/torch.nn.modules.activation.GELU.html) 与
+[SiLU](https://docs.pytorch.org/docs/main/generated/torch.nn.SiLU.html)。这些来源说明算法与教学配方；
+实际实现的分块、融合和速率另由对应记录提供。

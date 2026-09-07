@@ -28,7 +28,7 @@ function BasicLayoutVisualizer({operator,resetKey}:{operator:OperatorDetail;rese
   {label:copy?'写入新buffer':'使用视图',description:copy?'读取输出所需的源元素，按输出顺序写到新buffer T。':condition}];
  return <ComputationStepper title="布局变换：元素去哪里" formula={slice?.formula??operator.formula} animation={animation} steps={steps} className="layout-computation"
  dimensions={[{label:'当前输入',value:shape(operator.inputs)},{label:'当前输出',value:shape(operator.outputs)}]}
- footnote={<><p>小矩阵与地址S/T是独立教学例，实际stride和buffer布局由实现决定。</p><a href="https://docs.pytorch.org/docs/stable/tensor_view.html">PyTorch · Tensor Views</a></>}>
+ footnote={<><p>小矩阵与地址S/T是独立教学例，实际stride和buffer布局由实现决定。</p></>}>
  {slice?<p>{slice.explanation}</p>:null}
  <div className="tile-example">
  <p>独立数值示例 · 格内数字是元素身份</p>

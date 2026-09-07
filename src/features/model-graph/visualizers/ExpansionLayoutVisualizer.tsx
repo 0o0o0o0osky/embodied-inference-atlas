@@ -20,7 +20,7 @@ export function ExpansionLayoutVisualizer({operator,resetKey,kind}:{operator:Ope
  ];
  return <ComputationStepper title={pad?'补零：保留原值，填充新元素':'广播：多行映射到同一源行'} formula={pad?'Y[i] = X[i]（原有位置）；Y[i] = 0（新增位置）':'Y[r, c] = X[0, c]'} animation={animation} steps={steps} className="layout-computation expansion-layout-computation"
  dimensions={[{label:'当前输入',value:shape(operator.inputs)},{label:'当前输出',value:shape(operator.outputs)}]}
- footnote={<><p>图中数值、维度和地址为独立教学例。</p><a href="https://docs.pytorch.org/docs/stable/tensor_view.html">PyTorch · 视图与广播</a></>}>
+ footnote={<><p>图中数值、维度和地址为独立教学例。</p></>}>
  <div className="tile-example"><p>数值例：{pad?'1×2 → 1×4，尾部补零':'1×2 → 3×2，沿行广播'}</p>
  {!pad?<TilePicker selected={mode} onSelect={i=>{setMode(i);animation.reset();}} labels={['零步幅视图','物化重复值']}/>:null}
  <div className="tile-flow"><TileMatrix label="源 S" rows={1} columns={2} values={e.source} selected={sourceIndex===null?[]:[sourceIndex]} onSelect={setSelected}/>

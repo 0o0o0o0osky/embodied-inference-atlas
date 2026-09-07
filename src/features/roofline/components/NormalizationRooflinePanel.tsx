@@ -1,11 +1,10 @@
 import type {NormalizationEstimate} from '../domain/normalizationEstimate';
-import type {NormalizationHardwareProfile} from '../domain/attentionHardwareProfile';
 import {formatNumber,formatQuantity,formatTime} from '../presentation/viewModel';
 import {TheoryRooflinePanel} from './TheoryRooflinePanel';
 import {RooflineMetricsTable} from './RooflineMetricsTable';
 
-export function NormalizationRooflinePanel({estimate:e,profile,bandwidth,precisionLabel}: {
- estimate:NormalizationEstimate;profile:NormalizationHardwareProfile;bandwidth:number|null;precisionLabel:string;
+export function NormalizationRooflinePanel({estimate:e,bandwidth,precisionLabel}: {
+ estimate:NormalizationEstimate;bandwidth:number|null;precisionLabel:string;
 }) {
  const computeSecond=Math.max(e.knownResourceSeconds.cuda,e.knownResourceSeconds.sfu);
  const computeRate=e.work.flop/computeSecond;
@@ -26,7 +25,5 @@ export function NormalizationRooflinePanel({estimate:e,profile,bandwidth,precisi
   <p>rsqrt 共 {formatNumber(e.work.rsqrt)} 次，单独限制时间；普通算术共 {formatQuantity(e.work.flop,'FLOP')}。</p>
   <RooflineMetricsTable label="RMSNorm 资源耗时" columns={['资源时间']} rows={Object.entries(limits).map(([key,label])=>({label,values:[e.resourceSeconds[key as keyof typeof limits]===null?'待补速率':formatTime(e.resourceSeconds[key as keyof typeof limits]!)]}))}/>
   {e.assumptions.slice(1).map(note=><p key={note}>{note}</p>)}
-  {profile.notes.map(note=><p key={note}>{note}</p>)}
-  <p><a href="https://docs.pytorch.org/docs/main/generated/torch.nn.RMSNorm.html" target="_blank" rel="noreferrer">RMSNorm 公式</a>{profile.sources.map(s=><span key={s.url}> · <a href={s.url} target="_blank" rel="noreferrer">{s.label}</a></span>)}</p>
  </TheoryRooflinePanel>;
 }

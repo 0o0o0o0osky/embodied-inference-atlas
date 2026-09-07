@@ -34,8 +34,8 @@ export function PositionVisualizer({operator,resetKey}:{operator:OperatorDetail;
   formula={rope?'(a′, b′) = (a cosθ − b sinθ, a sinθ + b cosθ)':'φ = t · ω；embedding = [sinφ, cosφ]'}
   dimensions={[{label:'当前输入',value:vectorShape(operator.inputs[0]?.tensor?.shape)},{label:'当前输出',value:vectorShape(operator.outputs[0]?.tensor?.shape)}]}
   animation={animation} steps={steps} className={rope?'rope-computation':'time-embedding-computation'}
-  footnote={<>{rope?<><p>完整偶数维旋转模型，演示采用相邻配对和给定角度。</p><a href="https://arxiv.org/abs/2104.09864" target="_blank" rel="noreferrer">RoFormer · 二维旋转公式</a></>
-   :<><p>演示 t=0.5、ω=[1,2,4,8]；实际频率间距由模型定义。</p><a href="https://arxiv.org/abs/1706.03762" target="_blank" rel="noreferrer">正弦与余弦编码</a></>}</>}>
+  footnote={<>{rope?<><p>完整偶数维旋转模型，演示采用相邻配对和给定角度。</p></>
+   :<><p>演示 t=0.5、ω=[1,2,4,8]；实际频率间距由模型定义。</p></>}</>}>
   <div className="tile-example">
    <p>{rope?'演示：4 对特征，每块处理两对。':'演示：4 个频率，每块生成两组 sin/cos。'}</p>
    <TilePicker selected={block} onSelect={i=>{setBlock(i);animation.reset();}}/>

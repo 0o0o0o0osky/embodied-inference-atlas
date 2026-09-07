@@ -31,7 +31,7 @@ export function NormalizationVisualizer({operator,resetKey}:{operator:OperatorDe
   dimensions={[{label:'当前行宽 D',value:width?.toLocaleString()??'未填写'},{label:'归约范围',value:'单个 token 的全部特征'}]}
   steps={steps} animation={animation} className={layer?'layer-norm-computation':'rms-computation'}
   footnote={<><p>基础归一化模型；示例 D=8、每块 4 个元素、ε=10⁻⁵。中间统计量采用 FP32。</p>
-   <a href={layer?'https://triton-lang.org/main/getting-started/tutorials/05-layer-norm.html':'https://arxiv.org/abs/1910.07467'} target="_blank" rel="noreferrer">{layer?'Triton · LayerNorm 分块归约':'RMSNorm 原论文'}</a></>}>
+   </>}>
   <div className="tile-example">
    <p>演示：同一特征行的 8 个元素，上下两行分别表示一个数据块。</p>
    <TileMatrix label="输入 X：块 1 / 块 2" rows={2} columns={4} values={x} active={active}/>

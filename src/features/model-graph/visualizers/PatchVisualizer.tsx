@@ -28,7 +28,7 @@ function PatchImageVisualizer({operator,resetKey}:{operator:OperatorDetail;reset
   return <ComputationStepper title="patch 如何变成 token" formula="zⱼ = flatten(patchⱼ) · W" animation={animation} steps={steps}
     className="patch-computation"
     dimensions={[{label:'图像',value:`${height} × ${width} × ${channels}`},{label:'patch',value:`${patch} × ${patch} × ${channels}`},{label:'输出',value:`${tokens} × ${embedding}`}]}
-    footnote={<><p>当前 patch 投影按不重叠位置展开；等价卷积核大小与步长均为 P。共享投影核形状 P×P×C×D，展平为矩阵 P²C×D。</p><a href="https://arxiv.org/abs/2010.11929">ViT 论文 · §3.1</a></>}>
+    footnote={<><p>当前 patch 投影按不重叠位置展开；等价卷积核大小与步长均为 P。共享投影核形状 P×P×C×D，展平为矩阵 P²C×D。</p></>}>
     <div className="patch-computation-top">
       <div className={`patch-computation-card ${active(0)}`}>
         <strong>一幅图像</strong>

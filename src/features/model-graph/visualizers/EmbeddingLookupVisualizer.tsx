@@ -18,7 +18,7 @@ export function EmbeddingLookupVisualizer({operator,resetKey}:{operator:Operator
  const visible=animation.frame>=4?4:animation.frame>=2?2:0;
  return <ComputationStepper title="Embedding：按 id 查表，分块读取一行" formula="Y[i, d] = table[ids[i], d]" animation={animation} steps={steps} className="lookup-computation"
  dimensions={[{label:'当前索引输入',value:shape(operator.inputs)},{label:'当前输出',value:shape(operator.outputs)}]}
- footnote={<><p>6×4表和ids=[2,0]为数值教学例；维度tile大小2。这里演示查表读取与输出写入。</p><a href="https://docs.pytorch.org/docs/stable/generated/torch.nn.Embedding.html">PyTorch · Embedding</a></>}>
+ footnote={<><p>6×4表和ids=[2,0]为数值教学例；维度tile大小2。这里演示查表读取与输出写入。</p></>}>
  <div className="tile-example"><p>输入 ids=[2,0] · 点击 id 或表格位置查看读取</p>
  <TilePicker selected={token} onSelect={selectToken} labels={lookupIds.map((v,i)=>`输出行${i} · id=${v}`)}/>
  <TileMatrix label="Embedding表 · 行0–5，维度0–3" rows={6} columns={4} values={lookupTable.flat()} selected={Array.from({length:4},(_,d)=>id*4+d)} active={animation.frame>0?[id*4+block*2,id*4+block*2+1]:[]} onSelect={i=>{setInspected(i);const next=lookupIds.indexOf(Math.floor(i/4));if(next>=0){setToken(next);animation.seek(i%4<2?1:3);}}}/>

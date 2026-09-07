@@ -237,6 +237,7 @@ def roofline_problems(datasets: Mapping[str, list[Mapping]]) -> list[RooflinePro
     bandwidth_by_ceiling: dict[str, dict[str, float]] = {}
     for index, ceiling in enumerate(ceilings):
         base = f"$.roofline_ceilings[{index}]"
+        _validate_operation_rates(issues, ceiling, base)
         ceiling_id = ceiling.get("ceiling_id")
         compute: dict[str, float] = {}
         sparse_classes: set[str] = set()
@@ -837,6 +838,35 @@ def _validate_kernel_point(
         issues.append(_problem(f"{base}.timing.observed_second", "kernel_timing", "kernel points require a positive observed duration"))
     if basis.get("work_basis") not in {"runtime_executed_formula", "hardware_counter"}:
         issues.append(_problem(f"{base}.basis_id", "kernel_work", "kernel work must be executed-formula or counter based"))
+
+
+def _validate_operation_rates(issues, ceiling, base):
+    profile = ceiling.get('operation_rates')
+    if not isinstance(profile, Mapping):
+        return
+    op = ceiling.get('operating_point', {})
+    if (profile.get('device_id') != ceiling.get('device_id')
+            or profile.get('operating_point_id') != op.get('operating_point_id')
+            or profile.get('gpu_clock_hz') != op.get('gpu_clock_hz')
+            or op.get('clock_basis') == 'unknown'):
+        issues.append(_problem(base + '.operation_rates', 'operation_rate_binding', 'instruction rates must match the declared device and known operating point'))
+    seen = set()
+    for index, entry in enumerate(_mapping_list(profile.get('rates'))):
+        path = f'{base}.operation_rates.rates[{index}]'
+        operations = entry.get('operations', [])
+        if not operations or any(operation in seen for operation in operations) or len(set(operations)) != len(operations):
+            issues.append(_problem(path + '.operations', 'operation_rate_duplicate', 'each operation must have exactly one nonempty declaration'))
+        seen.update(operations)
+        if any(entry.get('resource') != ('cuda_fp32' if operation.startswith('fp32_') else 'sfu') for operation in operations):
+            issues.append(_problem(path + '.resource', 'operation_rate_resource', 'operation resource must match its declared instruction family'))
+        value = entry.get('operation_per_second')
+        if value is not None and (not _is_number(value) or not math.isfinite(value) or value <= 0):
+            issues.append(_problem(path + '.operation_per_second', 'operation_rate_value', 'known instruction rates must be finite and positive'))
+        provenance = entry.get('provenance', {})
+        if value is not None and (not provenance.get('source_ids') or provenance.get('class') == 'missing'):
+            issues.append(_problem(path + '.provenance', 'operation_rate_source', 'a numeric rate requires source-backed facts or explicit analytical assumptions'))
+        if value is not None and provenance.get('class') in ('analytical_model', 'mode_scaled_analytical') and not provenance.get('condition'):
+            issues.append(_problem(path + '.provenance.condition', 'operation_rate_condition', 'analytical instruction rates require their conditions'))
 
 
 def _validate_required_ceilings(

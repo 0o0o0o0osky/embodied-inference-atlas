@@ -37,5 +37,6 @@ it('explains one complete RMS row with a shared scalar and no undeclared affine 
  expect(markup).toContain('平方');expect(markup).toContain('rsqrt');expect(markup).toContain('共享');
  expect(markup).toContain('D=8');expect(markup).toContain('块 1');expect(markup).toContain('块 2');
  expect(markup).not.toMatch(/γ|gamma|减均值/);
- expect(markup).toContain('https://arxiv.org/abs/1910.07467');
+ expect(markup).not.toContain('href=');
+ expect(markup).toContain('示例说明');
 });

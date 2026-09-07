@@ -52,7 +52,7 @@ export function ComputationStepper({
         <button type="button" onClick={animation.reset}>从头看</button>
         <span>{animation.frame + 1} / {steps.length}</span>
       </div>
-      {footnote ? <details className="computation-reference"><summary>公式依据</summary>{footnote}</details> : null}
+      {footnote ? <details className="computation-reference"><summary>示例说明</summary>{footnote}</details> : null}
     </section>
   );
 }
