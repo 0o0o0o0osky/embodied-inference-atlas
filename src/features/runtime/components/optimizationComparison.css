@@ -1,0 +1,24 @@
+.optimization-comparison { margin:1.2rem 0 0; }
+.optimization-comparison > figcaption { margin-bottom:1rem; font-weight:600; color:var(--graphite,#163042); }
+.optimization-comparison-panels { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1rem; }
+.optimization-comparison-panel { min-width:0; padding:1rem; border:1px solid var(--line,#ccd8e1); border-radius:4px; }
+.optimization-comparison-heading { font-size:1rem; margin:0; }
+.optimization-comparison-note { margin:1rem 0 0; font-size:.86rem; color:var(--muted,#53616d); line-height:1.6; }
+.time-comparison-preparation { padding:.9rem 1rem; margin-bottom:1rem; background:#f1f7f4; border-left:3px solid #528472; }
+.time-comparison-preparation > strong { display:block; font-size:.86rem; margin-bottom:.6rem; }
+.time-comparison-preparation-flow { display:flex; gap:.65rem; align-items:center; flex-wrap:wrap; font-size:.9rem; }
+.time-comparison-preparation p { margin:.6rem 0 0; color:#446454; font-size:.82rem; }
+.time-comparison-table { background:white; border:1px solid #88ae9c; padding:.35rem .7rem; border-radius:3px; }
+.time-comparison-repeat { font-size:.8rem; margin:.5rem 0 1rem; color:var(--muted,#53616d); }
+.time-comparison-branches { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1.25rem; min-height:215px; }
+.time-comparison-branch { display:flex; flex-direction:column; justify-content:flex-end; align-items:stretch; text-align:center; }
+.time-comparison-input { font-size:.85rem; color:var(--muted,#53616d); }
+.time-comparison-arrow { font-size:1rem; color:#657986; line-height:1.6; }
+.time-comparison-node { padding:.65rem .5rem; border:1px solid #c8d1d8; background:#f5f7f9; border-radius:3px; font-size:.9rem; line-height:1.5; }
+.time-comparison-node small { display:block; font-size:.78rem; }
+.time-comparison-node.is-repeated { background:#fff5e9; border-color:#cf9d64; color:#734918; }
+.time-comparison-node.is-prepared { background:#eff7f2; border-color:#88ae9c; color:#315e4e; }
+.time-comparison-merge { display:grid; grid-template-columns:1fr 1fr; text-align:center; color:#657986; line-height:1.6; }
+.time-comparison-tail { display:flex; align-items:center; justify-content:center; gap:.8rem; padding:.75rem .5rem; border:1px solid #c8d1d8; background:#f5f7f9; border-radius:3px; font-size:.9rem; }
+.time-comparison-tail b, .time-comparison-preparation-flow b { color:#657986; font-weight:400; }
+@media (max-width:900px) { .optimization-comparison-panels { grid-template-columns:1fr; } .time-comparison-branches { min-height:0; } }

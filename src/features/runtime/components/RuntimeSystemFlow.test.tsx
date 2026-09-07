@@ -49,3 +49,13 @@ it('keeps parallel data and control edges visually distinguishable', () => {
   expect(paths.length).toBeGreaterThan(1);
   expect(new Set(paths).size).toBe(paths.length);
 });
+
+it('keeps source scope notes in data while presenting only the execution diagram',()=>{
+ const record={...flash,systemFlow:{...flash.systemFlow!,notes:['internal-scope-note-sentinel']}};
+ const markup=render(record);
+ expect(markup).toContain('CPU/GPU 执行流程示意');
+ expect(markup).not.toContain('internal-scope-note-sentinel');
+ expect(markup).not.toContain('输入准备、初始化与适用范围');
+ expect(markup).not.toContain('未确认结果复用');
+ expect(record.systemFlow.notes).toEqual(['internal-scope-note-sentinel']);
+});

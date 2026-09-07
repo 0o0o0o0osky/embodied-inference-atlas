@@ -32,7 +32,7 @@ export function OfflinePerfettoViewer({ timeline, selectedWindow }: OfflinePerfe
       </button>
     </div>
     <p role="status">{ready ? `已向本地查看器发送采集 ${timeline.captureId}；解析进度见下方。` : slow ? "本地查看器尚未就绪，请检查 HTTP 服务和 Perfetto 资源是否完整。" : "正在加载本地查看器…"}</p>
-    <p className="offline-perfetto__note">仅显示本次采集的已记录区间；空白不代表 CPU/GPU 空闲。轨道编号为脱敏逻辑身份，聚合区间不代表连续运行。工具菜单使用英文。</p>
+    <p className="offline-perfetto__note">缩放或选择区间查看细节；聚合项可包含多个时间片。工具菜单使用英文。</p>
     <iframe ref={iframe} title="离线 Perfetto 时间线" src="./perfetto/index.html#!/?mode=embedded" />
   </section>;
 }

@@ -3,7 +3,10 @@ import type { LogicalDag } from '../../model-graph/domain/types';
 import { useModelText } from '../../model-graph/presentation/ModelDisplay';
 import type { RuntimeRealizationRecord, RuntimeReuseDescriptor } from '../domain/types';
 import { runtimeSourceReferences } from './RuntimeSourceReferences';
+import { CudaGraphComparison } from './CudaGraphComparison';
+import { TimePrecomputeComparison } from './TimePrecomputeComparison';
 import './runtimeReuse.css';
+import './optimizationComparison.css';
 
 const STATUS = {implemented:'已实现',not_implemented:'未实现',unknown:'待核对'};
 const KIND = {computed_result:'计算结果复用',execution_plan:'执行计划复用',storage:'存储复用'};
@@ -47,8 +50,9 @@ export function RuntimeReuseDiagram({dag, realization, sources}: {
   const reuse = realization.reuse ?? [];
   const isBaselinePrefix = (item: RuntimeReuseDescriptor) => realization.modelId === 'pi0' && item.lifetime === 'observation'
     && item.producerRefs.some(ref => ref.startsWith('prefix-encoder/') && ref.endsWith('/key-projection'));
-  const baseline = reuse.filter(isBaselinePrefix);
   const optimizations = reuse.filter(item => !isBaselinePrefix(item));
+  const hasDiagrams = realization.realizationId === 'rr-flashrt-pi0-thor-fp8-v1'
+    && optimizations.some(item => item.implementationStatus === 'implemented' && ['flashrt-time-projection', 'flashrt-cuda-graphs'].includes(item.reuseId));
   const precomputed = realization.mappings.filter(mapping => mapping.reasonCode === 'precomputed_outside_prediction');
   const graphReplay = !reuse.length && realization.launch.cudaGraphState === 'present' && realization.launch.submissionMode === 'cuda_graph_replay';
   const refs = (values: readonly string[]) => [...new Set(values.map(ref => {
@@ -62,6 +66,10 @@ export function RuntimeReuseDiagram({dag, realization, sources}: {
   const commitUrl = repositories.length === 1 ? `${repositories[0]!.url}/commit/${revision}` : null;
 
   const mechanismCard = (item: RuntimeReuseDescriptor) => {
+    const comparison = hasDiagrams && item.implementationStatus === 'implemented'
+      ? item.reuseId === 'flashrt-time-projection' ? <TimePrecomputeComparison />
+        : item.reuseId === 'flashrt-cuda-graphs' ? <CudaGraphComparison /> : null
+      : null;
     const producers = refs(item.producerRefs);
     const consumers = refs(item.consumerRefs);
     const costs = [
@@ -74,14 +82,15 @@ export function RuntimeReuseDiagram({dag, realization, sources}: {
         <strong className="optimization-scope">{item.lifetime === 'across_observations'
           ? item.kind === 'execution_plan' ? '后续观测沿用计划' : '后续观测继续使用'
           : item.lifetime === 'observation' ? '每次观测重新准备' : item.lifetime === 'solver_step' ? '单个求解步骤内使用' : '初始化时使用'}</strong></header>
-      <dl className="optimization-explanation">
+      {comparison ?? <dl className="optimization-explanation">
         <div><dt>当前做法</dt><dd>{readableEvidence(item.repeatScope)}</dd></div>
         <div className="optimization-effect"><dt>减少的重复工作</dt><dd>{repeatedWork(item, realization)}</dd></div>
-        {item.invalidationConditions.length ? <div><dt>何时重做</dt><dd><ul>{item.invalidationConditions.map(condition => <li key={condition}>{readableEvidence(condition)}</li>)}</ul></dd></div> : null}
-      </dl>
-      {item.valueDependencies.length || producers || consumers || costs.length ? <details className="optimization-detail">
-        <summary>依赖与相关计算</summary>
+      </dl>}
+      {comparison || item.invalidationConditions.length || item.valueDependencies.length || producers || consumers || costs.length ? <details className="optimization-detail">
+        <summary>重建条件与计算细节</summary>
         <dl>
+          {comparison ? <div><dt>当前做法</dt><dd>{readableEvidence(item.repeatScope)}</dd></div> : null}
+          {item.invalidationConditions.length ? <div><dt>何时重做</dt><dd><ul>{item.invalidationConditions.map(condition => <li key={condition}>{readableEvidence(condition)}</li>)}</ul></dd></div> : null}
           {item.valueDependencies.length ? <div><dt>依赖</dt><dd>{item.valueDependencies.map(readableEvidence).join('；')}</dd></div> : null}
           {producers ? <div><dt>生成结果</dt><dd>{producers}</dd></div> : null}
           {consumers ? <div><dt>使用结果</dt><dd>{consumers}</dd></div> : null}
@@ -92,7 +101,7 @@ export function RuntimeReuseDiagram({dag, realization, sources}: {
   };
   return <section className="runtime-reuse-view" aria-label="执行优化">
     <h3>执行优化</h3>
-    <p className="runtime-reuse-intro">当前栈采用的预计算和提交优化：减少哪些重复工作，哪些内容能留到下一次观测。</p>
+    <p className="runtime-reuse-intro">{hasDiagrams ? '流程对照示意：橙色标出重复工作，绿色标出提前准备或复用的部分。' : '当前栈采用的预计算和提交优化，以及它们的有效范围。'}</p>
     <div className="runtime-optimization-grid">
       {optimizations.map(mechanismCard)}
       {!reuse.length ? precomputed.map(mapping => <article className="runtime-optimization" key={mapping.mappingId}>
@@ -103,11 +112,7 @@ export function RuntimeReuseDiagram({dag, realization, sources}: {
         <p>准备时捕获执行图，预测时由 CPU 提交整张图，GPU 执行其中的计算。</p>
       </article> : null}
     </div>
-    {baseline.length ? <details className="optimization-baseline"><summary>基础计算机制：前缀 K/V 在本次观测内共享</summary>
-      <p>这里共享的是本次观测算出的 K/V，下一次观测会重新生成。</p>
-      {baseline.map(mechanismCard)}
-    </details> : null}
-    {!precomputed.length && !graphReplay && !reuse.length ? <p>当前栈尚无已确认的预计算或执行计划复用记录。</p> : null}
+    {!optimizations.length && !graphReplay && (!precomputed.length || reuse.length > 0) ? <p>当前栈尚无已确认的预计算或执行计划复用记录。</p> : null}
     {revision ? <details className="optimization-version"><summary>实现版本</summary><p>
       {commitUrl ? <a href={commitUrl} target="_blank" rel="noreferrer" title={revision}>commit {revision.slice(0, 7)}</a> : <code title={revision}>commit {revision.slice(0, 7)}</code>}
     </p></details> : null}

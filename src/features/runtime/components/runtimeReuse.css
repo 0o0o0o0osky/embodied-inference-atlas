@@ -1,5 +1,5 @@
 .runtime-reuse-intro { color:var(--muted,#53616d); margin-block:.5rem 1.25rem; }
-.runtime-optimization-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1rem; align-items:start; }
+.runtime-optimization-grid { display:grid; grid-template-columns:1fr; gap:1rem; align-items:start; }
 .runtime-optimization { min-width:0; padding:1.1rem; border:1px solid var(--line,#ccd8e1); border-radius:6px; background:white; }
 .runtime-optimization header { display:grid; gap:.4rem; padding-bottom:1rem; border-bottom:1px solid var(--line,#ccd8e1); }
 .runtime-optimization h4 { margin:0; font-size:1.04rem; }
@@ -16,9 +16,7 @@
 .optimization-detail[open] summary { margin-bottom:1rem; }
 .optimization-version { margin-top:1.25rem; font-size:.85rem; }
 .optimization-version p { margin-block:.65rem; }
-@media (max-width:1100px) { .runtime-optimization-grid { grid-template-columns:1fr; } }
 .optimization-scope { font-size:.85rem; font-weight:500; color:#315e4e; }
-.optimization-baseline { margin-top:1.25rem; }
-.optimization-baseline > summary { cursor:pointer; font-size:.9rem; }
-.optimization-baseline > p { font-size:.9rem; color:var(--muted,#53616d); }
-.optimization-baseline .runtime-optimization { max-width:50rem; }
+.runtime-optimization > header { grid-template-columns:1fr auto; align-items:baseline; }
+.runtime-optimization > header .optimization-scope { grid-column:1 / -1; }
+@media (max-width:600px) { .runtime-optimization > header { grid-template-columns:1fr; } }

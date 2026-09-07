@@ -27,15 +27,19 @@ it('translates audited dependency and invalidation labels without changing unkno
  expect(markup).not.toContain('sinusoidal embedding parameters');expect(markup).toContain('untranslated evidence');
 });
 
-it('shows FlashRT extra optimizations and a single pinned version, with baseline KV sharing folded',()=>{
+it('shows FlashRT extra optimizations and a single pinned version, without routine prefix KV sharing',()=>{
  const realization=adaptRuntimeRealization(atlasSnapshot.datasets.runtime_realizations.find(record=>record.realization_id==='rr-flashrt-pi0-thor-fp8-v1')!);
  const markup=renderToStaticMarkup(<RuntimeReuseDiagram dag={{nodes:new Map()} as unknown as LogicalDag} realization={realization} sources={atlasSnapshot.datasets.sources}/>);
- const primary=markup.split('<details class="optimization-baseline">')[0]!;
+ const primary=markup;
  expect(primary).toContain('时间嵌入与投影预计算');expect(primary).toContain('CUDA Graph 提交');
  expect(primary).toContain('后续观测继续使用');expect(primary).toContain('后续观测沿用计划');
  expect(primary).toContain('固定10步');expect(primary).toContain('视觉和主推理两张图');
  expect(primary).not.toContain('前缀 K/V');
- expect(markup).toContain('本次观测内共享');expect(markup).toContain('下一次观测会重新生成');
+ expect(markup).not.toContain('基础计算机制');expect(markup).not.toContain('前缀 K/V');
+ expect(markup).toContain('时间预计算前后对照');expect(markup).toContain('CUDA Graph 提交前后对照');
+ expect(markup).toContain('sin / cos');expect(markup).toContain('时间投影 + 偏置');
+ expect(markup).toContain('读取当前步结果');expect(markup).toContain('动作分支投影');
+ expect(markup).toContain('SiLU');expect(markup).toContain('输出投影');
  expect(markup).toContain('<details class="optimization-version">');
  expect(markup).toContain('https://github.com/flashrt-project/FlashRT/commit/054bea4d02ebc63f6a0c45991c6061b1e1caa46c');
  expect(markup.match(/<a /g)).toHaveLength(1);expect(markup).toContain('commit 054bea4');

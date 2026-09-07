@@ -40,3 +40,17 @@ it('keeps the two main entries and compact context for every runtime model',()=>
   if(model==='pi0')expect(markup).toContain('Q8_0 仅权重量化 / FP32 激活');
  }
 });
+
+it('shows measured FlashRT system metrics without empty bounds or audit boilerplate',()=>{
+ const model=data.datasets.models.find(item=>item.model_id==='pi0')!;
+ const run=data.datasets.runs.find(item=>item.run_id==='run-pi0-flashrt-fixed-e2e-001')!;
+ const route=readRoute(`?model=pi0&tab=runtime&runtime=flashrt&runtimePrecision=${run.precision.precision_id}&hardware=${run.device_id}&workload=${run.configuration_id}&selectedRun=${run.run_id}&analysisView=system`);
+ const markup=renderToStaticMarkup(<RuntimeView data={data} model={model} route={route} navigate={()=>undefined}/>);
+ expect(markup).toContain('Nsys 采集统计 · 10 次中位数');
+ expect(markup).toContain('各线程实际运行时间之和');
+ expect(markup).toContain('GPU 活动时长');expect(markup).toContain('CUDA API 调用时长');
+ expect(markup).not.toContain('system-bound-status');
+ expect(markup).not.toContain('调度运行不等于函数归因');
+ expect(markup).not.toContain('局部覆盖不代表端到端下界');
+ expect(markup).not.toContain('前端差异不合并成同一次实测流程');
+});

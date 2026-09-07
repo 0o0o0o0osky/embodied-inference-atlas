@@ -83,3 +83,6 @@
 .sample-median { stroke:#426c92; stroke-dasharray:4 4; }
 .timeline-event.is-cuda_sync { fill:#ba8145; }
 @media(max-width:720px) { .inference-sample-line select {max-width:100%;width:100%;} .inference-sample-line label {width:100%;} }
+
+.system-capture-capabilities { display:flex; flex-wrap:wrap; gap:1.25rem; }
+.system-capture-capabilities dd { margin:.4rem 0 0; }

@@ -31,7 +31,7 @@ export function RuntimeSystemFlow({realization}:{realization:RuntimeRealizationR
  const groups=flow.groups.filter(group=>group.kind!=='repeat');
  const select=(id:string)=>setSelectedId(id===selectedId?null:id);
  return <section className="runtime-system-flow" aria-label="CPU 与 GPU 系统过程">
-  <header><div><h3>一次推理的系统过程</h3><p>上方 CPU，下方 GPU；从左到右表示过程顺序，距离与宽度不表示耗时。</p></div>
+  <header><div><h3>一次推理的系统过程</h3><p>CPU/GPU 执行流程示意</p></div>
    <div className="system-flow-key"><span className="is-data">数据传递</span><span className="is-control">提交 / 控制</span><span className="is-reuse">结果复用</span></div>
   </header>
   <div className="system-flow-scroll" tabIndex={0} aria-label="系统过程图，可横向滚动">
@@ -77,9 +77,12 @@ export function RuntimeSystemFlow({realization}:{realization:RuntimeRealizationR
   {selected?<div className="system-flow-detail" role="region" aria-label="所选系统模块">
     <div className="system-flow-detail-heading"><h4>{selected.label}<span>{selected.lane.toUpperCase()}</span></h4><button type="button" onClick={()=>setSelectedId(null)} aria-label="关闭系统模块详情">×</button></div>
     <p>{selected.operation}</p>
-    <dl><div><dt>读入</dt><dd>{selected.reads.join('、')||'未记录'}</dd></div><div><dt>写出</dt><dd>{selected.writes.join('、')||'未记录'}</dd></div><div><dt>保留与复用</dt><dd>{selected.reuse??'未确认结果复用'}</dd></div></dl>
+    {selected.reads.length || selected.writes.length || selected.reuse ? <dl>
+      {selected.reads.length ? <div><dt>读入</dt><dd>{selected.reads.join('、')}</dd></div> : null}
+      {selected.writes.length ? <div><dt>写出</dt><dd>{selected.writes.join('、')}</dd></div> : null}
+      {selected.reuse ? <div><dt>保留与复用</dt><dd>{selected.reuse}</dd></div> : null}
+    </dl> : null}
   </div>:null}
-  <details className="system-flow-scope"><summary>输入准备、初始化与适用范围</summary>{flow.notes.map((note,i)=><p key={i}>{note}</p>)}</details>
  </section>;
 }
 

@@ -71,9 +71,9 @@ export function Pi0RuntimeWorkspace({data, model, record, route, navigate}: Prop
         latency={hasLatency ? selectedEvidence!.selected : null} workload={selectedWorkload}
         workloadStatus={Object.values(selectedWorkload).some(value=>value === null) ? 'partial' : 'complete'}
         selectionKind={hasLatency ? currentProtocol ? 'target_measurement' : 'native_evidence' : selectedRun && ['nsys','ncu'].includes(selectedRun.capture_method) ? 'profiler_capture' : unsupported ? 'unsupported' : 'symbolic_target'} />
-      <div className="system-bound-status"><span>运行实现下界：<strong>{runtimeBounds.endToEnd ? `${(runtimeBounds.endToEnd.point.derived.roof_second! * 1e3).toFixed(3)} ms` : '尚不具备完整下界'}</strong></span>
-        <details><summary>依据</summary><p>{runtimeBounds.reason} 局部覆盖不代表端到端下界。</p></details>
-      </div>
+      {runtimeBounds.endToEnd ? <div className="system-bound-status"><span>理论最短耗时：<strong>{(runtimeBounds.endToEnd.point.derived.roof_second! * 1e3).toFixed(3)} ms</strong></span>
+        <details><summary>计算依据</summary><p>{runtimeBounds.reason}</p></details>
+      </div> : null}
       <InferenceSampleSummary context={context} />
       <nav className="pi0-runtime-analysis-tabs" aria-label="推理栈分析视图">
         {([['system','系统耗时'],['hotspots','执行 DAG'],['reuse','执行优化']] as const).map(([id,label])=><button key={id} type="button" aria-pressed={analysisView === id || id === 'system' && analysisView === 'perfetto'} onClick={()=>navigate({analysisView:id,timelineCapture:nsys.active?.capture.captureId??route.timelineCapture})}>{label}</button>)}

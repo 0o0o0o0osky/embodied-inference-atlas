@@ -95,6 +95,6 @@ export function TimelineTracks({ timeline, windowStartNs, windowDurationNs, sele
         </div>)}
       </details>;
     })}
-    <p className="timeline-evidence-note">密集区间按像素合并显示，点击可放大；完整事件保留在详情与 Perfetto。Graph 色块表示执行范围；空白不代表空闲，分组不表示调用关系。</p>
+    <p className="timeline-evidence-note">密集区间合并显示，点击可放大；完整事件可在详情与 Perfetto 中查看。Graph 色块表示整次执行范围。</p>
   </section>;
 }
