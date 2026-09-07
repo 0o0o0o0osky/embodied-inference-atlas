@@ -141,7 +141,7 @@ export function ExecutionHotspots({data, record, route, view, kernels, realizati
       <ul>{sharedConversions.map(row=><li key={row.id}><button type="button" aria-pressed={selected?.id===row.id} onClick={()=>{setGraphEntity(null);navigate({entity:entityFor(row)},true);}}>{labelFor(row)} · Grid {row.events[0]?.launch?.grid?.join('×') ?? '未知'} · {row.count} 次 · {(row.durationNs/1e6).toFixed(3)} ms</button></li>)}</ul>
     </details>:null}
     {realization && record ? <div ref={dagRef} className="hotspot-primary-dag"><Pi0ImplementationDagSection sources={data.datasets.sources} initialShowPrecision record={record}
-      route={{...route,workload,entity:graphEntity}} activeRealization={realization} selectedRuntimeName={route.runtime}
+      route={{...route,workload,entity:graphEntity}} activeRealization={realization} selectedRuntimeName={data.datasets.runtimes.find(runtime => runtime.runtime_id === route.runtime)?.display_name ?? route.runtime}
       navigate={graphNavigate} renderKernelDetails={renderKernelDetails} /></div> : <AnalysisPlaceholder title="执行 DAG" state="not_recorded" detail={rows.length ? "执行结构与算子映射尚未填写；底部列表可查看已记录的耗时。" : "补充模型计算结构与当前推理栈的算子映射后显示。"} />}
     {selected && !graphEntity ? <div className="hotspot-unmapped-detail">{detail}</div> : null}
     <details className="hotspot-kernel-inventory"><summary>Kernel 与 CPU 热点列表{rows.length ? `（${rows.length} 项）` : view.active ? " · 暂无区间" : " · 未采集"}</summary>

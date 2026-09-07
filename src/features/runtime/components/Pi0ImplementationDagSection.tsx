@@ -153,14 +153,13 @@ export function Pi0ImplementationDagSection({ sources, record, route, activeReal
             ariaLabel="模型算子图及推理栈实现覆盖层"
             underlay={display === "implementation" && activeRealization && overlay ? <RuntimeOverlay
               layout={layout} realization={activeRealization} overlay={overlay} onSelectGroup={selectGroup}
-              pi0={activeRealization.modelId === "pi0"} layer="background" showPrecision={showPrecision} /> : undefined}
+              layer="background" showPrecision={showPrecision} /> : undefined}
             overlay={display === "implementation" && activeRealization && overlay ? (
               <RuntimeOverlay
                 layout={layout}
                 realization={activeRealization}
                 overlay={overlay}
                 onSelectGroup={selectGroup}
-                pi0={activeRealization.modelId === "pi0"}
                 layer="labels"
                 showPrecision={showPrecision}
                 avoidPaths={connectors.connectors.flatMap((connector) => connector.paths)}

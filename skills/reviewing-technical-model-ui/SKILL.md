@@ -14,6 +14,11 @@ specific operations and parameters in evidence-backed configuration. Explain the
 selected work directly; avoid duplicate selectors, long provenance blocks and
 repeated cautions. Missing evidence should affect only its own result.
 
+New models and runtimes use the same workspace, DAG renderer, performance chart
+and detail panels. Add graph/presentation/evidence configuration rather than a
+model-specific page or style branch. Review a model switch and a return to the
+same inference: input, selected object and graph viewport must remain consistent.
+
 Use the shared browser helper and inspect a real screenshot plus the changed
 interaction. Check offline loading and payload when assets/data changed. Repair
 visible failures and recheck that path; do not build a screenshot platform or

@@ -8,10 +8,9 @@ interface ContextBarProps {
   model: ModelRecord;
   route: RouteState;
   navigate: (patch: RoutePatch, replace?: boolean) => void;
-  compact?: boolean;
 }
 
-export function ContextBar({ data, model, route, navigate, compact = false }: ContextBarProps) {
+export function ContextBar({ data, model, route, navigate }: ContextBarProps) {
   const runtimeById = new Map(data.datasets.runtimes.map((runtime) => [runtime.runtime_id, runtime]));
   const isInferenceRuntimeId = (runtimeId: string) => {
     const runtime = runtimeById.get(runtimeId);
@@ -39,11 +38,8 @@ export function ContextBar({ data, model, route, navigate, compact = false }: Co
   const hardwareKnown = devices.some(
     (device) => device.device_id === route.hardware,
   );
-  const showWorkload = route.tab !== "end-to-end" && route.tab !== "timeline";
-  const showRuntimePrecision = route.tab === "runtime";
-  const showRooflinePrecision = route.tab === "roofline-kernels";
   const modelTheory = route.tab === "logical" || isPi0ModelTheory(route);
-  const compactActualPrecision = compact && !modelTheory && (
+  const compactActualPrecision = !modelTheory && (
     (route.tab === "runtime" && route.runtime !== null)
     || route.tab === "timeline"
     || route.tab === "roofline-kernels"
@@ -51,7 +47,7 @@ export function ContextBar({ data, model, route, navigate, compact = false }: Co
   const precisionIds = [...new Set(scopedRuns
     .filter((run) => (
       isInferenceRuntimeId(run.runtime_id)
-      && (!(showRuntimePrecision || compactActualPrecision) || model.model_id !== "pi0" || run.evidence === "measured_local")
+      && (!compactActualPrecision || run.evidence === "measured_local")
       && (!route.runtime || run.runtime_id === route.runtime)
       && (!route.hardware || run.device_id === route.hardware)
     ))
@@ -62,9 +58,7 @@ export function ContextBar({ data, model, route, navigate, compact = false }: Co
     return record.model_id === model.model_id && path !== null && typeof path === "object"
       && !Array.isArray(path) && path.kind === "mapped_mixed" && path.precision_path_id === route.precision;
   });
-  const fieldCount = 2 + Number(showWorkload) + Number(showRuntimePrecision || showRooflinePrecision);
 
-  if (compact) {
     const runtimeOverview = route.tab === "runtime" && route.runtime === null;
     const compactRooflinePrecision = route.tab === "logical" || route.tab === "roofline-kernels";
     const displayedTheoryPrecision = route.precision ?? "bf16_dense";
@@ -131,96 +125,6 @@ export function ContextBar({ data, model, route, navigate, compact = false }: Co
         ) : null}
       </div>
     );
-  }
-
-  return (
-    <section className={`context-bar context-bar--${fieldCount}`} aria-label="Workbench context">
-      <label>
-        <span>{route.tab === "logical" || route.tab === "runtime" ? "Runtime overlay" : "Runtime filter"}</span>
-        <select
-          value={route.runtime ?? ""}
-          onChange={(event) =>
-            navigate({ runtime: event.target.value || null, runtimePrecision: null, runtimeFacet: null, timelineCapture: null, entity: null })
-          }
-        >
-          <option value="">{route.tab === "logical" || route.tab === "runtime" ? "Logical model only" : "All evidence runtimes"}</option>
-          {route.runtime && !runtimeKnown && !runtimeById.has(route.runtime) ? (
-            <option value={route.runtime}>{route.runtime} (not in snapshot)</option>
-          ) : null}
-          {runtimes.map((runtime) => {
-            const supports = runtime.model_support.filter((record) => record.model_id === model.model_id);
-            const supportLabel = [...new Set(supports.map((support) => support.status))].join(" + ") || "no support record";
-            return (
-              <option key={runtime.runtime_id} value={runtime.runtime_id}>
-                {runtime.display_name} ({supportLabel})
-              </option>
-            );
-          })}
-        </select>
-      </label>
-
-      <label>
-        <span>{route.tab === "roofline-kernels" ? "Runtime hardware filter" : "Hardware"}</span>
-        <select
-          value={route.hardware ?? ""}
-          onChange={(event) =>
-            navigate({ hardware: event.target.value || null, runtimeFacet: null, timelineCapture: null, entity: null })
-          }
-        >
-          <option value="">{route.tab === "roofline-kernels" ? "No runtime hardware filter" : "No hardware selected"}</option>
-          {route.hardware && !hardwareKnown ? (
-            <option value={route.hardware}>{route.hardware} (not in snapshot)</option>
-          ) : null}
-          {devices.map((device) => (
-            <option key={device.device_id} value={device.device_id}>
-              {device.display_name}
-            </option>
-          ))}
-        </select>
-      </label>
-
-      {showWorkload ? (
-        <label>
-          <span>Workload binding</span>
-          <input
-            type="text"
-            value={route.workload ?? ""}
-            placeholder="canonical-default"
-            onChange={(event) =>
-              navigate({ workload: event.target.value || null, runtimeFacet: null }, true)
-            }
-          />
-        </label>
-      ) : null}
-
-      {showRuntimePrecision ? (
-        <label>
-          <span>Actual runtime precision</span>
-          <select
-            value={route.runtimePrecision ?? ""}
-            disabled={!runtimeKnown}
-            onChange={(event) => navigate({ runtimePrecision: event.target.value || null, runtimeFacet: null, entity: null }, true)}
-          >
-            <option value="">{runtimeKnown ? "Choose realized precision" : route.runtime ? "Runtime is not selectable" : "Choose a runtime first"}</option>
-            {route.runtimePrecision && !precisionIds.includes(route.runtimePrecision) ? <option value={route.runtimePrecision}>{route.runtimePrecision} (outside active scope)</option> : null}
-            {precisionIds.map((precisionId) => <option key={precisionId} value={precisionId}>{precisionId}</option>)}
-          </select>
-        </label>
-      ) : null}
-
-      {showRooflinePrecision ? (
-        <label>
-          <span>Analytical roofline precision</span>
-          <select value={route.precision ?? ""} onChange={(event) => navigate({ precision: event.target.value || null, basis: null, entity: null }, true)}>
-            <option value="">Basis default</option>
-            {runtimeBoundPrecision ? <option value={route.precision!} disabled>Runtime-bound configuration (read-only)</option>
-              : route.precision && !rooflinePrecisionIds.includes(route.precision) ? <option value={route.precision}>{route.precision} (outside model scenarios)</option> : null}
-            {rooflinePrecisionIds.map((precisionId) => <option key={precisionId} value={precisionId}>{precisionId}</option>)}
-          </select>
-        </label>
-      ) : null}
-    </section>
-  );
 }
 
 function precisionLabel(precisionId: string): string {

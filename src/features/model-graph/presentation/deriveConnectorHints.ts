@@ -24,6 +24,7 @@ function groupBy(
 export function deriveConnectorHints(
   dag: LogicalDag,
   authored: readonly ConnectorHint[] = [],
+  stageColumns: readonly (readonly string[])[] = [],
 ): readonly ConnectorHint[] {
   const uniqueEdges = new Map<string, LogicalEdge>();
   dag.edges
@@ -50,8 +51,12 @@ export function deriveConnectorHints(
 
   take("feedback", [[...remaining.values()].filter((edge) => edge.kind === "feedback")]);
 
+  const columnFor = (ref: LogicalRef) => {
+    const stage = dag.nodes.get(ref)?.stageId;
+    return stageColumns.find(ids => stage !== undefined && ids.includes(stage))?.[0] ?? stage;
+  };
   const crossStage = [...remaining.values()].filter(
-    (edge) => dag.nodes.get(edge.source)?.stageId !== dag.nodes.get(edge.target)?.stageId,
+    (edge) => columnFor(edge.source) !== columnFor(edge.target),
   );
   take("cross", [...groupBy(crossStage, (edge) => edge.source).values()]);
 

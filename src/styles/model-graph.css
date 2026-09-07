@@ -4,22 +4,8 @@
   background: var(--white);
 }
 
-.logical-intro {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: stretch;
-  border-bottom: 1px solid var(--line-dark);
-  background: #eef3f0;
-}
 
-.logical-intro > div {
-  display: grid;
-  align-content: center;
-  gap: 0.35rem;
-  padding: 1rem 1.25rem;
-}
 
-.logical-intro p,
 .operator-inspector > header p {
   margin: 0;
   color: var(--signal-blue-dark);
@@ -27,40 +13,10 @@
   font-size: 1rem;
 }
 
-.logical-intro h2 {
-  margin: 0;
-  font-family: var(--display-face);
-  font-size: clamp(1.7rem, 3vw, 2.4rem);
-  letter-spacing: -0.035em;
-}
 
-.logical-intro > div > span {
-  max-width: 66ch;
-  color: #42514d;
-  line-height: 1.5;
-}
 
-.logical-intro > aside {
-  display: grid;
-  align-content: center;
-  gap: 0.2rem;
-  min-width: 18rem;
-  padding: 1rem 1.25rem;
-  border-left: 1px solid var(--line-dark);
-  color: #173f45;
-  background: #dcebea;
-}
 
-.logical-intro > aside span {
-  font-family: var(--display-face);
-  font-size: 1.25rem;
-  font-weight: 800;
-}
 
-.logical-intro > aside small {
-  color: #4a5c59;
-  font-size: 1rem;
-}
 
 .graph-workload {
   border-bottom: 1px solid var(--line-dark);
@@ -191,53 +147,13 @@
 }
 
 .derived-symbols span,
-.workload-annotation {
-  color: var(--slate);
-  font-size: 1rem;
-}
 
-.workload-annotation {
-  margin: 0;
-  padding: 0.55rem 1rem;
-  border-bottom: 1px solid var(--line-dark);
-}
 
-.graph-breadcrumb {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: stretch;
-  min-height: 3.3rem;
-  padding: 0 0.75rem;
-  border-bottom: 1px solid var(--line-dark);
-  background: var(--white);
-}
 
-.graph-crumb {
-  display: flex;
-  align-items: stretch;
-}
 
-.graph-crumb > i {
-  align-self: center;
-  padding: 0 0.25rem;
-  font-style: normal;
-}
 
-.graph-crumb > span {
-  display: grid;
-  align-content: center;
-  padding: 0.55rem 0.35rem;
-}
 
-.graph-crumb small {
-  color: var(--slate);
-  font-size: 0.75rem;
-}
 
-.graph-crumb strong {
-  color: #29423f;
-  font-size: 1rem;
-}
 
 .graph-diagnostics {
   padding: 0.75rem 1rem;
@@ -820,15 +736,7 @@
 }
 
 @media (max-width: 48rem) {
-  .logical-intro {
-    grid-template-columns: minmax(0, 1fr);
-  }
 
-  .logical-intro > aside {
-    min-width: 0;
-    border-top: 1px solid var(--line-dark);
-    border-left: 0;
-  }
 
   .derived-symbols,
   .graph-workload-grid {
@@ -858,8 +766,8 @@
   }
 }
 
-/* Pi0 is an open diagram workspace. Other model presentations retain their layout. */
-.pi0-workspace {
+/* Shared model workspace: one visual system for theory and runtime DAGs. */
+.model-workspace {
   --dag-canvas: var(--cold-plate);
   --dag-surface: var(--white);
   --dag-stage-border: var(--line);
@@ -883,16 +791,16 @@
   background: var(--cold-plate);
 }
 
-.pi0-workspace .logical-workspace-grid.is-focused {
+.model-workspace .logical-workspace-grid.is-focused {
   grid-template-columns: minmax(0, 1fr) clamp(448px, 30vw, 512px);
 }
 
-.pi0-workspace .logical-graph-panel {
+.model-workspace .logical-graph-panel {
   border: 0;
   background: var(--cold-plate);
 }
 
-.pi0-workspace .logical-viewport-controls {
+.model-workspace .logical-viewport-controls {
   position: relative;
   z-index: 2;
   gap: 18px;
@@ -904,25 +812,25 @@
   font-size: 14px;
 }
 
-.pi0-workspace .logical-viewport-controls h2 {
+.model-workspace .logical-viewport-controls h2 {
   margin: 0 8px 0 0;
   color: var(--graphite);
   font-size: 16px;
   font-weight: 600;
 }
 
-.pi0-workspace .logical-viewport-controls h2 span {
+.model-workspace .logical-viewport-controls h2 span {
   margin-left: 6px;
   color: var(--slate);
   font-size: 12px;
   font-weight: 400;
 }
 
-.pi0-workspace .logical-viewport-controls a {
+.model-workspace .logical-viewport-controls a {
   text-decoration: none;
 }
 
-.pi0-workspace .logical-viewport-controls a:hover {
+.model-workspace .logical-viewport-controls a:hover {
   color: var(--signal-blue);
 }
 
@@ -936,7 +844,7 @@
   font-size: 12px;
 }
 
-.pi0-workspace .logical-viewport-controls > button {
+.model-workspace .logical-viewport-controls > button {
   min-width: 30px;
   min-height: 30px;
   padding: 2px 7px;
@@ -946,7 +854,7 @@
   font-weight: 400;
 }
 
-.pi0-workspace .logical-viewport-controls > button + button {
+.model-workspace .logical-viewport-controls > button + button {
   margin-left: -12px;
 }
 
@@ -983,29 +891,29 @@
   box-shadow: 0 6px 20px #17232e12;
 }
 
-.pi0-workspace .graph-workload > header {
+.model-workspace .graph-workload > header {
   padding: 14px 16px;
 }
 
-.pi0-workspace .graph-workload-grid {
+.model-workspace .graph-workload-grid {
   grid-template-columns: minmax(0, 1fr);
   padding: 0 16px 12px;
 }
 
-.pi0-workspace .graph-workload-grid label {
+.model-workspace .graph-workload-grid label {
   padding: 10px 0;
   border: 0;
 }
 
-.pi0-workspace .graph-workload-grid label > span,
-.pi0-workspace .graph-workload-grid input,
-.pi0-workspace .graph-workload button {
+.model-workspace .graph-workload-grid label > span,
+.model-workspace .graph-workload-grid input,
+.model-workspace .graph-workload button {
   font-family: var(--display-face);
   font-size: 14px;
   font-weight: 400;
 }
 
-.pi0-workspace .graph-workload-grid small {
+.model-workspace .graph-workload-grid small {
   font-size: 12px;
 }
 
@@ -1032,7 +940,7 @@
   border: 0;
 }
 
-.pi0-workspace .operator-drawer {
+.model-workspace .operator-drawer {
   top: 0;
   min-height: calc(100svh - 56px);
   padding: 24px;
@@ -1041,14 +949,14 @@
   color: var(--graphite);
 }
 
-.pi0-workspace .operator-inspector h2 {
+.model-workspace .operator-inspector h2 {
   font-size: 24px;
   font-weight: 600;
   letter-spacing: 0;
   line-height: 1.3;
 }
 
-.pi0-workspace .operator-inspector-close {
+.model-workspace .operator-inspector-close {
   margin-bottom: 10px;
   padding: 0;
   border: 0;
@@ -1057,16 +965,16 @@
   font-weight: 500;
 }
 
-.pi0-workspace .operator-drawer-tabs button {
+.model-workspace .operator-drawer-tabs button {
   font-size: 14px;
 }
 
 @media (max-width: 62rem) {
-  .pi0-workspace .logical-workspace-grid.is-focused {
+  .model-workspace .logical-workspace-grid.is-focused {
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .pi0-workspace .operator-drawer {
+  .model-workspace .operator-drawer {
     top: auto;
     min-height: 0;
     border-top: 1px solid var(--line);
@@ -1076,7 +984,7 @@
 }
 
 @media (max-width: 48rem) {
-  .pi0-workspace .logical-viewport-controls {
+  .model-workspace .logical-viewport-controls {
     gap: 10px 14px;
     padding: 8px 16px;
   }

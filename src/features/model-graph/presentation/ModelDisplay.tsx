@@ -4,11 +4,10 @@ type Values = Readonly<Record<string, string | number>>;
 export type ModelText = (text: string, values?: Values) => string;
 
 // Display copy only: canonical labels, formulas, refs, and layout inputs stay intact.
-const pi0Text: Readonly<Record<string, string>> = {
+const sharedText: Readonly<Record<string, string>> = {
   "Vision Encoder": "视觉编码器", "Prefix Encoder": "前缀编码器", "Action Flow Decoder": "动作解码器",
   "Images": "图像", "Prompt": "提示词", "State input": "状态输入", "Noise x₀": "噪声 x₀",
   "Prefix out": "前缀输出", "Actions": "动作输出", "Denoise ×{count}": "去噪 ×{count}",
-  "Gemma ×17 full": "Gemma ×17 完整块", "Expert ×18": "专家 ×18", "L18 K/V tail": "L18 K/V 尾段",
   "Patch": "图块", "Norm": "归一化", "Attn": "注意力", "Add": "相加", "Mul": "相乘",
   "MLP Norm": "MLP 归一化", "Up": "升维", "Down": "降维", "Gate": "门控",
   "Final Norm": "末层归一化", "Final RMSNorm": "末层 RMSNorm", "Project": "投影",
@@ -48,13 +47,7 @@ const pi0Text: Readonly<Record<string, string>> = {
   "Prompt token IDs": "提示词词元 ID", "Latent robot state": "机器人潜在状态", "Initial noise/action state": "初始噪声与动作状态",
   "Loop-carried action state": "循环携带的动作状态", "Final prefix stack hidden state": "前缀堆叠的最终隐状态",
   "Final action state": "最终动作状态",
-  "Prefill-once vision work: patch embedding, 27 folded SigLIP blocks, final normalization, and multimodal projection.": "视觉预填充执行一次：图块嵌入、折叠表示的 27 个 SigLIP 块、末层归一化与多模态投影。",
-  "Prefill-once multimodal prefix work: build view/prompt tokens, run 17 full Gemma blocks, then retain the layer-18 K/V-producing tail required by the cached decoder.": "多模态前缀预填充执行一次：构建视觉与提示词词元，执行 17 个完整 Gemma 块，并保留缓存解码器所需的第 18 层 K/V 尾段。",
-  "Layer 18 runs pre-attention RMSNorm, Q/K/V projection, RoPE, and the K/V cache write; attention, output projection, and feed-forward do not run.": "第 18 层执行注意力前 RMSNorm、Q/K/V 投影、RoPE 与 K/V 缓存写入；不执行注意力、输出投影或前馈计算。",
-  "Iterative hot loop: rebuild the state/action suffix, run 18 folded action-expert blocks against cached prefix K/V, project velocity, and apply one Euler update per denoise step.": "每步去噪重建状态与动作后缀，利用前缀 K/V 缓存执行折叠表示的 18 个动作专家块，投影速度并执行一次欧拉更新。",
   "Inspect {description}": "查看算子：{description}",
-  "Pi0 logical operator graph": "Pi0 模型算子图",
-  "Pi0 logical operator graph with three authored stage columns": "Pi0 模型算子图，分为视觉、前缀与动作三个阶段列",
   "embedding": "嵌入", "linear": "线性运算", "normalization": "归一化", "position": "位置编码",
   "attention": "注意力", "activation": "激活", "elementwise": "逐元素运算", "shape": "形状变换",
   "input": "输入", "output": "输出", "residual": "残差", "query": "Q", "key": "K", "value": "V",
@@ -67,6 +60,141 @@ const pi0Text: Readonly<Record<string, string>> = {
   "flops": "FLOPs", "read_elements": "读取元素", "write_elements": "写入元素", "elements": "元素", "unresolved": "未解析",
   "Multiply and add count as two FLOPs; logical operand elements are counted once; bias, activation, cache behavior, runtime dtype, packing, quantization metadata, and fusion are excluded.": "乘法与加法分别计为一次 FLOP；逻辑操作数元素仅计一次。不包含偏置、激活、缓存行为、运行时数据类型、打包、量化元数据与融合。",
 
+  "Vision encoder": "视觉编码器",
+  "Prefix encoder": "前缀编码器",
+  "VLM prefix encoder": "VLM 前缀编码器",
+  "Action flow decoder": "动作解码器",
+  "Public action contract": "动作输出",
+  "MLP norm": "MLP 归一化",
+  "Final norm": "末层归一化",
+  "image + text": "图像 + 文本",
+  "K cache": "K 缓存",
+  "V cache": "V 缓存",
+  "broadcast": "广播",
+  "action + time": "动作 + 时间",
+  "flatten K": "展平 K",
+  "flatten V": "展平 V",
+  "K adapter": "K 适配",
+  "V adapter": "V 适配",
+  "K heads": "K 多头",
+  "V heads": "V 多头",
+  "condition → 3D": "条件 → 3D",
+  "condition → 2D": "条件 → 2D",
+  "scale": "缩放",
+  "shift": "偏移",
+  "gate": "门控",
+  "× scale": "× 缩放",
+  "1 + scale": "1 + 缩放",
+  "+ shift": "+ 偏移",
+  "× gate": "× 门控",
+  "Velocity": "速度投影",
+  "Patch-grid merge": "图块网格合并",
+  "Zero-pad state": "状态补零",
+  "State token": "状态词元",
+  "K layer pairs": "K 层对",
+  "V layer pairs": "V 层对",
+  "Public boundary": "输出边界",
+  "SigLIP blocks": "SigLIP 块",
+  "Vision transformer blocks": "视觉 Transformer 块",
+  "Full Gemma prefix blocks": "完整 Gemma 前缀块",
+  "Full Gemma": "完整 Gemma 块",
+  "AdaRMS expert layers": "AdaRMS 专家层",
+  "Executed SmolVLM blocks": "SmolVLM 执行块",
+  "Ordered self/cross expert pairs": "自注意力/交叉注意力层对",
+  "Cross-attention core": "交叉注意力计算",
+  "Prefix attention": "前缀注意力",
+  "Output projection": "输出投影",
+  "Cache key": "缓存 K",
+  "Cache value": "缓存 V",
+  "Gated product": "门控乘积",
+  "Sinusoidal time": "正弦时间嵌入",
+  "Action projection": "动作投影",
+  "Read prefix key": "读取前缀 K",
+  "Read prefix value": "读取前缀 V",
+  "Prefix + suffix key": "前缀 + 后缀 K",
+  "Prefix + suffix value": "前缀 + 后缀 V",
+  "Attention output": "注意力输出",
+  "Scale slice": "选择缩放",
+  "Shift slice": "选择偏移",
+  "Gate slice": "选择门控",
+  "RMS times scale": "RMS × 缩放",
+  "Apply one plus scale": "加入基础分量",
+  "Apply shift": "加入偏移",
+  "Gate branch": "分支门控",
+  "Gated residual": "门控残差相加",
+  "Scale / shift / gate": "缩放 / 偏移 / 门控",
+  "Final scale / shift / gate": "末层缩放 / 偏移 / 门控",
+  "Time MLP in": "时间 MLP 输入",
+  "Time MLP out": "时间 MLP 输出",
+  "Expert query": "专家 Q",
+  "Expert key": "专家 K",
+  "Expert value": "专家 V",
+  "Bidirectional suffix attention": "后缀双向注意力",
+  "Causal suffix self-attention": "后缀因果自注意力",
+  "Prefix-only cross-attention": "前缀交叉注意力",
+  "Self-attention residual": "自注意力残差相加",
+  "Cross-attention residual": "交叉注意力残差相加",
+  "Select even-layer key": "选择偶数层 K",
+  "Select even-layer value": "选择偶数层 V",
+  "Select odd-layer key": "选择奇数层 K",
+  "Select odd-layer value": "选择奇数层 V",
+  "Flatten cached key heads": "展平缓存 K 多头",
+  "Flatten cached value heads": "展平缓存 V 多头",
+  "Cross key adapter": "交叉注意力 K 适配",
+  "Cross value adapter": "交叉注意力 V 适配",
+  "Restore key heads": "恢复 K 多头",
+  "Restore value heads": "恢复 V 多头",
+  "Connector projection": "连接器投影",
+  "Scale connector by √DOUT": "连接器 ×√DOUT",
+  "Scale language by √D": "文本 ×√D",
+  "Language embedding": "语言嵌入",
+  "Image + language": "图像 + 语言",
+  "Append state token": "拼接状态词元",
+  "Pair even / odd keys": "配对偶数 / 奇数层 K",
+  "Pair even / odd values": "配对偶数 / 奇数层 V",
+  "Broadcast time": "广播时间",
+  "Action + time": "动作 + 时间",
+  "Fusion projection": "融合投影",
+  "Fusion output": "融合输出",
+  "Expose public action dimensions": "选择输出动作维度",
+  "Permute / rearrange": "维度置换 / 重排",
+  "Scale by a declared scalar": "标量缩放",
+  "Attention AdaRMS": "注意力 AdaRMS",
+  "Cached self-attention": "缓存自注意力",
+  "Attention gated residual": "注意力门控残差",
+  "MLP AdaRMS": "MLP AdaRMS",
+  "Gated GELU MLP": "门控 GELU MLP",
+  "MLP gated residual": "MLP 门控残差",
+  "Even layer: cached self-attention": "偶数层：缓存自注意力",
+  "Even layer: gated SiLU MLP": "偶数层：门控 SiLU MLP",
+  "Odd layer: prefix cross-attention": "奇数层：前缀交叉注意力",
+  "Odd layer: gated SiLU MLP": "奇数层：门控 SiLU MLP",
+};
+
+const modelText: Readonly<Record<string, Readonly<Record<string, string>>>> = {
+  pi0: {
+  "Gemma ×17 full": "Gemma ×17 完整块", "Expert ×18": "专家 ×18", "L18 K/V tail": "L18 K/V 尾段",
+  "Prefill-once vision work: patch embedding, 27 folded SigLIP blocks, final normalization, and multimodal projection.": "视觉预填充执行一次：图块嵌入、折叠表示的 27 个 SigLIP 块、末层归一化与多模态投影。",
+  "Prefill-once multimodal prefix work: build view/prompt tokens, run 17 full Gemma blocks, then retain the layer-18 K/V-producing tail required by the cached decoder.": "多模态前缀预填充执行一次：构建视觉与提示词词元，执行 17 个完整 Gemma 块，并保留缓存解码器所需的第 18 层 K/V 尾段。",
+  "Layer 18 runs pre-attention RMSNorm, Q/K/V projection, RoPE, and the K/V cache write; attention, output projection, and feed-forward do not run.": "第 18 层执行注意力前 RMSNorm、Q/K/V 投影、RoPE 与 K/V 缓存写入；不执行注意力、输出投影或前馈计算。",
+  "Iterative hot loop: rebuild the state/action suffix, run 18 folded action-expert blocks against cached prefix K/V, project velocity, and apply one Euler update per denoise step.": "每步去噪重建状态与动作后缀，利用前缀 K/V 缓存执行折叠表示的 18 个动作专家块，投影速度并执行一次欧拉更新。",
+  "Pi0 logical operator graph": "Pi0 模型算子图",
+  "Pi0 logical operator graph with three authored stage columns": "Pi0 模型算子图，分为视觉、前缀与动作三个阶段列",
+  },
+  pi05: {
+    "Executed images": "执行图像", "Prompt + state tokens": "提示词 + 状态词元",
+    "Prefix hidden (unused)": "前缀隐状态（未使用）", "Public actions · 32D": "动作输出 · 32D",
+    "identity 32 → 32": "恒等 32 → 32",
+    "Pi0.5 logical operator graph": "Pi0.5 模型算子图",
+    "Pi0.5 logical operator graph with three stage columns with a final action output region": "Pi0.5 模型算子图：视觉、前缀、动作与输出",
+  },
+  smolvla: {
+    "512² execution": "512² 执行图像", "Prompt tokens": "提示词词元", "State scalars": "状态标量",
+    "VLM hidden (unused)": "VLM 隐状态（未使用）", "Public actions · 6D": "动作输出 · 6D",
+    "slice 32 → 6": "切片 32 → 6",
+    "SmolVLA logical operator graph": "SmolVLA 模型算子图",
+    "SmolVLA logical operator graph with three stage columns with a final action output region": "SmolVLA 模型算子图：视觉、前缀、动作与输出",
+  },
 };
 
 function format(text: string, values: Values = {}): string {
@@ -74,15 +202,21 @@ function format(text: string, values: Values = {}): string {
 }
 
 const sourceText: ModelText = (text, values) => format(text, values);
-const chineseText: ModelText = (text, values) => format(pi0Text[text] ?? text, values);
 const ModelTextContext = createContext<ModelText>(sourceText);
 
 export function modelDisplayText(modelId: string, text: string, values?: Values): string {
-  return (modelId === "pi0" ? chineseText : sourceText)(text, values);
+  const dictionary = modelText[modelId] ?? {};
+  const direct = dictionary[text] ?? sharedText[text];
+  // Scope repetition is generated from the graph, rather than a fixed model depth.
+  const repeated = text.match(/^(.*?) ×(.+)$/);
+  const display = direct ?? (repeated
+    ? `${dictionary[repeated[1]!] ?? sharedText[repeated[1]!] ?? repeated[1]} ×${repeated[2]}`
+    : text);
+  return format(display, values);
 }
 
 export function ModelDisplayProvider({ modelId, children }: { modelId: string; children: ReactNode }) {
-  return <ModelTextContext value={modelId === "pi0" ? chineseText : sourceText}>{children}</ModelTextContext>;
+  return <ModelTextContext value={(text, values) => modelDisplayText(modelId, text, values)}>{children}</ModelTextContext>;
 }
 
 export function useModelText(): ModelText {

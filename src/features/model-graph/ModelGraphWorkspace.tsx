@@ -2,12 +2,12 @@ import { useMemo } from "react";
 
 import { type RoutePatch, type RouteState } from "../../app/routes";
 import { RouteLink } from "../../components/RouteLink";
+import { AnalysisPlaceholder } from "../../components/AnalysisPlaceholder";
 import { adaptRuntimeRealization, isRuntimeRealizationRecord } from "../runtime/domain/adaptRuntimeRealization";
 import { indexRuntimeRealization } from "../runtime/domain/indexRuntimeRealization";
 import { logicalEntity, logicalRefFromEntity, parseEntityKey } from "../workbench/entityKeys";
 import type { AtlasData, CanonicalRecord, ModelRecord } from "../../types/atlas";
 import { DerivedSymbols } from "./components/DerivedSymbols";
-import { GraphBreadcrumb } from "./components/GraphBreadcrumb";
 import { LogicalDagSvg } from "./components/LogicalDagSvg";
 import { OperatorInspector } from "./components/OperatorInspector";
 import { OperatorRooflinePanel } from "./components/OperatorRooflinePanel";
@@ -64,13 +64,10 @@ export function ModelGraphWorkspace({
 }: ModelGraphWorkspaceProps) {
   const record = findGraph(data.datasets.model_graphs, model.model_id);
   if (!record) {
-    return (
-      <section className="logical-unavailable">
-        <p>Logical graph unavailable</p>
-        <h2>{model.display_name} does not yet have a canonical model-graph record.</h2>
-        <span>The workbench keeps the missing definition visible rather than borrowing Pi0 topology.</span>
-      </section>
-    );
+    return <section className="model-graph-workspace model-workspace" aria-label={`${model.display_name} 模型理论`}>
+      <AnalysisPlaceholder title={`${model.display_name} 模型结构尚未填写`} state="not_recorded"
+        detail="补充模型结构与默认输入后，可在这里查看 DAG 和算子分析。已有测量可从运行表现查看。" />
+    </section>;
   }
 
   return (
@@ -100,7 +97,6 @@ function ResolvedModelGraph({
   navigate: (patch: RoutePatch, replace?: boolean) => void;
 }) {
   const t = useModelText();
-  const isPi0 = model.model_id === "pi0";
   const defaultGraph = useMemo(() => adaptV1ModelGraph(record), [record]);
   const workloadBinding = useMemo(
     () => resolveWorkloadBinding(data, route),
@@ -146,10 +142,10 @@ function ResolvedModelGraph({
   const resolvedRef = operator?.ref ?? "";
   const related = incidentNodeRefs(dag, resolvedRef);
   const viewport = useMemo(
-    () => resolveFocusViewport(dag, layout, operator?.ref ?? null, model.model_id === "pi0" ? "stage" : "canvas"),
+    () => resolveFocusViewport(dag, layout, operator?.ref ?? null, "stage"),
     [dag, layout, model.model_id, operator?.ref],
   );
-  const pi0Roofline = useMemo(() => materializeCurrentModelRoofline({
+  const modelRoofline = useMemo(() => materializeCurrentModelRoofline({
     modelId: model.model_id,
     data,
     workloadBinding: route.workload,
@@ -157,6 +153,7 @@ function ResolvedModelGraph({
     hardwareId: route.hardware,
   }), [data, model.model_id, route.hardware, route.precision, route.workload]);
 
+  const shapeKey = encodeWorkload(overrides, defaultGraph.editableSymbols);
   const updateWorkload = (next: Record<string, number>) => {
     navigate(
       { workload: encodeWorkload(next, defaultGraph.editableSymbols) },
@@ -169,36 +166,13 @@ function ResolvedModelGraph({
       values={overrides}
       onChange={(symbol, value) => updateWorkload({ ...overrides, [symbol]: value })}
       onReset={() => navigate({ workload: null }, true)}
-      compact={isPi0}
     >
-      {isPi0 ? <details className="scenario-derived"><summary>派生形状</summary><DerivedSymbols symbols={graph.derivedSymbols} compact /></details> : null}
+      <details className="scenario-derived"><summary>派生形状</summary><DerivedSymbols symbols={graph.derivedSymbols} compact /></details>
     </WorkloadControls>
   );
 
   return (
-    <section className={`model-graph-workspace${isPi0 ? " pi0-workspace" : ""}`} aria-labelledby="logical-graph-title">
-      {!isPi0 ? <>
-      <header className="logical-intro">
-        <div>
-          <p>{graph.graphId} / v{graph.version}</p>
-          <h2 id="logical-graph-title">{profile.title}</h2>
-          <span>{profile.summary}</span>
-        </div>
-        <aside>
-          <strong>{profile.callout.label}</strong>
-          <span>{profile.callout.value}</span>
-          <small>{profile.callout.note}</small>
-        </aside>
-      </header>
-
-      {workloadControls}
-      <DerivedSymbols symbols={graph.derivedSymbols} />
-      <p className="workload-annotation">
-        {profile.workloadNote}
-      </p>
-
-      {operator ? <GraphBreadcrumb modelLabel={model.display_name} graph={graph} operator={operator} /> : null}
-      </> : null}
+    <section className="model-graph-workspace model-workspace" aria-labelledby="logical-graph-title">
 
       {layout.diagnostics.length || connectors.invalidHints.length || connectors.coverage.uncoveredEdgeIds.length ? (
         <div className="graph-diagnostics" role="status">
@@ -228,41 +202,41 @@ function ResolvedModelGraph({
             viewport={viewport}
             onSelect={(ref) => navigate({ entity: logicalEntity(ref) }, true)}
             ariaLabel={t(profile.diagramLabel)}
-            compactControls={isPi0}
-            cameraResetKey={`${model.model_id}|${route.workload ?? "defaults"}`}
-            toolbar={isPi0 ? <>
-              <h2 id="logical-graph-title">Pi0 <span>v{graph.version}</span></h2>
+            compactControls
+            cameraResetKey={`${model.model_id}|${shapeKey}`}
+            toolbar={<>
+              <h2 id="logical-graph-title">{model.display_name} <span>v{graph.version}</span></h2>
               {workloadControls}
-            </> : undefined}
-            scenario={isPi0 ? <>
-              {!operator && pi0Roofline ? <ModelTheorySummary result={pi0Roofline} route={route} navigate={navigate} /> : null}
+            </>}
+            scenario={<>
+              {!operator && modelRoofline ? <ModelTheorySummary result={modelRoofline} route={route} navigate={navigate} /> : null}
               <p className="graph-scenario-summary">
               当前场景：{overrides.V} 个视角，{overrides.L_PROMPT} 个提示词位置，{overrides.T_ACTION} 个动作词元，{overrides.N_DENOISE} 步去噪。
-            </p></> : undefined}
+            </p></>}
           />
         </section>
         {operator ? (
           <OperatorInspector
             operator={operator}
-            resetKey={`${operator.ref}|${route.workload ?? "defaults"}`}
+            resetKey={`${operator.ref}|${shapeKey}`}
             onClose={() => navigate({ entity: null }, true)}
-            rooflinePanel={pi0Roofline ? <OperatorRooflinePanel
-              result={pi0Roofline}
+            rooflinePanel={modelRoofline ? <OperatorRooflinePanel
+              result={modelRoofline}
               detail={operator}
               logicalRef={operator.ref}
               fullAnalysisLink={<RouteLink route={route} navigate={navigate} patch={{
                 ...pi0TheoryNavigationPatch(route, "expanded"),
-                workload: pi0Roofline.status === "available" ? serializeInteractiveWorkload({
-                  executedCameraViews: pi0Roofline.value.scenario.workload.executed_camera_views,
-                  executedPromptTokens: pi0Roofline.value.scenario.workload.executed_prompt_tokens,
-                  actionHorizon: pi0Roofline.value.scenario.workload.action_horizon,
-                  denoiseSteps: pi0Roofline.value.scenario.workload.denoise_steps,
+                workload: modelRoofline.status === "available" ? serializeInteractiveWorkload({
+                  executedCameraViews: modelRoofline.value.scenario.workload.executed_camera_views,
+                  executedPromptTokens: modelRoofline.value.scenario.workload.executed_prompt_tokens,
+                  actionHorizon: modelRoofline.value.scenario.workload.action_horizon,
+                  denoiseSteps: modelRoofline.value.scenario.workload.denoise_steps,
                 }) : route.workload,
-                precision: pi0Roofline.status === "available"
-                  ? pi0Roofline.value.scenario.precision_path.precision_path_id
+                precision: modelRoofline.status === "available"
+                  ? modelRoofline.value.scenario.precision_path.precision_path_id
                   : route.precision,
-                hardware: pi0Roofline.status === "available"
-                  ? pi0Roofline.value.atomicBasis.device_id
+                hardware: modelRoofline.status === "available"
+                  ? modelRoofline.value.atomicBasis.device_id
                   : route.hardware,
               }}>展开此算子的 Roofline</RouteLink>}
             /> : undefined}

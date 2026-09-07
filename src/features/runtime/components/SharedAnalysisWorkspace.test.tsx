@@ -11,7 +11,7 @@ it('uses the Chinese comparison shell for Pi0.5 without importing the Pi0 target
  const model=data.datasets.models.find(item=>item.model_id==='pi05')!;
  const route=readRoute('?model=pi05&tab=runtime');
  const markup=renderToStaticMarkup(<Workbench data={data} model={model} route={route} navigate={()=>undefined}/>);
- expect(markup).toContain('固定输入下的性能比较');expect(markup).toContain('没有符合所选口径');
+ expect(markup).toContain('推理耗时对比');expect(markup).toContain('当前采样口径暂无测量');
  expect(markup).not.toContain('Model workbench / stable route');expect(markup).not.toContain('Runtime realization overlay');expect(markup).not.toContain('目标点实测');
 });
 it('uses the same system/DAG/reuse navigation with the actual SmolVLA workload',()=>{
@@ -23,6 +23,7 @@ it('uses the same system/DAG/reuse navigation with the actual SmolVLA workload',
  expect(markup).not.toContain('稳定代表 trace');expect(markup).toContain('暂无可用 trace');
  expect(markup).toContain('已有原生证据');expect(markup).not.toContain('Pi0 推理栈实现图');
  expect(markup).not.toContain('P=48、N=10、A=20/50');
+ expect(markup).not.toContain('>opaque<');expect(markup).not.toContain('>preserved<');expect(markup).not.toContain('MIXED BF16 FP32/FP32');
 });
 
 it('does not claim a representative trace for Pi0.5 without a capture',()=>{
@@ -83,4 +84,25 @@ it('distinguishes another-input capture from no capture or confirmed unsupported
  const html=renderToStaticMarkup(<RuntimeView data={data} model={model} route={route} navigate={()=>undefined}/>);
  expect(html).toContain('当前输入暂无系统时间线');expect(html).toContain('data-analysis-state="no_match"');
  expect(html).not.toContain('Nsys 采集统计 · 10 次中位数');
+});
+
+it('uses one theory workspace, context and interaction contract for all three models',()=>{
+ for(const modelId of ['pi0','pi05','smolvla']){
+  const model=data.datasets.models.find(item=>item.model_id===modelId)!;
+  const route=readRoute(`?model=${modelId}&tab=logical&precision=bf16_dense`);
+  const html=renderToStaticMarkup(<><AtlasHeader data={data} route={route} navigate={()=>undefined}/><Workbench data={data} model={model} route={route} navigate={()=>undefined}/></>);
+  expect(html).toContain('model-workbench');expect(html).toContain('model-graph-workspace model-workspace');
+  expect(html.match(/class="atlas-context"/g)).toHaveLength(1);
+  expect(html.match(/class="graph-scenario-editor"/g)).toHaveLength(1);
+  expect(html).toContain('模型图工具栏');expect(html).toContain('模型理论下界');expect(html).toContain('Ctrl + 滚轮缩放');
+  expect(html).not.toContain('logical-intro');expect(html).not.toContain('Workload bindings');
+  expect(html).not.toContain('Model workbench / stable route');
+ }
+});
+it('retains the shared theory shell and local missing state when a model has no graph',()=>{
+ const model={...data.datasets.models[0]!,model_id:'unfilled-model',display_name:'未填写模型'};
+ const route=readRoute('?model=unfilled-model&tab=logical');
+ const html=renderToStaticMarkup(<Workbench data={data} model={model} route={route} navigate={()=>undefined}/>);
+ expect(html).toContain('model-workspace');expect(html).toContain('模型结构尚未填写');
+ expect(html).toContain('data-analysis-state="not_recorded"');expect(html).not.toContain('data-layout-fingerprint');
 });

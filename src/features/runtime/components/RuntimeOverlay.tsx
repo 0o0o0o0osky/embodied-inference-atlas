@@ -2,7 +2,7 @@ import type { KeyboardEvent } from "react";
 
 import type { LogicalLayout, NodeBox, RoutedPath } from "../../model-graph/domain/types";
 import { indexRuntimeRealization } from "../domain/indexRuntimeRealization";
-import type { PrecisionPath, RuntimeBadge, RuntimeOverlayModel, RuntimeRealizationRecord } from "../domain/types";
+import type { RuntimeBadge, RuntimeOverlayModel, RuntimeRealizationRecord } from "../domain/types";
 import { pi0GroupLabel, pi0RelationLabel, pi0ShortPrecisionLabel } from "./runtimePresentation";
 
 interface RuntimeOverlayProps {
@@ -10,18 +10,9 @@ interface RuntimeOverlayProps {
   realization: RuntimeRealizationRecord;
   overlay: RuntimeOverlayModel;
   onSelectGroup: (groupId: string) => void;
-  pi0?: boolean;
   avoidPaths?: readonly Pick<RoutedPath, "path" | "arrow">[];
   layer?: "all" | "background" | "labels";
   showPrecision?: boolean;
-}
-
-function precisionMark(precision: PrecisionPath | undefined) {
-  if (!precision) return "precision unknown";
-  const values = [precision.weightDtype, precision.activationDtype, precision.accumulationDtype]
-    .filter((value): value is string => Boolean(value))
-    .map((value) => value.replaceAll("_", " ").toUpperCase());
-  return [...new Set(values)].join("/") || precision.label;
 }
 
 function activate(event: KeyboardEvent<SVGGElement>, action: () => void) {
@@ -40,21 +31,6 @@ export interface LabelBox {
 
 const LABEL_GAP = 10;
 const NODE_CLEARANCE = 8;
-
-const SHORT_PRECISION_LABELS: Readonly<Record<string, string>> = {
-  "mixed-bf16-fp32": "BF16/FP32",
-  "mixed-fp8-e4m3-fp16": "FP8/FP16",
-  "q8_0-weight-only": "Q8_0 wt/FP16",
-  "uniform-fp16": "FP16",
-  "flashrt-fp16-control": "FP16 ctrl",
-  "flashrt-pi05-fp16-control": "FP16 ctrl",
-  "lerobot-fp32-attention-control": "FP32 ctrl",
-};
-
-function shortPrecisionMark(precision: PrecisionPath | undefined) {
-  if (!precision) return "precision";
-  return SHORT_PRECISION_LABELS[precision.precisionPathId] ?? precision.label;
-}
 
 function intersects(first: LabelBox, second: LabelBox) {
   return !(
@@ -213,7 +189,6 @@ export function RuntimeOverlay({
   realization,
   overlay,
   onSelectGroup,
-  pi0 = false,
   avoidPaths = [],
   layer = "all",
   showPrecision = true,
@@ -227,31 +202,21 @@ export function RuntimeOverlay({
       height: box.height + NODE_CLEARANCE * 2,
     })),
     ...layout.scopeBoxes.map((box) => ({ x: box.x, y: box.y, width: box.width, height: box.headerHeight + 3 })),
-    ...(pi0 ? layout.stageBoxes.flatMap((box) => [
+    ...layout.stageBoxes.flatMap((box) => [
       { x: box.x - 4, y: box.y, width: 8, height: box.height },
       { x: box.x + box.width - 4, y: box.y, width: 8, height: box.height },
-    ]) : []),
-    ...(pi0 ? pathClearanceBoxes(avoidPaths) : []),
+    ]),
+    ...pathClearanceBoxes(avoidPaths),
   ];
   const labelledGroups = new Set<string>();
   const boundaryLabels = overlay.boundaries.flatMap((boundary) => {
     if (labelledGroups.has(boundary.groupId)) return [];
-    if (!pi0) labelledGroups.add(boundary.groupId);
     const group = index.groupById.get(boundary.groupId);
     const precision = index.precisionById.get(boundary.precisionPathId);
-    const labels = pi0
-      ? showPrecision ? [`${pi0RelationLabel(boundary.relation)} · ${pi0ShortPrecisionLabel(precision?.precisionPathId ?? "", precision?.label ?? "精度未建立")}`, "融合"] : ["融合"]
-      : [...new Set([
-          `Fused · ${precisionMark(precision)}`,
-          `Fused · ${shortPrecisionMark(precision)}`,
-    ])];
+    const labels = showPrecision ? [`${pi0RelationLabel(boundary.relation)} · ${pi0ShortPrecisionLabel(precision?.precisionPathId ?? "", precision?.label ?? "精度未建立")}`, "融合"] : ["融合"];
     for (const label of labels) {
-      const width = pi0
-        ? pi0LabelWidth(label, label === "融合" ? 42 : 92)
-        : Math.max(106, label.length * 8.1 + 18);
-      const box = pi0
-        ? placePi0BoundaryLabel(boundary.box, width, layout, occupied)
-        : placeRuntimeLabel(boundary.box, width, layout, occupied, true);
+      const width = pi0LabelWidth(label, label === "融合" ? 42 : 92);
+      const box = placePi0BoundaryLabel(boundary.box, width, layout, occupied);
       if (box) {
         labelledGroups.add(boundary.groupId);
         return [{ boundary, group, label, box }];
@@ -260,7 +225,7 @@ export function RuntimeOverlay({
     return [];
   });
   const compactBadgeEntries: Array<{ ref: string; badge: RuntimeBadge }> = [];
-  if (pi0) {
+  {
     const compactGroups = new Set(labelledGroups);
     const eliminatedMappings = new Set<string>();
     [...overlay.badgesByNode].forEach(([ref, badges]) => {
@@ -307,34 +272,25 @@ export function RuntimeOverlay({
       });
     });
   }
-  const badgeEntries = pi0
-    ? compactBadgeEntries
-    : [...overlay.badgesByNode].flatMap(([ref, badges]) => badges.map((badge) => ({ ref, badge })));
+  const badgeEntries = compactBadgeEntries;
   const positionedBadges = badgeEntries.flatMap(({ ref, badge }) => {
     const anchor = layout.nodeBoxes.get(ref);
     if (!anchor) return [];
     const group = badge.groupId ? index.groupById.get(badge.groupId) : undefined;
-    const label = !pi0 && badge.kind === "precision" && group
-        ? precisionMark(index.precisionById.get(group.precisionPathId))
-        : badge.label;
+    const label = badge.label;
     const precision = group ? index.precisionById.get(group.precisionPathId) : undefined;
-    const labels = !pi0 && badge.kind === "precision" ? [...new Set([label, shortPrecisionMark(precision)])]
-      : pi0 && badge.kind === "precision" && precision?.quantScheme === "q8_0_weight_only" ? [label, "Q8_0"] : [label];
+    const labels = badge.kind === "precision" && precision?.quantScheme === "q8_0_weight_only" ? [label, "Q8_0"] : [label];
     for (const candidateLabel of labels) {
-      const width = pi0
-        ? pi0LabelWidth(candidateLabel, 42)
-        : Math.max(48, candidateLabel.length * 8.2 + 16);
-      const box = pi0
-        ? placePi0BadgeLabel(anchor, width, layout, occupied)
-        : placeRuntimeLabel(anchor, width, layout, occupied);
+      const width = pi0LabelWidth(candidateLabel, 42);
+      const box = placePi0BadgeLabel(anchor, width, layout, occupied);
       if (box) return [{ ref, badge, group, label: candidateLabel, box }];
     }
     // A short precision chip fits inside the node header when adjacent lanes
     // and dependency paths leave no collision-free external label position.
-    if (pi0 && badge.kind === "precision" && precision?.quantScheme === "q8_0_weight_only" && anchor.height >= 38 && anchor.width >= 48) {
+    if ( badge.kind === "precision" && precision?.quantScheme === "q8_0_weight_only" && anchor.height >= 38 && anchor.width >= 48) {
       return [{ref,badge,group,label:"Q8_0",box:{x:anchor.x+2,y:anchor.y+1,width:anchor.width-4,height:11}}];
     }
-    if (pi0 && group?.kernelSignatureIds.length && anchor.height >= 38 && anchor.width >= 48) {
+    if ( group?.kernelSignatureIds.length && anchor.height >= 38 && anchor.width >= 48) {
       return [{ref,badge,group,label:"Kernel",box:{x:anchor.x+2,y:anchor.y+1,width:anchor.width-4,height:11}}];
     }
     return [];
@@ -372,9 +328,7 @@ export function RuntimeOverlay({
           className="runtime-boundary-label"
           role="button"
           tabIndex={0}
-          aria-label={pi0
-            ? `查看融合计算：${group ? pi0GroupLabel(group.label) : boundary.groupId}`
-            : `Inspect fused execution group ${group?.label ?? boundary.groupId}`}
+          aria-label={`查看融合计算：${group ? pi0GroupLabel(group.label) : boundary.groupId}`}
           onClick={() => onSelectGroup(boundary.groupId)}
           onKeyDown={(event) => activate(event, () => onSelectGroup(boundary.groupId))}
         >
@@ -398,7 +352,7 @@ export function RuntimeOverlay({
               role={action ? "button" : undefined}
               tabIndex={action ? 0 : undefined}
               aria-label={action
-                ? pi0 ? `查看计算：${group ? pi0GroupLabel(group.label) : badge.groupId}` : `Inspect ${group?.label ?? badge.groupId}`
+                ? `查看计算：${group ? pi0GroupLabel(group.label) : badge.groupId}`
                 : label}
               onClick={action ?? undefined}
               onKeyDown={action ? (event) => activate(event, action) : undefined}

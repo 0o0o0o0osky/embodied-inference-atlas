@@ -1,3 +1,4 @@
+import { pathCrossesNodes, routeAroundNodes } from "./obstacleRouting";
 import type {
   ConnectorHint,
   ConnectorResolution,
@@ -57,7 +58,7 @@ function routeBuilder(connectorId: string) {
 
 function stageForNode(layout: LogicalLayout, dag: LogicalDag, ref: LogicalRef) {
   const stageId = dag.nodes.get(ref)?.stageId;
-  return layout.stageBoxes.find((stage) => stage.stageId === stageId);
+  return layout.stageBoxes.find((stage) => stage.stageId === stageId || (stageId !== undefined && stage.stageIds?.includes(stageId)));
 }
 
 function pairPath(
@@ -346,6 +347,17 @@ export function resolveConnectorHints(
     else if (hint.kind === "rail") routeRail(hint, layout, dag, builder.add);
     else if (hint.kind === "feedback") routeFeedback(hint, layout, dag, builder.add);
     else routePairs(hint, layout, builder.add);
+    if (presentation.avoidNodeObstacles && builder.paths.some(path => pathCrossesNodes(path.path,
+      [...layout.nodeBoxes].filter(([ref]) => !path.sourceRefs.includes(ref) && !path.targetRefs.includes(ref)).map(([, box]) => box)))) {
+      const replacements = hint.pairs.map(([source, target]) => {
+        const sourceBox = layout.nodeBoxes.get(source), targetBox = layout.nodeBoxes.get(target);
+        return sourceBox && targetBox ? routeAroundNodes(sourceBox, targetBox, layout) : null;
+      });
+      if (replacements.every(path => path !== null)) {
+        builder.paths.splice(0);
+        hint.pairs.forEach(([source, target], index) => builder.add(replacements[index]!, true, [source], [target]));
+      }
+    }
     hint.pairs.forEach(([source, target]) => {
       const hasRenderedPath = builder.paths.some(
         (path) => path.sourceRefs.includes(source) && path.targetRefs.includes(target),

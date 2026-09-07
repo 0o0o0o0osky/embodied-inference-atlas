@@ -162,7 +162,7 @@ export function resolveFocusViewport(
     },
   );
   const viewport = fitToCanvas(bounds, layout);
-  const stage = layout.stageBoxes.find((box) => box.stageId === selectedNode.stageId);
+  const stage = layout.stageBoxes.find((box) => box.stageId === selectedNode.stageId || box.stageIds?.includes(selectedNode.stageId));
   // Keep the authored canvas aspect ratio so focused content fills the SVG.
   // A stage is a centering preference, not a hard crop: narrow stage crops
   // create letterboxing and unnecessarily restrict the manual camera.

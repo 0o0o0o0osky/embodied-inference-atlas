@@ -39,6 +39,8 @@ function gatedResidualRows(scope: string): RowSpec[] {
 }
 
 export const pi05Presentation: GraphPresentation = {
+  avoidNodeObstacles: true,
+  stageColumns: [["vision-encoder"], ["prefix-encoder"], ["action-flow-decoder", "public-output"]],
   rowsByStage: {
     "vision-encoder": [
       scopedRow("vision-encoder/image-patch-embedding", ["patch-project"]),
@@ -108,7 +110,7 @@ export const pi05Presentation: GraphPresentation = {
     "control/action-flow-loop/timestep": "tₖ",
     "output/prefix-stack-output": "Prefix hidden (unused)",
     "output/public-action-chunk": "Public actions · 32D",
-    "public-output/public-action-slice/public-action-slice": "identity 32 → 32",
+    "public-output/public-action-slice/public-action-slice": "输出选择",
   },
   visualOverrides: {
     [`${PREFIX_ATTENTION}/key-cache-output`]: "storage",

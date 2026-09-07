@@ -1,4 +1,5 @@
 import { AnalysisPlaceholder, type AnalysisPlaceholderProps } from '../../components/AnalysisPlaceholder';
+import { runtimeEvidenceSelectionPatch } from './domain/pi0PerformanceNavigation';
 import { modelAnalysisDescriptor } from './domain/modelAnalysisDescriptor';
 import { ExistingPerformanceComparison } from './components/ExistingPerformanceComparison';
 import { useMemo } from 'react';
@@ -43,8 +44,8 @@ export function RuntimeAnalysisWorkspace({data, model, record, route, navigate}:
   const precisionLabel = pi0PrecisionLabel(actualPrecision ?? 'unknown',actualPrecision ?? '未记录');
   const selectedWorkload = selectedRun?.workload.vla ?? {camera_views:overrides.V ?? null,executed_prompt_tokens:overrides.L_PROMPT ?? null,action_chunk:overrides.T_ACTION ?? null,denoise_steps:overrides.N_DENOISE ?? null};
   const hasLatency = selectedRun?.evidence === 'measured_local' && selectedEvidence?.measurement.evidence === 'measured_local' && selectedEvidence.selected?.value != null;
-  const currentProtocol = isPi0 && selectedRun?.timing.warmup_iterations === PI0_PERFORMANCE_TARGET.warmupIterations && selectedEvidence?.measurement.sampleCount === PI0_PERFORMANCE_TARGET.sampleCount
-    && selectedWorkload.executed_prompt_tokens === 48 && selectedWorkload.denoise_steps === 10 && (overview?.availableActionChunks ?? [20,50]).includes(selectedWorkload.action_chunk ?? 0);
+  const currentProtocol = selectedRun?.timing.warmup_iterations === PI0_PERFORMANCE_TARGET.warmupIterations && selectedEvidence?.measurement.sampleCount === PI0_PERFORMANCE_TARGET.sampleCount
+    && (!isPi0 || selectedWorkload.executed_prompt_tokens === 48 && selectedWorkload.denoise_steps === 10 && (overview?.availableActionChunks ?? [20,50]).includes(selectedWorkload.action_chunk ?? 0));
   const group = overview?.groups.find(item=>item.runtimeId === route.runtime && item.precisionId === actualPrecision);
   const supportCells = group?.facets.length ? group.facets.map(item=>item.series.find(series=>series.actionChunk === selectedWorkload.action_chunk)?.cells.find(cell=>cell.cameraViews === selectedWorkload.camera_views))
     : group?.unmeasuredSeries?.find(series=>series.actionChunk === selectedWorkload.action_chunk)?.cells.filter(cell=>cell.cameraViews === selectedWorkload.camera_views) ?? [];
@@ -66,11 +67,9 @@ export function RuntimeAnalysisWorkspace({data, model, record, route, navigate}:
     hardware:selection.hardwareId,workload:selection.configurationId,selectedRun:selection.runId,
     inputShape: Object.values(selection.workload).every(value=>value!==null)
       ? `v=${selection.workload.cameraViews},p=${selection.workload.promptTokens},a=${selection.workload.actionChunk},n=${selection.workload.denoiseSteps}` : route.inputShape ?? null,
-    analysisView:route.selectedRun===selection.runId?route.analysisView??'system':'system',
-    entity:route.selectedRun===selection.runId?route.entity:null,
-    timelineCapture:route.selectedRun===selection.runId?route.timelineCapture:null,basis:null,rooflineLevel:'overview',
+    ...runtimeEvidenceSelectionPatch(route, selection.runId), basis:null,rooflineLevel:'overview',
   });
-  return <section className="model-graph-workspace pi0-workspace pi0-runtime-workspace runtime-analysis-workspace" aria-labelledby="runtime-analysis-title">
+  return <section className="model-graph-workspace model-workspace pi0-runtime-workspace runtime-analysis-workspace" aria-labelledby="runtime-analysis-title">
     <h2 id="runtime-analysis-title" className="visually-hidden">{model.display_name} 运行表现</h2>
     <Pi0PerformanceNavigation route={route} navigate={navigate} surface="runtime" />
     <div hidden={Boolean(route.runtime)}>

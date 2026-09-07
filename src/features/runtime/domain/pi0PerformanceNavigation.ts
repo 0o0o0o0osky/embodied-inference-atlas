@@ -53,3 +53,10 @@ export function pi0EmbeddedTimelineSelectionPatch(selection: EmbeddedTimelineSel
     entity: selection.entity,
   };
 }
+
+/** Returning to the same measured inference keeps its selected analysis object. */
+export function runtimeEvidenceSelectionPatch(route: RouteState, runId: string): Pick<RoutePatch, 'analysisView' | 'entity' | 'timelineCapture'> {
+  const same = route.selectedRun === runId;
+  return { analysisView: same ? route.analysisView ?? 'system' : 'system',
+    entity: same ? route.entity : null, timelineCapture: same ? route.timelineCapture : null };
+}

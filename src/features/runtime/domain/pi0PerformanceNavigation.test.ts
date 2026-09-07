@@ -1,3 +1,4 @@
+import { runtimeEvidenceSelectionPatch } from './pi0PerformanceNavigation';
 import { expect, it } from "vitest";
 import { readRoute, routeHref, type RouteState } from "../../../app/routes";
 import { isPi0ModelTheory, pi0EmbeddedTimelineSelectionPatch, pi0PerformanceNavigationPatch, pi0TheoryNavigationPatch } from "./pi0PerformanceNavigation";
@@ -66,4 +67,10 @@ it("preserves each model's operator and workload through theory expansion and re
     expect(expanded.workload).toBe(graph.workload);
     expect(readRoute(routeHref(expanded, pi0TheoryNavigationPatch(expanded, "logical")))).toEqual(graph);
   }
+});
+
+it('keeps the current analysis for the same inference and resets it for another run',()=>{
+ const route=readRoute('?model=smolvla&tab=runtime&selectedRun=run-a&analysisView=hotspots&entity=logical:stage/op&timelineCapture=trace-a');
+ expect(runtimeEvidenceSelectionPatch(route,'run-a')).toEqual({analysisView:'hotspots',entity:route.entity,timelineCapture:'trace-a'});
+ expect(runtimeEvidenceSelectionPatch(route,'run-b')).toEqual({analysisView:'system',entity:null,timelineCapture:null});
 });

@@ -1,5 +1,6 @@
-import { useState, type CSSProperties } from "react";
+import { useState } from "react";
 import type { Pi0NativeEvidenceSelection, Pi0PerformanceCell, Pi0PerformanceCoordinate, Pi0PerformanceFacet, Pi0PerformanceMeasuredCell, Pi0PerformanceOverviewModel, Pi0PerformanceSelection } from "../domain/buildPi0PerformanceOverview";
+import { RuntimePerformanceChart } from "./RuntimePerformanceChart";
 import "./pi0PerformanceOverviewChart.css";
 
 export type Pi0RoutablePerformanceSelection = Pi0PerformanceSelection | Pi0NativeEvidenceSelection;
@@ -26,11 +27,6 @@ const formatValue = (value: number) => value.toLocaleString("zh-CN", { maximumFr
 const boundaryLabel = (facet: Pi0PerformanceFacet) => BOUNDARIES[facet.contract.timingBoundaryId] ?? facet.contract.timingBoundaryId;
 function cellAt(facet: Pi0PerformanceFacet, coordinate: Pi0PerformanceCoordinate): Pi0PerformanceCell | undefined {
   return facet.series.find((series) => series.actionChunk === coordinate.actionChunk)?.cells.find((cell) => cell.cameraViews === coordinate.cameraViews);
-}
-function chartCeiling(value: number): number {
-  if (value <= 0) return 200;
-  const magnitude = 10 ** Math.floor(Math.log10(value));
-  return Math.ceil(value / magnitude / 0.5) * magnitude * 0.5;
 }
 function representativeCell(cells: readonly Pi0PerformanceMeasuredCell[], selectedRunId: string | null) {
   // A stable record selection, never a minimum latency or a pooled percentile.
@@ -76,9 +72,6 @@ export function Pi0PerformanceOverviewChart({ model, selectedRunId, onSelectEvid
       missing: unsupported ? support : ambiguous ? '多条记录待复核' : '暂无此形状的 P48 实测' }];
   });
   const measured = columns.filter((column) => column.cell?.latency.unit === "ms");
-  const maximum = chartCeiling(Math.max(0, ...measured.map((column) => column.cell!.latency.value)));
-  const statistics = [...new Set(measured.map((column) => column.cell!.latency.statistic))];
-  const axisStatistic = statistics.length === 1 ? statisticLabel(statistics[0]!) : "各自记录的统计量";
   return <section className="pi0-performance-overview" aria-labelledby="pi0-performance-overview-title">
     <header className="pi0-overview-heading">
       <div><h3 id="pi0-performance-overview-title">推理耗时对比</h3><p>{model.hardwareLabel} · 提示词 48 token · 去噪 10 步 · 预热 {model.target.warmupIterations} 次 / 测量 {model.target.sampleCount} 次</p></div>
@@ -87,26 +80,21 @@ export function Pi0PerformanceOverviewChart({ model, selectedRunId, onSelectEvid
         <fieldset><legend>动作块长度</legend><div>{model.availableActionChunks.map((value) => <button key={value} type="button" aria-pressed={coordinate.actionChunk === value} onClick={() => setCoordinate({ ...coordinate, actionChunk: value })}>{value}</button>)}</div></fieldset>
       </div>
     </header>
-    <figure className="pi0-runtime-chart" aria-label={`视角 ${coordinate.cameraViews}，动作块 ${coordinate.actionChunk} 的推理栈耗时柱状图`}>
-      <figcaption><span>推理耗时 / ms{measured.length ? ` · ${axisStatistic}` : ""}</span><span>越低越快</span></figcaption>
-      <div className="pi0-runtime-plot">
-        <div className="pi0-runtime-grid" aria-hidden="true">{[1, 0.75, 0.5, 0.25, 0].map((fraction) => <div key={fraction} style={{ top: `${(1 - fraction) * 100}%` }}><span>{formatValue(maximum * fraction)}</span></div>)}</div>
-        <div className="pi0-runtime-columns" style={{ "--pi0-column-count": columns.length || 1 } as CSSProperties}>
-          {columns.map((column) => {
-            const { cell, facet } = column;
-            return <div key={`${column.id}-${coordinate.cameraViews}-${coordinate.actionChunk}`} className="pi0-runtime-column" data-runtime={column.runtimeId}>
-              <div className="pi0-runtime-column-plot">
-                {cell && cell.latency.unit === "ms" ? <button type="button" className={`pi0-runtime-bar${selectedRunId === cell.selection.runId ? " is-selected" : ""}`} style={{ height: `${cell.latency.value / maximum * 100}%` }} onClick={() => onSelectEvidence(cell.selection)} aria-label={`${column.runtimeLabel} ${precisionLabel(column.precisionId)}，${statisticLabel(cell.latency.statistic)} ${formatValue(cell.latency.value)} ms，查看推理栈`} title={`${facet ? boundaryLabel(facet) : ""}；点击查看推理栈`}><strong>{formatValue(cell.latency.value)}</strong></button>
-                  : <span className="pi0-runtime-missing">{cell ? `记录单位 ${cell.latency.unit}` : column.missing}</span>}
-              </div>
-              <div className="pi0-runtime-column-label"><strong>{column.runtimeLabel}</strong><span>{precisionLabel(column.precisionId)}</span>{column.contractIndex ? <small>独立口径 {column.contractIndex}</small> : null}</div>
-              {column.alternative ? <button type="button" className="pi0-runtime-source-link" onClick={()=>onSelectEvidence(column.alternative!.selection)}>查看已有测量 · 块 {column.alternative.actionChunk}</button> : onInspectRuntime ? <button type="button" className="pi0-runtime-source-link" onClick={() => onInspectRuntime(column.runtimeId, column.precisionId, coordinate)}>查看推理栈</button> : null}
-            </div>;
-          })}
-        </div>
-      </div>
-      <p className="pi0-runtime-chart-note">{measured.length ? "点击柱子查看系统耗时、执行热点与计算复用。计时边界、精度可能不同，仅并列展示实测耗时。" : "当前输入形状还没有可绘制的实测数据；可切换形状或查看已有记录。"}</p>
-    </figure>
+    <RuntimePerformanceChart label={`视角 ${coordinate.cameraViews}，动作块 ${coordinate.actionChunk} 的推理栈耗时柱状图`}
+      columns={columns.map(column => ({
+        id: `${column.id}-${coordinate.cameraViews}-${coordinate.actionChunk}`,
+        runtimeId: column.runtimeId, runtimeLabel: column.runtimeLabel, precisionLabel: precisionLabel(column.precisionId),
+        latencyMs: column.cell?.latency.unit === 'ms' ? column.cell.latency.value : null,
+        statistic: column.cell?.latency.statistic ?? null,
+        missing: column.cell ? `记录单位 ${column.cell.latency.unit}` : column.missing,
+        selected: selectedRunId === column.cell?.selection.runId,
+        ...(column.contractIndex ? { contractLabel: `独立口径 ${column.contractIndex}` } : {}),
+        title: column.facet ? boundaryLabel(column.facet) : '',
+        ...(column.cell ? { onSelect: () => onSelectEvidence(column.cell!.selection) } : {}),
+        ...(column.alternative ? { onInspect: () => onSelectEvidence(column.alternative!.selection), inspectLabel: `查看已有测量 · 块 ${column.alternative.actionChunk}` }
+          : onInspectRuntime ? { onInspect: () => onInspectRuntime(column.runtimeId, column.precisionId, coordinate) } : {}),
+      }))}
+      note={measured.length ? '点击柱子查看系统耗时、执行热点与执行优化。计时边界与精度见测量口径。' : '当前输入形状还没有可绘制的实测数据；可切换形状或查看已有记录。'} />
     <details className="pi0-runtime-evidence">
       <summary>测量口径与已有记录</summary>
       <p className="pi0-runtime-chart-note">主图仅展示预热 5 次、正式测量 10 次的记录。旧采样口径保留在数据中，不混入当前对比。</p>

@@ -1,3 +1,11 @@
+import { pathCrossesNodes, routeAroundNodes } from "./obstacleRouting";
+import pi0Document from "../../../../data/model_graphs/pi0.json";
+import pi05Document from "../../../../data/model_graphs/pi05.json";
+import smolDocument from "../../../../data/model_graphs/smolvla.json";
+import type { CanonicalRecord } from "../../../types/atlas";
+import { adaptV1ModelGraph } from "../domain/adaptV1ModelGraph";
+import { adaptLogicalDag } from "../domain/adaptLogicalDag";
+import { resolvePresentationProfile } from "../presentation/registry";
 import { describe, expect, it } from "vitest";
 
 import type { GraphPresentation, LogicalDag, LogicalNode } from "../domain/types";
@@ -126,4 +134,66 @@ describe("paper transformer layout", () => {
       uncoveredEdgeIds: [],
     });
   });
+});
+
+it("groups public output below the action stage without changing logical identities or edge coverage", () => {
+  for (const document of [pi05Document, smolDocument]) {
+    const graph = adaptV1ModelGraph(document.records[0] as unknown as CanonicalRecord);
+    const dag = adaptLogicalDag(graph);
+    const presentation = resolvePresentationProfile(graph, dag).presentation;
+    const layout = layoutLogicalDag(dag, presentation);
+    expect(layout.width).toBe(1080);
+    expect(layout.stageBoxes.map(box => box.stageId)).toEqual(["vision-encoder", "prefix-encoder", "action-flow-decoder"]);
+    expect(layout.diagnostics).toEqual([]);
+    expect(layout.nodeBoxes.size).toBe(dag.nodes.size);
+    const publicRef = "public-output/public-action-slice/public-action-slice";
+    expect(dag.nodes.get(publicRef)?.stageId).toBe("public-output");
+    const action = layout.stageBoxes[2]!;
+    const publicBox = layout.nodeBoxes.get(publicRef)!;
+    const actionOperators = [...dag.nodes.values()].filter(node => node.stageId === "action-flow-decoder" && node.kind === "operator");
+    expect(publicBox.y).toBeGreaterThan(Math.max(...actionOperators.map(node => layout.nodeBoxes.get(node.ref)!.y)));
+    expect(publicBox.x).toBeGreaterThan(action.x);
+    expect(publicBox.x + publicBox.width).toBeLessThan(action.x + action.width);
+    const routes = resolveConnectorHints(dag, presentation, layout);
+    expect(routes.coverage.uncoveredEdgeIds).toEqual([]);
+    for (const connector of routes.connectors) for (const path of connector.paths) {
+      const obstacles = [...layout.nodeBoxes].filter(([ref]) =>
+        !path.sourceRefs.includes(ref) && !path.targetRefs.includes(ref)).map(([, box]) => box);
+      expect(pathCrossesNodes(path.path, obstacles), `${graph.modelId}: ${connector.id}`).toBe(false);
+    }
+    const denoise = dag.scopes.find(scope => scope.kind === "denoise");
+    const loopBox = layout.scopeBoxes.find(box => box.scopeId === denoise?.id);
+    expect(publicBox.y).toBeGreaterThan(loopBox!.y + loopBox!.height);
+    expect(routes.connectors.every(connector => connector.paths.every(path => !path.path.includes("NaN")))).toBe(true);
+  }
+});
+it("keeps the accepted Pi0 geometry byte-for-byte", () => {
+  const graph = adaptV1ModelGraph(pi0Document.records[0] as unknown as CanonicalRecord);
+  const dag = adaptLogicalDag(graph);
+  const layout = layoutLogicalDag(dag, resolvePresentationProfile(graph, dag).presentation);
+  const source = [...layout.nodeBoxes].sort(([a], [b]) => a.localeCompare(b))
+    .map(([ref, box]) => `${ref}@${box.x},${box.y},${box.width},${box.height}`).join("|");
+  let hash = 2166136261;
+  for (let i = 0; i < source.length; i++) { hash ^= source.charCodeAt(i); hash = Math.imul(hash, 16777619); }
+  expect(`${layout.width}x${layout.height}:${layout.nodeBoxes.size}:${(hash >>> 0).toString(16)}`).toBe("1080x1498:75:29090707");
+});
+
+it("ends obstacle fallback at the node edge with a nonzero perpendicular segment", () => {
+  const box = (x: number, y: number) => ({ x, y, width: 40, height: 20, compact: false, inline: false, row: 0, lane: 0 });
+  const source = box(20, 20), target = box(20, 100);
+  const layout = { nodeBoxes: new Map([["source", source], ["target", target]]) } as unknown as Parameters<typeof routeAroundNodes>[2];
+  expect(routeAroundNodes(source, target, layout)).toBe("M 40 40 V 100");
+  const shifted = box(100, 100);
+  const path = routeAroundNodes(source, shifted, { ...layout, nodeBoxes: new Map([["source", source], ["target", shifted]]) })!;
+  let x = 0, y = 0, dx = 0, dy = 0;
+  for (const part of path.match(/[MHV][^MHV]*/g)!) {
+    const [a, b] = part.slice(1).trim().split(/\s+/).map(Number);
+    const nextX = part[0] === "V" ? x : a!, nextY = part[0] === "H" ? y : part[0] === "V" ? a! : b!;
+    if (part[0] !== "M") expect(Math.abs(nextX - x) + Math.abs(nextY - y)).toBeGreaterThan(0);
+    dx = nextX - x; dy = nextY - y; x = nextX; y = nextY;
+  }
+  if (y === shifted.y) expect(dx === 0 && dy > 0).toBe(true);
+  else if (y === shifted.y + shifted.height) expect(dx === 0 && dy < 0).toBe(true);
+  else if (x === shifted.x) expect(dy === 0 && dx > 0).toBe(true);
+  else expect(x === shifted.x + shifted.width && dy === 0 && dx < 0).toBe(true);
 });

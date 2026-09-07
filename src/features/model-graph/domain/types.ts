@@ -151,6 +151,9 @@ export interface ConnectorHint {
 }
 
 export interface GraphPresentation {
+  /** Ordered canonical stages sharing one visual column; omitted stages keep their own column. */
+  stageColumns?: readonly (readonly string[])[];
+  avoidNodeObstacles?: boolean;
   rowsByStage: Readonly<Record<string, readonly RowSpec[]>>;
   boundaryLanes: Readonly<Record<string, StageBoundarySpec>>;
   aliases: Readonly<Record<LogicalRef, string>>;
@@ -172,6 +175,7 @@ export interface NodeBox {
 
 export interface StageBox {
   stageId: string;
+  stageIds?: readonly string[];
   label: string;
   description: string;
   x: number;

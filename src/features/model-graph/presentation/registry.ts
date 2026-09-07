@@ -11,12 +11,8 @@ import { smolvlaPresentation } from "./smolvlaPresentation";
 
 export interface GraphPresentationProfile {
   presentation: GraphPresentation;
-  title: string;
-  summary: string;
-  callout: { label: string; value: string; note: string };
   panelLabel: string;
   diagramLabel: string;
-  workloadNote: string;
 }
 
 interface ProfileSpec extends Omit<GraphPresentationProfile, "presentation"> {
@@ -93,11 +89,11 @@ const operatorAliases: Readonly<Record<string, string>> = {
   "final-norm": "Final RMSNorm",
   "velocity-projection": "Velocity",
   "euler-update": "Euler",
-  "grid-rearrange": "4×4 merge",
+  "grid-rearrange": "Patch-grid merge",
   "connector-projection": "Project",
-  "connector-scale": "×√960",
-  "prompt-scale": "×√960",
-  "pad-state": "pad to 32",
+  "connector-scale": "×√DOUT",
+  "prompt-scale": "×√D",
+  "pad-state": "Zero-pad state",
   "state-projection": "State token",
   "pair-key-layers": "K layer pairs",
   "pair-value-layers": "V layer pairs",
@@ -108,44 +104,20 @@ const profiles: Readonly<Record<string, ProfileSpec>> = {
   "pi0-logical-v1": {
     presentation: pi0Presentation,
     connectors: "authored",
-    title: "Pi0 logical model",
-    summary: "One authored dependency diagram. Select a short operator label to inspect its tensors and computation.",
-    callout: {
-      label: "Required prefix output",
-      value: "17 full blocks + L18 K/V tail",
-      note: "Logical semantics; runtime work is a later overlay.",
-    },
     panelLabel: "Pi0 logical operator graph",
     diagramLabel: "Pi0 logical operator graph with three authored stage columns",
-    workloadNote: "Measured native workloads are evidence annotations, not limits on these logical bindings.",
   },
   "pi05-droid-logical-v1": {
     presentation: pi05Presentation,
     connectors: "derived",
-    title: "Pi0.5 logical model",
-    summary: "The evidenced DROID checkpoint, shown as a prefix pass followed by time-conditioned flow matching.",
-    callout: {
-      label: "Full prefix execution",
-      value: "18 complete layers",
-      note: "AdaRMS scale, shift, and gates are conditioned by time; time is not an action token.",
-    },
     panelLabel: "Pi0.5 logical operator graph",
-    diagramLabel: "Pi0.5 logical operator graph with four authored stage columns",
-    workloadNote: "Prompt length is the executed post-tokenization length. Native preprocessing and runtime-executed camera slots remain evidence annotations, not UI limits.",
+    diagramLabel: "Pi0.5 logical operator graph with three stage columns with a final action output region",
   },
   "smolvla-base-logical-v1": {
     presentation: smolvlaPresentation,
     connectors: "derived",
-    title: "SmolVLA logical model",
-    summary: "Vision and language form a cached prefix; eight ordered self/cross expert pairs update the flow state.",
-    callout: {
-      label: "Action boundary",
-      value: "50×32 internal → 50×6 public",
-      note: "The public slice is part of the model contract; prefix cache and flow state stay distinct.",
-    },
     panelLabel: "SmolVLA logical operator graph",
-    diagramLabel: "SmolVLA logical operator graph with four authored stage columns",
-    workloadNote: "The saved raw feature declaration is 256×256; policy execution uses 512×512. Editable workload values keep true minima without artificial maxima.",
+    diagramLabel: "SmolVLA logical operator graph with three stage columns with a final action output region",
   },
 };
 
@@ -178,16 +150,8 @@ function fallbackSpec(graph: MaterializedGraph, dag: LogicalDag): ProfileSpec {
       connectorHints: [],
     },
     connectors: "derived",
-    title: graph.label,
-    summary: "Canonical logical operators and declared tensor dependencies.",
-    callout: {
-      label: "Canonical graph",
-      value: graph.graphId,
-      note: "Runtime work remains a separate overlay.",
-    },
     panelLabel: `${graph.label} logical operator graph`,
     diagramLabel: `${graph.label} logical operator graph`,
-    workloadNote: "Editable workload values use their canonical defaults and true minima.",
   };
 }
 
@@ -205,7 +169,7 @@ export function resolvePresentationProfile(
       ...spec.presentation,
       aliases: { ...aliasesFor(dag), ...spec.presentation.aliases },
       connectorHints: connectors === "derived"
-        ? deriveConnectorHints(dag, spec.presentation.connectorHints)
+        ? deriveConnectorHints(dag, spec.presentation.connectorHints, spec.presentation.stageColumns)
         : spec.presentation.connectorHints,
     },
   };

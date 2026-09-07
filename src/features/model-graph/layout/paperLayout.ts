@@ -224,18 +224,25 @@ export function layoutLogicalDag(
     ),
   );
 
-  dag.stageOrder.forEach((stageId, stageIndex) => {
+  const assigned = new Set(presentation.stageColumns?.flat() ?? []);
+  const columns = presentation.stageColumns
+    ? [...presentation.stageColumns.map(ids => ids.filter(id => dag.stageOrder.includes(id))).filter(ids => ids.length),
+      ...dag.stageOrder.filter(id => !assigned.has(id)).map(id => [id])]
+    : dag.stageOrder.map(id => [id]);
+  columns.forEach((stageIds, stageIndex) => {
+    const stageId = stageIds[0]!;
     const stageRecord = dag.stages.find((stage) => stage.id === stageId);
     if (!stageRecord) {
       diagnostics.push(`Missing stage record: ${stageId}`);
       return;
     }
     const stageRefs = [...dag.nodes.values()]
-      .filter((node) => node.stageId === stageId)
+      .filter((node) => stageIds.includes(node.stageId))
       .map((node) => node.ref);
     const x = PAPER_LAYOUT.margin + stageIndex * (PAPER_LAYOUT.columnWidth + PAPER_LAYOUT.columnGap);
     const stage: StageBox = {
       stageId,
+      ...(stageIds.length > 1 ? { stageIds } : {}),
       label: stageRecord.label,
       description: stageRecord.description,
       x,
@@ -271,7 +278,15 @@ export function layoutLogicalDag(
       boundary?.loop,
     );
 
-    const rows = presentation.rowsByStage[stageId] ?? [];
+    const rows: readonly RowSpec[] = stageIds.flatMap((id, index) => {
+      const stageRows = presentation.rowsByStage[id] ?? [];
+      // A preceding stage output remains at its dependency boundary before the
+      // following stage's rows, even when both are rendered in one column.
+      const intermediateOutputs = index < stageIds.length - 1
+        ? stageRefs.filter(ref => dag.nodes.get(ref)?.stageId === id && dag.nodes.get(ref)?.kind === "output")
+        : [];
+      return [...stageRows, ...intermediateOutputs.map(ref => ({ slots: [ref], gapBefore: true }))];
+    });
     let rowY = loops.length || controls.length ? PAPER_LAYOUT.loopFirstRow : PAPER_LAYOUT.firstRow;
     let lastCenter = rowY;
     rows.forEach((row, rowIndex) => {
@@ -295,7 +310,8 @@ export function layoutLogicalDag(
       lastCenter = fallbackY - PAPER_LAYOUT.rowStep;
     }
 
-    const outputs = stageRefs.filter((ref) => dag.nodes.get(ref)?.kind === "output");
+    const outputs = stageRefs.filter((ref) => dag.nodes.get(ref)?.kind === "output"
+      && dag.nodes.get(ref)?.stageId === stageIds[stageIds.length - 1]);
     placeBoundary(
       nodeBoxes,
       dag,

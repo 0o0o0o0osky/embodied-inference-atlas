@@ -5,7 +5,7 @@ export function humanizeRuntime(value: string) {
   return value.replaceAll("_", " ");
 }
 
-const PI0_PRECISION_LABELS: Readonly<Record<string, string>> = {
+const RUNTIME_PRECISION_LABELS: Readonly<Record<string, string>> = {
   "flashrt-geglu-fp16-fp8": "FP16 输入 → FP32 逐元素计算 → FP8 输出",
   "mixed-fp8-e4m3-fp16": "选择性 FP8 E4M3 / FP16",
   "flashrt-fp16-control": "FP16 控制路径（组内）",
@@ -13,7 +13,9 @@ const PI0_PRECISION_LABELS: Readonly<Record<string, string>> = {
   "q8_0-weight-only": "Q8_0 仅权重量化 / FP32 激活",
 };
 
-const PI0_SHORT_PRECISION_LABELS: Readonly<Record<string, string>> = {
+const RUNTIME_SHORT_PRECISION_LABELS: Readonly<Record<string, string>> = {
+  "uniform-fp16": "FP16", "uniform-bf16": "BF16",
+  "flashrt-pi05-fp16-control": "FP16", "lerobot-fp32-attention-control": "FP32",
   "flashrt-geglu-fp16-fp8": "FP16→FP8",
   "mixed-fp8-e4m3-fp16": "FP8/FP16",
   "flashrt-fp16-control": "FP16",
@@ -21,7 +23,26 @@ const PI0_SHORT_PRECISION_LABELS: Readonly<Record<string, string>> = {
   "q8_0-weight-only": "Q8_0 权重/FP32",
 };
 
-const PI0_GROUP_LABELS: Readonly<Record<string, string>> = {
+const RUNTIME_GROUP_LABELS: Readonly<Record<string, string>> = {
+  "Option-sensitive FP16 prefix": "FP16 前缀计算（随选项变化）",
+  "FP16 action merged QKV": "FP16 动作 Q/K/V 合并投影",
+  "FP16 action attention region": "FP16 动作注意力计算区",
+  "FP16 action update": "FP16 动作更新",
+  "Public action view 10×7": "动作输出视图 10×7",
+  "Fused action AdaRMS": "动作 AdaRMS 融合计算",
+  "Action merged QKV GEMM": "动作 Q/K/V 合并 GEMM",
+  "Action attention runtime region": "动作注意力计算区",
+  "Velocity projection + FP32 action update": "速度投影 + FP32 动作更新",
+  "External Transformers vision + connector": "Transformers 视觉编码与连接器",
+  "Eager state projection": "状态投影（逐算子执行）",
+  "QK matmul + scale/mask": "QK 矩阵乘 + 缩放与掩码",
+  "FP32 softmax": "FP32 Softmax",
+  "Probability-value matmul": "注意力权重与 V 矩阵乘",
+  "Public action slice 32→6": "动作输出切片 32→6",
+  "Eager Euler integration": "欧拉更新（逐算子执行）",
+  "Vision attention option region": "视觉注意力可选路径",
+  "Prefix ggml flash-attention op": "前缀 ggml FlashAttention",
+  "Expert ggml flash-attention op": "动作专家 ggml FlashAttention",
   "Prefix GELU × up + FP8 cast": "前缀 GEGLU + FP8 转换",
   "Action GELU × up + FP8 cast": "动作 GEGLU + FP8 转换",
   "Prefix merged QKV GEMM": "前缀 Q/K/V 合并 GEMM",
@@ -37,15 +58,15 @@ const PI0_GROUP_LABELS: Readonly<Record<string, string>> = {
 };
 
 export function pi0PrecisionLabel(precisionId: string, fallback: string) {
-  return PI0_PRECISION_LABELS[precisionId] ?? fallback;
+  return RUNTIME_PRECISION_LABELS[precisionId] ?? fallback;
 }
 
 export function pi0ShortPrecisionLabel(precisionId: string, fallback: string) {
-  return PI0_SHORT_PRECISION_LABELS[precisionId] ?? fallback;
+  return RUNTIME_SHORT_PRECISION_LABELS[precisionId] ?? fallback;
 }
 
 export function pi0GroupLabel(label: string) {
-  return PI0_GROUP_LABELS[label] ?? label;
+  return RUNTIME_GROUP_LABELS[label] ?? label;
 }
 
 export function pi0MappingLevelLabel(value: string) {

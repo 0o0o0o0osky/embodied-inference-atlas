@@ -5,7 +5,7 @@
   background: var(--instrument-paper);
 }
 
-.atlas-frame--pi0 {
+.atlas-frame {
   --line-dark: var(--line);
 }
 
@@ -632,7 +632,7 @@
   }
 }
 
-.workbench-view.workbench-view--pi0 {
+.workbench-view.model-workbench {
   padding: 0;
 }
 

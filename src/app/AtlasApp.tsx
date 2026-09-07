@@ -36,24 +36,13 @@ export function AtlasApp() {
   }, []);
 
   useEffect(() => {
-    if (route.model === "pi0" && route.tab === "logical") {
-      document.title = "Pi0 理论 DAG — Atlas";
-      return;
-    }
-    if (route.model === "pi0" && route.tab === "runtime") {
-      document.title = "Pi0 性能对比 — Atlas";
-      return;
-    }
-    if (route.model === "pi0" && route.tab === "roofline-kernels" && route.rooflineLevel === "overview") {
-      document.title = "Pi0 理论 Roofline / 总览 — Atlas";
-      return;
-    }
-    const view = route.model ? `${route.model} / ${route.tab}` : "Model register";
-    document.title = `${view} — Embodied Inference Atlas`;
-  }, [route.model, route.rooflineLevel, route.tab]);
+    const label = loadState.kind === "ready" ? loadState.data.datasets.models.find(model => model.model_id === route.model)?.display_name : route.model;
+    const view = ({logical: "理论 DAG", runtime: "运行表现", timeline: "系统时间线", "roofline-kernels": "Roofline", "end-to-end": "总延时"} as const)[route.tab];
+    document.title = label ? `${label} ${view} — Atlas` : "模型目录 — Atlas";
+  }, [loadState, route.model, route.tab]);
 
   if (loadState.kind === "loading") {
-    return <main className="boot-state">Reading the validated Atlas snapshot…</main>;
+    return <main className="boot-state">正在加载分析工作台…</main>;
   }
 
   if (loadState.kind === "error") {
@@ -76,7 +65,7 @@ export function AtlasApp() {
   );
 
   return (
-    <div className={`atlas-frame${route.model === "pi0" ? " atlas-frame--pi0" : ""}`}>
+    <div className="atlas-frame">
       <AtlasHeader data={loadState.data} route={route} navigate={navigate} />
       {route.model && selectedModel ? (
         <Workbench

@@ -19,6 +19,8 @@ const CROSS_ATTENTION = `${EXPERT}/cross-attention`;
 const CROSS_MLP = `${EXPERT}/cross-feed-forward`;
 
 export const smolvlaPresentation: GraphPresentation = {
+  avoidNodeObstacles: true,
+  stageColumns: [["vision-encoder"], ["prefix-encoder"], ["action-flow-decoder", "public-output"]],
   rowsByStage: {
     "vision-encoder": [
       scopedRow("vision-encoder/image-patch-embedding", ["patch-project"]),
@@ -89,6 +91,11 @@ export const smolvlaPresentation: GraphPresentation = {
     },
   },
   aliases: {
+    "vision-encoder/patch-grid-connector/grid-rearrange": "图块合并",
+    "prefix-encoder/prompt-prefix-builder/image-language-concat": "图文拼接",
+    [`${SUFFIX}/action-time-concat`]: "动作拼接",
+    [`${SELF_ATTENTION}/attention`]: "Self-attention core",
+    [`${CROSS_ATTENTION}/attention`]: "Cross-attention core",
     "input/executed-images": "512² execution",
     "input/prompt-token-ids": "Prompt tokens",
     "input/state": "State scalars",
@@ -97,7 +104,7 @@ export const smolvlaPresentation: GraphPresentation = {
     "control/action-flow-loop/timestep": "tₖ",
     "output/prefix-stack-output": "VLM hidden (unused)",
     "output/public-action-chunk": "Public actions · 6D",
-    "public-output/public-action-slice/public-action-slice": "slice 32 → 6",
+    "public-output/public-action-slice/public-action-slice": "输出选择",
   },
   visualOverrides: {
     [`${PREFIX_ATTENTION}/key-cache-output`]: "storage",

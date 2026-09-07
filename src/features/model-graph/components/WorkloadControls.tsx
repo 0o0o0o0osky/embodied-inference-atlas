@@ -7,7 +7,6 @@ interface WorkloadControlsProps {
   values: Readonly<Record<string, number>>;
   onChange: (symbol: string, value: number) => void;
   onReset: () => void;
-  compact?: boolean;
   children?: ReactNode;
 }
 
@@ -20,7 +19,6 @@ export function WorkloadControls({
   values,
   onChange,
   onReset,
-  compact = false,
   children,
 }: WorkloadControlsProps) {
   const defaults = symbols.every(
@@ -30,17 +28,16 @@ export function WorkloadControls({
     <section className="graph-workload" aria-labelledby="graph-workload-title">
       <header>
         <div>
-          <h3 id="graph-workload-title">{compact ? "场景参数" : "Workload bindings"}</h3>
-          {!compact ? <p>Change shape annotations without changing the logical topology.</p> : null}
+          <h3 id="graph-workload-title">场景参数</h3>
         </div>
         <button type="button" onClick={onReset} disabled={defaults}>
-          {compact ? "恢复默认" : "Restore defaults"}
+          恢复默认
         </button>
       </header>
       <div className="graph-workload-grid">
         {symbols.map((symbol) => (
           <label key={symbol.symbol}>
-            <span>{compact ? SCENARIO_LABELS[symbol.symbol] ?? symbol.label : symbol.label}</span>
+            <span>{SCENARIO_LABELS[symbol.symbol] ?? symbol.label}</span>
             <IntegerInput
               min={symbol.minimum}
               max={symbol.maximum ?? undefined}
@@ -49,7 +46,7 @@ export function WorkloadControls({
               onValueChange={(value) => onChange(symbol.symbol, value)}
             />
             <small>
-              {compact ? <>默认 {symbol.defaultValue}，最小 {symbol.minimum}</> : <><code>{symbol.symbol}</code> · default {symbol.defaultValue} · {symbol.minimum === 0 ? "zero allowed" : `minimum ${symbol.minimum}`}</>}
+              默认 {symbol.defaultValue}，最小 {symbol.minimum}
             </small>
           </label>
         ))}
@@ -57,10 +54,10 @@ export function WorkloadControls({
       {children}
     </section>
   );
-  return compact ? (
+  return (
     <details className="graph-scenario-editor">
       <summary>场景</summary>
       {form}
     </details>
-  ) : form;
+  );
 }
