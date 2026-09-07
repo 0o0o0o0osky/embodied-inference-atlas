@@ -16,7 +16,7 @@ const ceiling=ceilingDoc.records.find(c=>c.operating_point.operating_point_id===
 
 it('renders the two real formula paths through the operator drawer even without legacy point rows',()=>{
  const html=renderToStaticMarkup(<OperatorRooflinePanel detail={detail} logicalRef={detail.ref} fullAnalysisLink={<a href="#expanded">展开</a>} result={{status:'available',value:{scenario,ceiling,bandwidthCeiling:ceiling.bandwidth[0]!,atomicPoints:[]} as never}}/>);
- expect(html).toContain('三阶段分项');expect(html).toContain('理想融合');expect(html).toContain('ar-point ar-separate');expect(html).toContain('ar-point ar-fused');
+ expect(html).toContain('三阶段分项');expect(html).toContain('理想融合');expect(html).toContain('data-point-id="separate"');expect(html).toContain('data-point-id="fused"');
  expect(html).toContain('单次调用');expect(html).toContain('特殊函数使用参考速率');expect(html).not.toContain('部分下界');expect(html).not.toMatch(/NaN|Infinity/);
  const withRepeat=renderToStaticMarkup(<OperatorExecutionEstimate detail={{...detail,effectiveRepeat:1000}} scenario={scenario} ceiling={ceiling} bandwidth={273e9}/>);
  const single=renderToStaticMarkup(<OperatorExecutionEstimate detail={{...detail,effectiveRepeat:1}} scenario={scenario} ceiling={ceiling} bandwidth={273e9}/>);
@@ -24,5 +24,15 @@ it('renders the two real formula paths through the operator drawer even without 
 });
 it('keeps unsupported hardware explicit while preserving the two paths and modeled traffic',()=>{
  const html=renderToStaticMarkup(<OperatorExecutionEstimate detail={detail} scenario={scenario} ceiling={{...ceiling,device_id:'other-device'}} bandwidth={273e9}/>);
- expect(html).toContain('三阶段分项');expect(html).toContain('全局读写');expect(html).toContain('速率待补充');expect(html).not.toContain('ar-point');
+ expect(html).toContain('三阶段分项');expect(html).toContain('建模读写');expect(html).toContain('速率待补充');expect(html).not.toContain('data-point-id=');
+});
+
+it('renders RMSNorm with the shared plot and metric table using ordinary arithmetic',()=>{
+ const rms=[...graph.operatorsByRef.values()].find(d=>d.definitionId==='rms-norm')!;
+ const html=renderToStaticMarkup(<OperatorExecutionEstimate detail={rms} scenario={scenario} ceiling={ceiling} bandwidth={273e9}/>);
+ expect(html).toContain('data-point-id="rms-norm"');expect(html).toContain('roofline-pair-metrics');
+ expect(html).toContain('基础 RMS 归一化');expect(html).toContain('FP32 算术与归约');
+ expect(html).toContain('算术强度');expect(html).not.toMatch(/NaN|Infinity/);
+ const missing=renderToStaticMarkup(<OperatorExecutionEstimate detail={rms} scenario={scenario} ceiling={ceiling} bandwidth={null}/>);
+ expect(missing).toContain('硬件速率待补充');expect(missing).not.toContain('data-point-id=');expect(missing).toContain('建模读写');
 });

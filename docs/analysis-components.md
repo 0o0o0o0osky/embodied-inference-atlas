@@ -3,6 +3,11 @@
 换模型、推理栈或设备时，先填当前实例的数据与实现描述，再使用现有视图。
 采样到交付的完整顺序见 [分析流程](single-inference-analysis.md)。
 
+DAG 的线型表示依赖语义：实线箭头是张量数据，虚线箭头是控制或跨次迭代
+（含状态反馈）。残差、缓存读取和跨模块连线沿用实际依赖，不按布线路径改线型。
+计算节点用实边框；视图／布局用胶囊或分区形状，存储用圆柱，分组／融合用淡底区域。
+映射缺失和预计算等状态用标签与颜色表达，不使用虚框或虚线数据边。
+
 ## 新页面接入契约
 
 每个模型、推理栈或硬件入口都必须使用共享壳、上下文解析、导航及选中对象。
@@ -58,6 +63,8 @@
 | 真实时间线与深度查看 | [TimelineViewport](../src/features/timeline/components/TimelineViewport.tsx)、[Perfetto 导出](../src/features/timeline/perfetto/traceExport.ts) | 一条 canonical timeline；单位转换、区间聚合、缩放与导出统一处理 |
 | 总体统计与 Kernel 热点 | [Pi0NsysSection](../src/features/runtime/components/Pi0NsysSection.tsx)、[ExecutionHotspots](../src/features/runtime/components/ExecutionHotspots.tsx) | 中位数与稳定性摘要、事件、调用配置、已确认关联；已有文件名不构成模型限制 |
 | Roofline 与硬件指标 | [Roofline 功能目录](../src/features/roofline)、[KernelNcuMetrics](../src/features/runtime/components/KernelNcuMetrics.tsx) | 对象工作量、内存域、流量口径、实际调用、设备上限和指标单位 |
+| 选中对象的 Roofline 图表与指标 | [RooflinePlot](../src/features/roofline/components/RooflinePlot.tsx)、[指标表](../src/features/roofline/components/RooflineMetricsTable.tsx)、[理论详情](../src/features/roofline/components/TheoryRooflinePanel.tsx) | 统一轴、空心理论点、实测点、指标行和折叠说明；GEMM、Attention、RMSNorm 与 Kernel 配对共用，公式不放入绘图组件 |
+| RMSNorm 理论估计 | [归一化公式](../src/features/roofline/domain/normalizationEstimate.ts)、[逻辑算子适配](../src/features/roofline/domain/rmsNormFromOperator.ts) | 行数、归一化宽度、存储位宽、普通算术/归约/rsqrt 及带宽；基础归一化与条件化仿射分别提供 |
 | Attention 两种理论路径 | [公式](../src/features/roofline/domain/attentionEstimate.ts)、[共享图表](../src/features/roofline/components/AttentionRooflinePanel.tsx) | 单次 Q/K/V 形状、各张量字节数、mask 与 Tensor/CUDA/SFU/带宽速率；硬件 profile 单独配置并标注参考假设 |
 | 布局与物化拷贝 | [ConcatCostPanel](../src/features/model-graph/components/ConcatCostPanel.tsx) | concat/reshape、单次输入与输出字节数、激活位宽与带宽；同一模板呈现预布局和物化条件 |
 | 执行优化卡片与机制图 | [RuntimeReuseDiagram](../src/features/runtime/components/RuntimeReuseDiagram.tsx)、[机制配置](../src/features/runtime/presentation/reuseMechanisms.ts) | 复用类型、生命周期、依赖、失效条件；已核对的机制配置决定选哪幅图 |

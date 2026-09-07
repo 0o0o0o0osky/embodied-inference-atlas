@@ -66,3 +66,10 @@
   .roofline-pair-chart .roofline-pair-table-wrap { padding: 0 8px 12px; }
   .roofline-pair-chart .roofline-pair-summary { flex-direction: column; align-items: flex-start; padding: 14px 16px; }
 }
+.pair-point.is-alternate .pair-point-glyph { fill: white; stroke: var(--roofline-partial); }
+.roofline-pair-legend i.is-alternate { border: 2px solid var(--roofline-partial); background: white; }
+.roofline-pair-table-wrap { overflow-x: auto; }
+.theory-roofline-panel .roofline-pair-summary strong { font-size: 14px; }
+.theory-roofline-panel .roofline-pair-inspector { font-size: 13px; }
+.theory-roofline-panel .roofline-pair-inspector .roofline-pair-table-wrap { padding: 0; }
+.theory-operation-expanded { max-width: 900px; margin: 20px auto; }

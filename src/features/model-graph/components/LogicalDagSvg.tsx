@@ -1,3 +1,4 @@
+import { routedEdgeSemantics } from "../domain/edgeSemantics";
 import { isWheelZoomGesture } from "../../workbench/wheelZoom";
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 
@@ -180,6 +181,7 @@ export function LogicalDagSvg({
 }: LogicalDagSvgProps) {
   const t = useModelText();
   const clipId = useId();
+  const edgeSemantics = routedEdgeSemantics(dag);
   const activeFocusRefs = focusRefs ?? new Set(selectedRef ? [selectedRef] : []);
   const selected = mode === "focus" && activeFocusRefs.size > 0;
   const activeViewport = viewport ?? { x: 0, y: 0, width: layout.width, height: layout.height, scopeId: null };
@@ -299,11 +301,17 @@ export function LogicalDagSvg({
         aria-label={compactControls ? "模型结构图；Ctrl + 滚轮缩放，拖动空白处平移；普通滚轮滚动页面" : "Authored-scale logical graph; use the pan buttons or scroll horizontally on narrower screens"}
         tabIndex={0}
       >
-      {!compactControls ? <div className="logical-legend" aria-hidden="true">
-        <span><i className="legend-line" />Declared tensor flow</span>
-        <span><i className="legend-line legend-line--rail" />Residual / loop rail</span>
-        <em>Horizontal = parallel · vertical = dependency</em>
-      </div> : null}
+      <details className="logical-legend-disclosure">
+        <summary>图例</summary>
+        <div className="logical-legend">
+          <span><i className="legend-line" />张量数据</span>
+          <span><i className="legend-line legend-line--iteration" />控制 / 跨次迭代</span>
+          <span><i className="legend-node" />计算</span>
+          <span><i className="legend-node legend-node--view" />视图 / 布局</span>
+          <span><i className="legend-node legend-node--storage" />存储</span>
+          <span><i className="legend-node legend-node--region" />分组 / 融合区域</span>
+        </div>
+      </details>
       <svg
         className="logical-dag"
         ref={svgRef}
@@ -416,6 +424,7 @@ export function LogicalDagSvg({
                   className={[
                     "logical-edge",
                     `logical-edge--${connector.kind}`,
+                    `logical-edge--${edgeSemantics(path)}`,
                     path.shared ? "is-shared" : "",
                     selected && incident ? "is-incident" : "",
                     selected && !incident ? "is-muted" : "",

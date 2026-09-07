@@ -2,6 +2,8 @@ import { useMemo } from "react";
 
 import type { RoutePatch, RouteState } from "../../../app/routes";
 import type { AtlasData, CanonicalRecord, ModelRecord } from "../../../types/atlas";
+import {OperatorTheoryRowsPanel} from "../../model-graph/components/OperatorRooflinePanel";
+import {buildOperatorRooflineSummary} from "../presentation/buildOperatorRooflineSummary";
 import {OperatorExecutionEstimate, supportsExecutionEstimate} from "../../model-graph/components/OperatorExecutionEstimate";
 import { adaptV1ModelGraph } from "../../model-graph/domain/adaptV1ModelGraph";
 import { adaptRuntimeRealization, isRuntimeRealizationRecord } from "../../runtime/domain/adaptRuntimeRealization";
@@ -267,10 +269,14 @@ function CoreRooflineView({
     const graph=adaptV1ModelGraph(graphRecord,{V:w.executed_camera_views,L_PROMPT:w.executed_prompt_tokens,T_ACTION:w.action_horizon,N_DENOISE:w.denoise_steps});
     return graph.operatorsByRef.get(ref) ?? null;
   },[graphRecord,route.entity,view.activeScenario,view.activeBasis]);
-  const operationEstimate = selectedDetail && supportsExecutionEstimate(selectedDetail)
-    && view.activeScenario && view.activeCeiling && view.activeBasis?.level==='atomic'
-    ? <div className="theory-operation-expanded"><OperatorExecutionEstimate detail={selectedDetail} scenario={view.activeScenario} ceiling={view.activeCeiling}
-        bandwidth={view.activeCeiling.bandwidth.find(b=>b.bandwidth_ceiling_id===view.activeBasis!.bandwidth_ceiling_id)?.byte_per_second??null}/></div> : null;
+  const operationBandwidth=view.activeCeiling?.bandwidth.find(b=>b.bandwidth_ceiling_id===view.activeBasis?.bandwidth_ceiling_id)??null;
+  const selectedSummary=selectedDetail&&view.activeScenario&&view.activeBasis&&view.activeCeiling&&operationBandwidth
+    ?buildOperatorRooflineSummary({atomicPoints:view.records,scenario:view.activeScenario,atomicBasis:view.activeBasis,ceiling:view.activeCeiling,bandwidthCeiling:operationBandwidth},selectedDetail.ref):null;
+  const operationEstimate = selectedDetail && view.activeScenario && view.activeCeiling && view.activeBasis?.level==='atomic'
+    ? supportsExecutionEstimate(selectedDetail)
+      ? <div className="theory-operation-expanded"><OperatorExecutionEstimate detail={selectedDetail} scenario={view.activeScenario} ceiling={view.activeCeiling} bandwidth={operationBandwidth?.byte_per_second??null}/></div>
+      : selectedSummary?<div className="theory-operation-expanded"><OperatorTheoryRowsPanel summary={selectedSummary}/></div>:null
+    :null;
   const basisControls = <RooflineBasisBar
     route={route}
     model={view}

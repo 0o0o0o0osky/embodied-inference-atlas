@@ -11,6 +11,10 @@ owns reusable rendering entry points.
   objects with many-to-many links. Selecting a mapped Kernel highlights its
   established location; shared work offers choices. CPU/API work can locate its
   recorded interval without a fabricated model-node association.
+- DAG arrows are solid for tensor data, dashed for control or inter-iteration
+  dependencies (including state feedback). Routing rails, residuals, cache reads
+  and missing mappings do not change that meaning. Keep node borders solid;
+  distinguish compute, layout/view, storage and grouping by shape and fill.
 - Lead with what executes, time contribution and data movement. Explain metrics
   positively. Put collection policies and a useful pinned source version in
   folded detail; omit record ordinals, duplicate repository links and empty tables.

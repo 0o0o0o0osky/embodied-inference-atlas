@@ -256,7 +256,7 @@ export function materializeCurrentPi0Roofline(input: {
 }
 
 export function buildOperatorRooflineSummary(
-  slice: Pi0AnalyticalSlice,
+  slice: Pick<Pi0AnalyticalSlice, "atomicPoints" | "scenario" | "atomicBasis" | "ceiling" | "bandwidthCeiling">,
   logicalRef: string,
 ): OperatorRooflineSummary | null {
   const points = slice.atomicPoints.filter((point) =>

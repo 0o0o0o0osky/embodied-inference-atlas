@@ -1,6 +1,6 @@
 import {expect,it} from 'vitest';
 import type {RooflineCeilingRecord} from './types';
-import {resolveAttentionHardwareProfile} from './attentionHardwareProfile';
+import {resolveAttentionHardwareProfile,resolveNormalizationHardwareProfile} from './attentionHardwareProfile';
 const ceiling:RooflineCeilingRecord={schema_version:'2.0.0',ceiling_id:'test',label:'test',device_id:'nvidia-jetson-agx-thor',
  operating_point:{operating_point_id:'test',power_mode:'120W',gpu_clock_hz:1.386e9,emc_clock_hz:null,clock_basis:'mode_assumption',sparsity_on:null},
  compute:[],bandwidth:[],missing:[]};
@@ -25,4 +25,11 @@ it('does not transfer the profile to another device, unknown clock or a differen
  expect(resolveAttentionHardwareProfile({...ceiling,operating_point:{...ceiling.operating_point,gpu_clock_hz:null,clock_basis:'unknown'}}).rates).toEqual(empty);
  // A clock changed independently of the power label must not retain the published rate.
  expect(resolveAttentionHardwareProfile({...ceiling,operating_point:{...ceiling.operating_point,gpu_clock_hz:1e9}}).rates).toEqual(empty);
+});
+
+it('uses explicit approximate rsqrt assumptions without borrowing Tensor peaks',()=>{
+ const profile=resolveNormalizationHardwareProfile(ceiling);
+ expect(profile.rates).toEqual({scalarOp:3.548e12,reductionAdd:3.548e12,rsqrt:443.52e9});
+ expect(profile.conditional).toBe(true);expect(profile.notes.join(' ')).toContain('近似');
+ expect(resolveNormalizationHardwareProfile({...ceiling,device_id:'unknown'}).rates.rsqrt).toBeNull();
 });

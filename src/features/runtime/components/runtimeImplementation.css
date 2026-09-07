@@ -10,11 +10,11 @@
 .runtime-implementation-legend { display: flex; align-items: center; flex-wrap: wrap; gap: 20px; padding: 10px 24px; background: #fff; font-size: 13px; color: #53677a; }
 .runtime-implementation-legend span { display: inline-flex; align-items: center; gap: 7px; }
 .runtime-implementation-legend i { display: inline-block; width: 16px; height: 12px; border: 1.5px solid #0e8ea0; border-radius: 3px; background: #e4f5f7; }
-.runtime-implementation-legend .is-precomputed { border-style: dashed; border-color: #a8731d; background: #fff7e6; }
+.runtime-implementation-legend .is-precomputed { border-style: solid; border-color: #a8731d; background: #fff7e6; }
 .runtime-implementation-legend label { margin-left: auto; display: flex; gap: 7px; align-items: center; cursor: pointer; }
 .pi0-runtime-workspace .runtime-implementation-canvas .runtime-boundary-frame { fill: #0e8ea014; stroke-dasharray: none; pointer-events: all; cursor: pointer; }
 .pi0-runtime-workspace .runtime-implementation-canvas .runtime-boundary.is-selected .runtime-boundary-frame { fill: #0e8ea026; }
-.pi0-runtime-workspace .runtime-implementation-canvas .runtime-eliminated-mark rect { fill: none; stroke: #a8731d; stroke-width: 1.5; stroke-dasharray: 4 3; }
+.pi0-runtime-workspace .runtime-implementation-canvas .runtime-eliminated-mark rect { fill: none; stroke: #a8731d; stroke-width: 1.5; stroke-dasharray: none; }
 .runtime-implementation-canvas[hidden] { display: none; }
 .runtime-reuse-view { padding: 24px; background: #fff; color: #253b50; }
 .runtime-reuse-view > p, .runtime-reuse-view figure > p, .runtime-reuse-view details { font-size: 14px; color: #596d80; line-height: 1.7; }

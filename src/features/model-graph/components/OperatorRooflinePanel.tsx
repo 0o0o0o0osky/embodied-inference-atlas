@@ -1,171 +1,52 @@
-import type { ReactNode } from "react";
-
-import {
-  buildOperatorRooflineSummary,
-  type Pi0AnalyticalResult,
-} from "../../roofline/presentation/buildOperatorRooflineSummary";
-import { formatNumber, formatQuantity, formatTime } from "../../roofline/presentation/viewModel";
-import type { Provenance, RooflinePointRecord } from "../../roofline/domain/types";
-
-import type { OperatorDetail } from "../domain/types";
-import {OperatorExecutionEstimate, supportsExecutionEstimate} from "./OperatorExecutionEstimate";
+import type {ReactNode} from 'react';
+import {buildOperatorRooflineSummary,type Pi0AnalyticalResult,type OperatorRooflineSummary} from '../../roofline/presentation/buildOperatorRooflineSummary';
+import {formatNumber,formatQuantity,formatTime} from '../../roofline/presentation/viewModel';
+import type {RooflinePointRecord} from '../../roofline/domain/types';
+import type {OperatorDetail} from '../domain/types';
+import {OperatorExecutionEstimate,supportsExecutionEstimate} from './OperatorExecutionEstimate';
+import {TheoryRooflinePanel} from '../../roofline/components/TheoryRooflinePanel';
+import type {RooflinePlotPoint} from '../../roofline/components/RooflinePlot';
 
 interface OperatorRooflinePanelProps {
-  detail?: OperatorDetail;
-  result: Pi0AnalyticalResult;
-  logicalRef: string;
-  fullAnalysisLink: ReactNode;
+ detail?:OperatorDetail;result:Pi0AnalyticalResult;logicalRef:string;fullAnalysisLink:ReactNode;
 }
-
-const LIMITERS: Record<RooflinePointRecord["derived"]["limiter"], string> = {
-  compute: "计算",
-  memory: "带宽",
-  dependency: "依赖路径",
-  tie: "计算 / 带宽并列",
-  unknown: "尚不可判定",
-};
-
-function provenanceLabel(provenance: Provenance) {
-  switch (provenance.class) {
-    case "published_fact": return "公开规格";
-    case "mode_scaled_analytical": return "运行模式缩放值";
-    case "analytical_model": return "解析模型";
-    case "legacy_tool_assumption": return "旧工具假设";
-    case "measured_empirical": return "实测值";
-    case "missing": return "缺失";
-  }
+const limiters={compute:'计算',memory:'带宽',dependency:'依赖路径',tie:'计算 / 带宽并列',unknown:'速率待补充'};
+function rowLabel(point:RooflinePointRecord) {
+ if(point.entity.entity_id.endsWith('#score'))return 'Q @ Kᵀ';
+ if(point.entity.entity_id.endsWith('#softmax'))return 'Softmax';
+ if(point.entity.entity_id.endsWith('#value'))return 'P @ V';
+ return '理论参考';
 }
-
-function rowLabel(point: RooflinePointRecord) {
-  if (point.entity.entity_id.endsWith("#score")) return "分数矩阵 Q @ Kᵀ";
-  if (point.entity.entity_id.endsWith("#softmax")) return "缩放、掩码与 Softmax";
-  if (point.entity.entity_id.endsWith("#value")) return "加权求和 P @ V";
-  if (point.entity.entity_id.endsWith("#composite")) return "Attention 组合包络";
-  return "模型算子总计";
+export function OperatorRooflinePanel({result,detail,logicalRef,fullAnalysisLink}:OperatorRooflinePanelProps) {
+ if(result.status==='unavailable')return <div className="drawer-availability"><h3>当前场景无法生成解析 Roofline</h3><p>{result.reason}</p>{fullAnalysisLink}</div>;
+ if(detail&&supportsExecutionEstimate(detail))return <><OperatorExecutionEstimate detail={detail} scenario={result.value.scenario} ceiling={result.value.ceiling} bandwidth={result.value.bandwidthCeiling.byte_per_second}/><div className="operator-roofline-action">{fullAnalysisLink}</div></>;
+ const summary=buildOperatorRooflineSummary(result.value,logicalRef);
+ if(!summary)return <div className="drawer-availability"><h3>该算子的理论模型待补充</h3><p>需要对应的算术、特殊函数和读写公式。</p>{fullAnalysisLink}</div>;
+ return <><OperatorTheoryRowsPanel summary={summary}/><div className="operator-roofline-action">{fullAnalysisLink}</div></>;
 }
-
-function computeClassLabel(computeClass: string) {
-  switch (computeClass) {
-    case "tensor_bf16_dense": return "BF16";
-    case "tensor_fp16_dense": return "FP16";
-    case "tensor_fp16_sparse": return "FP16 稀疏";
-    case "tensor_fp8_e4m3_dense": return "FP8 E4M3";
-    case "tensor_fp4_e2m1_dense": return "FP4 E2M1";
-    case "tensor_fp4_e2m1_sparse": return "FP4 E2M1 稀疏";
-    case "tensor_nvfp4_e2m1_dense": return "NVFP4 E2M1";
-    case "scalar_fp32": return "FP32 标量";
-    case "sfu_exp_reciprocal": return "SFU 指数 / 倒数";
-    default: return "其他计算路径";
-  }
-}
-
-function valueOrDash(value: number | null, format: (value: number) => string) {
-  return value === null ? "—" : format(value);
-}
-
-export function OperatorRooflinePanel({
-  result,
-  detail,
-  logicalRef,
-  fullAnalysisLink,
-}: OperatorRooflinePanelProps) {
-  if (result.status === "unavailable") {
-    return (
-      <div className="drawer-availability">
-        <h3>当前场景无法生成解析 Roofline</h3>
-        <p>{result.reason}</p>
-        {fullAnalysisLink}
-      </div>
-    );
-  }
-  if (detail && supportsExecutionEstimate(detail)) return <><OperatorExecutionEstimate detail={detail} scenario={result.value.scenario} ceiling={result.value.ceiling} bandwidth={result.value.bandwidthCeiling.byte_per_second}/><div className="operator-roofline-action">{fullAnalysisLink}</div></>;
-  const summary = buildOperatorRooflineSummary(result.value, logicalRef);
-  if (!summary) {
-    return (
-      <div className="drawer-availability">
-        <h3>该模型算子尚无理论估计</h3>
-        <p>当前公式层只覆盖可物化的 GEMM 与 Attention 组成；缺失不会补成零。</p>
-        {fullAnalysisLink}
-      </div>
-    );
-  }
-
-  const scenario = summary.scenario.workload;
-  const computeCeilings = [...new Map(summary.rows.flatMap((row) => row.computeCeilings)
-    .map((ceiling) => [ceiling.compute_ceiling_id, ceiling])).values()];
-  const bandwidth = summary.rows[0]!.bandwidthCeiling;
-  const primaryPoint = summary.rows.find((row) => row.point.entity.entity_id.endsWith("#composite"))?.point
-    ?? summary.rows[0]!.point;
-  return (
-    <section className="operator-roofline" aria-label="所选算子的解析 Roofline">
-      <header>
-        <div>
-          <span>理论结论</span>
-          <strong>{valueOrDash(primaryPoint.derived.roof_second, formatTime)} · {LIMITERS[primaryPoint.derived.limiter]}</strong>
-          <span>不含运行时开销，也不代表实测效率</span>
-        </div>
-        <code>V{scenario.executed_camera_views} / P{scenario.executed_prompt_tokens} / A{scenario.action_horizon} / N{scenario.denoise_steps}</code>
-      </header>
-
-      <div className="operator-roofline-rows">
-        {summary.rows.map((row) => {
-          const point = row.point;
-          const partial = point.coverage.status !== "complete" || point.derived.status !== "complete";
-          const missingComputeCeiling = point.work.components.some((component) => component.flop > 0
-            && (component.compute_class === null
-              || !row.computeCeilings.some((ceiling) =>
-                ceiling.compute_class === component.compute_class && ceiling.flop_per_second !== null)));
-          const computeCeiling = row.computeCeilings.map((ceiling) => ceiling.flop_per_second === null
-            ? `${computeClassLabel(ceiling.compute_class)}（速率缺失）`
-            : `${computeClassLabel(ceiling.compute_class)} ${formatNumber(ceiling.flop_per_second / 1e12)} TFLOP/s`).join("；");
-          return (
-            <article key={point.point_id}>
-              <div className="operator-roofline-row-heading">
-                <h3>{rowLabel(point)}</h3>
-                <span className={partial ? "is-partial" : "is-complete"}>{partial ? "部分下界" : "完整公式"}</span>
-              </div>
-              <dl>
-                <div><dt>工作量</dt><dd>{formatQuantity(point.work.total_flop, "FLOP")}</dd></div>
-                <div><dt>建模访存</dt><dd>{formatQuantity(point.traffic.total_byte, "B")}</dd></div>
-                <div><dt>算术强度</dt><dd>{valueOrDash(point.derived.arithmetic_intensity_flop_per_byte, (value) => `${formatNumber(value)} FLOP/B`)}</dd></div>
-                <div><dt>理论时间</dt><dd>{valueOrDash(point.derived.roof_second, formatTime)}</dd></div>
-                <div><dt>理论瓶颈</dt><dd>{LIMITERS[point.derived.limiter]}</dd></div>
-              </dl>
-              <p className="operator-roofline-ceiling">
-                <span>计算上限：{[computeCeiling, missingComputeCeiling ? "部分标量 / SFU 上限缺失" : ""].filter(Boolean).join("；") || "未声明"}</span>
-                <span>带宽上限：{bandwidth.byte_per_second === null
-                  ? "速率缺失"
-                  : `${formatNumber(bandwidth.byte_per_second / 1e9)} GB/s`}</span>
-              </p>
-            </article>
-          );
-        })}
-      </div>
-
-      <details className="operator-roofline-provenance">
-        <summary>查看理论上限依据</summary>
-        <dl>
-          {computeCeilings.map((ceiling) => (
-            <div key={ceiling.compute_ceiling_id}>
-              <dt>计算</dt>
-              <dd>
-                <code>{ceiling.compute_ceiling_id} · {ceiling.compute_class}</code>
-                <span>{provenanceLabel(ceiling.provenance)}；{ceiling.provenance.condition ?? "无附加条件"}</span>
-                <small>{ceiling.provenance.source_ids.join(" · ") || "未声明来源"}</small>
-              </dd>
-            </div>
-          ))}
-          <div>
-            <dt>带宽</dt>
-            <dd>
-              <code>{bandwidth.bandwidth_ceiling_id}</code>
-              <span>{provenanceLabel(bandwidth.provenance)}；{bandwidth.provenance.condition ?? "无附加条件"}</span>
-              <small>{bandwidth.provenance.source_ids.join(" · ") || "未声明来源"}</small>
-            </dd>
-          </div>
-        </dl>
-      </details>
-      <div className="operator-roofline-action">{fullAnalysisLink}</div>
-    </section>
-  );
+export function OperatorTheoryRowsPanel({summary}:{summary:OperatorRooflineSummary}) {
+ const rows=summary.rows.filter(row=>!row.point.entity.entity_id.endsWith('#composite'));
+ const primary=rows[0]!.point,bandwidth=rows[0]!.bandwidthCeiling;
+ const computeRate=primary.derived.compute_second!==null&&primary.derived.compute_second>0?primary.work.total_flop/primary.derived.compute_second:null;
+ const curve=computeRate&&bandwidth.byte_per_second?{computeFlopPerSecond:computeRate,bandwidthBytePerSecond:bandwidth.byte_per_second,ridgeFlopPerByte:computeRate/bandwidth.byte_per_second}:null;
+ const points:RooflinePlotPoint[]=rows.flatMap(({point},index)=>point.derived.roof_flop_per_second!==null&&point.derived.arithmetic_intensity_flop_per_byte!==null?[{
+  id:point.point_id,label:rowLabel(point),kind:index?'alternate' as const:'theory' as const,
+  xFlopPerByte:point.derived.arithmetic_intensity_flop_per_byte,yFlopPerSecond:point.derived.roof_flop_per_second,
+ }]:[]);
+ const perCall=(point:RooflinePointRecord,value:number|null,format:(v:number)=>string)=>value===null?'速率待补充':format(value/point.calls);
+ return <TheoryRooflinePanel title="算子 · 理论 Roofline" context="单次调用" curve={curve} points={points} columns={rows.map(row=>rowLabel(row.point))} rows={[
+  {label:'理论时间',values:rows.map(({point})=>perCall(point,point.derived.roof_second,formatTime))},
+  {label:'吞吐量',values:rows.map(({point})=>point.derived.roof_flop_per_second===null?'—':`${formatNumber(point.derived.roof_flop_per_second/1e12)} TFLOP/s`)},
+  {label:'算术工作量',values:rows.map(({point})=>perCall(point,point.work.total_flop,v=>formatQuantity(v,'FLOP')))},
+  {label:'建模读写',values:rows.map(({point})=>perCall(point,point.traffic.total_byte,v=>formatQuantity(v,'B')))},
+  {label:'算术强度',values:rows.map(({point})=>point.derived.arithmetic_intensity_flop_per_byte===null?'—':`${formatNumber(point.derived.arithmetic_intensity_flop_per_byte)} FLOP/B`)},
+  {label:'主要限制',values:rows.map(({point})=>limiters[point.derived.limiter])},
+ ]} note={`理论计算与读写上限 · 当前 DAG 累计调用 ${primary.calls} 次。`}>
+  <p>{primary.entity.shape_or_coverage}</p>
+  <p>表中按单次调用展示。当前图中累计理论时间：{primary.derived.roof_second===null?'速率待补充':formatTime(primary.derived.roof_second)}。</p>
+  {rows.map(({point,computeCeilings})=><div key={point.point_id}>
+   {computeCeilings.map(c=><p key={c.compute_ceiling_id}>{c.compute_class.replaceAll('_',' ')}：{c.flop_per_second===null?'速率待补充':`${formatNumber(c.flop_per_second/1e12)} TFLOP/s`}。{c.provenance.condition}</p>)}
+  </div>)}
+  <p>带宽：{bandwidth.byte_per_second===null?'速率待补充':`${formatNumber(bandwidth.byte_per_second/1e9)} GB/s`}。</p>
+ </TheoryRooflinePanel>;
 }

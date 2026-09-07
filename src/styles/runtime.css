@@ -481,9 +481,9 @@
 }
 
 .runtime-boundary-frame {
-  fill: none;
+  fill: #0e8ea014;
   stroke: #007d77;
-  stroke-dasharray: 7 3;
+  stroke-dasharray: none;
   stroke-width: 2.5;
   pointer-events: none;
   vector-effect: non-scaling-stroke;
@@ -573,7 +573,7 @@
 .runtime-badge--fallback rect {
   fill: #fff0e1;
   stroke: #b35327;
-  stroke-dasharray: 3 2;
+  stroke-dasharray: none;
 }
 
 .runtime-badge--fallback text {
@@ -1261,7 +1261,7 @@
 
 .pi0-runtime-workspace .runtime-boundary-frame {
   stroke: #0E8EA0;
-  stroke-dasharray: 7 4;
+  stroke-dasharray: none;
   stroke-width: 2;
 }
 

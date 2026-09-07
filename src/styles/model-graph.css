@@ -394,7 +394,7 @@
   border-top: 2px solid #354f50;
 }
 
-.legend-line--rail {
+.legend-line--iteration {
   border-top-color: #147b78;
   border-top-style: dashed;
 }
@@ -501,9 +501,7 @@
   transition: opacity 120ms ease, stroke 120ms ease;
 }
 
-.logical-edge--residual,
-.logical-edge--rail,
-.logical-edge--feedback {
+.logical-edge--control-iteration {
   stroke: var(--dag-edge, #286f6c);
   stroke-dasharray: 5 3;
   stroke-width: 1.4;
@@ -561,7 +559,7 @@
 .logical-node--line-op rect,
 .logical-node--control rect {
   fill: var(--dag-surface, #f4faf8);
-  stroke-dasharray: 2 2;
+  stroke-dasharray: none;
 }
 
 .logical-node--control rect {
@@ -754,138 +752,6 @@
 .drawer-availability a {
   display: inline-block;
   color: var(--signal-blue-dark);
-}
-
-.operator-roofline > header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-  padding-bottom: 14px;
-  border-bottom: 1px solid var(--line);
-}
-
-.operator-roofline > header > div {
-  display: grid;
-  gap: 3px;
-}
-
-.operator-roofline > header strong {
-  color: #0b474e;
-  font-family: var(--mono-face);
-  font-size: 21px;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: -0.025em;
-}
-
-.operator-roofline > header span,
-.operator-roofline > header code {
-  color: var(--slate);
-  font-size: 12px;
-}
-
-.operator-roofline > header code {
-  white-space: nowrap;
-}
-
-.operator-roofline-rows article {
-  padding: 15px 0;
-  border-bottom: 1px solid var(--line);
-}
-
-.operator-roofline-row-heading {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.operator-roofline-row-heading h3 {
-  margin: 0;
-  font-size: 15px;
-  font-weight: 650;
-}
-
-.operator-roofline-row-heading span {
-  flex: none;
-  color: #23645f;
-  font-size: 11px;
-}
-
-.operator-roofline-row-heading span.is-partial {
-  color: var(--roofline-partial);
-}
-
-.operator-roofline-rows dl {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px 16px;
-  margin: 12px 0 0;
-}
-
-.operator-roofline-rows dl > div {
-  min-width: 0;
-}
-
-.operator-roofline-rows dt {
-  color: var(--slate);
-  font-size: 11px;
-}
-
-.operator-roofline-rows dd {
-  margin: 2px 0 0;
-  font-family: var(--mono-face);
-  font-size: 13px;
-  font-variant-numeric: tabular-nums;
-}
-
-.operator-roofline-ceiling {
-  display: grid;
-  gap: 3px;
-  margin: 11px 0 0 !important;
-  color: #4d6070;
-  font-size: 11px;
-  line-height: 1.45;
-}
-
-.operator-roofline-provenance {
-  padding: 14px 0;
-  border-bottom: 1px solid var(--line);
-  color: var(--slate);
-  font-size: 12px;
-}
-
-.operator-roofline-provenance summary {
-  color: var(--signal-blue-dark);
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.operator-roofline-provenance dl {
-  margin: 10px 0 0;
-}
-
-.operator-roofline-provenance dl > div {
-  display: grid;
-  grid-template-columns: 3rem minmax(0, 1fr);
-  gap: 8px;
-  padding: 6px 0;
-}
-
-.operator-roofline-provenance dd {
-  display: grid;
-  gap: 3px;
-  min-width: 0;
-  margin: 0;
-}
-
-.operator-roofline-provenance code {
-  overflow-wrap: anywhere;
-}
-
-.operator-roofline-provenance small {
-  color: #758493;
-  overflow-wrap: anywhere;
 }
 
 .operator-roofline-action {
@@ -1626,3 +1492,13 @@
 .model-theory-summary strong { margin-left: 0.6rem; color: #153b5a; font-size: 1.1rem; }
 .model-theory-summary small { margin-left: 0.85rem; color: #687c90; }
 .model-theory-summary a { color: #176a92; font-weight: 600; }
+
+/* Dependency semantics are independent of path routing and mapping coverage. */
+.logical-edge--data { stroke-dasharray: none; }
+.logical-legend-disclosure { color: #56645f; font-size: 0.82rem; }
+.logical-legend-disclosure > summary { cursor: pointer; padding: 5px 14px; }
+.logical-legend-disclosure .logical-legend { min-height: 0; padding-top: 3px; }
+.legend-node { display: inline-block; width: 22px; height: 14px; border: 1.2px solid #759198; border-radius: 3px; background: #fff; }
+.legend-node--view { border-radius: 12px; background: #f4faf8; }
+.legend-node--storage { border-radius: 50% / 25%; background: #f2f7f6; }
+.legend-node--region { background: #0e8ea014; border-color: #0e8ea0; }

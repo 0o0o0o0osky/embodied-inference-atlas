@@ -1,7 +1,9 @@
 import type {OperatorDetail} from '../domain/types';
 import type {RooflineScenarioRecord,RooflineCeilingRecord} from '../../roofline/domain/types';
 import {attentionShapeFromDetail,operationPrecision,plainAttentionStorage} from '../../roofline/presentation/attentionInput';
-import {resolveAttentionHardwareProfile} from '../../roofline/domain/attentionHardwareProfile';
+import {rmsNormFromOperator} from "../../roofline/domain/rmsNormFromOperator";
+import {NormalizationRooflinePanel} from "../../roofline/components/NormalizationRooflinePanel";
+import {resolveAttentionHardwareProfile,resolveNormalizationHardwareProfile} from '../../roofline/domain/attentionHardwareProfile';
 import {AttentionRooflinePanel} from '../../roofline/components/AttentionRooflinePanel';
 import {ConcatCostPanel} from './ConcatCostPanel';
 import {concatCostFromDetail} from '../domain/concatCost';
@@ -18,6 +20,13 @@ export function OperatorExecutionEstimate({detail,scenario,ceiling,bandwidth}:{
   const cost=concatCostFromDetail(detail,segment.activation.bits_per_value);
   return cost?<ConcatCostPanel {...cost} precisionLabel={segment.activation.format.toUpperCase()} bandwidthBytesPerSecond={bandwidth}/>:null;
  }
+ if(detail.definitionId==='rms-norm') {
+  if(!plainAttentionStorage(segment)) return <AnalysisPlaceholder state="not_recorded" title="当前量化归一化路径待补充" detail="需要输入、输出转换与缩放元数据。"/>;
+  const profile=resolveNormalizationHardwareProfile(ceiling);
+  const estimate=rmsNormFromOperator(detail,{input:segment.activation.bits_per_value/8,output:segment.output.bits_per_value/8},{...profile.rates,globalByte:bandwidth});
+  return estimate?<NormalizationRooflinePanel estimate={estimate} profile={profile} bandwidth={bandwidth} precisionLabel={segment.activation.format.toUpperCase()}/>
+   :<AnalysisPlaceholder state="not_recorded" title="RMSNorm 形状待补充" detail="需要输入和输出的归一化维度。"/>;
+ }
  const shape=attentionShapeFromDetail(detail);
  if(!shape) return <AnalysisPlaceholder state="not_recorded" title="Attention 形状待补充" detail="需要一致的 Q、K、V 头数、长度和维度。"/>;
  if(!plainAttentionStorage(segment)) return <AnalysisPlaceholder state="not_recorded" title="当前量化路径的 Attention 成本待补充" detail="需要量化元数据和转换方式；BF16、FP16 路径已可比较分项与融合。"/>;
@@ -29,4 +38,4 @@ export function OperatorExecutionEstimate({detail,scenario,ceiling,bandwidth}:{
   precisionLabel={segment.activation.format.toUpperCase()} ceilingLabel={ceiling.operating_point.gpu_clock_hz?`${(ceiling.operating_point.gpu_clock_hz/1e6).toLocaleString('zh-CN')} MHz 理论频率`:'硬件频率待补充'}
   assumptions={profile.notes} sources={[...profile.sources,{label:'FlashAttention-3：资源重叠',url:'https://tridao.me/blog/2024/flash3/'},{label:'Triton：Softmax 读写模型',url:'https://triton-lang.org/main/getting-started/tutorials/02-fused-softmax.html'}]}/>
 }
-export const supportsExecutionEstimate=(detail:OperatorDetail)=>['attention-core','concat','reshape'].includes(detail.definitionId);
+export const supportsExecutionEstimate=(detail:OperatorDetail)=>['attention-core','concat','reshape','rms-norm'].includes(detail.definitionId);

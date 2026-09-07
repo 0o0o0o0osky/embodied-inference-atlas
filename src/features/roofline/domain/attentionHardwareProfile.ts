@@ -34,3 +34,20 @@ export function resolveAttentionHardwareProfile(ceiling:RooflineCeilingRecord|nu
       '归约比较采用 FP32 max 参考速率；跨线程传递与同步另属实现成本。此配置描述理想操作路径，不替代实际指令或频率测量。',
     ]};
 }
+
+export interface NormalizationHardwareProfile {
+  rates:{scalarOp:number|null;reductionAdd:number|null;rsqrt:number|null};
+  conditional:boolean;
+  notes:readonly string[];
+  sources:AttentionHardwareProfile['sources'];
+}
+/** Same scoped T5000 reference; no fallback to BF16 Tensor throughput. */
+export function resolveNormalizationHardwareProfile(ceiling:RooflineCeilingRecord|null):NormalizationHardwareProfile {
+  const profile=resolveAttentionHardwareProfile(ceiling);
+  return {rates:{scalarOp:profile.rates.scalarOp,reductionAdd:profile.rates.reductionAdd,rsqrt:profile.rates.reciprocal},
+    conditional:profile.conditional,sources:profile.sources,
+    notes:profile.rates.scalarOp===null?['此设备或运行频率尚无归一化算术与 rsqrt 速率配置。']:[
+      '普通 FP32 算术按公开 FMA FLOP/s ÷ 2；归约加法共享 CUDA 资源。',
+      'CC 11.0 的 rsqrt 吞吐未单列：按 20 SM × 每周期 16 个近似结果作参考假设。',
+    ]};
+}
