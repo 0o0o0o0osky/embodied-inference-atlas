@@ -14,6 +14,7 @@
 | Pi0.5 的文本与状态输入 | Prompt + State | 保留 state 编入 prompt token 的结构差异 |
 | 动作序列元素 | 动作 token | 场景参数写“动作 token 数” |
 | 注意力 | Attention、Self-attention、Cross-attention | DAG 标签、详情标题与说明使用相同拼写 |
+| 计算子层分区 | Attention、MLP | 区域标题同样读取共享词表，不追加“子层”或另用“前馈子层” |
 | 投影 | Up、Down、Proj | DAG 的短标签；条件、输入、输出等限定按需保留 |
 | 门控与仿射参数 | Gate、Bias、Scale、Shift | bias 表示层的偏置；shift 表示条件化平移参数 |
 | 图像分块与嵌入 | Patch、Embedding | 保留 RMSNorm、LayerNorm、RoPE、GELU、SiLU 等算子名称 |

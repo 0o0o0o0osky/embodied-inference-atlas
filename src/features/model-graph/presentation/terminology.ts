@@ -2,6 +2,8 @@ import { operatorShortNames } from "./operatorCatalog";
 
 /** Shared source synonyms and UI prose. Operator names are owned by operatorCatalog. */
 export const SHARED_TERMINOLOGY: Readonly<Record<string, string>> = {
+  "Attention": "Attention",
+  "MLP": "MLP",
   "Vision Encoder": "视觉编码器",
   "Action Flow Decoder": "动作解码器",
   "Noise x₀": "噪声 x₀",

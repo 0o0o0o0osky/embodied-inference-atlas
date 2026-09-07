@@ -22,6 +22,5 @@ export function RooflineBasisBar({model, workload, workloadBounds, onWorkload}: 
       <label><span>{WORKLOAD_LABELS.N_DENOISE}</span><IntegerInput aria-label={WORKLOAD_LABELS.N_DENOISE} min={1} value={workload.denoiseSteps} onValueChange={value => update("denoiseSteps",value)} /></label>
     </div>
     <p>计算上限：{model.curves.map(curve => `${formatNumber(curve.computeFlopPerSecond / 1e12)} TFLOP/s`).join("；") || "未建立"}；带宽上限：{bandwidth ? `${formatNumber(bandwidth.bandwidthBytePerSecond / 1e9)} GB/s` : "未建立"}。</p>
-    <details><summary>完整计算口径</summary><code>{basis.basis_id}</code><p>{basis.provenance.condition}</p></details>
   </section>;
 }

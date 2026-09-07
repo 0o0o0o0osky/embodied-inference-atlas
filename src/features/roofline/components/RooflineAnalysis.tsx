@@ -68,10 +68,10 @@ export function RooflineAnalysis({
         <details className="theory-point-details">
           <summary>完整算子数据与所选点依据</summary>
           <RooflineTable rows={model.rows} focusedPointId={focusedPointId} onSelect={select} />
-          <RooflineInspector point={selectedPoint} basis={model.activeBasis} scenario={model.activeScenario} ceiling={model.activeCeiling} curves={model.curves} />
+          <RooflineInspector point={selectedPoint} basis={model.activeBasis} scenario={model.activeScenario} curves={model.curves} />
         </details>
       </> : <>
-        <RooflineInspector point={selectedPoint} basis={model.activeBasis} scenario={model.activeScenario} ceiling={model.activeCeiling} curves={model.curves} />
+        <RooflineInspector point={selectedPoint} basis={model.activeBasis} scenario={model.activeScenario} curves={model.curves} />
         <RooflineTable rows={model.rows} focusedPointId={focusedPointId} onSelect={select} />
       </>}
     </div>

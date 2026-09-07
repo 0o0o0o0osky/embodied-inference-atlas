@@ -15,7 +15,6 @@ import {
 import {
   formatNumber,
   humanize,
-  provenanceLabel,
   type RooflineCurveVM,
   type RooflinePointVM,
 } from "../presentation/viewModel";
@@ -349,15 +348,14 @@ export function RooflineChart({
           </select></label>}
       </div> : null}
       <details className="roofline-curve-details" open={modelTheory ? undefined : true}>
-        {modelTheory ? <summary>计算与带宽上限依据</summary> : <summary hidden>Curve identities and provenance</summary>}
-      <div className="roofline-curve-ledger" aria-label="Curve identities and provenance">
+        <summary hidden={!modelTheory}>计算与带宽上限</summary>
+      <div className="roofline-curve-ledger" aria-label="计算与带宽上限">
         {curves.map((curve) => (
           <article key={curve.curveId}>
             <strong><i className={`roof-swatch ${curve.kind === "reference_only" ? "is-reference" : ""}`} /> {curve.label}</strong>
             {modelTheory && curve.kind === "uniform_roof" ? <span>计算 / 带宽分界：{formatNumber(curve.ridgeFlopPerByte)} FLOP/B</span> : null}
-            <code>{curve.curveId}</code>
-            <span>Compute · {curve.computeCeilingId} · {provenanceLabel(curve.computeProvenance)} · {curve.computeProvenance.condition ?? "no extra condition"}</span>
-            <span>Bandwidth · {curve.bandwidthCeilingId} · {provenanceLabel(curve.bandwidthProvenance)} · {curve.bandwidthProvenance.condition ?? "no extra condition"}</span>
+            <span>计算上限：{formatNumber(curve.computeFlopPerSecond / 1e12)} TFLOP/s</span>
+            <span>带宽上限：{formatNumber(curve.bandwidthBytePerSecond / 1e9)} GB/s</span>
           </article>
         ))}
       </div>

@@ -45,7 +45,7 @@ export function OperatorTheoryRowsPanel({summary}:{summary:OperatorRooflineSumma
   <p>{primary.entity.shape_or_coverage}</p>
   <p>表中按单次调用展示。当前图中累计理论时间：{primary.derived.roof_second===null?'速率待补充':formatTime(primary.derived.roof_second)}。</p>
   {rows.map(({point,computeCeilings})=><div key={point.point_id}>
-   {computeCeilings.map(c=><p key={c.compute_ceiling_id}>{c.compute_class.replaceAll('_',' ')}：{c.flop_per_second===null?'速率待补充':`${formatNumber(c.flop_per_second/1e12)} TFLOP/s`}。{c.provenance.condition}</p>)}
+   {computeCeilings.map(c=><p key={c.compute_ceiling_id}>{c.compute_class.replaceAll('_',' ')}：{c.flop_per_second===null?'速率待补充':`${formatNumber(c.flop_per_second/1e12)} TFLOP/s`}。</p>)}
   </div>)}
   <p>带宽：{bandwidth.byte_per_second===null?'速率待补充':`${formatNumber(bandwidth.byte_per_second/1e9)} GB/s`}。</p>
  </TheoryRooflinePanel>;

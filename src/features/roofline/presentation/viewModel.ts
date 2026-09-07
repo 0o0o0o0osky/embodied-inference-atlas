@@ -399,12 +399,6 @@ export function buildRooflineView(query: RooflineQuery, index: RooflineIndex): R
   if (query.basisId && query.basisId !== basis.basis_id) {
     warnings.push({ id: "basis-fallback", message: "The requested basis is incompatible with this model and level; no dimensions were spliced from it." });
   }
-  if (scenario.precision_path.precision_path_id === "nvfp4_w4a4") {
-    warnings.push({ id: "nvfp4-mapping", message: "NVFP4 uses an explicit mapping inference from NVIDIA's generic FP4 peak; the source does not publish that peak under the NVFP4 name." });
-  }
-  if (basis.bandwidth_ceiling_id.includes("conditional-273gbps")) {
-    warnings.push({ id: "conditional-bandwidth", message: "273 GB/s is a conditional analytical ceiling at the stated EMC assumption, not observed DRAM telemetry; measured efficiency and gap remain unavailable without matched EMC evidence." });
-  }
   if (sparseClasses.size) {
     warnings.push({ id: "sparse-observation-required", message: "Sparse compute roofs are inactive because this exact basis has no matched execution observation with sparsity_on=true." });
   }

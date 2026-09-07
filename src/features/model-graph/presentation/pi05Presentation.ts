@@ -1,4 +1,5 @@
 import type { GraphPresentation, RowSpec } from "../domain/types";
+import { SHARED_TERMINOLOGY } from "./terminology";
 import {
   gatedMlpRows,
   offsetRows,
@@ -73,7 +74,7 @@ export const pi05Presentation: GraphPresentation = {
       { ...splitRow(null, `${SUFFIX}/time-silu-in`), stepAfter: 40 },
       { ...splitRow(null, `${SUFFIX}/time-mlp-out`), stepAfter: 40 },
       { ...splitRow(null, `${SUFFIX}/time-silu-out`), stepAfter: 40 },
-      ...adarmsRows(ATTENTION_ADARMS, "Attention 子层", { startScope: true }),
+      ...adarmsRows(ATTENTION_ADARMS, SHARED_TERMINOLOGY["Attention"]!, { startScope: true }),
       computeRow(ATTENTION, ["query-projection", "key-projection", "value-projection"]),
       computeRow(ATTENTION, ["query-rope", "key-rope", null]),
       computeRow(ATTENTION, [null, "extract-prefix-key", "extract-prefix-value"]),
@@ -81,7 +82,7 @@ export const pi05Presentation: GraphPresentation = {
       mainRow(`${ATTENTION}/attention`),
       mainRow(`${ATTENTION}/output-projection`),
       ...gatedResidualRows(ATTENTION_RESIDUAL, ATTENTION_ADARMS),
-      ...adarmsRows(MLP_ADARMS, "前馈子层"),
+      ...adarmsRows(MLP_ADARMS, SHARED_TERMINOLOGY["MLP"]!),
       computeRow(MLP, ["gate-projection", "up-projection"]),
       computeRow(MLP, ["gate-gelu", null]),
       mainRow(`${MLP}/gate-product`),
