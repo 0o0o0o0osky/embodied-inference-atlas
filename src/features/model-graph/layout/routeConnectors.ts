@@ -182,6 +182,18 @@ function routeBranchIn(
       );
       return;
     }
+    // A condition beside an arithmetic node is a lateral input, not part of
+    // the upper fan-in bus. Its bottom can otherwise push the bus inside the
+    // target and make the final arrow travel upward through the arithmetic.
+    const hasLateralInput = sources.some(source => Math.abs(source.y - target.y) < 3
+      && (source.right <= target.left || source.left >= target.right));
+    if (hasLateralInput) {
+      sourceRefs.forEach(sourceRef => {
+        const path = pairPath(sourceRef, targetRef, layout);
+        if (path) add(path, true, [sourceRef], [targetRef]);
+      });
+      return;
+    }
     const busY = (target.top + Math.max(...sources.map((source) => source.bottom))) / 2;
     sources.forEach((source, index) =>
       add(`M ${source.x} ${source.bottom} V ${busY}`, false, [sourceRefs[index]!], [targetRef]),

@@ -26,17 +26,21 @@ const mainRow = (ref: string): RowSpec => ({ slots: [ref], region: COMPUTE_REGIO
 const splitRow = (main: string | null, condition: string | null): RowSpec => ({ slots: [main, condition], slotWeights: [3, 1] });
 const computeRow = (scope: string, operators: readonly (string | null)[]): RowSpec => ({ ...scopedRow(scope, operators), region: COMPUTE_REGION });
 
-function adarmsRows(scope: string, label: string): RowSpec[] {
+function adarmsRows(scope: string, label: string, { prefix = "", startScope = false }: { prefix?: string; startScope?: boolean } = {}): RowSpec[] {
+  const ref = (id: string) => `${scope}/${prefix}${id}`;
   return [
-    { ...splitRow(`${scope}/rms-norm`, `${scope}/condition-projection`), gapBefore: true, label },
-    splitRow(`${scope}/scale-product`, `${scope}/scale-slice`),
-    mainRow(`${scope}/scale-offset`),
-    splitRow(`${scope}/shift-add`, `${scope}/shift-slice`),
+    { ...splitRow(ref("rms-norm"), ref("condition-projection")), gapBefore: startScope, label, stepAfter: 40 },
+    { ...splitRow(ref("scale-product"), ref("scale-slice")), stepAfter: 32 },
+    { ...mainRow(ref("scale-offset")), stepAfter: 32 },
+    { ...splitRow(ref("shift-add"), ref("shift-slice")), stepAfter: 40 },
   ];
 }
 
 function gatedResidualRows(scope: string, condition: string): RowSpec[] {
-  return [splitRow(`${scope}/residual-gate`, `${condition}/gate-slice`), mainRow(`${scope}/residual-add`)];
+  return [
+    { ...splitRow(`${scope}/residual-gate`, `${condition}/gate-slice`), stepAfter: 32 },
+    mainRow(`${scope}/residual-add`),
+  ];
 }
 
 export const pi05Presentation: GraphPresentation = {
@@ -64,12 +68,12 @@ export const pi05Presentation: GraphPresentation = {
       ...gatedMlpRows(PREFIX_MLP),
     ],
     "action-flow-decoder": [
-      { ...splitRow(`${SUFFIX}/action-projection`, `${SUFFIX}/time-embedding`), label: "动作与时间输入" },
-      splitRow(null, `${SUFFIX}/time-mlp-in`),
-      splitRow(null, `${SUFFIX}/time-silu-in`),
-      splitRow(null, `${SUFFIX}/time-mlp-out`),
-      splitRow(null, `${SUFFIX}/time-silu-out`),
-      ...adarmsRows(ATTENTION_ADARMS, "注意力子层"),
+      { ...splitRow(`${SUFFIX}/action-projection`, `${SUFFIX}/time-embedding`), label: "动作与时间输入", stepAfter: 40 },
+      { ...splitRow(null, `${SUFFIX}/time-mlp-in`), stepAfter: 40 },
+      { ...splitRow(null, `${SUFFIX}/time-silu-in`), stepAfter: 40 },
+      { ...splitRow(null, `${SUFFIX}/time-mlp-out`), stepAfter: 40 },
+      { ...splitRow(null, `${SUFFIX}/time-silu-out`), stepAfter: 40 },
+      ...adarmsRows(ATTENTION_ADARMS, "注意力子层", { startScope: true }),
       computeRow(ATTENTION, ["query-projection", "key-projection", "value-projection"]),
       computeRow(ATTENTION, ["query-rope", "key-rope", null]),
       computeRow(ATTENTION, [null, "extract-prefix-key", "extract-prefix-value"]),
@@ -83,10 +87,7 @@ export const pi05Presentation: GraphPresentation = {
       mainRow(`${MLP}/gate-product`),
       mainRow(`${MLP}/down-projection`),
       ...gatedResidualRows(MLP_RESIDUAL, MLP_ADARMS),
-      { ...splitRow(`${HEAD}/final-rms-norm`, `${HEAD}/final-condition-projection`), gapBefore: true, label: "动作输出" },
-      splitRow(`${HEAD}/final-scale-product`, `${HEAD}/final-scale-slice`),
-      mainRow(`${HEAD}/final-scale-offset`),
-      splitRow(`${HEAD}/final-shift-add`, `${HEAD}/final-shift-slice`),
+      ...adarmsRows(HEAD, "动作输出", { prefix: "final-" }),
       mainRow(`${HEAD}/velocity-projection`),
       mainRow("action-flow-decoder/euler-update/euler-update"),
     ],

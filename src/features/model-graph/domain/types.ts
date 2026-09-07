@@ -119,6 +119,8 @@ export interface RowSpec {
   slotWeights?: readonly number[];
   label?: string;
   gapBefore?: boolean;
+  /** Center-to-center distance to the next row; defaults to the shared row step. */
+  stepAfter?: number;
   offsetY?: number;
   centerBetween?: readonly LogicalRef[];
   alignTo?: LogicalRef;

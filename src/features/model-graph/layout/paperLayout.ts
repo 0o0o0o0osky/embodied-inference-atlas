@@ -310,7 +310,7 @@ export function layoutLogicalDag(
           y: top - 10, width: stage.contentWidth });
       }
       lastCenter = rowY;
-      rowY += PAPER_LAYOUT.rowStep;
+      rowY += row.stepAfter ?? PAPER_LAYOUT.rowStep;
     });
     stage.effectiveRows = rows.length;
 

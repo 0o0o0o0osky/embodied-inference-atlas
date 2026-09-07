@@ -41,5 +41,20 @@ it("keeps Pi0.5 Q/K/V lanes and a vertical AdaRMS activation path beside the con
     const consumer = layout.nodeBoxes.get(`${expert}/${module}-gated-residual/residual-gate`)!;
     expect(slice.row).toBe(consumer.row);
   }
+  for (const [scope, prefix] of [
+    [`${expert}/attention-adarms`, ""],
+    [`${expert}/mlp-adarms`, ""],
+    ["action-flow-decoder/velocity-projection", "final-"],
+  ]) {
+    const boxes = ["rms-norm", "scale-product", "scale-offset", "shift-add"]
+      .map(id => layout.nodeBoxes.get(`${scope}/${prefix}${id}`)!);
+    // Each adaptive norm stays a compact unit, with room for downward arrows.
+    expect(boxes.at(-1)!.y + boxes.at(-1)!.height - boxes[0]!.y).toBeLessThan(140);
+    boxes.slice(1).forEach((box, index) => {
+      const above = boxes[index]!;
+      expect(box.y - above.y - above.height).toBeGreaterThanOrEqual(10);
+      expect(box.x + box.width / 2).toBeCloseTo(main);
+    });
+  }
   expect(layout.rowLabels?.map(item => item.label)).toEqual(['动作与时间输入', '注意力子层', '前馈子层', '动作输出']);
 });
