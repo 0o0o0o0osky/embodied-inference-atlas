@@ -19,7 +19,7 @@ it('uses the same system/DAG/reuse navigation with the actual SmolVLA workload',
  const run=data.datasets.runs.find(item=>item.run_id==='run-lerobot-smolvla-matrix-001')!;
  const route=readRoute(`?model=smolvla&tab=runtime&runtime=${run.runtime_id}&runtimePrecision=${run.precision.precision_id}&hardware=${run.device_id}&workload=${run.configuration_id}&selectedRun=${run.run_id}`);
  const markup=renderToStaticMarkup(<RuntimeView data={data} model={model} route={route} navigate={()=>undefined}/>);
- expect(markup).toContain('系统耗时');expect(markup).toContain('执行 DAG');expect(markup).toContain('计算与复用');
+ expect(markup).toContain('系统耗时');expect(markup).toContain('执行 DAG');expect(markup).toContain('执行优化');
  expect(markup).not.toContain('稳定代表 trace');expect(markup).toContain('暂无可用 trace');
  expect(markup).toContain('已有原生证据');expect(markup).not.toContain('Pi0 推理栈实现图');
  expect(markup).not.toContain('P=48、N=10、A=20/50');

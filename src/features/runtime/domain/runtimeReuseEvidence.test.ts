@@ -5,7 +5,9 @@ import { adaptRuntimeRealization } from "./adaptRuntimeRealization";
 
 it("preserves reuse dependencies, evidence and unknown costs without adding reuse to legacy records", () => {
   const record = (atlasDocument as unknown as AtlasData).datasets.runtime_realizations[0]!;
-  expect(adaptRuntimeRealization(record).reuse ?? []).toEqual([]);
+  const legacyRecord = { ...record };
+  delete legacyRecord.reuse;
+  expect(adaptRuntimeRealization(legacyRecord).reuse ?? []).toEqual([]);
   const result = adaptRuntimeRealization({ ...record, reuse: [{
     reuse_id: "prefix-kv", label: "Prefix K/V", kind: "computed_result",
     producer_refs: ["prefix"], consumer_refs: ["denoise"], lifetime: "observation",

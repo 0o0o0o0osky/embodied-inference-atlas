@@ -1,24 +1,24 @@
-.reuse-object-selector { display:flex; flex-wrap:wrap; gap:.6rem; margin-block:1rem; }
-.reuse-object-selector button { display:grid; gap:.35rem; text-align:left; padding:.75rem; background:white; border:1px solid var(--line,#ccc); border-radius:5px; cursor:pointer; }
-.reuse-object-selector button[aria-pressed="true"] { background:#edf5fa; border-color:#3b7598; }
-.reuse-object-selector span { font-size:.82rem; color:#53616d; }
-.reuse-stage-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:.5rem; }
-.reuse-stage-grid button { display:grid; align-content:start; gap:.4rem; min-height:108px; padding:.7rem; text-align:left; background:#f6f7f8; border:1px solid var(--line,#ccc); color:#53616d; cursor:pointer; }
-.reuse-stage-grid button[data-in-scope="true"] { background:#eef6ef; border-bottom:4px solid #699572; }
-.reuse-stage-grid button[aria-pressed="true"] { outline:2px solid #347397; outline-offset:2px; color:#173b54; }
-.reuse-stage-grid small { font-size:.75rem; }
-.reuse-stage-controls { display:flex; align-items:center; gap:1rem; margin-block:1rem; }
-.reuse-stage-controls button { background:white; padding:.4rem .7rem; border:1px solid #ccd8e1; cursor:pointer; }
-.reuse-stage-controls button:disabled { opacity:.45; cursor:default; }
-.reuse-selected-object { border-top:1px solid var(--line,#ccc); padding-block:1rem; }
-.reuse-selected-object h4 { margin:0; font-size:1rem; }
-.reuse-value-flow { display:flex; align-items:center; gap:.75rem; flex-wrap:wrap; margin-block:1rem; }
-.reuse-value-flow > div { display:grid; gap:.4rem; flex:1 1 140px; padding:.8rem; border:1px solid #bdcdd8; border-radius:4px; overflow-wrap:anywhere; }
-.reuse-value-flow small { color:#53616d; }
-.reuse-stage-explanation { padding:.6rem .8rem; background:#f1f5f8; }
-.reuse-selected-object dl { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:.7rem 1.4rem; }
-.reuse-selected-object dt { color:#53616d; font-size:.85rem; }
-.reuse-selected-object dd { margin:.3rem 0 0; line-height:1.5; }
-.reuse-evidence { margin-block:1rem; font-size:.85rem; overflow-wrap:anywhere; }
-.reuse-evidence summary { cursor:pointer; }
-@media (max-width:640px) { .reuse-stage-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .reuse-selected-object dl { grid-template-columns:1fr; } }
+.runtime-reuse-intro { color:var(--muted,#53616d); margin-block:.5rem 1.25rem; }
+.runtime-optimization-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1rem; align-items:start; }
+.runtime-optimization { min-width:0; padding:1.1rem; border:1px solid var(--line,#ccd8e1); border-radius:6px; background:white; }
+.runtime-optimization header { display:grid; gap:.4rem; padding-bottom:1rem; border-bottom:1px solid var(--line,#ccd8e1); }
+.runtime-optimization h4 { margin:0; font-size:1.04rem; }
+.runtime-optimization header > span { color:var(--muted,#53616d); font-size:.8rem; }
+.runtime-optimization dl { margin:0; display:grid; gap:1rem; }
+.runtime-optimization .optimization-explanation { margin-top:1rem; }
+.runtime-optimization dt { color:var(--muted,#53616d); font-size:.8rem; margin-bottom:.35rem; }
+.runtime-optimization dd { margin:0; line-height:1.65; overflow-wrap:anywhere; }
+.runtime-optimization ul { padding-left:1.15rem; margin:0; }
+.runtime-optimization li + li { margin-top:.45rem; }
+.optimization-effect { border-left:3px solid #528472; padding-left:.75rem; }
+.optimization-detail { margin-top:1rem; padding-top:.8rem; border-top:1px solid var(--line,#ccd8e1); font-size:.85rem; }
+.optimization-detail summary, .optimization-version summary { cursor:pointer; color:var(--muted,#53616d); }
+.optimization-detail[open] summary { margin-bottom:1rem; }
+.optimization-version { margin-top:1.25rem; font-size:.85rem; }
+.optimization-version p { margin-block:.65rem; }
+@media (max-width:1100px) { .runtime-optimization-grid { grid-template-columns:1fr; } }
+.optimization-scope { font-size:.85rem; font-weight:500; color:#315e4e; }
+.optimization-baseline { margin-top:1.25rem; }
+.optimization-baseline > summary { cursor:pointer; font-size:.9rem; }
+.optimization-baseline > p { font-size:.9rem; color:var(--muted,#53616d); }
+.optimization-baseline .runtime-optimization { max-width:50rem; }

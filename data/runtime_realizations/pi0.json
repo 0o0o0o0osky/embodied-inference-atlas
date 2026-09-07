@@ -821,6 +821,98 @@
         }
       ],
       "realization_id": "rr-flashrt-pi0-thor-fp8-v1",
+      "reuse": [
+        {
+          "consumer_refs": [
+            "action-flow-decoder/action-expert-blocks/self-attention/attention"
+          ],
+          "evidence_ids": [
+            "flashrt-pi0-torch-capture-source",
+            "flashrt-pi0-encoder-source",
+            "flashrt-pi0-decoder-source"
+          ],
+          "implementation_status": "implemented",
+          "invalidation_conditions": [
+            "下一次观测回放主图时清空 K/V 缓冲区并重新执行前缀",
+            "图像、文本、位置、权重或校准尺度改变，旧前缀结果不再适用"
+          ],
+          "kind": "computed_result",
+          "label": "前缀 K/V 复用",
+          "lifetime": "observation",
+          "preparation_ns": null,
+          "producer_refs": [
+            "prefix-encoder/prefix-blocks/self-attention/key-projection",
+            "prefix-encoder/prefix-blocks/self-attention/value-projection"
+          ],
+          "read_ns": null,
+          "repeat_scope": "每次观测执行一次前缀，生成各层 K/V，供同一观测的10个去噪步骤读取",
+          "reuse_id": "flashrt-prefix-kv",
+          "storage_bytes": null,
+          "value_dependencies": [
+            "当前图像与文本嵌入",
+            "前缀位置、注意力规则、模型权重与校准尺度"
+          ]
+        },
+        {
+          "consumer_refs": [
+            "action-flow-decoder/action-suffix-builder/time-mlp-silu"
+          ],
+          "evidence_ids": [
+            "flashrt-pi0-prompt-source",
+            "flashrt-pi0-decoder-source"
+          ],
+          "implementation_status": "implemented",
+          "invalidation_conditions": [
+            "再次调用 set_prompt 会重算时间表并替换预计算缓冲区；文本内容本身不是时间投影的值依赖",
+            "时间表、权重、偏置、维度或精度改变时需重建"
+          ],
+          "kind": "computed_result",
+          "label": "时间嵌入与投影预计算",
+          "lifetime": "across_observations",
+          "preparation_ns": null,
+          "producer_refs": [
+            "action-flow-decoder/action-suffix-builder/time-embedding",
+            "action-flow-decoder/action-suffix-builder/time-mlp-in"
+          ],
+          "read_ns": null,
+          "repeat_scope": "set_prompt 时准备固定10步的时间嵌入及时间分支投影；后续每次预测按步读取，动作分支仍每步计算",
+          "reuse_id": "flashrt-time-projection",
+          "storage_bytes": null,
+          "value_dependencies": [
+            "固定10步时间表、正弦周期参数和嵌入宽度",
+            "时间分支投影权重与偏置、动作块长度、精度"
+          ]
+        },
+        {
+          "consumer_refs": [],
+          "evidence_ids": [
+            "flashrt-pi0-prompt-source",
+            "flashrt-pi0-vision-capture-source",
+            "flashrt-pi0-torch-capture-source",
+            "flashrt-pi0-infer-source"
+          ],
+          "implementation_status": "implemented",
+          "invalidation_conditions": [
+            "set_prompt 重新准备并捕获两张图",
+            "首个真实输入触发重校准时更新主图；后续稳态使用更新后的计划",
+            "拓扑、形状或缓冲区地址改变，或模型实例释放时旧计划不再适用"
+          ],
+          "kind": "execution_plan",
+          "label": "CUDA Graph 提交",
+          "lifetime": "across_observations",
+          "preparation_ns": null,
+          "producer_refs": [],
+          "read_ns": null,
+          "repeat_scope": "set_prompt 准备视觉和主推理两张图，每次预测依次 replay；首个真实输入重校准后更新主图，再进入稳态复用",
+          "reuse_id": "flashrt-cuda-graphs",
+          "storage_bytes": null,
+          "value_dependencies": [
+            "模型、已选择的内核与校准配置",
+            "视角数、文本长度、动作块与去噪步数",
+            "图拓扑、固定缓冲区地址与生命周期"
+          ]
+        }
+      ],
       "runtime_id": "flashrt",
       "runtime_revision": "054bea4d02ebc63f6a0c45991c6061b1e1caa46c",
       "system_flow": {

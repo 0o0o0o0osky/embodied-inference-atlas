@@ -42,12 +42,6 @@
 .reuse-lifecycle div { padding: 15px; border-top: 3px solid var(--signal-blue); background: #f2f8fa; }
 .reuse-lifecycle strong, .reuse-lifecycle span { display: block; }
 .reuse-lifecycle span { margin-top: 8px; font-size: 13px; color: var(--slate); }
-.reuse-object { border-top: 1px solid var(--line); padding: 20px 0; }
-.reuse-object > summary { cursor: pointer; display: flex; align-items: baseline; gap: 20px; }
-.reuse-object > summary strong { font-size: 17px; color: var(--graphite); }
-.reuse-object > summary span { color: var(--signal-blue); font-size: 13px; }
-.reuse-object dl { display: grid; grid-template-columns: 130px 1fr; gap: 12px; }
-.reuse-object dd { margin: 0; }
 @media(max-width:900px) { .execution-hotspot-layout.has-selection { grid-template-columns: 1fr; } .system-metrics { grid-template-columns: repeat(2,minmax(0,1fr)); } .reuse-lifecycle { grid-template-columns: repeat(2,minmax(0,1fr)); } }
 @media(max-width:550px) { .execution-hotspot-list button { grid-template-columns: 1fr 100px; } .hotspot-kind { grid-column: 1/-1; } .system-bound-status { flex-wrap: wrap; } }
 .pi0-runtime-workspace .pi0-selected-runtime > dl > div { flex-direction: row; gap: 8px; }

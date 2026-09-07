@@ -76,7 +76,7 @@ export function Pi0RuntimeWorkspace({data, model, record, route, navigate}: Prop
       </div>
       <InferenceSampleSummary context={context} />
       <nav className="pi0-runtime-analysis-tabs" aria-label="推理栈分析视图">
-        {([['system','系统耗时'],['hotspots','执行 DAG'],['reuse','计算与复用']] as const).map(([id,label])=><button key={id} type="button" aria-pressed={analysisView === id || id === 'system' && analysisView === 'perfetto'} onClick={()=>navigate({analysisView:id,timelineCapture:nsys.active?.capture.captureId??route.timelineCapture})}>{label}</button>)}
+        {([['system','系统耗时'],['hotspots','执行 DAG'],['reuse','执行优化']] as const).map(([id,label])=><button key={id} type="button" aria-pressed={analysisView === id || id === 'system' && analysisView === 'perfetto'} onClick={()=>navigate({analysisView:id,timelineCapture:nsys.active?.capture.captureId??route.timelineCapture})}>{label}</button>)}
       </nav>
       <div hidden={analysisView !== 'system'}>
         {implementationRealization?.systemFlow ? <RuntimeSystemFlow key={implementationRealization.realizationId} realization={implementationRealization} /> : null}

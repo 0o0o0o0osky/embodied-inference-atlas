@@ -35,6 +35,16 @@ show the total. Avoid repeating generic cautions or lists of uncollected fields.
 Keep a local notice only for a missing result or conflict affecting the current
 judgment. Add tile/warp/buffering detail when it answers the current question.
 
+The “执行优化” view directly lists mechanisms already implemented by the selected
+runtime, the repeated work each removes, and when it must run again. Use static
+explanations rather than abstract lifecycle-step controls or empty cost tables.
+Keep the concrete commit version in one folded reference for the view; omit
+repeated per-item repository links. Preserve result, plan and storage distinctions.
+Put baseline algorithm mechanisms, such as within-observation Prefix K/V reuse,
+in folded background rather than presenting them as extra runtime optimizations.
+State reuse scope: a fixed prompt may preserve initial text embeddings, while
+deep text K/V can depend on the current image through joint attention.
+
 ## Linked views, not duplicate destinations
 
 - Theoretical analysis uses the model's selected analytical precision. Runtime
