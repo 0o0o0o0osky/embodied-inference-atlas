@@ -172,9 +172,14 @@ The paired Kernel Roofline uses one record's work and traffic for both points:
 arithmetic intensity is work / bytes; theoretical and observed throughput are
 work / lower-bound time and work / ordinary execution time. Modeled traffic is
 labeled explicitly. The vertical connector does not imply measured bandwidth.
-An attainment ratio requires the record's comparison prerequisites and complete
-coverage; missing timing leaves only the theoretical point. Kernel and fused
-group boundaries remain separate. Dependency-constrained aggregates are not
+The table displays observed throughput / the selected Roofline point as a
+percentage, using the bound at the same arithmetic intensity rather than the
+hardware compute peak. This reference percentage may use a conditional or
+partially modeled curve; its assumptions and omitted work remain explicit.
+It does not populate canonical efficiency or claim achievable speedup. A matched
+efficiency still requires comparison prerequisites and complete coverage.
+Missing timing leaves only the theoretical point, with no percentage; NCU replay
+is not substituted. Kernel and fused group boundaries remain separate. Dependency-constrained aggregates are not
 forced onto a two-resource compute/bandwidth curve.
 
 ## Missing profiler, power, and throttle evidence
@@ -190,7 +195,8 @@ frequency or absence of throttling.
 
 An operating-point ID of `unknown` is only a missing-information sentinel. Two
 runs carrying that same sentinel may be grouped for side-by-side inspection,
-but they do not satisfy the fixed power/clock invariant required for a ratio.
+but they do not satisfy the fixed power/clock invariant required for a matched
+efficiency claim. A labeled reference percentage to an assumed curve is separate.
 Attested controlled IDs such as `thor-120w-dynamic` and explicit analytical
 assumption IDs are not treated as the unknown sentinel.
 

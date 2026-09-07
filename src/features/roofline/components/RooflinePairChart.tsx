@@ -41,30 +41,18 @@ export function RooflinePairChart({ point, basis }: { point: RooflinePointRecord
   const limitingTerm = pair.limiter === "compute" ? "模型边界由计算项决定" : pair.limiter === "memory" ? "模型边界由带宽项决定" : "模型计算／带宽项同限";
   const boundLabel = point.coverage.status !== "complete" || point.derived.status !== "complete"
     ? `部分建模的条件参考边界 · ${limitingTerm}` : limitingTerm;
-  const percent = pair.efficiency === null ? null : `${formatNumber(pair.efficiency * 100)}%`;
-  const referenceOnly = percent === null;
-  const gapLabel = referenceOnly ? "参考差距" : "到边界差距";
-  const rateGap = pair.actualRate === null ? null : Math.abs(pair.theoryRate - pair.actualRate);
-  const timeGap = pair.actualRate === null ? null : Math.abs(point.timing.observed_second! - point.derived.roof_second!);
+  // A visual ratio to this curve is available even when its operating conditions
+  // remain assumptions. Keep canonical efficiency as the matched-evidence gate.
+  const referenceRatio = pair.actualRate === null ? null : pair.actualRate / pair.theoryRate;
+  const percent = referenceRatio === null ? "未提供" : `${formatNumber(referenceRatio * 100)}%`;
+  const referenceOnly = pair.efficiency === null;
   const rateText = (rate: number | null) => rate === null ? "未提供" : `${formatNumber(rate / 1e12)} TFLOP/s`;
-  const aboveBoundary = pair.actualRate !== null && pair.actualRate > pair.theoryRate;
-  const gapText = rateGap === null ? "未提供" : `${aboveBoundary ? "高于边界 " : ""}${rateText(rateGap)}`;
-  const gapAnchorLeft = x > box.left + box.width * .65;
   return <div className="roofline-pair-chart">
     <div className="roofline-pair-summary"><span>{boundLabel}</span>
-      <strong>{percent === null ? pair.actualRate === null ? "实测点待补齐" : "所选假设曲线" : `达到所选上限 ${percent}`}</strong></div>
-    <dl className="roofline-pair-metrics" aria-label="当前对象的实测与条件边界">
-      <div><dt>实际吞吐</dt><dd>{rateText(pair.actualRate)}</dd></div>
-      <div><dt>模型边界吞吐</dt><dd>{rateText(pair.theoryRate)}</dd></div>
-      <div><dt>{gapLabel} · 吞吐</dt><dd>{gapText}</dd></div>
-      <div><dt>{basis.time_basis === "nsys_interval" ? "Nsys 追踪下执行耗时" : "正常执行耗时"}</dt><dd>{pair.actualRate === null ? "未提供" : formatTime(point.timing.observed_second!)}</dd></div>
-      <div><dt>条件理论耗时下界</dt><dd>{formatTime(point.derived.roof_second!)}</dd></div>
-      <div><dt>{gapLabel} · 耗时</dt><dd>{timeGap === null ? "未提供" : `${aboveBoundary ? "低于下界 " : ""}${formatTime(timeGap)}`}</dd></div>
-    </dl>
-    {point.coverage.status !== "complete" || point.derived.status !== "complete" ? <p className="roofline-pair-hint">{point.coverage.omitted.some(item=>item.ref === "alpha_epilogue_and_cast") ? "计算量只计矩阵乘加；α 缩放与 FP16 输出转换未单独建模，计时仍覆盖完整 Kernel。" : "仅使用已建模部分的计算量与流量；实际吞吐仍除以完整的所选调用耗时，未建模步骤不视为零开销。"}</p> : null}
+      <strong>{pair.actualRate === null ? "实测点待补齐" : referenceOnly ? "所选假设曲线" : "运行条件已匹配"}</strong></div>
     <div ref={root} className="roofline-pair-canvas">
       <svg viewBox={`0 0 ${width} ${height}`} aria-labelledby={id} role="img">
-        <title id={id}>同一计算与访存口径下的理论上限和实测性能；连线表示吞吐差距</title>
+        <title id={id}>同一计算与访存口径下的理论上限和实测性能</title>
         {geometry.xTicks.map((tick) => <g key={tick}>
           <line className="pair-grid" x1={logX(tick, geometry.x, box)} x2={logX(tick, geometry.x, box)} y1={box.top} y2={box.top + box.height} />
           <text className="pair-tick" x={logX(tick, geometry.x, box)} y={box.top + box.height + 24} textAnchor="middle">{formatNumber(tick)}</text>
@@ -77,8 +65,6 @@ export function RooflinePairChart({ point, basis }: { point: RooflinePointRecord
         <line className="pair-guide" x1={x} x2={x} y1={yTheory} y2={box.top + box.height} />
         {yActual !== null ? <line className="pair-gap" data-theory-rate={pair.theoryRate} data-actual-rate={pair.actualRate}
           x1={x} x2={x} y1={yTheory} y2={yActual} /> : null}
-        {yActual !== null ? <text className="pair-gap-label" x={x + (gapAnchorLeft ? -14 : 14)} y={(yTheory + yActual) / 2 - 7}
-          textAnchor={gapAnchorLeft ? "end" : "start"}>{`${gapLabel} ${gapText}`}</text> : null}
         {values.map((value) => <g key={value.kind} className={`pair-point is-${value.kind}`}
           transform={`translate(${x} ${logY(value.rate, geometry.y, box)})`} role="button" tabIndex={0}
           aria-label={`${value.name} ${formatNumber(value.rate / 1e12)} TFLOP/s，查看详情`}
@@ -91,20 +77,28 @@ export function RooflinePairChart({ point, basis }: { point: RooflinePointRecord
         <text className="pair-axis" transform={`translate(19 ${box.top + box.height / 2}) rotate(-90)`} textAnchor="middle">吞吐量（TFLOP/s）</text>
       </svg>
     </div>
-    {pair.actualRate !== null ? <p className="roofline-pair-hint">{basis.time_basis === "nsys_interval" ? "Nsys 追踪计时；" : "当前执行计时；"}{referenceOnly ? "曲线匹配条件尚未齐备，差距仅供参考。" : "按已匹配运行条件比较。"}差距不代表可实现的节省时间或总加速。</p> : null}
     <div className="roofline-pair-legend">
-      <span><i className="is-theory" />理论上限 · {formatNumber(pair.theoryRate / 1e12)} TFLOP/s</span>
-      <span><i className="is-actual" />实测性能 · {pair.actualRate === null ? "未提供" : `${formatNumber(pair.actualRate / 1e12)} TFLOP/s`}</span>
+      <span><i className="is-theory" />理论参考</span>
+      <span><i className="is-actual" />实测性能</span>
       <small>{point.traffic.memory_domain === "system_memory" ? "系统内存" : point.traffic.memory_domain.toUpperCase()} · {pair.trafficKind === "measured" ? "实测流量" : "建模流量，非实测带宽"}</small>
     </div>
+    <div className="roofline-pair-table-wrap">
+      <table className="roofline-pair-metrics" aria-label="当前对象的实测与理论性能对比">
+        <thead><tr><th scope="col">指标</th><th scope="col">本次调用</th><th scope="col">理论参考</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">吞吐量</th><td>{rateText(pair.actualRate)}</td><td>{rateText(pair.theoryRate)}</td></tr>
+          <tr><th scope="row">执行耗时</th><td>{pair.actualRate === null ? "未提供" : formatTime(point.timing.observed_second!)}</td><td>{formatTime(point.derived.roof_second!)}</td></tr>
+          <tr className="roofline-pair-attainment"><th scope="row">达到理论性能</th><td colSpan={2} data-reference-ratio={referenceRatio ?? undefined}>
+            <strong>{percent}</strong><small>实测吞吐 ÷ 理论参考吞吐</small>
+          </td></tr>
+        </tbody>
+      </table>
+    </div>
+    {pair.actualRate !== null ? <p className="roofline-pair-hint">{basis.time_basis === "nsys_interval" ? "Nsys 追踪计时；" : "当前执行计时；"}{referenceOnly ? "百分比按所选假设曲线计算，仅作参考。" : "按已匹配运行条件比较。"}理论参考取当前算术强度处的边界；比例不表示可实现的总加速。</p> : null}
+    {point.coverage.status !== "complete" || point.derived.status !== "complete" ? <p className="roofline-pair-hint">{point.coverage.omitted.some(item=>item.ref === "alpha_epilogue_and_cast") ? "计算量只计矩阵乘加；α 缩放与 FP16 输出转换未单独建模，计时仍覆盖完整 Kernel。" : "仅使用已建模部分的计算量与流量；实际吞吐仍除以完整的所选调用耗时，未建模步骤不视为零开销。"}</p> : null}
     {pair.actualRate !== null && pair.actualRate > pair.theoryRate ? <p className="roofline-comparison-missing">实测高于所选上限：请核对频率、流量和计时口径，不将此差距解释为优化空间。</p> : null}
     {inspecting ? <div className="roofline-pair-inspector">
       <header><strong>{point.entity.label}</strong><button type="button" onClick={() => setInspecting(false)}>收起详情</button></header>
-      <dl>
-        <div><dt>条件理论耗时下界</dt><dd>{formatTime(point.derived.roof_second!)}</dd></div>
-        <div><dt>{basis.time_basis === "nsys_interval" ? "Nsys 追踪下执行耗时" : "正常执行耗时"}</dt><dd>{pair.actualRate === null ? "未提供" : formatTime(point.timing.observed_second!)}</dd></div>
-        <div><dt>耗时 / 理论下界</dt><dd>{pair.efficiency === null ? "待匹配" : `${formatNumber(1 / pair.efficiency)}×`}</dd></div>
-      </dl>
       <p>{point.entity.shape_or_coverage}</p>
       <details><summary>精度、融合范围与计算依据</summary>
         <p>所选计算上限 {formatNumber(pair.computeRate / 1e12)} TFLOP/s；带宽上限 {formatNumber(pair.bandwidthRate / 1e9)} GB/s。{referenceOnly ? "作为假设曲线，不视作本次已验证设备能力。" : "对应已匹配的所选运行条件。"}</p>
