@@ -11,7 +11,7 @@ function PatchImageVisualizer({operator,resetKey}:{operator:OperatorDetail;reset
   const shape=patchProjectionShape(operator);
   const animation=useOperatorAnimation(4,resetKey);
   const clip=useId();
-  if (!shape) return <p className="visualizer-empty">当前声明尚不能确定图块投影的尺寸。</p>;
+  if (!shape) return <p className="visualizer-empty">当前声明尚不能确定 patch 投影的尺寸。</p>;
   const {height,width,channels,patch,rows,columns,tokens,embedding}=shape;
   const vector=patch*patch*channels;
   const imageWidth=Math.min(160,120*width/height),imageHeight=imageWidth*height/width;
@@ -20,19 +20,19 @@ function PatchImageVisualizer({operator,resetKey}:{operator:OperatorDetail;reset
   const selectedIndex=selectedRow*columns+selectedColumn+1;
   const active=(step:number)=>animation.frame===step?'is-active':'';
   const steps=[
-    {label:'一幅图像',description:<>一幅 {height}×{width} 图像有 {channels} 个通道，按 {patch}×{patch} 图块划分。</>},
-    {label:'选一个图块',description:<>选中第 {selectedRow+1} 行、第 {selectedColumn+1} 列；取出全部 {channels} 个通道，共 {vector} 个数。</>},
-    {label:'投影成向量',description:<>每个输出维度用一组权重，对图块的 {vector} 个数乘加；{embedding} 组权重生成 {embedding} 维 token。</>},
+    {label:'一幅图像',description:<>一幅 {height}×{width} 图像有 {channels} 个通道，按 {patch}×{patch} patch 划分。</>},
+    {label:'选一个 patch',description:<>选中第 {selectedRow+1} 行、第 {selectedColumn+1} 列；取出全部 {channels} 个通道，共 {vector} 个数。</>},
+    {label:'投影成向量',description:<>每个输出维度用一组权重，对 patch 的 {vector} 个数乘加；{embedding} 组权重生成 {embedding} 维 token。</>},
     {label:'组成序列',description:<>所有 {tokens} 个位置共享同一组投影权重，按位置组成 {tokens}×{embedding} 的 token 序列。</>},
   ];
-  return <ComputationStepper title="图块如何变成 token" formula="zⱼ = flatten(patchⱼ) · W" animation={animation} steps={steps}
+  return <ComputationStepper title="patch 如何变成 token" formula="zⱼ = flatten(patchⱼ) · W" animation={animation} steps={steps}
     className="patch-computation"
-    dimensions={[{label:'图像',value:`${height} × ${width} × ${channels}`},{label:'图块',value:`${patch} × ${patch} × ${channels}`},{label:'输出',value:`${tokens} × ${embedding}`}]}
-    footnote={<><p>当前图块投影按不重叠位置展开；等价卷积核大小与步长均为 P。共享投影核形状 P×P×C×D，展平为矩阵 P²C×D。</p><a href="https://arxiv.org/abs/2010.11929">ViT 论文 · §3.1</a></>}>
+    dimensions={[{label:'图像',value:`${height} × ${width} × ${channels}`},{label:'patch',value:`${patch} × ${patch} × ${channels}`},{label:'输出',value:`${tokens} × ${embedding}`}]}
+    footnote={<><p>当前 patch 投影按不重叠位置展开；等价卷积核大小与步长均为 P。共享投影核形状 P×P×C×D，展平为矩阵 P²C×D。</p><a href="https://arxiv.org/abs/2010.11929">ViT 论文 · §3.1</a></>}>
     <div className="patch-computation-top">
       <div className={`patch-computation-card ${active(0)}`}>
         <strong>一幅图像</strong>
-        <svg viewBox="0 0 180 144" role="img" aria-label={`${rows}行${columns}列图块，选中一个图块`}>
+        <svg viewBox="0 0 180 144" role="img" aria-label={`${rows}行${columns}列 patch，选中一个 patch`}>
           <defs><clipPath id={clip}><rect x={imageX} y={imageY} width={imageWidth} height={imageHeight} rx="4"/></clipPath></defs>
           <g clipPath={`url(#${clip})`}>
             <rect x="10" y="10" width="160" height="120" fill="#e1eff5"/>
@@ -47,8 +47,8 @@ function PatchImageVisualizer({operator,resetKey}:{operator:OperatorDetail;reset
       </div>
       <span className="patch-computation-arrow" aria-hidden="true">→</span>
       <div className={`patch-computation-card ${active(1)}`}>
-        <strong>选中的 P×P×C 图块</strong>
-        <svg viewBox="0 0 180 144" role="img" aria-label="图块包含全部输入通道">
+        <strong>选中的 P×P×C patch</strong>
+        <svg viewBox="0 0 180 144" role="img" aria-label="patch 包含全部输入通道">
           {Array.from({length:Math.min(channels,3)},(_,i)=>Math.min(channels,3)-i-1).map(i=><g key={i} transform={`translate(${38+i*14} ${18+i*10})`}>
             <rect width="80" height="80" rx="3" fill={['#ffe4a5','#cbdeda','#cfdfed'][i]} stroke="#688c91"/>
             {[1,2,3].map(j=><path key={j} d={`M${j*20} 0 V80 M0 ${j*20} H80`} stroke="#7d939b" strokeWidth=".6"/>)}</g>)}
@@ -58,7 +58,7 @@ function PatchImageVisualizer({operator,resetKey}:{operator:OperatorDetail;reset
       </div>
     </div>
     <div className={`patch-computation-projection ${active(2)}`}>
-      <span><strong>图块向量</strong><span className="math-expression">1 × {vector}</span></span><b aria-hidden="true">×</b>
+      <span><strong>patch 向量</strong><span className="math-expression">1 × {vector}</span></span><b aria-hidden="true">×</b>
       <span className="patch-computation-weight"><strong>共享权重 W</strong><span className="math-expression">{vector} × {embedding}</span></span><b aria-hidden="true">→</b>
       <span><strong>token zⱼ</strong><span className="math-expression">1 × {embedding}</span></span>
     </div>
@@ -87,7 +87,7 @@ export function PatchVisualizer({operator,resetKey}:{operator:OperatorDetail;res
  return <div className="patch-calculation-views">
   <TilePicker selected={mode} onSelect={setMode} labels={['图像到token','投影分块计算']}/>
   {mode===0?<PatchImageVisualizer operator={operator} resetKey={resetKey}/>:projection?
-   <GemmVisualizer operator={projection} resetKey={`${resetKey}:projection`} title="图块投影：沿像素与通道块乘加" context="M=B×V×T 个图块，K=P²C，N=D；可直接从原图隐式读取图块元素。下方4×4为独立数值示例。"/>
-   :<p className="visualizer-empty">图块总数或输入／输出尺寸待补充。</p>}
+   <GemmVisualizer operator={projection} resetKey={`${resetKey}:projection`} title="patch 投影：沿像素与通道块乘加" context="M=B×V×T 个 patch，K=P²C，N=D；可直接从原图隐式读取 patch 元素。下方4×4为独立数值示例。"/>
+   :<p className="visualizer-empty">patch 总数或输入／输出尺寸待补充。</p>}
  </div>;
 }

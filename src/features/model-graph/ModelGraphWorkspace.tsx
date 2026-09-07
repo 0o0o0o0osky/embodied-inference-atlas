@@ -211,7 +211,7 @@ function ResolvedModelGraph({
             scenario={<>
               {!operator && modelRoofline ? <ModelTheorySummary result={modelRoofline} route={route} navigate={navigate} /> : null}
               <p className="graph-scenario-summary">
-              当前场景：{overrides.V} 个视角，{overrides.L_PROMPT} 个提示词位置，{overrides.T_ACTION} 个动作词元，{overrides.N_DENOISE} 步去噪。
+              当前场景：{overrides.V} 个视角，{overrides.L_PROMPT} 个 prompt token，{overrides.T_ACTION} 个动作 token，{overrides.N_DENOISE} 步去噪。
             </p></>}
           />
         </section>

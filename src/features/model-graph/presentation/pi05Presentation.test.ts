@@ -56,5 +56,5 @@ it("keeps Pi0.5 Q/K/V lanes and a vertical AdaRMS activation path beside the con
       expect(box.x + box.width / 2).toBeCloseTo(main);
     });
   }
-  expect(layout.rowLabels?.map(item => item.label)).toEqual(['动作与时间输入', '注意力子层', '前馈子层', '动作输出']);
+  expect(layout.rowLabels?.map(item => item.label)).toEqual(['动作与时间输入', 'Attention 子层', '前馈子层', '动作输出']);
 });

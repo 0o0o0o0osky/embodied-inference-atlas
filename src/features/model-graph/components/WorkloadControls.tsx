@@ -1,3 +1,4 @@
+import { WORKLOAD_LABELS } from "../presentation/terminology";
 import type { ReactNode } from "react";
 import type { EditableSymbol } from "../domain/types";
 import { IntegerInput } from "../../../components/IntegerInput";
@@ -9,10 +10,6 @@ interface WorkloadControlsProps {
   onReset: () => void;
   children?: ReactNode;
 }
-
-const SCENARIO_LABELS: Record<string, string> = {
-  V: "相机视角", L_PROMPT: "提示词位置", T_ACTION: "动作词元", N_DENOISE: "去噪步数",
-};
 
 export function WorkloadControls({
   symbols,
@@ -37,7 +34,7 @@ export function WorkloadControls({
       <div className="graph-workload-grid">
         {symbols.map((symbol) => (
           <label key={symbol.symbol}>
-            <span>{SCENARIO_LABELS[symbol.symbol] ?? symbol.label}</span>
+            <span>{WORKLOAD_LABELS[symbol.symbol] ?? symbol.label}</span>
             <IntegerInput
               min={symbol.minimum}
               max={symbol.maximum ?? undefined}

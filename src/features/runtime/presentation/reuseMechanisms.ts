@@ -2,23 +2,23 @@ import type { RuntimeRealizationRecord, RuntimeReuseDescriptor } from '../domain
 
 // Display-only translations of audited evidence; unknown values retain their text.
 const EVIDENCE_LABELS: Readonly<Record<string,string>> = {
-  '再次调用 set_prompt 会重算时间表并替换预计算缓冲区；文本内容本身不是时间投影的值依赖':'重新设置提示词时，会重新准备时间表和缓冲区',
+  '再次调用 set_prompt 会重算时间表并替换预计算缓冲区；文本内容本身不是时间投影的值依赖':'重新设置 prompt 时，会重新准备时间表和缓冲区',
   '拓扑、形状或缓冲区地址改变，或模型实例释放时旧计划不再适用':'计算流程、输入尺寸或缓冲区地址改变时，需要重新捕获执行图',
-  'image content':'图像内容', 'prompt tokens':'提示词 token', 'positions':'位置编码输入', 'model weights':'模型权重',
+  'image content':'图像内容', 'prompt tokens':'prompt token', 'positions':'位置编码输入', 'model weights':'模型权重',
   'new observation executes prefix graph again':'新观测重新执行 Prefix 计算',
   'prefix inputs or model weights change':'Prefix 输入或模型权重变化',
-  'image token count':'图像 token 数', 'prompt token count':'提示词 token 数',
+  'image token count':'图像 token 数', 'prompt token count':'prompt token 数',
   'denoise step count':'去噪步数', 'backend graph topology':'后端执行图结构',
-  'MainKey changes rebuild GGML graph':'图像 token 数、提示词 token 数或去噪步数变化时重建执行图',
+  'MainKey changes rebuild GGML graph':'图像 token 数、prompt token 数或去噪步数变化时重建执行图',
   'backend graph update or model lifecycle ends':'后端执行图更新或模型对象生命周期结束',
-  'timestep schedule':'时间步计划', 'embedding width':'嵌入维度', 'chunk length':'动作块长度',
-  'sinusoidal embedding parameters':'正弦时间嵌入参数',
-  'next predict recomputes and uploads all timestep embeddings':'下一次预测重新计算并上传全部时间步嵌入',
-  'schedule or embedding shape changes':'时间步计划或嵌入形状变化',
+  'timestep schedule':'时间步计划', 'embedding width':'embedding 维度', 'chunk length':'动作块长度',
+  'sinusoidal embedding parameters':'正弦时间 embedding 参数',
+  'next predict recomputes and uploads all timestep embeddings':'下一次预测重新计算并上传全部时间步 embedding',
+  'schedule or embedding shape changes':'时间步计划或 embedding 形状变化',
 };
 export const readableEvidence = (value: string) => (EVIDENCE_LABELS[value] ?? value)
-  .replace(/set_prompt\s*时/g, '设置提示词时').replace(/调用 set_prompt/g, '设置提示词')
-  .replace(/set_prompt/g, '设置提示词').replace(/replay/g, '执行已捕获的图');
+  .replace(/set_prompt\s*时/g, '设置 prompt 时').replace(/调用 set_prompt/g, '设置 prompt ')
+  .replace(/set_prompt/g, '设置 prompt ').replace(/replay/g, '执行已捕获的图');
 
 // Explain the recorded mechanism; isolated latency savings require measurements.
 export function repeatedWork(item: RuntimeReuseDescriptor, realization: RuntimeRealizationRecord) {
@@ -48,9 +48,9 @@ export interface TimePrecomputeConfig {
 
 const FLASHRT_TIME = {
   preparationDevice: 'GPU', executionDevice: 'GPU',
-  preparationScope: '设置提示词时准备；后续观测继续读取这张表。',
+  preparationScope: '设置 prompt 时准备；后续观测继续读取这张表。',
   repeatScope: '每次观测的每个去噪步骤',
-  featureOperation: 'sin / cos', projectionOperation: '时间投影 + 偏置',
+  featureOperation: 'sin / cos', projectionOperation: '时间投影 + bias',
   actionOperation: '动作分支投影', outputOperations: ['相加', 'SiLU', '输出投影'],
 } as const;
 

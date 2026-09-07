@@ -73,7 +73,7 @@ export const pi05Presentation: GraphPresentation = {
       { ...splitRow(null, `${SUFFIX}/time-silu-in`), stepAfter: 40 },
       { ...splitRow(null, `${SUFFIX}/time-mlp-out`), stepAfter: 40 },
       { ...splitRow(null, `${SUFFIX}/time-silu-out`), stepAfter: 40 },
-      ...adarmsRows(ATTENTION_ADARMS, "注意力子层", { startScope: true }),
+      ...adarmsRows(ATTENTION_ADARMS, "Attention 子层", { startScope: true }),
       computeRow(ATTENTION, ["query-projection", "key-projection", "value-projection"]),
       computeRow(ATTENTION, ["query-rope", "key-rope", null]),
       computeRow(ATTENTION, [null, "extract-prefix-key", "extract-prefix-value"]),

@@ -30,7 +30,7 @@ export function PositionVisualizer({operator,resetKey}:{operator:OperatorDetail;
  const output=pairs.map(([a,b],i)=>rotatePair(a,b,angles[i]!));
  const phase=frequencies.map(w=>.5*w),timeOutput=[...phase.map(Math.sin),...phase.map(Math.cos)];
  const outputCells=[...indices,...indices.map(i=>i+4)];
- return <ComputationStepper title={rope?'RoPE：按特征对分块旋转':'时间嵌入：按频率分块，生成共享向量'}
+ return <ComputationStepper title={rope?'RoPE：按特征对分块旋转':'时间 embedding：按频率分块，生成共享向量'}
   formula={rope?'(a′, b′) = (a cosθ − b sinθ, a sinθ + b cosθ)':'φ = t · ω；embedding = [sinφ, cosφ]'}
   dimensions={[{label:'当前输入',value:vectorShape(operator.inputs[0]?.tensor?.shape)},{label:'当前输出',value:vectorShape(operator.outputs[0]?.tensor?.shape)}]}
   animation={animation} steps={steps} className={rope?'rope-computation':'time-embedding-computation'}

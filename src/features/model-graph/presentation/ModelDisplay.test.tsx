@@ -11,11 +11,17 @@ import { ModelDisplayProvider, modelDisplayText, useModelText } from './ModelDis
 
 function SharedLabel() { const t = useModelText(); return <span>{t('Query projection')}</span>; }
 
-it('uses shared Chinese terms for all three models while retaining their own scopes and symbolic dimensions', () => {
+it('uses shared terminology for all models while retaining their own scopes and symbolic dimensions', () => {
   for (const document of [pi0, pi05, smolvla]) {
     const graph = adaptV1ModelGraph(document.records[0] as CanonicalRecord);
     const dag = adaptLogicalDag(graph);
     const profile = resolvePresentationProfile(graph, dag);
+    expect(modelDisplayText(graph.modelId, dag.stages.find(stage => stage.id === 'prefix-encoder')!.label)).toBe('前缀编码器');
+    const inputLabel = (ref: string) => modelDisplayText(graph.modelId,
+      profile.presentation.aliases[ref] ?? dag.nodes.get(ref)!.label);
+    expect(inputLabel(graph.modelId === 'pi0' ? 'input/images' : 'input/executed-images')).toBe('图像');
+    expect(inputLabel('input/prompt-token-ids')).toBe(graph.modelId === 'pi05' ? 'prompt + state' : 'prompt');
+    if (dag.nodes.has('input/state')) expect(inputLabel('input/state')).toBe('state');
     expect(renderToStaticMarkup(<ModelDisplayProvider modelId={graph.modelId}><SharedLabel /></ModelDisplayProvider>)).toContain('Q 投影');
     expect(modelDisplayText(graph.modelId, profile.panelLabel)).toContain('模型算子图');
     expect(Object.keys(profile).sort()).toEqual(['diagramLabel', 'panelLabel', 'presentation']);
@@ -25,14 +31,25 @@ it('uses shared Chinese terms for all three models while retaining their own sco
     if (graph.modelId === 'smolvla') {
       const scale = Object.entries(profile.presentation.aliases).find(([ref]) => ref.endsWith('/connector-scale'))![1];
       expect(scale).toBe('×√DOUT');
-      expect(modelDisplayText(graph.modelId, 'Ordered self/cross expert pairs ×8')).toBe('自注意力/交叉注意力层对 ×8');
+      expect(modelDisplayText(graph.modelId, 'Ordered self/cross expert pairs ×8')).toBe('Self-attention → Cross-attention ×8');
     }
     if (graph.modelId === 'pi05') {
       expect(modelDisplayText(graph.modelId, 'AdaRMS expert layers ×18')).toBe('AdaRMS 专家层 ×18');
-      expect(modelDisplayText(graph.modelId, 'Prompt + state tokens')).toBe('提示词 + 状态词元');
+      expect(modelDisplayText(graph.modelId, 'Prompt + state tokens')).toBe('prompt + state');
       expect(modelDisplayText(graph.modelId, 'Gemma ×17 full')).toBe('Gemma ×17 full');
     }
   }
   expect(modelDisplayText('unknown-model', 'Query projection')).toBe('Q 投影');
   expect(modelDisplayText('unknown-model', 'Model-specific operation')).toBe('Model-specific operation');
+});
+
+it('normalizes source synonyms through one vocabulary, including future model entries', () => {
+  for (const model of ['pi0', 'pi05', 'smolvla', 'new-model']) {
+    const t = (label: string) => modelDisplayText(model, label);
+    expect(['Images', 'Executed images', '512² execution'].map(t)).toEqual(['图像', '图像', '图像']);
+    expect(['Prompt', 'Prompt tokens', 'Prompt token IDs'].map(t)).toEqual(['prompt', 'prompt', 'prompt']);
+    expect(['State input', 'State scalars'].map(t)).toEqual(['state', 'state']);
+    expect(['Attn', 'attention', 'Gate', 'bias', 'scale', 'shift', 'tokens'].map(t))
+      .toEqual(['Attention', 'Attention', 'gate', 'bias', 'scale', 'shift', 'token']);
+  }
 });

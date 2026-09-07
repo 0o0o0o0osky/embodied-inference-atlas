@@ -13,13 +13,13 @@ export function NormalizationVisualizer({operator,resetKey}:{operator:OperatorDe
   {label:'合并均值',description:'合并两个局部和，再除以完整行宽 D。所有块共享同一个均值。'},
   {label:'中心平方',description:'每个元素减去完整行均值后平方，再分别求块内平方和。'},
   {label:'合并方差',description:'合并两个平方和并除以 D，得到整行方差。'},
-  {label:'归一化输出',description:'计算 rsqrt(方差 + ε)，将各块的中心化元素乘同一缩放系数，写出 Y。'},
+  {label:'归一化输出',description:'计算 rsqrt(方差 + ε)，将各块的中心化元素乘同一 scale 系数，写出 Y。'},
  ]:[
   {label:'处理块 1',description:'加载前半个特征行，平方后在块内求和。'},
   {label:'处理块 2',description:'继续处理同一行的后半块，得到第二个平方和。'},
   {label:'合并均方',description:'合并两块的平方和并除以完整行宽 D，得到整行均方。'},
-  {label:'共享缩放',description:'用 rsqrt(均方 + ε) 得到整行共享的一个缩放系数。'},
-  {label:'归一化输出',description:'各块读取原始元素，乘这个缩放系数，写出对应位置。'},
+  {label:'共享 scale',description:'用 rsqrt(均方 + ε) 得到整行共享的一个 scale 系数。'},
+  {label:'归一化输出',description:'各块读取原始元素，乘这个 scale 系数，写出对应位置。'},
  ];
  const animation=useOperatorAnimation(steps.length,resetKey),f=animation.frame;
  const partial=(values:readonly number[])=>[values.slice(0,4).reduce((s,v)=>s+v,0),values.slice(4).reduce((s,v)=>s+v,0)];
@@ -42,7 +42,7 @@ export function NormalizationVisualizer({operator,resetKey}:{operator:OperatorDe
     {sums.map((v,i)=><div key={i}><dt>块 {i+1} {layer&&f<2?'元素和':'平方和'}</dt><dd>{!layer&&f===0&&i===1?'·':n(v)}</dd></div>)}
     <div><dt>{layer?'整行方差 v':'整行均方 m'}</dt><dd>{statsVisible?n(e.variance):'·'}</dd></div>
    </dl>
-   <div className={`tile-stage${f===(layer?4:3)?' is-active':''}`}><strong>共享缩放系数</strong><p>rsqrt({statsVisible?n(e.variance):'…'} + ε) = {f>=(layer?4:3)?n(e.scale):'·'}</p></div>
+   <div className={`tile-stage${f===(layer?4:3)?' is-active':''}`}><strong>共享 scale 系数</strong><p>rsqrt({statsVisible?n(e.variance):'…'} + ε) = {f>=(layer?4:3)?n(e.scale):'·'}</p></div>
    <TileMatrix label="输出 Y：各块使用相同统计量" rows={2} columns={4} values={e.output.map(v=>f===4?n(v):'·')} active={f===4?tileIndices(0,8):[]}/>
   </div>
  </ComputationStepper>;

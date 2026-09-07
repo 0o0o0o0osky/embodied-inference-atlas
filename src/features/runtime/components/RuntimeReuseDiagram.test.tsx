@@ -25,7 +25,7 @@ it('does not insert Pi0 prefix assumptions for another model without reuse evide
 it('translates audited dependency and invalidation labels without changing unknown evidence',()=>{
  const realization={mappings:[],launch:{cudaGraphState:'unknown',submissionMode:'none',evidenceIds:[]},evidence:[],reuse:[{reuseId:'native-time-embedding-observation',label:'时间嵌入',kind:'computed_result',producerRefs:[],consumerRefs:[],lifetime:'observation',repeatScope:'本次预测',valueDependencies:['timestep schedule','embedding width','chunk length','sinusoidal embedding parameters','untranslated evidence'],invalidationConditions:['next predict recomputes and uploads all timestep embeddings','schedule or embedding shape changes'],implementationStatus:'implemented',evidenceIds:[],storageBytes:null,preparationNs:null,readNs:null}]} as unknown as RuntimeRealizationRecord;
  const markup=renderToStaticMarkup(<RuntimeReuseDiagram dag={{nodes:new Map()} as unknown as LogicalDag} realization={realization}/>);
- expect(markup).toContain('时间步计划');expect(markup).toContain('下一次预测重新计算并上传全部时间步嵌入');
+ expect(markup).toContain('时间步计划');expect(markup).toContain('下一次预测重新计算并上传全部时间步 embedding');
  expect(markup).not.toContain('sinusoidal embedding parameters');expect(markup).toContain('untranslated evidence');
 });
 
@@ -39,7 +39,7 @@ it('shows FlashRT extra optimizations and a single pinned version, without routi
  expect(primary).not.toContain('前缀 K/V');
  expect(markup).not.toContain('基础计算机制');expect(markup).not.toContain('前缀 K/V');
  expect(markup).toContain('时间预计算前后对照');expect(markup).toContain('CUDA Graph 提交前后对照');
- expect(markup).toContain('sin / cos');expect(markup).toContain('时间投影 + 偏置');
+ expect(markup).toContain('sin / cos');expect(markup).toContain('时间投影 + bias');
  expect(markup).toContain('读取当前步结果');expect(markup).toContain('动作分支投影');
  expect(markup).toContain('SiLU');expect(markup).toContain('输出投影');
  expect(markup).toContain('<details class="optimization-version">');
