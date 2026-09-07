@@ -15,7 +15,7 @@
 | 动作序列元素 | 动作 token | 场景参数写“动作 token 数” |
 | 注意力 | Attention、Self-attention、Cross-attention | DAG 标签、详情标题与说明使用相同拼写 |
 | 投影 | Up、Down、Proj | DAG 的短标签；条件、输入、输出等限定按需保留 |
-| 门控与仿射参数 | gate、bias、scale、shift | bias 表示层的偏置；shift 表示条件化平移参数 |
+| 门控与仿射参数 | Gate、bias、scale、shift | Gate 的界面名称首字母大写；bias 表示层的偏置；shift 表示条件化平移参数 |
 | 图像分块与嵌入 | patch、embedding | 保留 RMSNorm、LayerNorm、RoPE、GELU、SiLU 等算子名称 |
 | 张量布局操作 | reshape、concat、slice | 中文说明可以使用“拼接”“按行选择”等动词 |
 
@@ -26,6 +26,9 @@ DAG 使用短标签，详情使用完整功能名称。详情标题由
 [`operatorTitle.ts`](../src/features/model-graph/presentation/operatorTitle.ts)
 按算子角色统一生成，例如 Q projection、MLP Up projection、Attention RMSNorm。
 时间条件投影与 action/time 混合投影分别命名；Attention 的 mask 语义继续保留。
+MLP 输入与输出投影的 DAG 短标签统一为输入 Proj、输出 Proj。
+SmolVLA 的 Cross-attention K/V 线性投影在 DAG 中写作 K Proj、V Proj，详情使用
+Cross-attention K projection、Cross-attention V projection。公式中的 `gate` 等变量保留原始定义。
 
 Slice 的概览、计算过程和图中提示共用
 [`slicePresentation.ts`](../src/features/model-graph/presentation/slicePresentation.ts)。

@@ -10,7 +10,7 @@ const roles: Readonly<Record<string, string>> = {
   "mlp-up-projection": "MLP Up projection",
   "down-projection": "MLP Down projection",
   "mlp-down-projection": "MLP Down projection",
-  "gate-projection": "MLP gate projection",
+  "gate-projection": "MLP Gate projection",
   "patch-project": "Patch projection",
   "project": "Vision projection",
   "connector-projection": "Vision connector projection",
@@ -29,18 +29,18 @@ const roles: Readonly<Record<string, string>> = {
   "final-scale-slice": "Select scale",
   "shift-slice": "Select shift",
   "final-shift-slice": "Select shift",
-  "gate-slice": "Select gate",
+  "gate-slice": "Select Gate",
   "scale-product": "RMSNorm × scale",
   "final-scale-product": "RMSNorm × scale",
   "scale-offset": "RMSNorm residual addition",
   "final-scale-offset": "RMSNorm residual addition",
   "shift-add": "Add shift",
   "final-shift-add": "Add shift",
-  "residual-gate": "Residual gate multiplication",
+  "residual-gate": "Residual Gate multiplication",
   "residual-add": "Gated residual addition",
   "attention-residual": "Attention residual addition",
   "mlp-residual": "MLP residual addition",
-  "gate-product": "MLP gate multiplication",
+  "gate-product": "MLP Gate multiplication",
   "action-time-concat": "Action/time concat",
   "suffix-concat": "State/action concat",
   "image-language-concat": "Vision/prompt concat",
@@ -98,6 +98,10 @@ export function operatorKindLabel(operator: OperatorDetail, t: ModelText): strin
 }
 
 export function operatorExplanation(operator: OperatorDetail): string | null {
+  if (["key-adapter", "value-adapter"].includes(operator.operatorId) && operator.definitionId === "linear") {
+    const name = operator.operatorId === "key-adapter" ? "K" : "V";
+    return `用学习到的权重对缓存的 prefix ${name} 做线性投影，供 action expert 的 Cross-attention 使用。`;
+  }
   if (["shift-add", "final-shift-add"].includes(operator.operatorId)) {
     return "shift 来自时间条件投影，沿 token 轴广播后逐元素相加。";
   }

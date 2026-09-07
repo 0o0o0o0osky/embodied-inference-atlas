@@ -36,7 +36,7 @@ export function slicePresentation(operator: OperatorDetail): SlicePresentation |
     return {
       axis: 1, start, stop: end,
       formula: `${parameter} = X[:, ${start}:${end}]`,
-      explanation: `从长度为 3 × D 的条件向量中取${["第一", "第二", "第三"][part]}段，每段 D=${dimension}。三段依次是 scale、shift、gate，索引范围采用左闭右开区间。${parameter === "shift" ? "shift 是时间条件生成的 bias，用于逐元素相加。" : ""}`,
+      explanation: `从长度为 3 × D 的条件向量中取${["第一", "第二", "第三"][part]}段，每段 D=${dimension}。三段依次是 scale、shift、Gate，索引范围采用左闭右开区间。${parameter === "shift" ? "shift 是时间条件生成的 bias，用于逐元素相加。" : ""}`,
     };
   }
   const isKey = id === "extract-prefix-key";

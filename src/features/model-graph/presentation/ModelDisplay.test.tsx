@@ -21,6 +21,9 @@ it('uses shared terminology for all models while retaining their own scopes and 
       profile.presentation.aliases[ref] ?? dag.nodes.get(ref)!.label);
     expect(inputLabel(graph.modelId === 'pi0' ? 'input/images' : 'input/executed-images')).toBe('图像');
     expect(inputLabel('input/prompt-token-ids')).toBe(graph.modelId === 'pi05' ? 'prompt + state' : 'prompt');
+    expect(inputLabel('prefix-encoder/prefix-blocks/feed-forward/gate-projection')).toBe('Gate');
+    expect(inputLabel('action-flow-decoder/action-suffix-builder/time-mlp-in')).toBe('输入 Proj');
+    expect(inputLabel('action-flow-decoder/action-suffix-builder/time-mlp-out')).toBe('输出 Proj');
     if (dag.nodes.has('input/state')) expect(inputLabel('input/state')).toBe('state');
     expect(renderToStaticMarkup(<ModelDisplayProvider modelId={graph.modelId}><SharedLabel /></ModelDisplayProvider>)).toContain('Q 投影');
     expect(modelDisplayText(graph.modelId, profile.panelLabel)).toContain('模型算子图');
@@ -31,6 +34,9 @@ it('uses shared terminology for all models while retaining their own scopes and 
     if (graph.modelId === 'smolvla') {
       const scale = Object.entries(profile.presentation.aliases).find(([ref]) => ref.endsWith('/connector-scale'))![1];
       expect(scale).toBe('×√DOUT');
+      const cross = 'action-flow-decoder/expert-layer-pairs/cross-attention';
+      expect(inputLabel(`${cross}/key-adapter`)).toBe('K Proj');
+      expect(inputLabel(`${cross}/value-adapter`)).toBe('V Proj');
       expect(modelDisplayText(graph.modelId, 'Ordered self/cross expert pairs ×8')).toBe('Self-attention → Cross-attention ×8');
     }
     if (graph.modelId === 'pi05') {
@@ -50,6 +56,6 @@ it('normalizes source synonyms through one vocabulary, including future model en
     expect(['Prompt', 'Prompt tokens', 'Prompt token IDs'].map(t)).toEqual(['prompt', 'prompt', 'prompt']);
     expect(['State input', 'State scalars'].map(t)).toEqual(['state', 'state']);
     expect(['Attn', 'attention', 'Gate', 'bias', 'scale', 'shift', 'tokens'].map(t))
-      .toEqual(['Attention', 'Attention', 'gate', 'bias', 'scale', 'shift', 'token']);
+      .toEqual(['Attention', 'Attention', 'Gate', 'bias', 'scale', 'shift', 'token']);
   }
 });
