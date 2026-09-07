@@ -58,6 +58,8 @@
 | 真实时间线与深度查看 | [TimelineViewport](../src/features/timeline/components/TimelineViewport.tsx)、[Perfetto 导出](../src/features/timeline/perfetto/traceExport.ts) | 一条 canonical timeline；单位转换、区间聚合、缩放与导出统一处理 |
 | 总体统计与 Kernel 热点 | [Pi0NsysSection](../src/features/runtime/components/Pi0NsysSection.tsx)、[ExecutionHotspots](../src/features/runtime/components/ExecutionHotspots.tsx) | 中位数与稳定性摘要、事件、调用配置、已确认关联；已有文件名不构成模型限制 |
 | Roofline 与硬件指标 | [Roofline 功能目录](../src/features/roofline)、[KernelNcuMetrics](../src/features/runtime/components/KernelNcuMetrics.tsx) | 对象工作量、内存域、流量口径、实际调用、设备上限和指标单位 |
+| Attention 两种理论路径 | [公式](../src/features/roofline/domain/attentionEstimate.ts)、[共享图表](../src/features/roofline/components/AttentionRooflinePanel.tsx) | 单次 Q/K/V 形状、各张量字节数、mask 与 Tensor/CUDA/SFU/带宽速率；硬件 profile 单独配置并标注参考假设 |
+| 布局与物化拷贝 | [ConcatCostPanel](../src/features/model-graph/components/ConcatCostPanel.tsx) | concat/reshape、单次输入与输出字节数、激活位宽与带宽；同一模板呈现预布局和物化条件 |
 | 执行优化卡片与机制图 | [RuntimeReuseDiagram](../src/features/runtime/components/RuntimeReuseDiagram.tsx)、[机制配置](../src/features/runtime/presentation/reuseMechanisms.ts) | 复用类型、生命周期、依赖、失效条件；已核对的机制配置决定选哪幅图 |
 | 色彩、字体与交互 | [base.css](../src/styles/base.css)、[wheelZoom](../src/features/workbench/wheelZoom.ts) | 使用共享语义 token；不为每种硬件新建主题或缩放实现 |
 | 离线构建与截图 | [build](../tools/build.py)、[render_review](../tools/render_review.mjs) | 已解析数据、完整页面 URL、视窗和截图选择器；产物留 `.local/` |
@@ -80,6 +82,23 @@
 稳定的术语、单位、缺失状态和机制通用句在 presentation 模块维护一次。
 agent 只写当前对象新增的信息：具体计算／交互、证据支持的解释，以及尚待验证的判断。
 原始审阅笔记、模板使用说明与工具选项不直接复制进页面。
+
+## 布局与 Attention 的理论输入
+
+逻辑 concat、reshape、切片描述张量关系，不自动对应 Kernel。已确认的 view/offset
+用映射状态或注释表达，无额外拷贝；实际 copy/reorder 才关联执行事件与耗时。
+Concat 不固定为零：预布局可省去独立拼接，部分预布局只计算仍发生的片段拷贝。
+理论面板分别展示兼容布局和物化路径；输入来自单次张量尺寸、激活位宽及所选带宽，
+行选择只计算输出所需元素。生产者写入和消费者读取仍归各自算子。
+
+Attention 的显式分数矩阵路径与融合片上驻留路径是独立理论假设，不能据此认定某个
+运行栈采用了其中一条。agent 提供 batch、Q/KV 头数、query/key 长度、QK/value
+维度、输入/累加/输出精度、mask 规则与存储，以及是否物化分数矩阵、融合边界、已知分块和重读规则。
+当前融合模型采用理想边界读写，具体 tile 的重复读取与在线 Softmax 重缩放另需建模。
+CUDA 算术与归约共享资源，指数与倒数共享 SFU；相同资源先累加需求，不同资源取包络。
+公开规格和参考假设分别记录；缺少设备速率时保留工作量与流量。该单算子对照不改写模型总量的既有覆盖口径。
+公式与上限由组件计算；要叠加实测，再提供对应调用、时间来源、相同工作量及流量
+口径的关联。未知布局、分块或调用关系保留为条件，不从 Kernel 名称猜测。
 
 ## 新增机制或适配器时
 

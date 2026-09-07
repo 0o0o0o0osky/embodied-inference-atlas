@@ -2,6 +2,7 @@ import { useMemo } from "react";
 
 import type { RoutePatch, RouteState } from "../../../app/routes";
 import type { AtlasData, CanonicalRecord, ModelRecord } from "../../../types/atlas";
+import {OperatorExecutionEstimate, supportsExecutionEstimate} from "../../model-graph/components/OperatorExecutionEstimate";
 import { adaptV1ModelGraph } from "../../model-graph/domain/adaptV1ModelGraph";
 import { adaptRuntimeRealization, isRuntimeRealizationRecord } from "../../runtime/domain/adaptRuntimeRealization";
 import { indexRuntimeRealization } from "../../runtime/domain/indexRuntimeRealization";
@@ -259,6 +260,17 @@ function CoreRooflineView({
   }, index);
   const overview = buildRooflineView({ ...queryBase, mode: "overview", basisId: null }, index).overview!;
   const modelTheory = isPi0ModelTheory(route);
+  const selectedDetail = useMemo(() => {
+    const ref=logicalRefFromEntity(route.entity);
+    if (!graphRecord || !ref || !view.activeScenario || view.activeBasis?.time_basis!=="analytical_roof") return null;
+    const w=view.activeScenario.workload;
+    const graph=adaptV1ModelGraph(graphRecord,{V:w.executed_camera_views,L_PROMPT:w.executed_prompt_tokens,T_ACTION:w.action_horizon,N_DENOISE:w.denoise_steps});
+    return graph.operatorsByRef.get(ref) ?? null;
+  },[graphRecord,route.entity,view.activeScenario,view.activeBasis]);
+  const operationEstimate = selectedDetail && supportsExecutionEstimate(selectedDetail)
+    && view.activeScenario && view.activeCeiling && view.activeBasis?.level==='atomic'
+    ? <div className="theory-operation-expanded"><OperatorExecutionEstimate detail={selectedDetail} scenario={view.activeScenario} ceiling={view.activeCeiling}
+        bandwidth={view.activeCeiling.bandwidth.find(b=>b.bandwidth_ceiling_id===view.activeBasis!.bandwidth_ceiling_id)?.byte_per_second??null}/></div> : null;
   const basisControls = <RooflineBasisBar
     route={route}
     model={view}
@@ -285,7 +297,7 @@ function CoreRooflineView({
           </details> : <>{basisControls}
             {view.warnings.length ? <div className="roofline-warnings" role="status">{view.warnings.map((warning) => <p key={warning.id}><strong>{warning.id.replaceAll("-", " ")}.</strong> {warning.message}</p>)}</div> : null}
           </>}
-          <RooflineAnalysis model={view} selectedEntityKey={selectedKey} onSelect={(entity) => navigate({ entity }, true)} modelTheory={modelTheory} />
+          {operationEstimate ?? <RooflineAnalysis model={view} selectedEntityKey={selectedKey} onSelect={(entity) => navigate({ entity }, true)} modelTheory={modelTheory} />}
         </>
       )}
     </section>

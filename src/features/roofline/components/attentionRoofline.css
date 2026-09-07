@@ -1,0 +1,32 @@
+.attention-roofline-panel { display: grid; gap: 14px; color: var(--graphite); }
+.attention-roofline-panel h3, .attention-roofline-panel p { margin: 0; }
+.attention-roofline-panel h3 { font-size: 17px; }
+.attention-roofline-panel p { font-size: 12px; line-height: 1.7; }
+.attention-roofline-panel header p, .attention-model-note { color: var(--slate); }
+.attention-path-flow { display:flex; align-items:center; justify-content:space-between; gap:6px; font-size:12px; }
+.attention-path-flow span { padding:10px 9px; border:1px solid var(--analysis-work-stroke); border-radius:6px; background:var(--analysis-work-bg); text-align:center; }
+.attention-path-flow i { font-size:10px; font-style:normal; color:var(--slate); }
+.attention-path-flow.is-fused span { flex:1; background:var(--analysis-prepared-bg); border-color:var(--analysis-prepared-stroke); }
+.attention-path-flow b { font-weight:500; }
+.attention-path-flow small { display:block; margin-top:4px; color:var(--slate); }
+.attention-roofline-plot { margin:0; }
+.attention-roofline-plot svg { display:block; width:100%; min-width:280px; }
+.attention-roofline-plot text { fill:var(--slate); font-size:10px; }
+.attention-roofline-plot .ar-grid { stroke:var(--line); stroke-width:1; }
+.attention-roofline-plot .ar-roof { fill:none; stroke:var(--roofline-roof); stroke-width:2; }
+.attention-roofline-plot .ar-separate { fill:var(--roofline-partial); }
+.attention-roofline-plot .ar-fused { fill:var(--signal-blue); }
+.attention-roofline-plot .ar-label-separate { fill:var(--roofline-partial); font-weight:600; }
+.attention-roofline-plot .ar-label-fused { fill:var(--signal-blue); font-weight:600; }
+.attention-roofline-plot figcaption { display:flex; align-items:center; justify-content:center; gap:7px; color:var(--slate); font-size:11px; }
+.ar-line-key { width:20px; border-top:2px solid var(--roofline-roof); }
+.attention-table-scroll { overflow-x:auto; }
+.attention-roofline-panel table { width:100%; border-collapse:collapse; font-size:11px; text-align:left; }
+.attention-roofline-panel th, .attention-roofline-panel td { padding:9px 7px; border-bottom:1px solid var(--line); white-space:nowrap; }
+.attention-roofline-panel thead th { color:var(--slate); font-weight:500; }
+.attention-roofline-panel details { border-top:1px solid var(--line); padding-top:12px; font-size:12px; }
+.attention-roofline-panel details summary { cursor:pointer; }
+.attention-roofline-panel details p, .attention-roofline-panel details .attention-table-scroll { margin-top:12px; }
+.attention-mask-option { display:flex; align-items:center; gap:6px; margin-top:12px; }
+
+.theory-operation-expanded { max-width:780px; margin:20px auto; padding:24px; border:1px solid var(--line); border-radius:10px; background:var(--white); }

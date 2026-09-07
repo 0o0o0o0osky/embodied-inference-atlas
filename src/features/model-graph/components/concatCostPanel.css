@@ -1,0 +1,11 @@
+.concat-cost-panel { display: grid; gap: 12px; margin-block: 16px; }
+.concat-cost-panel h3, .concat-cost-panel h4, .concat-cost-panel p { margin: 0; }
+.concat-cost-panel header p, .concat-cost-scope { color: #667c91; font-size: 12px; line-height: 1.6; }
+.concat-cost-path { display: grid; gap: 9px; border: 1px solid #d7e2ec; border-radius: 8px; padding: 12px; }
+.concat-cost-path h4 { font-size: 14px; }
+.concat-cost-path p { font-size: 13px; line-height: 1.65; overflow-wrap: break-word; }
+.concat-buffer-flow { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; font-size: 12px; }
+.concat-buffer-flow > b { color: #4182a1; font-weight: 400; }
+.concat-buffer { display: inline-flex; border: 1px solid #4b98ab; border-radius: 4px; overflow: hidden; background: #edf8fa; }
+.concat-buffer i { padding: 7px 9px; font-style: normal; }
+.concat-buffer i + i { border-left: 1px dashed #77a8b5; }

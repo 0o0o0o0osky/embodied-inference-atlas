@@ -249,6 +249,7 @@ function ResolvedModelGraph({
             onClose={() => navigate({ entity: null }, true)}
             rooflinePanel={pi0Roofline ? <OperatorRooflinePanel
               result={pi0Roofline}
+              detail={operator}
               logicalRef={operator.ref}
               fullAnalysisLink={<RouteLink route={route} navigate={navigate} patch={{
                 ...pi0TheoryNavigationPatch(route, "expanded"),

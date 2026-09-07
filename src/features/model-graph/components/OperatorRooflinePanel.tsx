@@ -7,7 +7,11 @@ import {
 import { formatNumber, formatQuantity, formatTime } from "../../roofline/presentation/viewModel";
 import type { Provenance, RooflinePointRecord } from "../../roofline/domain/types";
 
+import type { OperatorDetail } from "../domain/types";
+import {OperatorExecutionEstimate, supportsExecutionEstimate} from "./OperatorExecutionEstimate";
+
 interface OperatorRooflinePanelProps {
+  detail?: OperatorDetail;
   result: Pi0AnalyticalResult;
   logicalRef: string;
   fullAnalysisLink: ReactNode;
@@ -61,6 +65,7 @@ function valueOrDash(value: number | null, format: (value: number) => string) {
 
 export function OperatorRooflinePanel({
   result,
+  detail,
   logicalRef,
   fullAnalysisLink,
 }: OperatorRooflinePanelProps) {
@@ -73,6 +78,7 @@ export function OperatorRooflinePanel({
       </div>
     );
   }
+  if (detail && supportsExecutionEstimate(detail)) return <><OperatorExecutionEstimate detail={detail} scenario={result.value.scenario} ceiling={result.value.ceiling} bandwidth={result.value.bandwidthCeiling.byte_per_second}/><div className="operator-roofline-action">{fullAnalysisLink}</div></>;
   const summary = buildOperatorRooflineSummary(result.value, logicalRef);
   if (!summary) {
     return (
