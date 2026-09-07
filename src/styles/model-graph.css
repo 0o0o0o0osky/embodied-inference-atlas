@@ -23,7 +23,7 @@
 .operator-inspector > header p {
   margin: 0;
   color: var(--signal-blue-dark);
-  font-family: var(--mono-face);
+  font-family: var(--display-face);
   font-size: 1rem;
 }
 
@@ -147,7 +147,7 @@
   padding: 0.4rem 0.55rem;
   border: 1px solid var(--line-dark);
   border-radius: 2px;
-  font-family: var(--mono-face);
+  font-family: var(--display-face);
 }
 
 .graph-workload-grid small {
@@ -179,14 +179,14 @@
 
 .derived-symbols dt {
   color: var(--signal-blue-dark);
-  font-family: var(--mono-face);
+  font-family: var(--display-face);
   font-size: 1rem;
   font-weight: 700;
 }
 
 .derived-symbols dd {
   margin: 0;
-  font-family: var(--mono-face);
+  font-family: var(--display-face);
   font-weight: 800;
 }
 
@@ -442,7 +442,7 @@
 
 .logical-stage-index {
   fill: var(--dag-quiet-label, #71827d);
-  font-family: var(--dag-label-face, var(--mono-face));
+  font-family: var(--dag-label-face, var(--display-face));
   font-size: 10px;
   font-weight: 700;
 }
@@ -597,7 +597,7 @@
 }
 
 .logical-node--inline text {
-  font-family: var(--mono-face);
+  font-family: var(--display-face);
   font-size: 12px;
 }
 
@@ -642,7 +642,7 @@
 
 .logical-warning {
   fill: var(--danger);
-  font-family: var(--mono-face);
+  font-family: var(--display-face);
   font-size: 10px;
 }
 
@@ -694,11 +694,6 @@
 .operator-drawer-panel {
   padding-top: 1rem;
   overflow-wrap: anywhere;
-}
-
-.operator-drawer code {
-  font-family: var(--mono-face);
-  font-size: 1em;
 }
 
 .drawer-availability a {

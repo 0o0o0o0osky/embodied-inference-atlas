@@ -7,7 +7,7 @@ function TensorShapes({ ports, direction }: { ports: readonly MaterializedPort[]
   const t = useModelText();
   return <dl className="operator-tensor-shapes">{ports.map(({ port, tensor }) => <div key={port}>
     <dt className={ports.length === 1 && t(port) === direction ? "visually-hidden" : undefined}>{t(port)}</dt>
-    <dd>{tensor ? <code>[{tensor.shape.map((value) => value?.toLocaleString() ?? "?").join(" × ")}]</code> : "形状待补充"}</dd>
+    <dd>{tensor ? <span className="math-expression">[{tensor.shape.map((value) => value?.toLocaleString() ?? "?").join(" × ")}]</span> : "形状待补充"}</dd>
   </div>)}</dl>;
 }
 
@@ -27,7 +27,7 @@ export function OperatorOverview({ operator }: { operator: OperatorDetail }) {
   return <div className="operator-overview">
     <div className="operator-overview-formula">
       <span>{t(operator.definitionLabel)}</span>
-      <code>{operator.formula || "计算公式待补充"}</code>
+      <span className="math-expression">{operator.formula || "计算公式待补充"}</span>
     </div>
     <div className="operator-tensor-flow">
       <section><h3>输入</h3>{operator.inputs.length ? <TensorShapes ports={operator.inputs} direction="输入" /> : <p>输入形状待补充</p>}</section>
@@ -46,11 +46,11 @@ export function OperatorOverview({ operator }: { operator: OperatorDetail }) {
       <table><thead><tr><th>张量</th><th>维度表达式</th></tr></thead><tbody>
         {ports.filter((port) => port.tensor).map(({ port, tensor, direction }) => <tr key={`${direction}/${port}`}>
           <th scope="row">{direction} · {t(port)}</th>
-          <td><code>{tensor!.axes.length ? tensor!.axes.map((axis) => expressionLabel(axis.expression)).join(" × ") : "标量"}</code></td>
+          <td><span className="math-expression">{tensor!.axes.length ? tensor!.axes.map((axis) => expressionLabel(axis.expression)).join(" × ") : "标量"}</span></td>
         </tr>)}
       </tbody></table>
       {bindings.length ? <dl className="operator-symbol-values">{bindings.map(([symbol, value]) => <div key={symbol}>
-        <dt><code>{symbol}</code></dt><dd>{value?.toLocaleString() ?? "待补充"}</dd>
+        <dt><span className="math-expression">{symbol}</span></dt><dd>{value?.toLocaleString() ?? "待补充"}</dd>
       </div>)}</dl> : null}
       {operator.unresolvedSymbols.length ? <p>待填写：{operator.unresolvedSymbols.join("、")}</p> : null}
     </details> : null}
@@ -62,7 +62,7 @@ export function OperatorOverview({ operator }: { operator: OperatorDetail }) {
         {operator.tailRepeat ? <div><dt>含此算子的尾段</dt><dd>{operator.tailRepeat}</dd></div> : null}
         <div><dt>模块内调用</dt><dd>{operator.intrinsicRepeat ?? "待补充"}</dd></div>
       </dl>
-      <code>{operator.stageRepeat ?? "?"} × ({operator.moduleRepeat ?? "?"}{operator.tailRepeat ? ` + ${operator.tailRepeat}` : ""}) × {operator.intrinsicRepeat ?? "?"} = {operator.effectiveRepeat?.toLocaleString()}</code>
+      <span className="math-expression">{operator.stageRepeat ?? "?"} × ({operator.moduleRepeat ?? "?"}{operator.tailRepeat ? ` + ${operator.tailRepeat}` : ""}) × {operator.intrinsicRepeat ?? "?"} = {operator.effectiveRepeat?.toLocaleString()}</span>
     </details> : null}
   </div>;
 }

@@ -18,6 +18,10 @@ DAG 的线型表示依赖语义：实线箭头是张量数据，虚线箭头是�
 权重／仿射是否声明等数学适用条件，不能只按算子类别填通用的“读取—计算—写入”动图。
 未适配的计算图使用共享缺省提示。复用这些代码图，不为每个模型或输入保存图片。
 
+页面、图表刻度和指标数字统一使用 `--display-face`。公式与张量尺寸用
+`math-expression` 样式，数字通过 `tabular-nums` 对齐；代码、路径和原始计数器名称
+使用 `code` 与 `--mono-face`。新组件沿用这些字体，不单独指定系统字体。
+
 ## 新页面接入契约
 
 每个模型、推理栈或硬件入口都必须使用共享壳、上下文解析、导航及选中对象。
@@ -75,6 +79,7 @@ DAG 的线型表示依赖语义：实线箭头是张量数据，虚线箭头是�
 | Roofline 与硬件指标 | [Roofline 功能目录](../src/features/roofline)、[KernelNcuMetrics](../src/features/runtime/components/KernelNcuMetrics.tsx) | 对象工作量、内存域、流量口径、实际调用、设备上限和指标单位 |
 | 选中对象的 Roofline 图表与指标 | [RooflinePlot](../src/features/roofline/components/RooflinePlot.tsx)、[指标表](../src/features/roofline/components/RooflineMetricsTable.tsx)、[理论详情](../src/features/roofline/components/TheoryRooflinePanel.tsx) | 统一轴、空心理论点、实测点、指标行和折叠说明；GEMM、Attention、RMSNorm 与 Kernel 配对共用，公式不放入绘图组件 |
 | RMSNorm 理论估计 | [归一化公式](../src/features/roofline/domain/normalizationEstimate.ts)、[逻辑算子适配](../src/features/roofline/domain/rmsNormFromOperator.ts) | 行数、归一化宽度、存储位宽、普通算术/归约/rsqrt 及带宽；基础归一化与条件化仿射分别提供 |
+| 逐元素运算与图块投影 | [单次公式](../src/features/roofline/domain/localOperatorEstimate.ts)、[局部图表适配](../src/features/model-graph/components/LocalOperatorRooflinePanel.tsx) | 加法、乘法、Euler 更新的形状；图块尺寸、共享投影权重、输入与输出位宽。普通加乘、融合乘加与矩阵计算分别选择上限 |
 | Attention 两种理论路径 | [公式](../src/features/roofline/domain/attentionEstimate.ts)、[共享图表](../src/features/roofline/components/AttentionRooflinePanel.tsx) | 单次 Q/K/V 形状、各张量字节数、mask 与 Tensor/CUDA/SFU/带宽速率；硬件 profile 单独配置并标注参考假设 |
 | 布局与物化拷贝 | [ConcatCostPanel](../src/features/model-graph/components/ConcatCostPanel.tsx) | concat/reshape、单次输入与输出字节数、激活位宽与带宽；同一模板呈现预布局和物化条件 |
 | 执行优化卡片与机制图 | [RuntimeReuseDiagram](../src/features/runtime/components/RuntimeReuseDiagram.tsx)、[机制配置](../src/features/runtime/presentation/reuseMechanisms.ts) | 复用类型、生命周期、依赖、失效条件；已核对的机制配置决定选哪幅图 |

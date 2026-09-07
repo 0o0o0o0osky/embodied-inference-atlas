@@ -36,3 +36,19 @@ it('renders RMSNorm with the shared plot and metric table using ordinary arithme
  const missing=renderToStaticMarkup(<OperatorExecutionEstimate detail={rms} scenario={scenario} ceiling={ceiling} bandwidth={null}/>);
  expect(missing).toContain('硬件速率待补充');expect(missing).not.toContain('data-point-id=');expect(missing).toContain('建模读写');
 });
+
+it('routes simple arithmetic, patch projection and slices without claiming additional model-total coverage',()=>{
+ for(const definitionId of ['residual-add','elementwise-multiply','patch-embedding','euler-update','slice']) {
+  const selected=[...graph.operatorsByRef.values()].find(d=>d.definitionId===definitionId)!;
+  const html=renderToStaticMarkup(<OperatorRooflinePanel detail={selected} logicalRef={selected.ref} fullAnalysisLink={null} result={{status:'available',value:{scenario,ceiling,bandwidthCeiling:ceiling.bandwidth[0]!,atomicPoints:[]} as never}}/>);
+  expect(html,definitionId).not.toContain('形状待补充');
+  expect(html,definitionId).toContain(definitionId==='slice'?'0 B 额外拷贝':'data-point-id="local-operator"');
+  expect(html).not.toMatch(/NaN|Infinity/);
+ }
+});
+
+it('keeps scalar work visible without borrowing a matrix ceiling on unsupported hardware',()=>{
+ const selected=[...graph.operatorsByRef.values()].find(d=>d.definitionId==='residual-add')!;
+ const html=renderToStaticMarkup(<OperatorExecutionEstimate detail={selected} scenario={scenario} ceiling={{...ceiling,device_id:'other-device'}} bandwidth={273e9}/>);
+ expect(html).toContain('硬件速率待补充');expect(html).toContain('建模读写');expect(html).not.toContain('data-point-id=');
+});

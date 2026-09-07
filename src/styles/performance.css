@@ -24,7 +24,7 @@
 .kernel-counterpart p {
   margin: 0 0 0.25rem;
   color: var(--signal-blue-dark);
-  font-family: var(--mono-face);
+  font-family: var(--display-face);
   font-size: 0.7rem;
   text-transform: uppercase;
 }
@@ -55,7 +55,7 @@
   border: 1px solid var(--graphite);
   box-shadow: inset 5px 0 var(--safety-orange);
   background: var(--white);
-  font-family: var(--mono-face);
+  font-family: var(--display-face);
   font-size: 1rem;
   line-height: 1.5;
 }
@@ -64,7 +64,7 @@
   display: block;
   margin-top: 0.45rem;
   color: var(--slate);
-  font-family: var(--mono-face);
+  font-family: var(--display-face);
   font-size: 0.78rem;
   font-weight: 600;
 }
@@ -96,7 +96,7 @@
 
 .profiler-inventory dd {
   margin: 0.25rem 0 0;
-  font-family: var(--mono-face);
+  font-family: var(--display-face);
   font-size: 0.78rem;
   font-weight: 800;
   overflow-wrap: anywhere;
@@ -149,7 +149,7 @@
 
 .kernel-table-section > header > strong {
   flex: 0 0 auto;
-  font-family: var(--mono-face);
+  font-family: var(--display-face);
 }
 
 .kernel-table-scroll table {
@@ -207,7 +207,7 @@
 
 .kernel-primary-value,
 .kernel-mono {
-  font-family: var(--mono-face);
+  font-family: var(--display-face);
   font-weight: 800;
 }
 
@@ -266,7 +266,7 @@
 .kernel-provenance dd {
   margin: 0.2rem 0 0;
   overflow-wrap: anywhere;
-  font-family: var(--mono-face);
+  font-family: var(--display-face);
   font-size: 1rem;
   font-weight: 800;
 }
@@ -452,7 +452,7 @@
 }
 
 .pi0-profiler-section .pi0-kernel-hotspots td {
-  font-family: var(--mono-face);
+  font-family: var(--display-face);
   font-variant-numeric: tabular-nums;
 }
 

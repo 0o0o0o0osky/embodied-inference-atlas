@@ -25,7 +25,7 @@
 .stage-ledger > header p {
   margin: 0 0 0.3rem;
   color: var(--signal-blue-dark);
-  font-family: var(--mono-face);
+  font-family: var(--display-face);
   font-size: 0.72rem;
   text-transform: uppercase;
 }
@@ -81,7 +81,7 @@
 
 .e2e-intro dd {
   margin: 0.25rem 0 0;
-  font-family: var(--mono-face);
+  font-family: var(--display-face);
   font-size: 1.15rem;
   font-weight: 800;
 }
@@ -143,7 +143,7 @@
   flex: 0 0 auto;
   padding: 0.35rem 0.5rem;
   border: 1px solid var(--line-dark);
-  font-family: var(--mono-face);
+  font-family: var(--display-face);
   font-size: 0.74rem;
 }
 
@@ -223,7 +223,7 @@
 }
 
 .evidence-selected-value {
-  font-family: var(--mono-face);
+  font-family: var(--display-face);
   font-size: 0.94rem;
   font-weight: 800;
   white-space: nowrap;
@@ -313,7 +313,7 @@
 .stage-ledger-rows small,
 .stage-index {
   color: var(--slate);
-  font-family: var(--mono-face);
+  font-family: var(--display-face);
   font-size: 0.7rem;
 }
 

@@ -1118,6 +1118,96 @@
     {
       "aggregation": "entity",
       "bandwidth_ceiling_id": "bw-thor-120w-conditional-273gbps",
+      "basis_id": "basis-pi0-flashrt-action-gate-up-node-002",
+      "capture_id": "capture-pi0-flashrt-nsys-node-002",
+      "ceiling_id": "thor-t5000-120w-1386mhz",
+      "comparison_mode": "inventory",
+      "device_id": "nvidia-jetson-agx-thor",
+      "label": "Action Gate/Up GEMM: Nsys intervals and modeled boundary",
+      "level": "kernel",
+      "missing": [],
+      "operating_point_id": "thor-120w-1386mhz-analytical",
+      "precision_path_id": "fp8_w8a8",
+      "provenance": {
+        "class": "analytical_model",
+        "condition": "GEMM core multiply-add work only; FP32 scaling epilogue, output conversion and scheduling instructions are not modeled. FP8 activation/weight read once, FP16 output written once; beta=0. Kernel-boundary modeled bytes, not measured DRAM. Timing is the complete selected Nsys Kernel intervals in one prediction, not NCU replay or unprofiled timing. Conditional Thor 120W/1.386GHz/273GB/s reference, without matching observed GPU/EMC clocks; no efficiency or attainment gap.",
+        "derivation": {
+          "expression": "GEMM 2*11*8192*1024 per call; boundary A=11*1024, B=8192*1024, C=2*11*8192 bytes; 180 calls; source-ordered Nsys observation kernel-observation-pi0-flashrt-nsys-node_r002_043",
+          "input_refs": [
+            "flash_rt/frontends/torch/pi0_thor.py",
+            "flash_rt/hardware/thor/shared_primitives.py",
+            "flash_rt/models/pi0/pipeline_thor.py",
+            "csrc/kernels/decoder_fused.cu",
+            "csrc/gemm/gemm_types_sm100.h",
+            "csrc/gemm/cutlass_sm100.cu"
+          ],
+          "kind": "formula"
+        },
+        "evidence": "analytical",
+        "source_ids": [
+          "source-local-thor",
+          "source-flashrt"
+        ]
+      },
+      "realization_id": "rr-flashrt-pi0-thor-fp8-v1",
+      "run_id": "run-pi0-flashrt-nsys-node-002",
+      "runtime_id": "flashrt",
+      "runtime_overhead": "excluded",
+      "scenario_id": "scenario-pi0-flashrt-action-gate-up-fp8",
+      "schema_version": "2.0.0",
+      "time_basis": "nsys_interval",
+      "traffic_basis": "kernel_boundary_modeled",
+      "work_basis": "runtime_executed_formula",
+      "work_unit": "kernel_launch"
+    },
+    {
+      "aggregation": "entity",
+      "bandwidth_ceiling_id": "bw-thor-120w-conditional-273gbps",
+      "basis_id": "basis-pi0-flashrt-prefix-down-node-002",
+      "capture_id": "capture-pi0-flashrt-nsys-node-002",
+      "ceiling_id": "thor-t5000-120w-1386mhz",
+      "comparison_mode": "inventory",
+      "device_id": "nvidia-jetson-agx-thor",
+      "label": "Prefix Down GEMM: Nsys intervals and modeled boundary",
+      "level": "kernel",
+      "missing": [],
+      "operating_point_id": "thor-120w-1386mhz-analytical",
+      "precision_path_id": "fp8_w8a8",
+      "provenance": {
+        "class": "analytical_model",
+        "condition": "GEMM core multiply-add work only; FP32 scaling epilogue, output conversion and scheduling instructions are not modeled. FP8 activation/weight read once, FP16 output written once; beta=0. Kernel-boundary modeled bytes, not measured DRAM. Timing is the complete selected Nsys Kernel intervals in one prediction, not NCU replay or unprofiled timing. Conditional Thor 120W/1.386GHz/273GB/s reference, without matching observed GPU/EMC clocks; no efficiency or attainment gap.",
+        "derivation": {
+          "expression": "GEMM 2*304*2048*16384 per call; boundary A=304*16384, B=2048*16384, C=2*304*2048 bytes; 17 calls; source-ordered Nsys observation kernel-observation-pi0-flashrt-nsys-node_r002_029",
+          "input_refs": [
+            "flash_rt/frontends/torch/pi0_thor.py",
+            "flash_rt/hardware/thor/shared_primitives.py",
+            "flash_rt/models/pi0/pipeline_thor.py",
+            "csrc/kernels/decoder_fused.cu",
+            "csrc/gemm/gemm_types_sm100.h",
+            "csrc/gemm/cutlass_sm100.cu"
+          ],
+          "kind": "formula"
+        },
+        "evidence": "analytical",
+        "source_ids": [
+          "source-local-thor",
+          "source-flashrt"
+        ]
+      },
+      "realization_id": "rr-flashrt-pi0-thor-fp8-v1",
+      "run_id": "run-pi0-flashrt-nsys-node-002",
+      "runtime_id": "flashrt",
+      "runtime_overhead": "excluded",
+      "scenario_id": "scenario-pi0-flashrt-prefix-down-fp8",
+      "schema_version": "2.0.0",
+      "time_basis": "nsys_interval",
+      "traffic_basis": "kernel_boundary_modeled",
+      "work_basis": "runtime_executed_formula",
+      "work_unit": "kernel_launch"
+    },
+    {
+      "aggregation": "entity",
+      "bandwidth_ceiling_id": "bw-thor-120w-conditional-273gbps",
       "basis_id": "basis-pi0-flashrt-prefix-gate-up-node-002",
       "capture_id": "capture-pi0-flashrt-nsys-node-002",
       "ceiling_id": "thor-t5000-120w-1386mhz",

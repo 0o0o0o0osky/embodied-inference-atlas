@@ -3,7 +3,7 @@ export type ConcatCostOperation='concat'|'reshape';
 const known=(value:number|null):value is number=>value!==null && Number.isFinite(value) && value>=0;
 /** Element-storage boundary for one invocation; no repeat multiplier or measured traffic. */
 export function concatCostFromDetail(detail:OperatorDetail,bitsPerElement:number) {
- if (detail.definitionId!=='concat' && detail.definitionId!=='reshape') return null;
+ if (detail.definitionId!=='concat' && detail.definitionId!=='reshape' && detail.definitionId!=='slice') return null;
  const bytes=(ports:readonly MaterializedPort[]):number|null=>{
   if (!ports.length || !Number.isFinite(bitsPerElement) || bitsPerElement<=0) return null;
   let total=0;
@@ -14,7 +14,7 @@ export function concatCostFromDetail(detail:OperatorDetail,bitsPerElement:number
   }
   return Number.isSafeInteger(total)?total:null;
  };
- return {operation:detail.definitionId as ConcatCostOperation,inputBytes:bytes(detail.inputs),outputBytes:bytes(detail.outputs)};
+ return {operation:(detail.definitionId==='slice'?'reshape':detail.definitionId) as ConcatCostOperation,inputBytes:bytes(detail.inputs),outputBytes:bytes(detail.outputs)};
 }
 export function buildConcatCost(operation:ConcatCostOperation,inputBytes:number|null,outputBytes:number|null,bandwidthBytesPerSecond:number|null) {
  // The graph's reshape definition includes row selection: only selected elements need copying.

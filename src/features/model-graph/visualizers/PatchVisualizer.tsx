@@ -56,9 +56,9 @@ export function PatchVisualizer({operator,resetKey}:{operator:OperatorDetail;res
       </div>
     </div>
     <div className={`patch-computation-projection ${active(2)}`}>
-      <span><strong>图块向量</strong><code>1 × {vector}</code></span><b aria-hidden="true">×</b>
-      <span className="patch-computation-weight"><strong>共享权重 W</strong><code>{vector} × {embedding}</code></span><b aria-hidden="true">→</b>
-      <span><strong>token zⱼ</strong><code>1 × {embedding}</code></span>
+      <span><strong>图块向量</strong><span className="math-expression">1 × {vector}</span></span><b aria-hidden="true">×</b>
+      <span className="patch-computation-weight"><strong>共享权重 W</strong><span className="math-expression">{vector} × {embedding}</span></span><b aria-hidden="true">→</b>
+      <span><strong>token zⱼ</strong><span className="math-expression">1 × {embedding}</span></span>
     </div>
     <div className={`patch-computation-sequence ${active(3)}`}>
       <strong>按图像位置排列的 token 序列</strong>

@@ -13,7 +13,7 @@
 .timeline-viewport .timeline-grouped .timeline-ruler-row { padding-right: 12px; background: #fff; }
 .timeline-viewport .timeline-grouped .timeline-ruler-row > span { font-size: 12px; line-height: 1.4; color: #60768a; border-color: #e1e9f0; }
 .timeline-viewport .timeline-grouped .timeline-ruler-row svg { display: block; height: 34px; overflow: hidden; }
-.timeline-viewport .timeline-grouped .timeline-ruler-row text { fill: #51697e; font: 12px system-ui, sans-serif; }
+.timeline-viewport .timeline-grouped .timeline-ruler-row text { fill: #51697e; font: 12px var(--display-face); }
 .timeline-viewport .timeline-grouped .timeline-ruler-row line { stroke: #d8e3ec; }
 .timeline-track-group { border-top: 1px solid #e1e9f0; }
 .timeline-track-group > summary { cursor: pointer; padding: 12px 16px; background: #f5f8fb; color: #344f65; font-size: 14px; }
@@ -21,8 +21,8 @@
 .timeline-track-group > summary > span { margin-left: 14px; color: #6b8092; font-size: 12px; font-weight: 400; }
 .timeline-viewport .timeline-grouped .timeline-lane-row { min-height: 60px; padding-right: 12px; background: #fff; border-color: #e9eff5; }
 .timeline-viewport .timeline-grouped .timeline-lane-label { padding: 10px 16px 10px 24px; gap: 5px; background: #fff; border-color: #e1e9f0; }
-.timeline-viewport .timeline-grouped .timeline-lane-label strong { color: #213b50; font: 500 14px/1.4 system-ui, sans-serif; }
-.timeline-viewport .timeline-grouped .timeline-lane-label span { color: #647b90; font: 12px/1.4 system-ui, sans-serif; }
+.timeline-viewport .timeline-grouped .timeline-lane-label strong { color: #213b50; font: 500 14px/1.4 var(--display-face); }
+.timeline-viewport .timeline-grouped .timeline-lane-label span { color: #647b90; font: 12px/1.4 var(--display-face); }
 .timeline-viewport .timeline-grouped .timeline-lane-row svg { height: 44px; overflow: hidden; }
 .timeline-grid-line { stroke: #e7eef5; stroke-width: 1; }
 .timeline-viewport .timeline-grouped .timeline-event { fill: #477bab; stroke: #366893; stroke-width: 1; stroke-dasharray: none; opacity: 1; }
@@ -34,17 +34,17 @@
 .timeline-viewport .timeline-grouped .timeline-event.is-gpu_memcpy { fill: #b77a39; stroke: #96612a; }
 .timeline-viewport .timeline-grouped .timeline-event.is-selected { stroke: #172f49; stroke-width: 3; filter: brightness(1.12); }
 .timeline-viewport .timeline-grouped .timeline-event:focus-visible { outline: none; stroke: #111f33; stroke-width: 3; }
-.timeline-slice-label { fill: white; font: 500 13px system-ui, sans-serif; pointer-events: none; }
-.timeline-viewport .timeline-evidence-note { margin: 0; padding: 14px 16px; border-top: 1px solid #e1e9f0; background: #fff; color: #657c8f; font: 12px/1.6 system-ui, sans-serif; }
+.timeline-slice-label { fill: white; font: 500 13px var(--display-face); pointer-events: none; }
+.timeline-viewport .timeline-evidence-note { margin: 0; padding: 14px 16px; border-top: 1px solid #e1e9f0; background: #fff; color: #657c8f; font: 12px/1.6 var(--display-face); }
 .timeline-selection-empty { padding: 16px 20px; color: #63798b; border-top: 1px solid #d8e3ec; font-size: 14px; }
 .timeline-selection { padding: 20px 24px; background: #f6f9fd; border-top: 2px solid #b5cbdf; }
 .timeline-selection > header { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
 .timeline-selection > header span { color: #60788e; font-size: 12px; }
-.timeline-selection h4 { margin: 5px 0 0; color: #203c54; font: 600 19px/1.4 system-ui, sans-serif; }
+.timeline-selection h4 { margin: 5px 0 0; color: #203c54; font: 600 19px/1.4 var(--display-face); }
 .timeline-selection button { padding: 8px 12px; border: 1px solid #bdcede; border-radius: 7px; background: #fff; color: #315b7d; cursor: pointer; }
 .timeline-selection > dl { display: flex; flex-wrap: wrap; gap: 20px 48px; margin: 22px 0; }
 .timeline-selection dt { color: #61778b; font-size: 13px; margin-bottom: 5px; }
-.timeline-selection dd { color: #203c54; font: 500 19px/1.4 system-ui, sans-serif; font-variant-numeric: tabular-nums; margin: 0; }
+.timeline-selection dd { color: #203c54; font: 500 19px/1.4 var(--display-face); font-variant-numeric: tabular-nums; margin: 0; }
 .timeline-selection p { color: #526b80; font-size: 14px; line-height: 1.7; margin: 12px 0 0; }
 .timeline-callstack-status { margin-top: 16px; padding-top: 14px; border-top: 1px solid #dbe5ef; font-size: 14px; }
 .timeline-callstack-status summary { cursor: pointer; }

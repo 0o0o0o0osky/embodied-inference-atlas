@@ -32,7 +32,7 @@
 .roofline-inspector header p,
 .roofline-empty > p {
   color: var(--signal-blue-dark);
-  font-family: var(--mono-face);
+  font-family: var(--display-face);
   font-size: 0.72rem;
   letter-spacing: 0.03em;
   text-transform: uppercase;
@@ -83,7 +83,7 @@
   min-width: 3.7rem;
   padding: 0.15rem 0.3rem;
   border: 1px solid currentColor;
-  font-family: var(--mono-face);
+  font-family: var(--display-face);
   font-size: 0.62rem;
   text-align: center;
   white-space: nowrap;
@@ -121,7 +121,7 @@
 .pi0-analytical-overview > header p {
   margin-top: 4px;
   color: var(--slate);
-  font-family: var(--mono-face);
+  font-family: var(--display-face);
   font-size: 12px;
 }
 
@@ -132,7 +132,7 @@
 
 .pi0-analytical-primary strong {
   color: var(--graphite);
-  font-family: var(--mono-face);
+  font-family: var(--display-face);
   font-size: 29px;
   font-variant-numeric: tabular-nums;
   font-weight: 650;
@@ -183,7 +183,7 @@
 }
 
 .pi0-stage-lower-bounds article b {
-  font-family: var(--mono-face);
+  font-family: var(--display-face);
   font-size: 14px;
   font-variant-numeric: tabular-nums;
   font-weight: 600;
@@ -300,7 +300,7 @@
 
 .roofline-overview-level span {
   color: var(--signal-blue-dark);
-  font-family: var(--mono-face);
+  font-family: var(--display-face);
   font-size: 0.68rem;
 }
 
@@ -346,7 +346,7 @@
 
 .roofline-overview-ledger dd {
   margin: 0;
-  font-family: var(--mono-face);
+  font-family: var(--display-face);
   font-size: 1.2rem;
   font-weight: 700;
 }
@@ -376,12 +376,12 @@
 .roofline-legacy-inventory > * + * { border-left: 1px solid var(--line-dark); }
 .roofline-legacy-inventory p,
 .roofline-legacy-inventory h3 { margin: 0; }
-.roofline-legacy-inventory p { color: var(--roofline-partial); font-family: var(--mono-face); font-size: 0.72rem; text-transform: uppercase; }
+.roofline-legacy-inventory p { color: var(--roofline-partial); font-family: var(--display-face); font-size: 0.72rem; text-transform: uppercase; }
 .roofline-legacy-inventory h3 { margin-top: 0.25rem; font-family: var(--display-face); font-size: 1.35rem; }
 .roofline-legacy-inventory span { display: block; margin-top: 0.35rem; color: var(--slate); line-height: 1.45; }
 .roofline-legacy-inventory dl { display: flex; align-items: center; gap: 1.2rem; }
 .roofline-legacy-inventory dt { color: var(--slate); font-size: 0.7rem; font-weight: 700; }
-.roofline-legacy-inventory dd { margin: 0.2rem 0 0; font-family: var(--mono-face); font-weight: 800; white-space: nowrap; }
+.roofline-legacy-inventory dd { margin: 0.2rem 0 0; font-family: var(--display-face); font-weight: 800; white-space: nowrap; }
 .roofline-legacy-inventory button { border: 0; color: var(--white); background: var(--graphite); font-weight: 800; }
 
 .roofline-basis-bar {
@@ -435,7 +435,7 @@
   border-radius: 0;
   color: var(--graphite);
   background: var(--white);
-  font-family: var(--mono-face);
+  font-family: var(--display-face);
 }
 
 .roofline-basis-controls {
@@ -484,7 +484,7 @@
 
 .roofline-origin {
   color: var(--slate);
-  font-family: var(--mono-face);
+  font-family: var(--display-face);
   font-size: 0.72rem;
 }
 
@@ -502,7 +502,7 @@
 .roofline-runtime-controls dd {
   margin: 0.25rem 0 0;
   overflow-wrap: anywhere;
-  font-family: var(--mono-face);
+  font-family: var(--display-face);
   font-size: 0.75rem;
 }
 
@@ -547,7 +547,7 @@
 .roofline-basis-fingerprint dd {
   margin: 0.3rem 0 0;
   overflow-wrap: anywhere;
-  font-family: var(--mono-face);
+  font-family: var(--display-face);
   font-size: 0.72rem;
   line-height: 1.35;
 }
@@ -645,7 +645,7 @@
 .roofline-chart-panel header span,
 .roofline-table-panel header span {
   color: var(--slate);
-  font-family: var(--mono-face);
+  font-family: var(--display-face);
   font-size: 0.7rem;
 }
 
@@ -678,7 +678,7 @@
 .roofline-axis-title,
 .roofline-selected-label {
   fill: #52605b;
-  font-family: var(--mono-face);
+  font-family: var(--display-face);
   font-size: 11px;
 }
 
@@ -810,7 +810,7 @@
 
 .roofline-cluster-count {
   fill: var(--graphite);
-  font-family: var(--mono-face);
+  font-family: var(--display-face);
   font-size: 9px;
   font-weight: 800;
   paint-order: stroke;
@@ -1116,7 +1116,7 @@
 }
 
 .roofline-table-panel td:nth-child(n + 3) {
-  font-family: var(--mono-face);
+  font-family: var(--display-face);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }

@@ -1,7 +1,6 @@
 :root {
   color-scheme: light;
-  font-family:
-    "IBM Plex Sans", Inter, Aptos, "Segoe UI", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-family: var(--display-face);
   color: #17232E;
   background: #F5F8FC;
   font-synthesis: none;
@@ -69,6 +68,12 @@ code {
   font-size: 0.88em;
 }
 
+.math-expression {
+  font-family: var(--display-face);
+  font-size: inherit;
+  font-variant-numeric: tabular-nums;
+}
+
 .visually-hidden {
   position: absolute !important;
   width: 1px !important;
@@ -96,7 +101,7 @@ code {
 }
 
 .boot-state {
-  font-family: var(--mono-face);
+  font-family: var(--display-face);
 }
 
 .load-failure h1 {

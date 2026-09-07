@@ -10,8 +10,8 @@
 .patch-computation-arrow { color: #167b78; text-align: center; }
 .patch-computation-projection { display: grid; grid-template-columns: minmax(0,1fr) 14px minmax(0,1.25fr) 14px minmax(0,1fr); align-items: center; gap: 3px; border: 1px solid #d7e2e4; border-radius: 8px; padding: 14px 6px; margin-top: 12px; background: #fff; }
 .patch-computation-projection > span { text-align: center; min-width: 0; }
-.patch-computation-projection strong, .patch-computation-projection code { display: block; font-size: 12px; white-space: nowrap; }
-.patch-computation-projection code { margin-top: 8px; font-family: inherit; }
+.patch-computation-projection strong, .patch-computation-projection .math-expression { display: block; font-size: 12px; white-space: nowrap; }
+.patch-computation-projection .math-expression { margin-top: 8px; font-family: inherit; }
 .patch-computation-projection b { font-size: 15px; color: #167b78; }
 .patch-computation-weight { padding: 8px 2px; border: 1px solid #8daeb2; border-radius: 3px; background: #f2f7f7; }
 .patch-computation-sequence { padding: 12px; margin-top: 12px; border: 1px solid #d7e2e4; border-radius: 8px; text-align: center; }

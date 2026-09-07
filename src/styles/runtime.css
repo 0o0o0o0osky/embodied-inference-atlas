@@ -27,7 +27,7 @@
 .runtime-inspector header p {
   margin: 0;
   color: var(--signal-blue-dark);
-  font-family: var(--mono-face);
+  font-family: var(--display-face);
   font-size: 1rem;
 }
 
@@ -63,7 +63,7 @@
 
 .runtime-intro > aside span {
   overflow-wrap: anywhere;
-  font-family: var(--mono-face);
+  font-family: var(--display-face);
 }
 
 .runtime-availability {
@@ -246,7 +246,7 @@
   padding: 0.4rem 0.55rem;
   border: 2px solid var(--signal-blue-dark);
   color: var(--signal-blue-dark);
-  font-family: var(--mono-face);
+  font-family: var(--display-face);
   font-size: 1rem;
   font-weight: 800;
 }
@@ -291,7 +291,7 @@
 
 .runtime-workload-ledger dd {
   margin: 0;
-  font-family: var(--mono-face);
+  font-family: var(--display-face);
   font-weight: 800;
 }
 
@@ -890,7 +890,7 @@
   font-weight: 500;
 }
 
-.pi0-funnel-number { font-family: var(--mono-face); font-variant-numeric: tabular-nums; font-weight: 500; }
+.pi0-funnel-number { font-family: var(--display-face); font-variant-numeric: tabular-nums; font-weight: 500; }
 
 .pi0-nsys-ledger,
 .pi0-kernel-status {
@@ -916,7 +916,7 @@
 .pi0-kernel-status dt { color: var(--funnel-muted); font-size: 12px; }
 .pi0-nsys-ledger dd,
 .pi0-kernel-status dd { margin: 3px 0; font-size: 14px; }
-.pi0-nsys-ledger dd { font-family: var(--mono-face); font-size: 18px; }
+.pi0-nsys-ledger dd { font-family: var(--display-face); font-size: 18px; }
 .pi0-nsys-ledger small { display: block; color: var(--funnel-muted); font-size: 12px; }
 
 .pi0-nsys-instrument {

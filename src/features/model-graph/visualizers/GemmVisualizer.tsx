@@ -60,7 +60,7 @@ export function GemmVisualizer({ operator, resetKey }: { operator: OperatorDetai
       <div className="gemm-example-expression">
         <span>X 的第 {row + 1} 行 × W 的第 {column + 1} 列</span>
         <div>{exampleX[row]!.map((value, k) => <span key={k}>
-          <code>{value} × {exampleW[k]![column]}</code>
+          <span className="math-expression">{value} × {exampleW[k]![column]}</span>
           {animation.frame >= 1 ? <strong>{terms[k]}</strong> : null}
         </span>)}</div>
         {animation.frame === 2 ? <p>{terms.join(" + ")} = <strong>{terms.reduce((a, b) => a + b, 0)}</strong></p> : null}

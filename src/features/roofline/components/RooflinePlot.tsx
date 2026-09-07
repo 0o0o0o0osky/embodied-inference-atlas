@@ -40,7 +40,7 @@ export function RooflinePlot({title,points,curve,onSelect,xLabel='算术强度�
    {points.map((point,index)=><g key={point.id} className={`pair-point is-${point.kind}`} data-point-id={point.id} transform={`translate(${logX(point.xFlopPerByte,geometry.x,box)} ${logY(point.yFlopPerSecond,geometry.y,box)})`}
     role={onSelect?'button':undefined} tabIndex={onSelect?0:undefined} aria-label={`${point.label} ${formatNumber(point.yFlopPerSecond/1e12)} TFLOP/s`}
     onClick={()=>onSelect?.(point.id)} onKeyDown={e=>{if(onSelect&&(e.key==='Enter'||e.key===' ')){e.preventDefault();onSelect(point.id);}}}>
-    <title>{point.label} · {formatNumber(point.yFlopPerSecond/1e12)} TFLOP/s</title><circle className="pair-point-hit" r={15} clipPath={`url(#${hitId(index)})`}/><circle pointerEvents="none" className="pair-point-glyph" r={point.kind==='actual'?6:8}/>
+    <title>{`${point.label} · ${formatNumber(point.yFlopPerSecond/1e12)} TFLOP/s`}</title><circle className="pair-point-hit" r={15} clipPath={`url(#${hitId(index)})`}/><circle pointerEvents="none" className="pair-point-glyph" r={point.kind==='actual'?6:8}/>
    </g>)}
    <text className="pair-axis" x={box.left+box.width/2} y={height-15} textAnchor="middle">{xLabel}</text>
    <text className="pair-axis" transform={`translate(19 ${box.top+box.height/2}) rotate(-90)`} textAnchor="middle">{yLabel}</text>

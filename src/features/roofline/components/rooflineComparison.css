@@ -17,8 +17,8 @@
 .roofline-pair-canvas { width: 100%; }
 .roofline-pair-canvas svg { display: block; width: 100%; }
 .pair-grid { stroke: #e9eff5; stroke-width: 1; }
-.pair-tick { fill: #61788d; font: 12px system-ui, sans-serif; }
-.pair-axis { fill: #3e5c72; font: 14px system-ui, sans-serif; }
+.pair-tick { fill: #61788d; font: 12px var(--display-face); }
+.pair-axis { fill: #3e5c72; font: 14px var(--display-face); }
 .pair-roof { stroke: #467d77; stroke-width: 2.5; fill: none; }
 .pair-guide { stroke: #c8d8e7; stroke-dasharray: 3 5; }
 .pair-gap { stroke: #3776c9; stroke-width: 2; stroke-dasharray: 5 4; }
@@ -42,7 +42,7 @@
 .roofline-pair-inspector button { background: transparent; color: #416c94; border: 0; cursor: pointer; }
 .roofline-pair-inspector dl { display: flex; flex-wrap: wrap; gap: 18px 48px; margin: 22px 0; }
 .roofline-pair-inspector dt { color: #627d93; font-size: 13px; margin-bottom: 6px; }
-.roofline-pair-inspector dd { font: 500 20px/1.4 system-ui, sans-serif; margin: 0; font-variant-numeric: tabular-nums; }
+.roofline-pair-inspector dd { font: 500 20px/1.4 var(--display-face); margin: 0; font-variant-numeric: tabular-nums; }
 .roofline-pair-inspector p { color: #526f86; font-size: 14px; line-height: 1.7; overflow-wrap: anywhere; }
 .roofline-pair-inspector details { font-size: 14px; margin-top: 16px; }
 .roofline-pair-inspector summary { cursor: pointer; }

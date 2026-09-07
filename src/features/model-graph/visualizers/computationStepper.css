@@ -10,7 +10,7 @@
 }
 .computation-heading { display: grid; gap: 6px; }
 .operator-inspector .computation-heading h3 { margin: 0; font-size: 16px; }
-.computation-heading code { color: var(--computation-ink); overflow-wrap: anywhere; }
+.computation-heading .math-expression { color: var(--computation-ink); overflow-wrap: anywhere; }
 .computation-dimensions { display: flex; flex-wrap: wrap; gap: 8px 24px; margin: 0; }
 .computation-dimensions > div { display: grid; gap: 2px; }
 .computation-dimensions dt { color: #60716e; font-size: 12px; }

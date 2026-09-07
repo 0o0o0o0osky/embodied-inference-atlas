@@ -25,7 +25,7 @@ export function ComputationStepper({
     <section className={`computation-stepper ${className}`}>
       <header className="computation-heading">
         <h3>{title}</h3>
-        {formula ? <code>{formula}</code> : null}
+        {formula ? <span className="math-expression">{formula}</span> : null}
       </header>
       {dimensions.length ? <dl className="computation-dimensions">
         {dimensions.map(({ label, value }) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}
