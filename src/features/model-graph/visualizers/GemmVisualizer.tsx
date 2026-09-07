@@ -1,8 +1,10 @@
-import { useState } from "react";
-import type { OperatorDetail } from "../domain/types";
-import { ComputationStepper } from "./ComputationStepper";
-import { useOperatorAnimation } from "./useOperatorAnimation";
-import "./gemmComputation.css";
+import {useState} from 'react';
+import type {OperatorDetail} from '../domain/types';
+import {ComputationStepper} from './ComputationStepper';
+import {TileMatrix} from './TileMatrix';
+import {useOperatorAnimation} from './useOperatorAnimation';
+import {gemmTile,gemmX,gemmW} from './gemmComputation';
+import './gemmComputation.css';
 
 function dimensions(operator: OperatorDetail) {
   const { M, N, K } = operator.bindings;
@@ -22,49 +24,39 @@ function dimensions(operator: OperatorDetail) {
 }
 
 
-const exampleX = [[1, 2, 3], [0, 1, 2], [2, 0, 1]];
-const exampleW = [[2, 1, 0], [0, 1, 2], [1, 0, 1]];
-const steps = [
-  { label: "选取行与列", description: "输出位置 (i, j) 使用 X 的第 i 行和 W 的第 j 列，共有 K 对元素。" },
-  { label: "对应元素相乘", description: "沿 K 维逐对相乘，得到每一项对这个输出元素的贡献。" },
-  { label: "累加得到输出", description: "将 K 项乘积相加，得到 yᵢⱼ。对所有行列组合重复，形成 M × N 输出。" },
-];
-
-export function GemmVisualizer({ operator, resetKey }: { operator: OperatorDetail; resetKey: string }) {
-  const animation = useOperatorAnimation(steps.length, resetKey);
-  const [selected, setSelected] = useState(0);
-  const row = Math.floor(selected / 3), column = selected % 3;
-  const dims = dimensions(operator);
-  const terms = exampleX[row]!.map((value, k) => value * exampleW[k]![column]!);
-  return <ComputationStepper title="矩阵乘：一行与一列生成一个输出" formula={operator.formula}
-    className="gemm-visualizer gemm-computation" animation={animation} steps={steps}
-    dimensions={[{ label: "输入行 M", value: dims.M?.toLocaleString() ?? "未填写" },
-      { label: "输出列 N", value: dims.N?.toLocaleString() ?? "未填写" },
-      { label: "相乘累加长度 K", value: dims.K?.toLocaleString() ?? "未填写" }]}
-    footnote={<a href="https://docs.pytorch.org/docs/stable/generated/torch.mm.html">PyTorch · 矩阵乘法与形状约定</a>}>
-    <div className="gemm-example">
-      <p>3 × 3 数值示例 · 点击 Y 中的位置，查看所用的行和列。</p>
-      <div className="gemm-example-matrices">
-        <div><strong>X</strong><div className="gemm-example-grid">{exampleX.flatMap((values, r) => values.map((value, c) =>
-          <span key={`${r}/${c}`} className={r === row ? "is-active" : ""}>{value}</span>))}</div></div>
-        <b aria-hidden="true">×</b>
-        <div><strong>W</strong><div className="gemm-example-grid">{exampleW.flatMap((values, r) => values.map((value, c) =>
-          <span key={`${r}/${c}`} className={c === column ? "is-active" : ""}>{value}</span>))}</div></div>
-        <b aria-hidden="true">=</b>
-        <div><strong>Y</strong><div className="gemm-example-grid">{Array.from({ length: 9 }, (_, index) =>
-          <button type="button" key={index} aria-label={`输出第 ${Math.floor(index / 3) + 1} 行第 ${index % 3 + 1} 列`}
-            aria-pressed={index === selected} onClick={() => setSelected(index)}>
-            {index === selected && animation.frame === 2 ? terms.reduce((a, b) => a + b, 0) : "·"}
-          </button>)}</div></div>
-      </div>
-      <div className="gemm-example-expression">
-        <span>X 的第 {row + 1} 行 × W 的第 {column + 1} 列</span>
-        <div>{exampleX[row]!.map((value, k) => <span key={k}>
-          <span className="math-expression">{value} × {exampleW[k]![column]}</span>
-          {animation.frame >= 1 ? <strong>{terms[k]}</strong> : null}
-        </span>)}</div>
-        {animation.frame === 2 ? <p>{terms.join(" + ")} = <strong>{terms.reduce((a, b) => a + b, 0)}</strong></p> : null}
-      </div>
-    </div>
-  </ComputationStepper>;
+export function GemmVisualizer({operator,resetKey,title="GEMM：沿 K 块累加一个输出 tile",context}:{operator:OperatorDetail;resetKey:string;title?:string;context?:string}) {
+ const animation=useOperatorAnimation(7,resetKey),[selected,setSelected]=useState(0);
+ const row=Math.floor(selected/2)*2,column=(selected%2)*2;
+ const states=gemmTile(row,column),block=Math.min(1,Math.floor(animation.frame/3)),phase=animation.frame===6?3:animation.frame%3,state=states[block]!;
+ const dims=dimensions(operator);
+ const steps=[0,1].flatMap(b=>[
+  {label:`K块${b+1}·加载`,description:`选定输出块的2行×2列；沿K读取第${b*2+1}–${b*2+2}项对应的X块与W块。`},
+  {label:`K块${b+1}·相乘`,description:'每个块内输出计算2对元素乘加，得到2×2局部乘积。'},
+  {label:`K块${b+1}·累加`,description:'C_acc ← C_acc + X_tile × W_tile；保留同一输出块累加器，继续下一段K。'},
+ ]).concat([{label:'写出输出块',description:'K块全部遍历后，累加器就是选中2×2输出块；其它输出块按同样方法计算。'}]);
+ const selectedCells=Array.from({length:4},(_,i)=>(row+Math.floor(i/2))*4+column+i%2);
+ const xActive=Array.from({length:4},(_,i)=>(row+Math.floor(i/2))*4+state.k+i%2);
+ const wActive=Array.from({length:4},(_,i)=>(state.k+Math.floor(i/2))*4+column+i%2);
+ return <ComputationStepper title={title} formula="C_tile = Σₖ X_tile,k · W_k,tile" animation={animation} steps={steps} className="gemm-computation"
+ dimensions={[{label:'当前 M',value:dims.M??'未填写'},{label:'当前 N',value:dims.N??'未填写'},{label:'当前 K',value:dims.K??'未填写'}]}
+ footnote={<><p>4×4教学矩阵，tile为2×2；所示分块独立于实际Kernel配置。</p><a href="https://triton-lang.org/main/getting-started/tutorials/03-matrix-multiplication.html">Triton · 分块矩阵乘</a></>}>
+ {context?<p>{context}</p>:null}
+ <p>4×4 数值例 · 点击 C 的任意格，选择所在的 2×2 输出块。</p>
+ <div className="gemm-tile-sources">
+  <TileMatrix label="X · 当前K块" rows={4} columns={4} values={gemmX.flat()} active={xActive}/>
+  <TileMatrix label="W · 当前K块" rows={4} columns={4} values={gemmW.flat()} active={wActive}/>
+  <TileMatrix label="C · 选择输出块" rows={4} columns={4} values={Array.from({length:16},(_,i)=>selectedCells.includes(i)&&animation.frame===6?states[1]!.accumulator[selectedCells.indexOf(i)]!:'·')} selected={selectedCells} onSelect={i=>{setSelected(Math.floor(Math.floor(i/4)/2)*2+Math.floor((i%4)/2));animation.reset();}}/>
+ </div>
+ <p>输出块：第{row+1}–{row+2}行、第{column+1}–{column+2}列 · 当前K块 {block+1}/2</p>
+ <div className="gemm-tile-product">
+  <TileMatrix label="X tile" rows={2} columns={2} values={state.a}/><b>×</b>
+  <TileMatrix label="W tile" rows={2} columns={2} values={state.b}/><b>→</b>
+  <TileMatrix label="局部乘积" rows={2} columns={2} values={phase>=1?state.product:['—','—','—','—']}/>
+ </div>
+ <div className="gemm-tile-product">
+  <TileMatrix label="原累加器" rows={2} columns={2} values={state.before}/><b>+</b>
+  <TileMatrix label="本块贡献" rows={2} columns={2} values={phase>=1?state.product:['—','—','—','—']}/><b>→</b>
+  <TileMatrix label={animation.frame===6?'最终输出 tile':'新累加器'} rows={2} columns={2} values={phase>=2?state.accumulator:['—','—','—','—']} active={phase>=2?[0,1,2,3]:[]}/>
+ </div>
+ </ComputationStepper>;
 }

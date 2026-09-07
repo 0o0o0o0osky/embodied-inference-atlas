@@ -23,7 +23,7 @@ import { resolvePresentationProfile } from "./presentation/registry";
 import { ModelDisplayProvider, useModelText } from "./presentation/ModelDisplay";
 import { pi0TheoryNavigationPatch } from "../runtime/domain/pi0PerformanceNavigation";
 import { serializeInteractiveWorkload } from "../roofline/data/materialize";
-import { materializeCurrentPi0Roofline } from "../roofline/presentation/buildOperatorRooflineSummary";
+import { materializeCurrentModelRoofline } from "../roofline/presentation/buildOperatorRooflineSummary";
 
 interface ModelGraphWorkspaceProps {
   data: AtlasData;
@@ -103,7 +103,7 @@ function ResolvedModelGraph({
   const isPi0 = model.model_id === "pi0";
   const defaultGraph = useMemo(() => adaptV1ModelGraph(record), [record]);
   const workloadBinding = useMemo(
-    () => model.model_id === "pi0" ? resolveWorkloadBinding(data, route) : route.workload,
+    () => resolveWorkloadBinding(data, route),
     [data, model.model_id, route],
   );
   const overrides = useMemo(
@@ -149,12 +149,13 @@ function ResolvedModelGraph({
     () => resolveFocusViewport(dag, layout, operator?.ref ?? null, model.model_id === "pi0" ? "stage" : "canvas"),
     [dag, layout, model.model_id, operator?.ref],
   );
-  const pi0Roofline = useMemo(() => isPi0 ? materializeCurrentPi0Roofline({
+  const pi0Roofline = useMemo(() => materializeCurrentModelRoofline({
+    modelId: model.model_id,
     data,
     workloadBinding: route.workload,
     precisionPathId: route.precision,
     hardwareId: route.hardware,
-  }) : null, [data, isPi0, route.hardware, route.precision, route.workload]);
+  }), [data, model.model_id, route.hardware, route.precision, route.workload]);
 
   const updateWorkload = (next: Record<string, number>) => {
     navigate(

@@ -1,6 +1,6 @@
 import {expect,it} from 'vitest';
 import type {RooflineCeilingRecord} from './types';
-import {resolveAttentionHardwareProfile,resolveNormalizationHardwareProfile} from './attentionHardwareProfile';
+import {resolveAttentionHardwareProfile,resolveNormalizationHardwareProfile,resolveRemainingHardwareProfile} from './attentionHardwareProfile';
 const ceiling:RooflineCeilingRecord={schema_version:'2.0.0',ceiling_id:'test',label:'test',device_id:'nvidia-jetson-agx-thor',
  operating_point:{operating_point_id:'test',power_mode:'120W',gpu_clock_hz:1.386e9,emc_clock_hz:null,clock_basis:'mode_assumption',sparsity_on:null},
  compute:[],bandwidth:[],missing:[]};
@@ -32,4 +32,11 @@ it('uses explicit approximate rsqrt assumptions without borrowing Tensor peaks',
  expect(profile.rates).toEqual({scalarOp:3.548e12,reductionAdd:3.548e12,rsqrt:443.52e9});
  expect(profile.conditional).toBe(true);expect(profile.notes.join(' ')).toContain('近似');
  expect(resolveNormalizationHardwareProfile({...ceiling,device_id:'unknown'}).rates.rsqrt).toBeNull();
+});
+
+it('labels all approximate SFU operations under a shared conditional profile',()=>{
+ const profile=resolveRemainingHardwareProfile(ceiling);
+ for(const kind of ['exp','reciprocal','rsqrt','sin','cos'] as const)expect(profile.rates[kind]).toBe(443.52e9);
+ expect(profile.notes.join(' ')).toContain('参考假设');
+ expect(resolveRemainingHardwareProfile({...ceiling,device_id:'unknown'}).rates.sin).toBeNull();
 });

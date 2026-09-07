@@ -1,54 +1,41 @@
-import {useState,type ReactNode} from 'react';
 import type {OperatorDetail} from '../domain/types';
 import {attentionShapeFromDetail} from '../../roofline/presentation/attentionInput';
 import {ComputationStepper} from './ComputationStepper';
+import {TileMatrix} from './TileMatrix';
 import {useOperatorAnimation} from './useOperatorAnimation';
-import {attentionExample as e} from './attentionComputation';
+import {attentionTileInput,attentionTileWalkthrough} from './attentionComputation';
 import './attentionComputation.css';
-
-const number=(value:number)=>Number.isInteger(value)?String(value):value.toFixed(3);
-const vector=(values:readonly number[])=>`[${values.map(number).join(', ')}]`;
-const steps=[
- {label:'点积',description:'取一个查询行 q，与各个 key 行点积，得到这一行的相关性分数。'},
- {label:'缩放与掩码',description:'分数除以 √dₖ；不可访问的位置设为 −∞。示例屏蔽第 3 个位置。'},
- {label:'行 Softmax',description:'减去行最大值后取指数，再除以该行指数和，得到总和为 1 的权重。'},
- {label:'加权汇总 V',description:'每个权重乘对应的 value 向量，再相加，形成一个输出行 o。'},
-];
+const number=(n:number)=>n===-Infinity?'−∞':Number.isInteger(n)?String(n):n.toFixed(3);
 export function AttentionVisualizer({operator,resetKey}:{operator:OperatorDetail;resetKey:string}) {
- const animation=useOperatorAnimation(steps.length,resetKey),frame=animation.frame;
- const [selected,setSelected]=useState(0);
- const shape=attentionShapeFromDetail(operator);
- const dimensions=shape?[
-  {label:'Q 长度',value:shape.queryTokens.toLocaleString()},
-  {label:'K/V 长度',value:shape.keyTokens.toLocaleString()},
-  {label:'查询头 / K/V 头',value:`${shape.queryHeads} / ${shape.kvHeads}`},
-  {label:'dₖ / dᵥ',value:`${shape.qkDimension} / ${shape.valueDimension}`},
- ]:[{label:'当前形状',value:'端口形状待补充'}];
- const row=(label:string,cells:readonly ReactNode[],active:boolean)=> <div className={`attention-example-row${active?' is-active':''}`}>
-  <strong>{label}</strong>{cells.map((value,index)=><span key={index} className={`${selected===index?'is-selected ':''}${index===2&&frame>0?'is-masked':''}`}>{value}</span>)}
- </div>;
- const selectedDetail=[
-  `q · k${selected+1} = 1 × ${e.keys[selected]![0]} + 1 × ${e.keys[selected]![1]} = ${e.scores[selected]}`,
-  selected===2?'第 3 项被屏蔽：0 / √2 → −∞':`${e.scores[selected]} / √2 = ${number(e.scaled[selected]!)}`,
-  selected===2?'exp(−∞) = 0，因此这个位置的权重为 0':`p${selected+1} = ${number(e.exponentials[selected]!)} / ${number(e.exponentials.reduce((a,b)=>a+b,0))} = ${number(e.weights[selected]!)}`,
-  `p${selected+1} × v${selected+1} = ${number(e.weights[selected]!)} × ${vector(e.values[selected]!)} = ${vector(e.contributions[selected]!)}`,
- ][frame];
- return <ComputationStepper title="Attention：一行查询如何得到输出" formula="O = softmax(QKᵀ / √dₖ + mask) V"
-  dimensions={dimensions} steps={steps} animation={animation} className="attention-visualizer attention-computation"
-  footnote={<><p>当前尺寸来自 Q/K/V 端口。{shape&&shape.queryHeads!==shape.kvHeads?`每 ${shape.queryHeads/shape.kvHeads} 个查询头共享一组 K/V；各查询头分别计算权重和输出。`:'每个头独立计算注意力。'}</p>
-   <p><a href="https://arxiv.org/abs/1706.03762" target="_blank" rel="noreferrer">Attention Is All You Need §3.2.1</a> · <a href="https://docs.pytorch.org/docs/stable/generated/torch.nn.functional.scaled_dot_product_attention.html" target="_blank" rel="noreferrer">PyTorch SDPA 与 GQA 形状约定</a></p></>}>
-  <div className="attention-example" aria-label="Attention 示意数值矩阵">
-   <div className="attention-example-caption"><strong>示意数值</strong><span>1 个查询 · 3 个 key · dₖ = dᵥ = 2</span></div>
-   <p className="attention-example-query">q = <b>{vector(e.query)}</b><span>点击一列，跟踪这个位置的计算。</span></p>
-   <div className="attention-example-row attention-example-columns"><span>位置</span>{e.keys.map((_,index)=><button type="button" key={index} aria-pressed={selected===index} onClick={()=>setSelected(index)}>第 {index+1} 项</button>)}</div>
-   {row('K 行',e.keys.map(vector),frame===0)}
-   {row('q · k',e.scores.map(number),frame===0)}
-   {row('缩放 / mask',e.scaled.map((value,index)=>frame<1?'—':index===2?'−∞':number(value)),frame===1)}
-   {row('权重 p',e.weights.map((value,index)=>frame<2?'—':<span className="attention-weight"><i style={{width:`${value*100}%`}}/><b>{number(value)}</b>{index===2?<small>屏蔽</small>:null}</span>),frame===2)}
-   {row('V 行',e.values.map(vector),frame===3)}
-   {row('p × v',e.contributions.map(value=>frame<3?'—':vector(value)),frame===3)}
-   <div className="attention-example-detail" aria-live="polite">{selectedDetail}</div>
-   <div className={`attention-example-output${frame===3?' is-active':''}`}><span>输出 o = Σ pⱼvⱼ</span><strong>{frame===3?vector(e.output):'[—, —]'}</strong></div>
-  </div>
+ const shape=attentionShapeFromDetail(operator),animation=useOperatorAnimation(11,resetKey);
+ const {blocks,output}=attentionTileWalkthrough(),block=Math.min(1,Math.floor(animation.frame/5)),phase=animation.frame===10?5:animation.frame%5,state=blocks[block]!;
+ const steps=[0,1].flatMap(b=>[
+  {label:`块${b+1}·载入`,description:`固定2×2 Q tile，加载第${b*2+1}–${b*2+2}行K/V；保留每个查询行的m、l和输出累加器A。`},
+  {label:`块${b+1}·QK`,description:'Q tile × K tileᵀ 得到2×2分数块：每个格对应一个query与key的点积。'},
+  {label:`块${b+1}·mask`,description:'分数除以√2，屏蔽格设为−∞，其指数权重为0。这里使用演示mask。'},
+  {label:`块${b+1}·softmax`,description:'m′=max(m,行最大值)，α=exp(m−m′)，P̃=exp(S−m′)；l′=αl+行和(P̃)。P̃尚未归一化。'},
+  {label:`块${b+1}·PV`,description:'A′=αA+P̃V：历史输出累加器与分母一起重缩放，再加入本块贡献。'},
+ ]).concat([{label:'归一化输出',description:'两个KV块遍历完毕，逐查询行 O=A/l。与一次性计算完整masked softmax得到同样结果。'}]);
+ const activeRows=[state.start*2,state.start*2+1,(state.start+1)*2,(state.start+1)*2+1];
+ const matrix=(label:string,values:readonly (string|number)[]) => <TileMatrix label={label} rows={2} columns={2} values={values}/>;
+ const show=(values:number[][],visible:boolean)=>visible?values.flat().map(number):['—','—','—','—'];
+ return <ComputationStepper title="Attention：固定 Q tile，遍历 K/V 块" formula="m′=max(m,max S)；l′=αl+ΣP̃；A′=αA+P̃V；O=A/l" animation={animation} steps={steps} className="attention-computation"
+ dimensions={[{label:'当前 Q 长度',value:shape?.queryTokens??'未填写'},{label:'当前 K/V 长度',value:shape?.keyTokens??'未填写'},{label:'当前 dₖ / dᵥ',value:shape?`${shape.qkDimension} / ${shape.valueDimension}`:'未填写'}]}
+ footnote={<><p>教学例：2个query、4个key，dₖ=dᵥ=2，KV块大小2。分块与mask用于数学演算；当前实际形状另列。</p><p>自然指数与教程的exp2缩放形式等价。当前头数{shape?` ${shape.queryHeads} Q / ${shape.kvHeads} KV`:'待填写'}。</p><a href="https://triton-lang.org/main/getting-started/tutorials/06-fused-attention.html">Triton · 在线分块 Attention</a></>}>
+ <p>2×2 Q tile 驻留 · K/V 块 {block+1}/2 · 数值教学例</p>
+ <div className="attention-tile-sources">
+  <TileMatrix label="Q · 固定查询块" rows={2} columns={2} values={attentionTileInput.q.flat()} selected={[0,1,2,3]}/>
+  <TileMatrix label="K · 当前2行" rows={4} columns={2} values={attentionTileInput.k.flat()} active={activeRows}/>
+  <TileMatrix label="V · 对应2行" rows={4} columns={2} values={attentionTileInput.v.flat()} active={activeRows}/>
+ </div>
+ <div className="attention-tile-pair">{matrix('QKᵀ 分数块',show(state.scores,phase>=1))}{matrix('S · 缩放与mask',show(state.scaled,phase>=2))}</div>
+ <div className="attention-tile-state">
+  <TileMatrix label="每行状态 · m → m′" rows={2} columns={1} values={state.before.m.map((m,i)=>`${number(m)} → ${phase>=3?number(state.m[i]!):'—'}`)}/>
+  <TileMatrix label="历史重缩放 α" rows={2} columns={1} values={phase>=3?state.alpha.map(number):['—','—']}/>
+  <TileMatrix label="分母 l → l′" rows={2} columns={1} values={state.before.l.map((l,i)=>`${number(l)} → ${phase>=3?number(state.l[i]!):'—'}`)}/>
+ </div>
+ <div className="attention-tile-pair">{matrix('P̃ · 未归一化指数',show(state.p,phase>=3))}{matrix('P̃ × V · 本块贡献',show(state.pv,phase>=4))}</div>
+ <div className="attention-tile-pair">{matrix('历史 A · 先乘 α',show(state.before.acc.map((row,i)=>row.map(x=>x*state.alpha[i]!)),phase>=3))}{matrix('A′ · 累积输出',show(state.acc,phase>=4))}</div>
+ {animation.frame===10?<TileMatrix label="O=A/l · 最终输出 tile" rows={2} columns={2} values={output.flat().map(number)} active={[0,1,2,3]}/>:null}
  </ComputationStepper>;
 }

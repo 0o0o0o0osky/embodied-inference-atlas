@@ -14,3 +14,12 @@ it('distinguishes conditional zero-copy from materialization and selected-row re
  expect(buildConcatCost('concat',null,40,1000).lowerBoundSeconds).toBeNull();
  expect(buildConcatCost('concat',40,40,null).lowerBoundSeconds).toBeNull();
 });
+it('distinguishes declared padding from broadcast and reads only existing elements',()=>{
+ const pad={...detail('reshape',[[1,6]],[[1,1,32]]),operatorId:'pad-state',label:'Zero-pad state'};
+ expect(concatCostFromDetail(pad,16)).toEqual({operation:'zero-pad',inputBytes:12,outputBytes:64});
+ expect(buildConcatCost('zero-pad',12,64,1000).materializedBytes).toBe(76);
+ const broadcast={...detail('reshape',[[1,720]],[[1,50,720]]),operatorId:'broadcast-time'};
+ expect(concatCostFromDetail(broadcast,16)?.operation).toBe('broadcast');
+ expect(buildConcatCost('broadcast',1440,72000,1000).readBytes).toBe(1440);
+ expect(concatCostFromDetail(detail('reshape',[[1,6]],[[1,32]]),16)?.operation).toBe('expanded-layout');
+});

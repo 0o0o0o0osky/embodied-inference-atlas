@@ -51,3 +51,20 @@ export function resolveNormalizationHardwareProfile(ceiling:RooflineCeilingRecor
       'CC 11.0 的 rsqrt 吞吐未单列：按 20 SM × 每周期 16 个近似结果作参考假设。',
     ]};
 }
+
+/** Explicit shared SFU reference for the declared elementwise/normalization recipes. */
+export function resolveRemainingHardwareProfile(ceiling:RooflineCeilingRecord|null): {
+  rates:Record<'scalarOp'|'reductionAdd'|'exp'|'reciprocal'|'rsqrt'|'sin'|'cos',number|null>;
+  notes:readonly string[];sources:AttentionHardwareProfile['sources'];conditional:boolean;
+} {
+  const profile=resolveAttentionHardwareProfile(ceiling);
+  // Reuse its exact device/operating-point eligibility, then independently state
+  // the common approximate-instruction assumption for every SFU operation.
+  const sfu=profile.rates.scalarOp===null?null:20*16*ceiling!.operating_point.gpu_clock_hz!;
+  return {rates:{scalarOp:profile.rates.scalarOp,reductionAdd:profile.rates.reductionAdd,
+    exp:sfu,reciprocal:sfu,rsqrt:sfu,sin:sfu,cos:sfu},sources:profile.sources,conditional:profile.conditional,
+    notes:sfu===null?['此设备或频率尚无普通算术及特殊函数参考速率，保留已知工作量和读写量。']:[
+      '普通 FP32 加/乘与归约按公开 FMA FLOP/s ÷ 2，合并计算同一 CUDA 资源需求。',
+      'CUDA 吞吐表未列 CC 11.0；exp2、reciprocal、rsqrt、sin、cos 统一按 20 SM × 每周期 16 个近似结果作参考假设，并共享 SFU。',
+    ]};
+}

@@ -56,3 +56,14 @@ it("keeps embedded Nsys interval selection inside the performance overview", () 
     entity: "timeline:graph/event:42",
   });
 });
+
+it("preserves each model's operator and workload through theory expansion and return", () => {
+  for (const model of ["pi05", "smolvla"]) {
+    const graph = readRoute(`?model=${model}&tab=logical&hardware=nvidia-jetson-agx-thor&precision=bf16_dense&workload=v=1,p=24,a=15,n=10&entity=logical:prefix-encoder%252Fq-proj`);
+    const expanded = readRoute(routeHref(graph, pi0TheoryNavigationPatch(graph, "expanded")));
+    expect(isPi0ModelTheory(expanded)).toBe(true);
+    expect(expanded.model).toBe(model);
+    expect(expanded.workload).toBe(graph.workload);
+    expect(readRoute(routeHref(expanded, pi0TheoryNavigationPatch(expanded, "logical")))).toEqual(graph);
+  }
+});

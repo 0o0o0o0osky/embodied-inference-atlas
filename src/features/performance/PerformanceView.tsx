@@ -6,7 +6,7 @@ import { adaptProfilerEvidence } from "../profiler/domain/adaptProfilerEvidence"
 import { indexProfilerEvidence } from "../profiler/domain/indexProfilerEvidence";
 import { RooflineView } from "../roofline/components/RooflineView";
 import { Pi0RooflineOverview } from "../roofline/components/Pi0RooflineOverview";
-import { materializeCurrentPi0Roofline } from "../roofline/presentation/buildOperatorRooflineSummary";
+import { materializeCurrentModelRoofline } from "../roofline/presentation/buildOperatorRooflineSummary";
 import {
   runtimeProfilerSlice,
   scopeRuntimeProfiler,
@@ -34,14 +34,13 @@ export function PerformanceView({ data, model, route, navigate }: PerformanceVie
   const performanceOverview = useMemo(() => model.model_id === "pi0"
     ? buildPi0PerformanceOverview({ data, hardwareId: route.hardware })
     : null, [data, model.model_id, route.hardware]);
-  const pi0Analytical = useMemo(() => model.model_id === "pi0"
-    ? materializeCurrentPi0Roofline({
+  const pi0Analytical = useMemo(() => materializeCurrentModelRoofline({
+      modelId: model.model_id,
       data,
       workloadBinding: route.workload,
       precisionPathId: route.precision,
       hardwareId: route.hardware,
-    })
-    : null, [data, model.model_id, route.hardware, route.precision, route.workload]);
+    }), [data, model.model_id, route.hardware, route.precision, route.workload]);
   const selectedFacet = useMemo(() => {
     const matching = performanceOverview?.facets.filter((facet) => facet.runtimeId === route.runtime
       && facet.precisionId === route.runtimePrecision) ?? [];
@@ -98,7 +97,7 @@ export function PerformanceView({ data, model, route, navigate }: PerformanceVie
   const profilerSection = <Pi0ProfilerEvidenceSection model={view} partialContextRunIds={partialContextRunIds}
     anchorRunId={slice.anchorRunId} independentNcu={independentNcu} route={route} navigate={navigate} />;
 
-  if (model.model_id === "pi0") {
+  if (model.model_id === "pi0" || modelTheory) {
     return (
       <div className="performance-workspace performance-workspace--pi0">
         <Pi0PerformanceNavigation route={route} navigate={navigate}

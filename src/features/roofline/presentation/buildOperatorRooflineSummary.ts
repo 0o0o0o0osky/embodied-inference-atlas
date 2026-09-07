@@ -19,18 +19,10 @@ import type {
   RooflineCeilingRecord,
   RooflinePointRecord,
   RooflineScenarioRecord,
-  RooflineWorkload,
 } from "../domain/types";
 
 const PI0_MODEL_ID = "pi0";
 const DEFAULT_PRECISION_PATH_ID = "bf16_dense";
-const DEFAULT_WORKLOAD: InteractiveWorkload = {
-  executedCameraViews: 3,
-  executedPromptTokens: 48,
-  actionHorizon: 50,
-  denoiseSteps: 10,
-};
-
 export interface Pi0AnalyticalSlice {
   scenario: RooflineScenarioRecord;
   ceiling: RooflineCeilingRecord;
@@ -65,17 +57,6 @@ export interface OperatorRooflineSummary {
 
 function unavailable(reason: string): Pi0AnalyticalResult {
   return { status: "unavailable", reason };
-}
-
-function workloadFallback(source: RooflineWorkload): RooflineWorkload {
-  return {
-    ...source,
-    active_camera_views: DEFAULT_WORKLOAD.executedCameraViews,
-    executed_camera_views: DEFAULT_WORKLOAD.executedCameraViews,
-    executed_prompt_tokens: DEFAULT_WORKLOAD.executedPromptTokens,
-    action_horizon: DEFAULT_WORKLOAD.actionHorizon,
-    denoise_steps: DEFAULT_WORKLOAD.denoiseSteps,
-  };
 }
 
 function runWorkload(run: RunRecord): InteractiveWorkload | null {
@@ -115,11 +96,16 @@ function resolveWorkload(
   source: RooflineScenarioRecord,
   graphRecord: CanonicalRecord,
 ): { status: "available"; value: InteractiveWorkload } | { status: "unavailable"; reason: string } {
-  if (!binding) return { status: "available", value: DEFAULT_WORKLOAD };
+  if (!binding) return { status: "available", value: {
+    executedCameraViews: source.workload.executed_camera_views,
+    executedPromptTokens: source.workload.executed_prompt_tokens,
+    actionHorizon: source.workload.action_horizon,
+    denoiseSteps: source.workload.denoise_steps,
+  } };
 
   const configurationRuns = data.datasets.runs.filter((run) =>
     run.configuration_id === binding
-    && run.model_id === PI0_MODEL_ID
+    && run.model_id === source.model_id
     && (!hardwareId || run.device_id === hardwareId),
   );
   if (configurationRuns.length) {
@@ -135,20 +121,21 @@ function resolveWorkload(
   }
 
   if (!encodedWorkload(binding)) {
-    return { status: "unavailable", reason: "当前工作负载既不是 Pi0 配置，也不是可解析的 V/P/A/N。" };
+    return { status: "unavailable", reason: "当前工作负载既不是当前模型配置，也不是可解析的 V/P/A/N。" };
   }
   const graph = adaptV1ModelGraph(graphRecord);
   const prompt = graph.editableSymbols.find((symbol) => symbol.symbol === "L_PROMPT");
   return {
     status: "available",
-    value: parseInteractiveWorkload(binding, workloadFallback(source.workload), {
+    value: parseInteractiveWorkload(binding, source.workload, {
       promptMinimum: prompt?.minimum ?? 1,
       promptMaximum: prompt?.maximum ?? null,
     }),
   };
 }
 
-export function materializeCurrentPi0Roofline(input: {
+export function materializeCurrentModelRoofline(input: {
+  modelId: string;
   data: AtlasData;
   workloadBinding: string | null;
   precisionPathId: string | null;
@@ -157,18 +144,18 @@ export function materializeCurrentPi0Roofline(input: {
   const canonical = indexRoofline(input.data);
   const precisionPathId = input.precisionPathId ?? DEFAULT_PRECISION_PATH_ID;
   const scenarios = canonical.scenarios.filter((scenario) =>
-    scenario.model_id === PI0_MODEL_ID
+    scenario.model_id === input.modelId
     && scenario.origin === "default_precomputed"
     && scenario.precision_path.precision_path_id === precisionPathId,
   );
   if (scenarios.length !== 1) {
-    return unavailable(`没有唯一的 Pi0 ${precisionPathId} 默认解析场景。`);
+    return unavailable(`没有唯一的 ${input.modelId} ${precisionPathId} 默认解析场景。`);
   }
   const sourceScenario = scenarios[0]!;
   const graphRecord = input.data.datasets.model_graphs.find((record) =>
     record.model_graph_id === sourceScenario.model_graph_id,
   ) ?? null;
-  if (!graphRecord) return unavailable("Pi0 解析场景缺少对应的模型图。");
+  if (!graphRecord) return unavailable("解析场景缺少对应的模型图。");
 
   const workload = resolveWorkload(
     input.data,
@@ -187,7 +174,7 @@ export function materializeCurrentPi0Roofline(input: {
       record.realization_id === expectedRealizationId,
     ) ?? null
     : null;
-  const realization = realizationRecord && isRuntimeRealizationRecord(realizationRecord, PI0_MODEL_ID)
+  const realization = realizationRecord && isRuntimeRealizationRecord(realizationRecord, input.modelId)
     ? adaptRuntimeRealization(realizationRecord)
     : null;
 
@@ -201,13 +188,13 @@ export function materializeCurrentPi0Roofline(input: {
     contracts.set(contract, [...(contracts.get(contract) ?? []), basis]);
   });
   if (contracts.size !== 1) {
-    return unavailable("当前 Pi0 场景没有唯一的同硬件 Stage/Atomic 解析口径。");
+    return unavailable("当前模型场景没有唯一的同硬件 Stage/Atomic 解析口径。");
   }
   const pairedBases = [...contracts.values()][0]!;
   const stageBases = pairedBases.filter((basis) => basis.level === "stage");
   const atomicBases = pairedBases.filter((basis) => basis.level === "atomic");
   if (stageBases.length !== 1 || atomicBases.length !== 1) {
-    return unavailable("当前 Pi0 解析口径不能唯一配对 Stage 与 Atomic basis。");
+    return unavailable("当前模型解析口径不能唯一配对 Stage 与 Atomic basis。");
   }
   const sourceAtomicBasis = atomicBases[0]!;
   const ceiling = canonical.ceilingById.get(sourceAtomicBasis.ceiling_id) ?? null;
@@ -251,8 +238,15 @@ export function materializeCurrentPi0Roofline(input: {
       },
     };
   } catch (error) {
-    return unavailable(error instanceof Error ? error.message : "Pi0 Roofline 解析失败。");
+    return unavailable(error instanceof Error ? error.message : "Roofline 解析失败。");
   }
+}
+
+/** Compatibility entry point for existing Pi0 callers. */
+export function materializeCurrentPi0Roofline(
+  input: Omit<Parameters<typeof materializeCurrentModelRoofline>[0], "modelId">,
+): Pi0AnalyticalResult {
+  return materializeCurrentModelRoofline({ ...input, modelId: PI0_MODEL_ID });
 }
 
 export function buildOperatorRooflineSummary(

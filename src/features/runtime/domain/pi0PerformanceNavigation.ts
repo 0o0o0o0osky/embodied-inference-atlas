@@ -2,10 +2,10 @@ import type { RoutePatch, RouteState } from "../../../app/routes";
 import { logicalEntity, logicalRefFromEntity } from "../../workbench/entityKeys";
 
 export function isPi0ModelTheory(route: RouteState): boolean {
-  return route.model === "pi0" && (route.tab === "logical" || (
+  return route.tab === "logical" || (
     route.tab === "roofline-kernels" && !route.runtime
     && ["overview", "stage", "atomic"].includes(route.rooflineLevel)
-  ));
+  );
 }
 
 export function pi0TheoryNavigationPatch(route: RouteState, destination: "logical" | "expanded"): RoutePatch {

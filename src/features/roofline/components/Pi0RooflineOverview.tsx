@@ -37,7 +37,7 @@ function limiterLabel(point: RooflinePointRecord) {
 function statusForLevel(index: RooflineIndex, slice: Pi0AnalyticalSlice, level: RooflineLevel) {
   const workload = slice.scenario.workload;
   const scenarioIds = new Set(index.scenarios.filter((scenario) =>
-    scenario.model_id === "pi0"
+    scenario.model_id === slice.scenario.model_id
     && scenario.origin !== "legacy_import"
     && scenario.precision_path.precision_path_id === slice.scenario.precision_path.precision_path_id
     && scenario.workload.executed_camera_views === workload.executed_camera_views
@@ -112,7 +112,7 @@ export function Pi0RooflineOverview({ data, result, navigate, modelTheory = fals
         </p>
       ) : <p className="pi0-analytical-disclosure">当前 Stage basis 没有模型总计点。</p>}
 
-      <div className="pi0-stage-lower-bounds" aria-label="Pi0 各阶段解析下界">
+      <div className="pi0-stage-lower-bounds" aria-label="各阶段解析下界">
         {slice.stages.map((stage) => (
           <article key={stage.point_id}>
             <div><strong>{stageLabel(stage)}</strong><span>{limiterLabel(stage)}</span></div>

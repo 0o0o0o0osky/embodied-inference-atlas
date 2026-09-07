@@ -3,11 +3,14 @@ import { describe, expect, it } from "vitest";
 import basisDocument from "../../../../data/analysis/roofline_bases.json";
 import ceilingDocument from "../../../../data/analysis/roofline_ceilings.json";
 import scenarioDocument from "../../../../data/analysis/roofline_scenarios.json";
+import pi05GraphDocument from "../../../../data/model_graphs/pi05.json";
+import smolGraphDocument from "../../../../data/model_graphs/smolvla.json";
 import graphDocument from "../../../../data/model_graphs/pi0.json";
 import type { AtlasData, CanonicalRecord } from "../../../types/atlas";
 import {
   buildOperatorRooflineSummary,
   materializeCurrentPi0Roofline,
+  materializeCurrentModelRoofline,
 } from "./buildOperatorRooflineSummary";
 
 const data = {
@@ -112,4 +115,24 @@ describe("Pi0 analytical Roofline presentation", () => {
       hardwareId: "nvidia-jetson-agx-thor",
     })).toMatchObject({ status: "unavailable" });
   });
+});
+
+it("materializes each model default and partial workload using its own scenario", () => {
+  const all = { ...data, datasets: { ...data.datasets, model_graphs: [
+    ...graphDocument.records, ...pi05GraphDocument.records, ...smolGraphDocument.records,
+  ] as unknown as CanonicalRecord[] } };
+  for (const [modelId, prompt, chunk] of [["pi0", 48, 50], ["pi05", 200, 15], ["smolvla", 48, 50]] as const) {
+    for (const binding of [null, "v=1"]) {
+      const result = materializeCurrentModelRoofline({ data: all, modelId,
+        workloadBinding: binding, precisionPathId: null, hardwareId: "nvidia-jetson-agx-thor" });
+      expect(result.status, modelId).toBe("available");
+      if (result.status !== "available") throw new Error(result.reason);
+      expect(result.value.scenario.model_id).toBe(modelId);
+      expect(result.value.scenario.workload).toMatchObject({ executed_camera_views: binding ? 1 : 3,
+        executed_prompt_tokens: prompt, action_horizon: chunk, denoise_steps: 10 });
+      expect(result.value.atomicPoints.length).toBeGreaterThan(0);
+    }
+  }
+  expect(materializeCurrentModelRoofline({ data: all, modelId: "unknown", workloadBinding: null,
+    precisionPathId: null, hardwareId: null }).status).toBe("unavailable");
 });

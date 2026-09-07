@@ -37,9 +37,6 @@
 .computation-reference[open] summary { margin-bottom: 8px; }
 .computation-reference a { color: var(--computation-ink); }
 .computation-stepper button:focus-visible { outline: 2px solid var(--computation-accent); outline-offset: 2px; }
-.computation-euler { display: flex; gap: 8px; align-items: center; justify-content: center; padding: 20px 0; }
-.computation-euler > span { padding: 12px; border: 1px solid #d2dfdb; }
-.computation-euler > [data-active="true"] { background: var(--computation-soft); border-color: var(--computation-accent); }
 @media (max-width: 560px) {
   .computation-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }

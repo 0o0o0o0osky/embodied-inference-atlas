@@ -1,11 +1,13 @@
-import { useId } from 'react';
+import { useId, useState } from 'react';
 import type { OperatorDetail } from '../domain/types';
+import {GemmVisualizer} from './GemmVisualizer';
+import {TilePicker} from './TileMatrix';
 import { ComputationStepper } from './ComputationStepper';
 import { useOperatorAnimation } from './useOperatorAnimation';
 import { patchProjectionShape } from './patchProjectionShape';
 import './normalizationPatchComputation.css';
 
-export function PatchVisualizer({operator,resetKey}:{operator:OperatorDetail;resetKey:string}) {
+function PatchImageVisualizer({operator,resetKey}:{operator:OperatorDetail;resetKey:string}) {
   const shape=patchProjectionShape(operator);
   const animation=useOperatorAnimation(4,resetKey);
   const clip=useId();
@@ -66,4 +68,26 @@ export function PatchVisualizer({operator,resetKey}:{operator:OperatorDetail;res
       <small>每个 token 都有 {embedding} 维 · 每幅图像 {tokens} 个 token</small>
     </div>
   </ComputationStepper>;
+}
+
+/** Logical matrix dimensions only; the input patches can be loaded implicitly. */
+export function patchGemmOperator(operator:OperatorDetail):OperatorDetail|null {
+ const shape=patchProjectionShape(operator);if(!shape)return null;
+ const elements=(port:OperatorDetail['inputs'][number]|undefined)=>port?.tensor&&port.tensor.shape.every(n=>n!==null&&Number.isSafeInteger(n)&&n>0)?port.tensor.shape.reduce<number>((p,n)=>p*n!,1):null;
+ const input=elements(operator.inputs.find(p=>p.port==='image')),output=elements(operator.outputs.find(p=>p.port==='output'));
+ if(input===null||output===null)return null;
+ const M=output/shape.embedding,K=shape.patch**2*shape.channels,N=shape.embedding;
+ if(!Number.isSafeInteger(M)||M<=0||input!==M*K)return null;
+ return {...operator,bindings:{...operator.bindings,M,N,K},formula:'token = flatten(patch) × W'};
+}
+
+export function PatchVisualizer({operator,resetKey}:{operator:OperatorDetail;resetKey:string}) {
+ const [mode,setMode]=useState(0);
+ const projection=patchGemmOperator(operator);
+ return <div className="patch-calculation-views">
+  <TilePicker selected={mode} onSelect={setMode} labels={['图像到token','投影分块计算']}/>
+  {mode===0?<PatchImageVisualizer operator={operator} resetKey={resetKey}/>:projection?
+   <GemmVisualizer operator={projection} resetKey={`${resetKey}:projection`} title="图块投影：沿像素与通道块乘加" context="M=B×V×T 个图块，K=P²C，N=D；可直接从原图隐式读取图块元素。下方4×4为独立数值示例。"/>
+   :<p className="visualizer-empty">图块总数或输入／输出尺寸待补充。</p>}
+ </div>;
 }
