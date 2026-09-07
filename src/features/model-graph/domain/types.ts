@@ -142,7 +142,11 @@ export interface ConnectorHint {
     | "rail"
     | "feedback";
   pairs: readonly (readonly [LogicalRef, LogicalRef])[];
-  route?: "top-bus" | "right-to-top";
+  route?: "top-bus" | "right-to-top" | "gutter";
+  /** Cross-column routes enter beside the consumer, using separate gutter/bus offsets. */
+  sourceSide?: "right" | "bottom";
+  targetSide?: "top" | "left" | "right";
+  busOffset?: number;
   side?: "left" | "right";
   railInset?: number;
   railOffset?: number;

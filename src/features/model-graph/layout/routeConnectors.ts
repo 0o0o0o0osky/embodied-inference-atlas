@@ -151,6 +151,14 @@ function routeBranchIn(
     const sourceBoxes = sourceRefs.map((ref) => layout.nodeBoxes.get(ref));
     if (!targetBox || sourceBoxes.some((box) => box === undefined)) return;
     if (sourceRefs.length === 1) {
+      if (hint.route === "right-to-top") {
+        const source = anchor(sourceBoxes[0]!), target = anchor(targetBox);
+        const railX = source.right + (hint.railInset ?? 8);
+        const busY = target.top + (hint.busOffset ?? -10);
+        add(`M ${source.right} ${source.y} H ${railX} V ${busY} H ${target.x} V ${target.top}`,
+          true, sourceRefs, [targetRef]);
+        return;
+      }
       const path = pairPath(sourceRefs[0]!, targetRef, layout);
       if (path) add(path, true, sourceRefs, [targetRef]);
       return;
@@ -218,6 +226,25 @@ function routeCross(
   dag: LogicalDag,
   add: ReturnType<typeof routeBuilder>["add"],
 ) {
+  if (hint.route === "gutter") {
+    hint.pairs.forEach(([sourceRef, targetRef]) => {
+      const sourceBox = layout.nodeBoxes.get(sourceRef), targetBox = layout.nodeBoxes.get(targetRef);
+      const sourceStage = stageForNode(layout, dag, sourceRef), targetStage = stageForNode(layout, dag, targetRef);
+      if (!sourceBox || !targetBox || !sourceStage || !targetStage) return;
+      const source = anchor(sourceBox), target = anchor(targetBox);
+      const gutterX = (sourceStage.x + sourceStage.width + targetStage.x) / 2 + (hint.railOffset ?? 0);
+      const busY = target.top + (hint.busOffset ?? -10);
+      const start = hint.sourceSide === "bottom"
+        ? `M ${source.x} ${source.bottom} V ${source.bottom + 8 + (hint.sourceOffset ?? 0)} H ${gutterX}`
+        : `M ${source.right} ${source.y} H ${gutterX}`;
+      const side = hint.targetSide ?? "top";
+      const inset = hint.railInset ?? 14;
+      const end = side === "top" ? `H ${target.x} V ${target.top}`
+        : `H ${side === "left" ? targetStage.x + inset : targetStage.x + targetStage.width - inset} V ${target.y} H ${side === "left" ? target.left : target.right}`;
+      add(`${start} V ${busY} ${end}`, true, [sourceRef], [targetRef]);
+    });
+    return;
+  }
   const sourceRefs = unique(hint.pairs.map(([source]) => source));
   if (sourceRefs.length !== 1) {
     routePairs(hint, layout, add);

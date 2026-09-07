@@ -34,15 +34,18 @@ export const smolvlaPresentation: GraphPresentation = {
       scopedRow("vision-encoder/patch-grid-connector", ["connector-scale"]),
     ],
     "prefix-encoder": [
-      scopedRow("prefix-encoder/state-token-projector", ["pad-state", "state-projection"]),
-      scopedRow("prefix-encoder/prompt-prefix-builder", ["flatten-views", "embed-prompt"], true),
-      scopedRow("prefix-encoder/prompt-prefix-builder", [null, "prompt-scale"]),
-      scopedRow("prefix-encoder/prompt-prefix-builder", ["image-language-concat"]),
+      { slots: ["prefix-encoder/prompt-prefix-builder/flatten-views", "prefix-encoder/prompt-prefix-builder/embed-prompt", "prefix-encoder/state-token-projector/pad-state"] },
+      { slots: [null, "prefix-encoder/prompt-prefix-builder/prompt-scale", "prefix-encoder/state-token-projector/state-projection"] },
+      { slots: ["prefix-encoder/prompt-prefix-builder/image-language-concat"], centerBetween: ["prefix-encoder/prompt-prefix-builder/flatten-views", "prefix-encoder/prompt-prefix-builder/prompt-scale"] },
       scopedRow("prefix-encoder/prompt-prefix-builder", ["build-prefix"]),
-      ...transformerAttentionRows(PREFIX_ATTENTION, { rope: true }),
-      scopedRow(PREFIX_ATTENTION, ["key-cache-output", "value-cache-output"]),
+      scopedRow(PREFIX_ATTENTION, ["attention-norm"], true),
+      scopedRow(PREFIX_ATTENTION, ["key-projection", "query-projection", "value-projection"]),
+      scopedRow(PREFIX_ATTENTION, ["key-rope", "query-rope", null]),
+      scopedRow(PREFIX_ATTENTION, ["key-cache-output", null, "value-cache-output"]),
+      { slots: ["prefix-encoder/cache-layer-pairing/pair-key-layers", `${PREFIX_ATTENTION}/attention`, "prefix-encoder/cache-layer-pairing/pair-value-layers"] },
+      scopedRow(PREFIX_ATTENTION, ["output-projection"]),
+      scopedRow(PREFIX_ATTENTION, ["attention-residual"]),
       ...gatedMlpRows(PREFIX_MLP, "gate-silu"),
-      scopedRow("prefix-encoder/cache-layer-pairing", ["pair-key-layers", "pair-value-layers"], true),
     ],
     "action-flow-decoder": [
       scopedRow(SUFFIX, ["action-projection", "time-embedding"]),
@@ -51,18 +54,18 @@ export const smolvlaPresentation: GraphPresentation = {
       scopedRow(SUFFIX, ["time-mlp-in"]),
       scopedRow(SUFFIX, ["time-mlp-silu"]),
       scopedRow(SUFFIX, ["time-mlp-out"]),
-      ...transformerAttentionRows(SELF_ATTENTION, {
-        entry: ["extract-prefix-key", "attention-norm", "extract-prefix-value"],
-        rope: true,
-        prefixKvViews: true,
-      }),
+      scopedRow(SELF_ATTENTION, ["extract-prefix-key", "attention-norm", "extract-prefix-value"], true),
+      scopedRow(SELF_ATTENTION, ["key-projection", "query-projection", "value-projection"]),
+      scopedRow(SELF_ATTENTION, ["key-rope", "query-rope", null]),
+      scopedRow(SELF_ATTENTION, ["key-concat", null, "value-concat"]),
+      scopedRow(SELF_ATTENTION, ["attention"]),
+      scopedRow(SELF_ATTENTION, ["output-projection"]),
+      scopedRow(SELF_ATTENTION, ["attention-residual"]),
       ...gatedMlpRows(SELF_MLP, "gate-silu"),
       scopedRow(CROSS_ATTENTION, ["extract-prefix-key", "attention-norm", "extract-prefix-value"], true),
-      scopedRow(CROSS_ATTENTION, ["flatten-prefix-key", null, "flatten-prefix-value"]),
-      scopedRow(CROSS_ATTENTION, ["key-adapter", null, "value-adapter"]),
+      scopedRow(CROSS_ATTENTION, ["flatten-prefix-key", "query-projection", "flatten-prefix-value"]),
+      scopedRow(CROSS_ATTENTION, ["key-adapter", "query-rope", "value-adapter"]),
       scopedRow(CROSS_ATTENTION, ["rearrange-key-heads", null, "rearrange-value-heads"]),
-      scopedRow(CROSS_ATTENTION, ["query-projection"]),
-      scopedRow(CROSS_ATTENTION, ["query-rope"]),
       scopedRow(CROSS_ATTENTION, ["attention"]),
       scopedRow(CROSS_ATTENTION, ["output-projection"]),
       scopedRow(CROSS_ATTENTION, ["attention-residual"]),
@@ -78,8 +81,8 @@ export const smolvlaPresentation: GraphPresentation = {
   boundaryLanes: {
     "prefix-encoder": {
       input: {
-        slotCount: 2,
-        lanes: { "input/state": 0, "input/prompt-token-ids": 1 },
+        slotCount: 3,
+        lanes: { "input/state": 2, "input/prompt-token-ids": 1 },
       },
     },
     "action-flow-decoder": {
@@ -120,19 +123,19 @@ export const smolvlaPresentation: GraphPresentation = {
     "public-output/public-action-slice/public-action-slice": "line-op",
   },
   connectorHints: [
-    { id: "self-prefix-key", kind: "cross", route: "top-bus", side: "left", pairs: [[
+    { id: "self-prefix-key", kind: "cross", route: "gutter", sourceSide: "bottom", targetSide: "top", railOffset: -7, busOffset: -12, pairs: [[
       "prefix-encoder/cache-layer-pairing/pair-key-layers",
       `${SELF_ATTENTION}/extract-prefix-key`,
     ]] },
-    { id: "cross-prefix-key", kind: "cross", route: "top-bus", side: "left", pairs: [[
+    { id: "cross-prefix-key", kind: "cross", route: "gutter", sourceSide: "bottom", targetSide: "top", railOffset: 3, busOffset: -12, pairs: [[
       "prefix-encoder/cache-layer-pairing/pair-key-layers",
       `${CROSS_ATTENTION}/extract-prefix-key`,
     ]] },
-    { id: "self-prefix-value", kind: "cross", route: "top-bus", side: "right", pairs: [[
+    { id: "self-prefix-value", kind: "cross", route: "gutter", sourceSide: "bottom", sourceOffset: 6, targetSide: "top", railOffset: -2, busOffset: -7, pairs: [[
       "prefix-encoder/cache-layer-pairing/pair-value-layers",
       `${SELF_ATTENTION}/extract-prefix-value`,
     ]] },
-    { id: "cross-prefix-value", kind: "cross", route: "top-bus", side: "right", pairs: [[
+    { id: "cross-prefix-value", kind: "cross", route: "gutter", sourceSide: "bottom", sourceOffset: 6, targetSide: "top", railOffset: 8, busOffset: -7, pairs: [[
       "prefix-encoder/cache-layer-pairing/pair-value-layers",
       `${CROSS_ATTENTION}/extract-prefix-value`,
     ]] },
