@@ -3287,6 +3287,161 @@
       }
     },
     {
+      "label": "FlashRT prefix Gate/Up FP8 GEMM boundary",
+      "missing": [],
+      "model_artifact_id": "pi0-flashrt-local-01",
+      "model_graph_id": "pi0-logical-v1",
+      "model_id": "pi0",
+      "modeling_scope": "implementation_modeled",
+      "origin": "captured_kernel",
+      "precision_path": {
+        "kind": "uniform",
+        "precision_path_id": "fp8_w8a8",
+        "realization_ids": [
+          "rr-flashrt-pi0-thor-fp8-v1"
+        ],
+        "runtime_support": "proven",
+        "segments": [
+          {
+            "accumulator_dtype": "fp32",
+            "activation": {
+              "bits_per_value": 8,
+              "block_values": null,
+              "format": "fp8_e4m3",
+              "packed_data_bytes_per_block": null,
+              "padding": "none",
+              "provenance": {
+                "class": "analytical_model",
+                "condition": "GEMM core multiply-add work only; FP32 alpha epilogue, output conversion and scheduling instructions are not modeled. FP8 activation/weight read once, FP16 output written once; beta=0. Kernel-boundary modeled bytes, not measured DRAM. Timing is the complete selected Nsys Kernel intervals in one prediction, not NCU replay or unprofiled timing. Conditional Thor 120W/1.386GHz/273GB/s reference, without matching observed GPU/EMC clocks; no efficiency or attainment gap.",
+                "derivation": {
+                  "expression": "FP8 E4M3 A/B; FP16 output; calibrated descale is a by-value alpha kernel parameter, not another tensor",
+                  "input_refs": [
+                    "flash_rt/hardware/thor/shared_primitives.py#encoder_forward",
+                    "csrc/gemm/gemm_types_sm100.h#sm100_t1"
+                  ],
+                  "kind": "formula"
+                },
+                "evidence": "analytical",
+                "source_ids": [
+                  "source-local-thor",
+                  "source-flashrt"
+                ]
+              },
+              "scale_bytes_per_block": 0,
+              "scale_format": "none",
+              "tensor_scale_bytes": 0,
+              "zero_point_bytes_per_block": 0
+            },
+            "compute_class": "tensor_fp8_e4m3_dense",
+            "dequantization": {
+              "floating_flop_per_weight": 0,
+              "integer_op_per_weight": 0,
+              "materialized_bytes_per_weight": 0,
+              "mode": "none"
+            },
+            "output": {
+              "bits_per_value": 16,
+              "block_values": null,
+              "format": "fp16",
+              "packed_data_bytes_per_block": null,
+              "padding": "none",
+              "provenance": {
+                "class": "analytical_model",
+                "condition": "GEMM core multiply-add work only; FP32 alpha epilogue, output conversion and scheduling instructions are not modeled. FP8 activation/weight read once, FP16 output written once; beta=0. Kernel-boundary modeled bytes, not measured DRAM. Timing is the complete selected Nsys Kernel intervals in one prediction, not NCU replay or unprofiled timing. Conditional Thor 120W/1.386GHz/273GB/s reference, without matching observed GPU/EMC clocks; no efficiency or attainment gap.",
+                "derivation": {
+                  "expression": "FP8 E4M3 A/B; FP16 output; calibrated descale is a by-value alpha kernel parameter, not another tensor",
+                  "input_refs": [
+                    "flash_rt/hardware/thor/shared_primitives.py#encoder_forward",
+                    "csrc/gemm/gemm_types_sm100.h#sm100_t1"
+                  ],
+                  "kind": "formula"
+                },
+                "evidence": "analytical",
+                "source_ids": [
+                  "source-local-thor",
+                  "source-flashrt"
+                ]
+              },
+              "scale_bytes_per_block": 0,
+              "scale_format": "none",
+              "tensor_scale_bytes": 0,
+              "zero_point_bytes_per_block": 0
+            },
+            "segment_id": "segment-fp8",
+            "selector": {
+              "kind": "execution_groups",
+              "refs": [
+                "prefix-merged-gate-up"
+              ]
+            },
+            "weight": {
+              "bits_per_value": 8,
+              "block_values": null,
+              "format": "fp8_e4m3",
+              "packed_data_bytes_per_block": null,
+              "padding": "none",
+              "provenance": {
+                "class": "analytical_model",
+                "condition": "GEMM core multiply-add work only; FP32 alpha epilogue, output conversion and scheduling instructions are not modeled. FP8 activation/weight read once, FP16 output written once; beta=0. Kernel-boundary modeled bytes, not measured DRAM. Timing is the complete selected Nsys Kernel intervals in one prediction, not NCU replay or unprofiled timing. Conditional Thor 120W/1.386GHz/273GB/s reference, without matching observed GPU/EMC clocks; no efficiency or attainment gap.",
+                "derivation": {
+                  "expression": "FP8 E4M3 A/B; FP16 output; calibrated descale is a by-value alpha kernel parameter, not another tensor",
+                  "input_refs": [
+                    "flash_rt/hardware/thor/shared_primitives.py#encoder_forward",
+                    "csrc/gemm/gemm_types_sm100.h#sm100_t1"
+                  ],
+                  "kind": "formula"
+                },
+                "evidence": "analytical",
+                "source_ids": [
+                  "source-local-thor",
+                  "source-flashrt"
+                ]
+              },
+              "scale_bytes_per_block": 0,
+              "scale_format": "none",
+              "tensor_scale_bytes": 0,
+              "zero_point_bytes_per_block": 0
+            }
+          }
+        ]
+      },
+      "provenance": {
+        "class": "analytical_model",
+        "condition": "GEMM core multiply-add work only; FP32 alpha epilogue, output conversion and scheduling instructions are not modeled. FP8 activation/weight read once, FP16 output written once; beta=0. Kernel-boundary modeled bytes, not measured DRAM. Timing is the complete selected Nsys Kernel intervals in one prediction, not NCU replay or unprofiled timing. Conditional Thor 120W/1.386GHz/273GB/s reference, without matching observed GPU/EMC clocks; no efficiency or attainment gap.",
+        "derivation": {
+          "expression": "Unique T1 template callsite: M=Se=304, N=2H=32768, K=D=2048",
+          "input_refs": [
+            "flash_rt/hardware/thor/shared_primitives.py#encoder_forward",
+            "csrc/gemm/gemm_types_sm100.h#sm100_t1"
+          ],
+          "kind": "formula"
+        },
+        "evidence": "analytical",
+        "source_ids": [
+          "source-local-thor",
+          "source-flashrt"
+        ]
+      },
+      "scenario_id": "scenario-pi0-flashrt-prefix-gate-up-fp8",
+      "schema_version": "2.0.0",
+      "workload": {
+        "action_horizon": 10,
+        "active_camera_views": 1,
+        "batch_size": 1,
+        "denoise_steps": 10,
+        "executed_camera_views": 1,
+        "executed_image_height": 224,
+        "executed_image_width": 224,
+        "executed_prompt_tokens": 48,
+        "internal_action_dimension": 32,
+        "public_action_dimension": 7,
+        "raw_image_height": 224,
+        "raw_image_width": 224,
+        "semantic_prompt_tokens": 48,
+        "work_unit": "action_chunk"
+      }
+    },
+    {
       "label": "pi0 default · Dense FP16",
       "missing": [
         {

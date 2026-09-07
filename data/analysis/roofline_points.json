@@ -22996,6 +22996,200 @@
         "resource_compute_lower_bound_second": null,
         "resource_memory_lower_bound_second": null
       },
+      "basis_id": "basis-pi0-flashrt-prefix-gate-up-node-002",
+      "calls": 17,
+      "coverage": {
+        "included_refs": [
+          "kernel-signature-pi0-flashrt-large-gemm-027"
+        ],
+        "omitted": [
+          {
+            "reason": "FP32 alpha multiplication and output conversion execute inside the timed Kernel but are outside modeled GEMM core work.",
+            "ref": "alpha_epilogue_and_cast"
+          },
+          {
+            "reason": "Separate GEGLU/FP8 conversion, other kernels, CPU and transfers excluded.",
+            "ref": "outside_selected_kernel_boundary"
+          }
+        ],
+        "status": "partial"
+      },
+      "derived": {
+        "achieved_flop_per_second": 92290438806313.31,
+        "arithmetic_intensity_flop_per_byte": 465.48934579439253,
+        "compute_second": 0.001524611434640408,
+        "efficiency": null,
+        "gap": null,
+        "limiter": "memory",
+        "memory_second": 0.005458332600732601,
+        "roof_flop_per_second": 127078591401869.16,
+        "roof_second": 0.005458332600732601,
+        "status": "partial_lower_bound"
+      },
+      "entity": {
+        "coverage_key": "kernel-observation-pi0-flashrt-nsys-node_r002_027:same-window-shape",
+        "entity_id": "kernel-observation-pi0-flashrt-nsys-node_r002_027",
+        "kind": "kernel",
+        "label": "Prefix Gate/Up GEMM",
+        "logical_refs": [],
+        "shape_or_coverage": "M=304, N=32768, K=2048; FP8 E4M3 A/B, FP32 accumulation, FP16 output; 17 same-shape launches; alpha epilogue work excluded"
+      },
+      "legacy_record_refs": [],
+      "missing": [
+        {
+          "detail": "GPU/EMC clocks not matched; conditional reference only.",
+          "field": "efficiency",
+          "reason": "incompatible_basis"
+        },
+        {
+          "detail": "No matched attainment or achievable acceleration claim.",
+          "field": "gap",
+          "reason": "incompatible_basis"
+        }
+      ],
+      "point_id": "point-pi0-flashrt-prefix-gate-up-node-002",
+      "provenance": {
+        "class": "measured_empirical",
+        "condition": "GEMM core multiply-add work only; FP32 alpha epilogue, output conversion and scheduling instructions are not modeled. FP8 activation/weight read once, FP16 output written once; beta=0. Kernel-boundary modeled bytes, not measured DRAM. Timing is the complete selected Nsys Kernel intervals in one prediction, not NCU replay or unprofiled timing. Conditional Thor 120W/1.386GHz/273GB/s reference, without matching observed GPU/EMC clocks; no efficiency or attainment gap.",
+        "derivation": {
+          "expression": "Source template/callsite plus one-window exact Nsys launch sequence; no NCU timing substitution",
+          "input_refs": [
+            "flash_rt/hardware/thor/shared_primitives.py#encoder_forward",
+            "csrc/gemm/gemm_types_sm100.h#sm100_t1"
+          ],
+          "kind": "formula"
+        },
+        "evidence": "measured_local",
+        "source_ids": [
+          "source-local-thor",
+          "source-flashrt"
+        ]
+      },
+      "schema_version": "2.0.0",
+      "timing": {
+        "observed_second": 0.007515808,
+        "sample_count": 17,
+        "statistic": "sum",
+        "timing_boundary_id": "nsys_selected_kernel_intervals_one_prediction"
+      },
+      "traffic": {
+        "components": [
+          {
+            "byte": 10584064,
+            "component_id": "activation",
+            "kind": "input_read",
+            "provenance": {
+              "class": "analytical_model",
+              "condition": "GEMM core multiply-add work only; FP32 alpha epilogue, output conversion and scheduling instructions are not modeled. FP8 activation/weight read once, FP16 output written once; beta=0. Kernel-boundary modeled bytes, not measured DRAM. Timing is the complete selected Nsys Kernel intervals in one prediction, not NCU replay or unprofiled timing. Conditional Thor 120W/1.386GHz/273GB/s reference, without matching observed GPU/EMC clocks; no efficiency or attainment gap.",
+              "derivation": {
+                "expression": "One compulsory tensor read/write at Kernel boundary; no measured DRAM or cache-hit claim",
+                "input_refs": [
+                  "flash_rt/hardware/thor/shared_primitives.py#encoder_forward",
+                  "csrc/gemm/gemm_types_sm100.h#sm100_t1"
+                ],
+                "kind": "formula"
+              },
+              "evidence": "analytical",
+              "source_ids": [
+                "source-local-thor",
+                "source-flashrt"
+              ]
+            },
+            "tensor_ref": "activation"
+          },
+          {
+            "byte": 1140850688,
+            "component_id": "weight",
+            "kind": "weight_read",
+            "provenance": {
+              "class": "analytical_model",
+              "condition": "GEMM core multiply-add work only; FP32 alpha epilogue, output conversion and scheduling instructions are not modeled. FP8 activation/weight read once, FP16 output written once; beta=0. Kernel-boundary modeled bytes, not measured DRAM. Timing is the complete selected Nsys Kernel intervals in one prediction, not NCU replay or unprofiled timing. Conditional Thor 120W/1.386GHz/273GB/s reference, without matching observed GPU/EMC clocks; no efficiency or attainment gap.",
+              "derivation": {
+                "expression": "One compulsory tensor read/write at Kernel boundary; no measured DRAM or cache-hit claim",
+                "input_refs": [
+                  "flash_rt/hardware/thor/shared_primitives.py#encoder_forward",
+                  "csrc/gemm/gemm_types_sm100.h#sm100_t1"
+                ],
+                "kind": "formula"
+              },
+              "evidence": "analytical",
+              "source_ids": [
+                "source-local-thor",
+                "source-flashrt"
+              ]
+            },
+            "tensor_ref": "weight"
+          },
+          {
+            "byte": 338690048,
+            "component_id": "output",
+            "kind": "boundary_output_write",
+            "provenance": {
+              "class": "analytical_model",
+              "condition": "GEMM core multiply-add work only; FP32 alpha epilogue, output conversion and scheduling instructions are not modeled. FP8 activation/weight read once, FP16 output written once; beta=0. Kernel-boundary modeled bytes, not measured DRAM. Timing is the complete selected Nsys Kernel intervals in one prediction, not NCU replay or unprofiled timing. Conditional Thor 120W/1.386GHz/273GB/s reference, without matching observed GPU/EMC clocks; no efficiency or attainment gap.",
+              "derivation": {
+                "expression": "One compulsory tensor read/write at Kernel boundary; no measured DRAM or cache-hit claim",
+                "input_refs": [
+                  "flash_rt/hardware/thor/shared_primitives.py#encoder_forward",
+                  "csrc/gemm/gemm_types_sm100.h#sm100_t1"
+                ],
+                "kind": "formula"
+              },
+              "evidence": "analytical",
+              "source_ids": [
+                "source-local-thor",
+                "source-flashrt"
+              ]
+            },
+            "tensor_ref": "output"
+          }
+        ],
+        "excluded_internal": [],
+        "memory_domain": "system_memory",
+        "total_byte": 1490124800,
+        "value_kind": "modeled"
+      },
+      "values_scope": "all_calls",
+      "work": {
+        "components": [
+          {
+            "comparison_ops": 0,
+            "component_id": "gemm",
+            "compute_class": "tensor_fp8_e4m3_dense",
+            "flop": 693637218304,
+            "integer_ops": 0,
+            "kind": "gemm",
+            "provenance": {
+              "class": "analytical_model",
+              "condition": "GEMM core multiply-add work only; FP32 alpha epilogue, output conversion and scheduling instructions are not modeled. FP8 activation/weight read once, FP16 output written once; beta=0. Kernel-boundary modeled bytes, not measured DRAM. Timing is the complete selected Nsys Kernel intervals in one prediction, not NCU replay or unprofiled timing. Conditional Thor 120W/1.386GHz/273GB/s reference, without matching observed GPU/EMC clocks; no efficiency or attainment gap.",
+              "derivation": {
+                "expression": "2*304*32768*2048*17; FMA=2; alpha epilogue arithmetic excluded",
+                "input_refs": [
+                  "flash_rt/hardware/thor/shared_primitives.py#encoder_forward",
+                  "csrc/gemm/gemm_types_sm100.h#sm100_t1"
+                ],
+                "kind": "formula"
+              },
+              "evidence": "analytical",
+              "source_ids": [
+                "source-local-thor",
+                "source-flashrt"
+              ]
+            },
+            "transcendental_ops": 0
+          }
+        ],
+        "total_flop": 693637218304
+      }
+    },
+    {
+      "aggregation": {
+        "dependency_edges": [],
+        "dependency_lower_bound_second": null,
+        "member_point_ids": [],
+        "resource_compute_lower_bound_second": null,
+        "resource_memory_lower_bound_second": null
+      },
       "basis_id": "basis-pi0-vlacpp-gemm-021-001",
       "calls": 34,
       "coverage": {

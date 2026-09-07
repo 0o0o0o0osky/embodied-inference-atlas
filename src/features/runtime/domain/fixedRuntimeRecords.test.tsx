@@ -1,3 +1,5 @@
+import { indexRoofline } from '../../roofline/data/indexRoofline';
+import { invocationPoint, invocationSelection } from '../components/kernelInvocation';
 import { expect, it } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { atlasSnapshot as data } from '../../../testSupport/atlasSnapshot';
@@ -32,4 +34,32 @@ it('opens both measured cases with their own implementation, stable trace and in
     expect(metrics).toContain('SM 吞吐');
     expect(context.captureIdentities.endToEnd?.runId).toBe(runId);
   }
+});
+
+it('projects the FlashRT roof from the selected real call and keeps its merged computation',()=>{
+  const model=data.datasets.models.find(r=>r.model_id==='pi0')!;
+  const record=data.datasets.model_graphs.find(r=>r.model_id==='pi0')!;
+  const route=readRoute('?model=pi0&tab=runtime&runtime=flashrt&runtimePrecision=mixed-fp8-e4m3-fp16&selectedRun=run-pi0-flashrt-fixed-e2e-001&workload=cfg-pi0-flashrt-fixed-001');
+  const context=resolveAnalysisContext({data,model,record,route});
+  const kernel=context.kernels.rows.find(r=>r.signature.kernelSignatureId==='kernel-signature-pi0-flashrt-large-gemm-027' && r.capture.tool==='nsys')!;
+  const index=indexRoofline(data);
+  const source=index.points.find(p=>p.point_id==='point-pi0-flashrt-prefix-gate-up-node-002')!;
+  expect(source).toBeDefined();
+  const events=context.nsys.active!.timeline.events.filter(e=>e.kernelSignatureId===kernel.signature.kernelSignatureId);
+  const event=invocationSelection(events).selected!;
+  const point=invocationPoint(source,event,events.length)!;
+  expect(point.calls).toBe(1);
+  expect(point.work.total_flop).toBe(40802189312);
+  expect(point.traffic.total_byte).toBe(87654400);
+  expect(point.timing.observed_second).toBeCloseTo(.000439904,10);
+  expect(point.derived.roof_second).toBeCloseTo(.0003210783882783883,10);
+  expect(point.derived.efficiency).toBeNull();expect(point.derived.gap).toBeNull();
+  const next=invocationPoint(source,events[0]!,events.length)!;
+  expect(next.timing.observed_second).not.toBe(point.timing.observed_second);
+  expect(next.derived.roof_second).toBe(point.derived.roof_second);
+  const markup=renderToStaticMarkup(<KernelComputation row={kernel} point={point}/>);
+  expect(markup).toContain('前缀 Gate/Up 合并 GEMM');
+  expect(markup).toContain('FP16（实现关联）');expect(markup).toContain('α');
+  expect(markup).toContain('67.109');
+  expect(markup).toContain('19.923');
 });
