@@ -8,7 +8,7 @@ import type { KernelRow } from '../../performance/domain/buildKernelRows';
 it('shows recorded launch zero values without inferring thread tiles',()=>{
  const markup=renderToStaticMarkup(<KernelResources launch={{grid:[8,2,1],block:[256,1,1],registersPerThread:21,staticSharedMemoryBytes:0,dynamicSharedMemoryBytes:0,wavesPerSm:null}}/>);
  expect(markup).toContain('8 × 2 × 1');expect(markup).toContain('0 B');
- expect(markup).not.toContain('Waves / SM');expect(markup).toContain('未记录实际 tile');
+ expect(markup).not.toContain('Waves / SM');expect(markup).not.toContain('未记录实际 tile');
 });
 it('keeps precision conflicts visible even without a roofline point',()=>{
  const row={signature:{precisionPath:{inputDtypeClass:null,accumulatorDtypeClass:null,outputDtypeClass:null,missing:{}},missing:{run_precision_linkage:'precision_conflict'}}} as unknown as KernelRow;
@@ -20,7 +20,7 @@ it('keeps precision conflicts visible even without a roofline point',()=>{
 it('explains only source-audited conversion signatures and leaves element count symbolic',()=>{
  const row={signature:{kernelSignatureId:'kernel-signature-pi0-vlacpp-fp32-to-bf16-conversion-009',precisionPath:{inputDtypeClass:'fp32',outputDtypeClass:'bf16',accumulatorDtypeClass:null,missing:{}},missing:{}}} as unknown as KernelRow;
  const markup=renderToStaticMarkup(<KernelComputation row={row}/>);
- expect(markup).toContain('已确认的元素转换');expect(markup).toContain('总计 6E B');expect(markup).toContain('不能从 Grid 反推');
+ expect(markup).toContain('已确认的元素转换');expect(markup).toContain('总计 6E B');expect(markup).toContain('E 为处理的元素数');
  expect(renderToStaticMarkup(<KernelComputation row={{...row,signature:{...row.signature,kernelSignatureId:'other-conversion'}}}/>)).not.toContain('已确认的元素转换');
  const withSources=renderToStaticMarkup(<KernelComputation row={row} sources={atlasSnapshot.datasets.sources}/>);
  expect(withSources).toContain('https://github.com/VinRobotics/vla.cpp');
@@ -41,7 +41,7 @@ it('shows the real stride-copy class with symbolic bytes and an independent NCU 
  const markup=renderToStaticMarkup(<KernelComputation row={row}/>);
  expect(markup).toContain('FP32 步幅拷贝');
  expect(markup).toContain('8E B');
- expect(markup).toContain('元素数 E 与实际步幅未记录');
+ expect(markup).toContain('元素数与实际步幅待补');
  expect(markup).not.toMatch(/\d+(?:\.\d+)?\s*(?:MB|GB|TFLOP)/);
  expect(markup).not.toContain('GEMM 数学维度');
 });

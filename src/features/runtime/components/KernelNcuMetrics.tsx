@@ -69,11 +69,10 @@ export function KernelNcuMetrics({ rows, sources }: { rows: readonly KernelRow[]
   if (!active) return <p className="kernel-ncu-empty">暂无同一 Kernel 签名的 NCU 回放。</p>;
   return <section className="kernel-ncu" aria-label="Kernel NCU 指标">
     <h4>NCU 指标</h4>
-    <p className="kernel-ncu-note">同一 Kernel 签名的独立回放，仅覆盖其采集时选中的 launch；不是当前 Nsys 调用的同步计数器，不与 Nsys 合并计时。</p>
-    {replays.length > 1 ? <label className="kernel-ncu-select">选择独立回放
-      <select aria-label="选择独立回放" value={active.observation.observationId} onChange={event => setSelectedId(event.target.value)}>
+    {replays.length > 1 ? <label className="kernel-ncu-select">选择 NCU 记录（共 {replays.length} 条）
+      <select aria-label="选择 NCU 记录" value={active.observation.observationId} onChange={event => setSelectedId(event.target.value)}>
         {replays.map((row, index) => <option key={row.observation.observationId} value={row.observation.observationId}>
-          独立回放 {index + 1}{row.metrics.get('scheduler_eligible_warps_per_active_cycle')?.value != null ? ' · 含调度指标' : ''}
+          记录 {index + 1}{row.metrics.get('scheduler_eligible_warps_per_active_cycle')?.value != null ? ' · 含调度指标' : ''}
         </option>)}
       </select>
     </label> : null}
@@ -89,32 +88,33 @@ export function KernelNcuMetrics({ rows, sources }: { rows: readonly KernelRow[]
       const duration = metrics.get('kernel_duration');
       const sysmem = [...metrics.values()].some(metric => metric.metricName.startsWith('l2_sysmem') && metric.value !== null);
       return <article className="kernel-ncu-replay" key={observation.observationId} data-capture-id={capture.captureId}>
-        <header><strong>独立回放 {index + 1}</strong>
-          <span>{observation.calls === 1 ? '单次 launch' : `${observation.calls} 次 launch`}
-            {duration?.value != null ? ` · ${valueLabel(duration)}` : ''}
-            {capture.ncu ? ` · ${capture.ncu.replayPasses} 轮采集` : ''}</span>
+        <header>{replays.length > 1 ? <strong>NCU 记录 {index + 1} / {replays.length}</strong> : null}
+          <span>采集对象：{observation.calls === 1 ? '单次 Kernel 调用' : `${observation.calls} 次 Kernel 调用`}</span>
         </header>
         <KernelPrecisionSummary row={row} />
-        {capture.warnings.includes('work_id_unavailable') ? <p className="kernel-ncu-note">{capture.warnings.includes('same_input_order_association') ? '按相同输入下的调用顺序关联；NCU 未直接记录矩阵维度。' : 'NCU 未直接记录工作量标识；同名 Kernel 不足以确认矩阵维度一致。'}</p> : null}
-        <details className="kernel-ncu-launch"><summary>本次 NCU 回放的启动配置</summary><KernelResources launch={observation.launch} label="本次 NCU 回放的执行资源" /></details>
+        <details className="kernel-ncu-launch"><summary>采集时的启动参数</summary><KernelResources launch={observation.launch} label="NCU 采集时的执行资源" /></details>
         {measuredGroups.length ? measuredGroups.map(group => <section className="kernel-ncu-group" key={group.title} aria-label={group.title}>
           <h5>{group.title}</h5><dl>{group.entries.map(({ metric, label, basis }) => <div key={metric.metricId}>
             <dt>{label}</dt><dd>{valueLabel(metric)}</dd>{basis ? <small>{basis}</small> : null}
           </div>)}</dl>
         </section>) : <p>本次回放尚无可展示的数值指标。</p>}
-        {sysmem ? <p className="kernel-ncu-note">L2 sysmem 项描述 L2 与系统内存的交互，不代表整机内存流量。</p> : null}
-        <p className="kernel-ncu-note">结合计算、访存与启动规模判断；低 occupancy 或单一吞吐指标不能独立确定瓶颈。</p>
         <details className="kernel-ncu-raw"><summary>采集条件与原始计数器</summary>
           <dl className="kernel-ncu-identity">
             <div><dt>来源</dt><dd><RuntimeSourceReferences sources={sources} sourceIds={[capture.sourceId]} /></dd></div>
-            <div><dt>选择范围</dt><dd>{capture.selectionPolicy === 'explicit_invocation' ? '指定 invocation' : '名称筛选后选中的 launch'} · {capture.coverage.observedCount} 次已观测 launch</dd></div>
+            <div><dt>选择范围</dt><dd>{capture.selectionPolicy === 'explicit_invocation' ? '指定调用' : '按名称筛选调用'} · {capture.coverage.observedCount} 次调用</dd></div>
+            <div><dt>关联方式</dt><dd>{capture.warnings.includes('same_input_order_association') ? '相同输入下的调用顺序' : 'Kernel 签名'}</dd></div>
+            {capture.warnings.includes('work_id_unavailable') ? <div><dt>NCU 矩阵维度</dt><dd>未记录</dd></div> : null}
+            {duration?.value != null ? <div><dt>NCU 采集下的耗时</dt><dd>{valueLabel(duration)}</dd></div> : null}
+            {sysmem ? <div><dt>L2 sysmem 范围</dt><dd>L2 与系统内存之间的访问</dd></div> : null}
             <div><dt>回放方式</dt><dd>{capture.ncu?.replayMode ?? '未记录'} · NCU {capture.toolVersion}</dd></div>
             {capture.ncu ? <>
+              <div><dt>计数器采集轮数</dt><dd>{capture.ncu.replayPasses} 轮（pass）</dd></div>
               <div><dt>缓存控制请求</dt><dd>{capture.ncu.cacheControlRequest}</dd></div>
               <div><dt>时钟控制请求</dt><dd>{capture.ncu.clockControlRequest}</dd></div>
               <div><dt>外部时钟控制</dt><dd>{capture.ncu.externalClockControl ? `${capture.ncu.externalClockControl.controller} · ${capture.ncu.externalClockControl.state}` : '未记录'}</dd></div>
             </> : null}
           </dl>
+          {capture.ncu && capture.ncu.replayPasses > 1 ? <p>NCU 将所需计数器分轮收集，{capture.ncu.replayMode === 'kernel' ? '逐轮回放选中的 Kernel 调用' : '逐轮重放所选工作负载'}，汇成这份报告。</p> : null}
           <ul>{[...metrics.values()].map(metric => <li key={metric.metricId}>
             <strong>{LABELS.get(metric.metricName) ?? metric.metricName} · {valueLabel(metric)}</strong>
             <code>{metric.rawCounterName ?? '无原始计数器名称'}</code>

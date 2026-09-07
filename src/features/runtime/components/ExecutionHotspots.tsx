@@ -82,12 +82,12 @@ export function ExecutionHotspots({data, record, route, view, kernels, realizati
   const sharedConversions = rows.filter(row=>kernels.rows.some(item=>item.capture.captureId===row.captureId && item.signature.kernelSignatureId===row.kernelSignatureId && (isVerifiedConversion(item)||isVerifiedStrideCopy(item))));
   const detail = selected ? <aside ref={detailRef} className="execution-hotspot-detail">
         <header><h4>{labelFor(selected)}</h4><button type="button" onClick={()=>navigate({entity:rememberedGraphEntity},true)} aria-label="关闭热点详情">×</button></header>
-        <p>{selected.category === 'GPU Kernel' ? `本次推理 · 1 个 trace · 此类 Kernel 调用 ${selected.count} 次` : `当前类别 ${selected.count} 次`}。{selected.timeMeaning}</p>{selected.category === 'GPU Kernel' ? <p>{selected.events[0]?.launch ? '按 Kernel 签名与启动配置归为一类。' : '当前类别未记录 launch 配置，同签名内部形状与执行组织是否一致尚未验证。'}</p> : null}
+        <p>{selected.category === 'GPU Kernel' ? `本次推理 · 1 个 trace · 此类 Kernel 调用 ${selected.count} 次` : `当前类别 ${selected.count} 次`}</p>
         {groups.length ? <p aria-label="当前 Kernel 的 DAG 位置">{groups.map(locationFor).join('；')}</p> : null}
         <nav aria-label="当前热点分析">{([['timing','计算与数据'],['resources','执行与资源'],['roofline','Roofline']] as const).map(([id,label])=><button key={id} type="button" aria-pressed={detailView === id} onClick={()=>setDetailView(id)}>{label}</button>)}</nav>
         {detailView === 'timing' ? <>
-          <dl><div><dt>累计时长</dt><dd>{(selected.durationNs/1e6).toFixed(3)} ms</dd></div><div><dt>证据来源</dt><dd>当前 Nsys 采集</dd></div>{kernel?.signature.implementationFamily ? <div><dt>计算路径</dt><dd>{kernel.signature.implementationFamily}</dd></div> : null}</dl>
-          <p>{selected.category === 'CPU 调度执行' ? '调度记录证明线程执行，尚不能归因到准备、图构建或后处理函数。函数采样比例也不是精确函数耗时。' : ''} </p>
+          <dl><div><dt>当前类别累计时长</dt><dd>{(selected.durationNs/1e6).toFixed(3)} ms</dd></div><div><dt>证据来源</dt><dd>当前 Nsys 采集</dd></div>{kernel?.signature.implementationFamily ? <div><dt>计算路径</dt><dd>{kernel.signature.implementationFamily}</dd></div> : null}</dl>
+          {selected.category === 'CPU 调度执行' ? <p>CPU 多线程累计运行时间；具体任务归属待关联。</p> : null}
           {signatureClasses.length>1?<label className="kernel-invocation-selector">同签名启动配置类别<select aria-label="选择启动配置类别" value={selected.id} onChange={event=>{const row=signatureClasses.find(item=>item.id===event.target.value)!;navigate({entity:entityFor(row)},true);}}>{signatureClasses.map((row,i)=><option key={row.id} value={row.id}>类别 {i+1} · Grid {row.events[0]?.launch?.grid?.join('×') ?? '未知'} / Block {row.events[0]?.launch?.block?.join('×') ?? '未知'} · {row.count} 次 · {(row.durationNs/1e6).toFixed(3)} ms</option>)}</select></label>:null}
           {invocation.selected ? <>
             <label className="kernel-invocation-selector">查看同一 trace 内的单次调用（共 {invocation.events.length} 次）
@@ -112,8 +112,8 @@ export function ExecutionHotspots({data, record, route, view, kernels, realizati
           {invocation.selected ? <p>当前 Nsys 调用 {(invocation.selected.durationNs/1e3).toFixed(2)} μs；资源配置来自此调用。</p>:null}
           {invocation.selected?.launch ? <KernelResources launch={invocation.selected.launch} label="当前调用的执行资源" /> : kernel ? <KernelResources launch={kernel.observation.launch} /> : <p>此对象没有 GPU launch 资源记录。</p>}
           {kernel ? replay.length ? <KernelNcuMetrics sources={data.datasets.sources} rows={replay} /> : <p>当前 Kernel 尚无配置匹配的 NCU 硬件计数器。</p> : null}
-        </> : detailView === 'dag' ? groups.length && realization ? <div>{groups.map(id=><button key={id} type="button" onClick={()=>locateGroup(id)}>{locationFor(id)}</button>)}</div> : <p>当前热点尚无已确认的算子或融合计算关联，不能凭 Kernel 名称推断 DAG 位置。</p>
-          : singlePairs.length ? singlePairs.map(pair=><RooflinePairChart key={pair.point.point_id} {...pair} />) : <p>{selected.category === 'GPU Kernel' ? '当前对象尚缺同口径的工作量或边界流量，保留其实际耗时。' : '此对象没有已确认的 FLOPs，按耗时分析，不强行绘制 Roofline。'}</p>}
+        </> : detailView === 'dag' ? groups.length && realization ? <div>{groups.map(id=><button key={id} type="button" onClick={()=>locateGroup(id)}>{locationFor(id)}</button>)}</div> : <p>当前热点的 DAG 位置待关联。</p>
+          : singlePairs.length ? singlePairs.map(pair=><RooflinePairChart key={pair.point.point_id} {...pair} />) : <p>{selected.category === 'GPU Kernel' ? '绘制 Roofline 所需的计算量或边界流量待补。' : '当前对象可按耗时分析。'}</p>}
         <button type="button" aria-label={groups.length === 1 ? "定位当前 Kernel 对应的 DAG 计算位置" : "查看当前 Kernel 的 DAG 关联"} onClick={()=>groups.length === 1 ? locateGroup(groups[0]!) : setDetailView('dag')}>{groups.length > 1 ? '选择 DAG 位置' : 'DAG 定位'}</button>
       </aside> : null;
   const renderKernelDetails = (groupIds: readonly string[]) => {
@@ -128,7 +128,7 @@ export function ExecutionHotspots({data, record, route, view, kernels, realizati
           onClick={()=>{setGraphEntity(graphEntity);navigate({timelineCapture:item.capture.captureId,entity:kernelEntity(item.capture.captureId,item.observation.observationId)},true);}}>
           {item.signature.labelSanitized}<span>{(item.observation.duration.valueNs/1e6).toFixed(3)} ms · {item.observation.calls} 次</span>
         </button></li>)}</ul> : replaysOnly.length ? <KernelNcuMetrics sources={data.datasets.sources} rows={replaysOnly} /> : <p>当前采集尚无此计算对应的 Kernel。</p>}
-      {associated.some(item=>item.links.some(link=>link.realizationId === realization?.realizationId && link.executionGroupIds.some(id=>groupIds.includes(id)) && (link.status === 'partial' || link.executionGroupIds.length > 1))) ? <p>多个计算步骤共用 Kernel：显示当前窗口的整份签名累计，不能归为当前计算的专属耗时。NCU 回放也未区分具体调用位置。</p> : null}
+      {associated.some(item=>item.links.some(link=>link.realizationId === realization?.realizationId && link.executionGroupIds.some(id=>groupIds.includes(id)) && (link.status === 'partial' || link.executionGroupIds.length > 1))) ? <p>此 Kernel 用于多个计算步骤；当前显示它在 trace 中的累计耗时。</p> : null}
       {selectedHere ? detail : null}
     </section>;
   };
@@ -136,7 +136,7 @@ export function ExecutionHotspots({data, record, route, view, kernels, realizati
     <header className="pi0-funnel-heading"><h3>执行热点</h3></header>
     <p className="pi0-funnel-note">点击图中的融合计算或精度标注，查看对应 Kernel 与性能；完整列表在底部展开。</p>
     {sharedConversions.length?<details className="dag-shared-conversions"><summary>数据转换与拷贝 · {sharedConversions.length} 个启动配置类别 · {(sharedConversions.reduce((sum,row)=>sum+row.durationNs,0)/1e6).toFixed(3)} ms</summary>
-      <p>逐元素类型转换或步幅拷贝，在多个位置使用，尚不能分配给单一算子。以下为当前 trace 的真实执行类别。</p>
+      <p>这些类型转换和步幅拷贝用于多个计算位置，按当前 trace 的调用类别汇总。</p>
       <ul>{sharedConversions.map(row=><li key={row.id}><button type="button" aria-pressed={selected?.id===row.id} onClick={()=>{setGraphEntity(null);navigate({entity:entityFor(row)},true);}}>{labelFor(row)} · Grid {row.events[0]?.launch?.grid?.join('×') ?? '未知'} · {row.count} 次 · {(row.durationNs/1e6).toFixed(3)} ms</button></li>)}</ul>
     </details>:null}
     {realization ? <div ref={dagRef} className="hotspot-primary-dag"><Pi0ImplementationDagSection sources={data.datasets.sources} initialShowPrecision record={record}
@@ -144,8 +144,8 @@ export function ExecutionHotspots({data, record, route, view, kernels, realizati
       navigate={graphNavigate} renderKernelDetails={renderKernelDetails} /></div> : <p>当前栈尚无执行图映射，可从底部列表查看已记录的性能。</p>}
     {selected && !graphEntity ? <div className="hotspot-unmapped-detail">{detail}</div> : null}
     <details className="hotspot-kernel-inventory"><summary>Kernel 与 CPU 热点列表（{rows.length} 项）</summary>
-      <p className="pi0-funnel-note">按当前采集累计时长排序。CPU、API、同步与 GPU 执行可重叠，不能相加为请求总延时。</p>
-      {view.active?.capture.nsys?.reportMode === 'node' && !view.active.capture.coverage.isCompleteForPopulation ? <p className="pi0-funnel-note">仅收录部分 Kernel，不代表全部 GPU 活动。</p> : null}
+      <p className="pi0-funnel-note">按当前 trace 中各类工作的累计时长排序；CPU 与 GPU 可重叠执行。</p>
+      {view.active?.capture.nsys?.reportMode === 'node' && !view.active.capture.coverage.isCompleteForPopulation ? <p className="pi0-funnel-note">当前记录覆盖部分 Kernel。</p> : null}
       {rows.length ? <><ol className="execution-hotspot-list">{(showAll ? rows : rows.slice(0,6)).map(row=><li key={row.id}>
         <button type="button" aria-pressed={selected?.id === row.id} onClick={()=>{setGraphEntity(null);navigate({timelineCapture:row.captureId,entity:entityFor(row)},true);}}>
           <span className="hotspot-kind">{row.category}</span><strong>{labelFor(row)}{row.events[0]?.launch?.block ? <small> · Block {row.events[0].launch.block.join('×')}</small> : null}</strong><span className="hotspot-duration">{(row.durationNs/1e6).toFixed(3)} ms</span>

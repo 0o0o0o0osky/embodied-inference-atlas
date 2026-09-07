@@ -24,7 +24,7 @@ export function RooflinePairChart({ point, basis }: { point: RooflinePointRecord
     efficiency: point.coverage.status === "complete" && point.derived.status === "complete"
       && basis.operating_point_id !== "unknown" ? point.derived.efficiency : null,
   });
-  if (!pair) return <p className="roofline-comparison-missing">该记录尚不具备可绘制的计算／带宽下界；依赖路径下界不强行套入单 Kernel 曲线。</p>;
+  if (!pair) return <p className="roofline-comparison-missing">当前记录缺少计算或带宽边界数据。</p>;
   const curve = {
     computeFlopPerSecond: pair.computeRate, bandwidthBytePerSecond: pair.bandwidthRate,
     ridgeFlopPerByte: pair.computeRate / pair.bandwidthRate,
@@ -38,9 +38,9 @@ export function RooflinePairChart({ point, basis }: { point: RooflinePointRecord
   const x = logX(pair.intensity, geometry.x, box);
   const yTheory = logY(pair.theoryRate, geometry.y, box);
   const yActual = pair.actualRate === null ? null : logY(pair.actualRate, geometry.y, box);
-  const limitingTerm = pair.limiter === "compute" ? "模型边界由计算项决定" : pair.limiter === "memory" ? "模型边界由带宽项决定" : "模型计算／带宽项同限";
-  const boundLabel = point.coverage.status !== "complete" || point.derived.status !== "complete"
-    ? `部分建模的条件参考边界 · ${limitingTerm}` : limitingTerm;
+  const limitingTerm = pair.limiter === "compute" ? "计算边界" : pair.limiter === "memory" ? "带宽边界" : "计算／带宽边界";
+  const partial = point.coverage.status !== "complete" || point.derived.status !== "complete";
+  const boundLabel = `理论参考 · ${limitingTerm}`;
   // A visual ratio to this curve is available even when its operating conditions
   // remain assumptions. Keep canonical efficiency as the matched-evidence gate.
   const referenceRatio = pair.actualRate === null ? null : pair.actualRate / pair.theoryRate;
@@ -49,7 +49,7 @@ export function RooflinePairChart({ point, basis }: { point: RooflinePointRecord
   const rateText = (rate: number | null) => rate === null ? "未提供" : `${formatNumber(rate / 1e12)} TFLOP/s`;
   return <div className="roofline-pair-chart">
     <div className="roofline-pair-summary"><span>{boundLabel}</span>
-      <strong>{pair.actualRate === null ? "实测点待补齐" : referenceOnly ? "所选假设曲线" : "运行条件已匹配"}</strong></div>
+      <strong>{pair.actualRate === null ? "实测点待补齐" : partial ? "部分建模" : ""}</strong></div>
     <div ref={root} className="roofline-pair-canvas">
       <svg viewBox={`0 0 ${width} ${height}`} aria-labelledby={id} role="img">
         <title id={id}>同一计算与访存口径下的理论上限和实测性能</title>
@@ -80,7 +80,7 @@ export function RooflinePairChart({ point, basis }: { point: RooflinePointRecord
     <div className="roofline-pair-legend">
       <span><i className="is-theory" />理论参考</span>
       <span><i className="is-actual" />实测性能</span>
-      <small>{point.traffic.memory_domain === "system_memory" ? "系统内存" : point.traffic.memory_domain.toUpperCase()} · {pair.trafficKind === "measured" ? "实测流量" : "建模流量，非实测带宽"}</small>
+      <small>{point.traffic.memory_domain === "system_memory" ? "系统内存" : point.traffic.memory_domain.toUpperCase()} · {pair.trafficKind === "measured" ? "实测流量" : "建模流量"}</small>
     </div>
     <div className="roofline-pair-table-wrap">
       <table className="roofline-pair-metrics" aria-label="当前对象的实测与理论性能对比">
@@ -88,24 +88,23 @@ export function RooflinePairChart({ point, basis }: { point: RooflinePointRecord
         <tbody>
           <tr><th scope="row">吞吐量</th><td>{rateText(pair.actualRate)}</td><td>{rateText(pair.theoryRate)}</td></tr>
           <tr><th scope="row">执行耗时</th><td>{pair.actualRate === null ? "未提供" : formatTime(point.timing.observed_second!)}</td><td>{formatTime(point.derived.roof_second!)}</td></tr>
-          <tr className="roofline-pair-attainment"><th scope="row">达到理论性能</th><td colSpan={2} data-reference-ratio={referenceRatio ?? undefined}>
+          <tr className="roofline-pair-attainment"><th scope="row">达到理论参考性能</th><td colSpan={2} data-reference-ratio={referenceRatio ?? undefined}>
             <strong>{percent}</strong><small>实测吞吐 ÷ 理论参考吞吐</small>
           </td></tr>
         </tbody>
       </table>
     </div>
-    {pair.actualRate !== null ? <p className="roofline-pair-hint">{basis.time_basis === "nsys_interval" ? "Nsys 追踪计时；" : "当前执行计时；"}{referenceOnly ? "百分比按所选假设曲线计算，仅作参考。" : "按已匹配运行条件比较。"}理论参考取当前算术强度处的边界；比例不表示可实现的总加速。</p> : null}
-    {point.coverage.status !== "complete" || point.derived.status !== "complete" ? <p className="roofline-pair-hint">{point.coverage.omitted.some(item=>item.ref === "alpha_epilogue_and_cast") ? "计算量只计矩阵乘加；α 缩放与 FP16 输出转换未单独建模，计时仍覆盖完整 Kernel。" : "仅使用已建模部分的计算量与流量；实际吞吐仍除以完整的所选调用耗时，未建模步骤不视为零开销。"}</p> : null}
-    {pair.actualRate !== null && pair.actualRate > pair.theoryRate ? <p className="roofline-comparison-missing">实测高于所选上限：请核对频率、流量和计时口径，不将此差距解释为优化空间。</p> : null}
-    {inspecting ? <div className="roofline-pair-inspector">
-      <header><strong>{point.entity.label}</strong><button type="button" onClick={() => setInspecting(false)}>收起详情</button></header>
-      <p>{point.entity.shape_or_coverage}</p>
-      <details><summary>精度、融合范围与计算依据</summary>
-        <p>所选计算上限 {formatNumber(pair.computeRate / 1e12)} TFLOP/s；带宽上限 {formatNumber(pair.bandwidthRate / 1e9)} GB/s。{referenceOnly ? "作为假设曲线，不视作本次已验证设备能力。" : "对应已匹配的所选运行条件。"}</p>
-        <p>{basis.label} · {point.work.components.map((part) => part.compute_class ?? part.kind).filter((value, index, all) => all.indexOf(value) === index).join(" / ")}</p>
-        <p>计算量 {formatQuantity(point.work.total_flop, "FLOP")}；流量 {formatQuantity(point.traffic.total_byte, "B")}；覆盖 {point.calls} 次调用。</p>
-        <p>点位保留真实坐标。不同融合／量化路径分别建模，不将未融合算子的流量直接用于融合 Kernel。</p>
-      </details>
-    </div> : <p className="roofline-pair-hint">点击任一点，查看耗时、形状和计算依据。曲线表示理论约束，实际瓶颈还需结合 NCU 诊断。</p>}
+    {pair.actualRate !== null && pair.actualRate > pair.theoryRate ? <p className="roofline-comparison-missing">实测高于所选上限，请核对频率、流量和计时范围。</p> : null}
+    <details className="roofline-pair-inspector" open={inspecting} onToggle={event=>setInspecting(event.currentTarget.open)}>
+      <summary>计算范围与参考条件</summary>
+      <p><strong>对象：</strong>{point.entity.label} · {point.entity.shape_or_coverage}</p>
+      <p><strong>计时：</strong>{basis.time_basis === "nsys_interval" ? "Nsys 追踪记录" : basis.time_basis === "ncu_kernel" ? "NCU 独立回放" : "当前执行记录"}。</p>
+      <p><strong>计算范围：</strong>{point.coverage.omitted.some(item=>item.ref === "alpha_epilogue_and_cast")
+        ? "矩阵乘加；α 缩放与 FP16 输出转换未单列。"
+        : partial ? "已确认的局部计算与数据边界。" : "完整建模范围。"}</p>
+      <p><strong>参考条件：</strong>{referenceOnly ? "所选假设曲线" : "已匹配运行条件"}；计算上限 {formatNumber(pair.computeRate / 1e12)} TFLOP/s，带宽上限 {formatNumber(pair.bandwidthRate / 1e9)} GB/s。</p>
+      <p><strong>工作量：</strong>{formatQuantity(point.work.total_flop, "FLOP")}；流量 {formatQuantity(point.traffic.total_byte, "B")}；{point.calls} 次调用。</p>
+      <p><strong>比例：</strong>实测吞吐 ÷ 当前算术强度处的理论参考吞吐。</p>
+    </details>
   </div>;
 }

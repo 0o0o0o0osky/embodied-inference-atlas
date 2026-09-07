@@ -76,7 +76,7 @@ graph 模式用于较低侵入的执行范围观察。调度与函数采样分�
 
 NCU 关联还需区分签名/启动配置匹配与明确调用次序关联。同一 symbol 和 launch
 资源可能覆盖不同矩阵维度；后者只有在固定输入的原始多次执行中核对完整顺序后才使用，
-保存 `same_input_order_association` 与 `work_id_unavailable`，页面明示 NCU 未直接记录矩阵维度。
+保存 `same_input_order_association` 与 `work_id_unavailable`，在折叠采集条件中列出关联方式与维度来源。
 Nsys 的精确工作量与 Roofline 不因此换成 NCU 计时，也不为这类关联生成新的 NCU Roofline 点。
 
 ## 补充一个推理栈的记录
@@ -103,8 +103,8 @@ DAG 关联先核对精确 Kernel 类型、唯一实现调用点和代表 trace �
 
 `extractors.flashrt_gate_up_roofline` 复用此代表 trace 生成一个 Kernel 配对：
 主乘加按 2MNK，FP8 输入/权重读一次、FP16 输出写一次；alpha 与输出转换工作明确留在模型之外。
-页面随所选真实调用更新吞吐和时间差，显示相对条件曲线的绝对参考差距。
-参考差距不写入已匹配达成率；未锁定/匹配运行频率时，不把它解释为可实现的节省或总加速。
+页面随所选真实调用更新吞吐和耗时，在表中显示实测吞吐 / 所选 Roofline 边界的参考百分比。
+百分比的分母是同一算术强度处的理论点，曲线假设和建模范围放入折叠说明；canonical 已匹配效率仍按证据条件计算。
 
 ## 运行条件与复用
 

@@ -28,6 +28,13 @@ per-sample records and capture archives stay local; after stability is checked,
 the page carries one representative trace rather than a trace selector. Every drilldown has a visible return action. Closing an
 inspector restores its parent, not the default model or a different workload.
 
+Default copy names the object, measurement and useful conclusion. Put collection
+passes, NCU profiling duration, association method and modeling assumptions in
+folded details. Omit an index when there is only one record; when several exist,
+show the total. Avoid repeating generic cautions or lists of uncollected fields.
+Keep a local notice only for a missing result or conflict affecting the current
+judgment. Add tile/warp/buffering detail when it answers the current question.
+
 ## Linked views, not duplicate destinations
 
 - Theoretical analysis uses the model's selected analytical precision. Runtime

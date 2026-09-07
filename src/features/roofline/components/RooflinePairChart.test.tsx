@@ -12,7 +12,7 @@ it('shows attainment against the selected roof only in the comparison table',()=
  const markup=renderToStaticMarkup(<RooflinePairChart point={point} basis={basis}/>);
  expect(markup).toContain('所选假设曲线');
  const table=markup.match(/<table[^>]*class="roofline-pair-metrics"[^>]*>[\s\S]*?<\/table>/)?.[0] ?? '';
- for(const text of ['达到理论性能','理论参考','10 TFLOP/s','50 TFLOP/s','100 µs','20 µs','20%'])expect(table).toContain(text);
+ for(const text of ['达到理论参考性能','理论参考','10 TFLOP/s','50 TFLOP/s','100 µs','20 µs','20%'])expect(table).toContain(text);
  expect(markup).not.toContain('40 TFLOP/s');expect(markup).not.toContain('80 µs');
  expect(markup).not.toContain('pair-gap-label');expect(markup).toContain('role="button"');
  expect(markup.replace(table,'')).not.toContain('20%');
@@ -20,7 +20,7 @@ it('shows attainment against the selected roof only in the comparison table',()=
 });
 it('retains matched efficiency and does not falsely claim unmatched frequency',()=>{
  const markup=renderToStaticMarkup(<RooflinePairChart point={{...point,derived:{...point.derived,efficiency:.2}}} basis={{...basis,operating_point_id:'matched-op'}}/>);
- expect(markup).toContain('20%');expect(markup).toContain('按已匹配运行条件比较。');
+ expect(markup).toContain('20%');expect(markup).toContain('已匹配运行条件');
  expect(markup).not.toContain('采集时频率尚未匹配');
 });
 it('does not turn independent replay timing into an actual pair or zero gap',()=>{
@@ -31,14 +31,18 @@ it('does not turn independent replay timing into an actual pair or zero gap',()=
 
 it('labels partial work with a conditional reference boundary while retaining full call timing',()=>{
  const markup=renderToStaticMarkup(<RooflinePairChart point={{...point,coverage:{...point.coverage,status:'partial'},derived:{...point.derived,status:'partial_lower_bound'}}} basis={basis}/>);
- expect(markup).toContain('部分建模的条件参考边界');expect(markup).toContain('模型边界由带宽项决定');expect(markup).toContain('100 µs');
- expect(markup).toContain('未建模步骤不视为零开销');expect(markup).toContain('20%');expect(markup).toContain('所选假设曲线');
+ expect(markup).toContain('部分建模');expect(markup).toContain('理论参考 · 带宽边界');expect(markup).toContain('100 µs');
+ expect(markup).toContain('已确认的局部计算与数据边界');expect(markup).toContain('20%');expect(markup).toContain('所选假设曲线');
 });
 
 it('explains the explicitly omitted alpha epilogue and cast without generalizing to other partial points',()=>{
  const partial={...point,coverage:{...point.coverage,status:'partial' as const,omitted:[{ref:'alpha_epilogue_and_cast',reason:'not modeled'}]},derived:{...point.derived,status:'partial_lower_bound' as const}};
  const markup=renderToStaticMarkup(<RooflinePairChart point={partial} basis={basis}/>);
- expect(markup).toContain('计算量只计矩阵乘加；α 缩放与 FP16 输出转换未单独建模，计时仍覆盖完整 Kernel。');
+ expect(markup).toContain('矩阵乘加；α 缩放与 FP16 输出转换未单列。');
+ const body=markup.split('<details')[0]!;
+ expect(body).not.toContain('α 缩放');expect(body).not.toContain('不代表');
+ expect(markup.match(/<details/g)).toHaveLength(1);
+ expect(markup).toContain('Nsys 追踪记录');
  expect(renderToStaticMarkup(<RooflinePairChart point={{...partial,coverage:{...partial.coverage,omitted:[]}}} basis={basis}/>)).not.toContain('α 缩放');
 });
 
