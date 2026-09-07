@@ -35,7 +35,8 @@ it("keeps the Pi0 profiler overview concise while retaining evidence in disclosu
   />);
 
   expect(nsysMarkup).toContain("预测窗口");
-  expect(nsysMarkup).toContain("CPU 调度核时");
+  expect(nsysMarkup).toContain("CPU 多线程运行累计");
+  expect(nsysMarkup).toContain("各线程实际运行时间之和");
 
   const primary = kernelMarkup.slice(0, kernelMarkup.indexOf("<details"));
   expect(primary).not.toContain("<table");
