@@ -363,6 +363,76 @@
     },
     {
       "evidence": "measured_local",
+      "measurement_id": "e2e-pi0-flashrt-fixed-e2e-001",
+      "measurement_method": "wall_clock",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": "linear_interpolation",
+      "run_id": "run-pi0-flashrt-fixed-e2e-001",
+      "sample_count": 10,
+      "source_id": "source-local-thor",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 40.193735
+        },
+        {
+          "statistic": "mean",
+          "unit": "ms",
+          "value": 40.7162858
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 40.806303
+        },
+        {
+          "statistic": "max",
+          "unit": "ms",
+          "value": 40.995002
+        }
+      ],
+      "timing_boundary_id": "predict_cached_graph_sync",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "measured_local",
+      "measurement_id": "e2e-pi0-realtime-vla-w5-r10-001",
+      "measurement_method": "wall_clock",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": "linear_interpolation",
+      "run_id": "run-pi0-realtime-vla-w5-r10-001",
+      "sample_count": 10,
+      "source_id": "source-local-thor",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 89.185239
+        },
+        {
+          "statistic": "mean",
+          "unit": "ms",
+          "value": 89.8261728
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 89.7114895
+        },
+        {
+          "statistic": "max",
+          "unit": "ms",
+          "value": 90.879462
+        }
+      ],
+      "timing_boundary_id": "raw-observation-cached-prompt",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "measured_local",
       "measurement_id": "e2e-pi0-vlacpp-live-001",
       "measurement_method": "wall_clock",
       "metric": "latency",

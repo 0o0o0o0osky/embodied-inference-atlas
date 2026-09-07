@@ -472,6 +472,86 @@
     },
     {
       "calls": 1,
+      "capture_id": "capture-pi0-flashrt-ncu-flashrt-geglu-fp8-028-001",
+      "duration": {
+        "sample_count": 1,
+        "statistic": "single",
+        "value_ns": 139584
+      },
+      "duration_share": null,
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-geglu-fp8-028",
+      "launch": {
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 0,
+        "grid": [
+          4864,
+          1,
+          1
+        ],
+        "registers_per_thread": 21,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": 40.53
+      },
+      "missing": {
+        "duration_share": "not_applicable"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-ncu-flashrt-geglu-fp8-028-001",
+      "observation_kind": "ncu_replayed_launch",
+      "population": "one_name_filtered_selected_match_replayed_launch",
+      "quality": [
+        "replayed_launch",
+        "gpu_frequency_not_fixed",
+        "work_id_unavailable"
+      ],
+      "run_id": "run-pi0-flashrt-ncu-flashrt-geglu-fp8-028-001",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 1,
+      "capture_id": "capture-pi0-flashrt-ncu-flashrt-large-gemm-027-001",
+      "duration": {
+        "sample_count": 1,
+        "statistic": "single",
+        "value_ns": 588064
+      },
+      "duration_share": null,
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-large-gemm-027",
+      "launch": {
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 230400,
+        "grid": [
+          6,
+          128,
+          1
+        ],
+        "registers_per_thread": 119,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": 38.4
+      },
+      "missing": {
+        "duration_share": "not_applicable"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-ncu-flashrt-large-gemm-027-001",
+      "observation_kind": "ncu_replayed_launch",
+      "population": "one_name_filtered_selected_match_replayed_launch",
+      "quality": [
+        "replayed_launch",
+        "gpu_frequency_not_fixed",
+        "work_id_unavailable"
+      ],
+      "run_id": "run-pi0-flashrt-ncu-flashrt-large-gemm-027-001",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 1,
       "capture_id": "capture-pi0-flashrt-ncu-siglip-broadcast-add-001",
       "duration": {
         "sample_count": 1,
@@ -1320,6 +1400,3448 @@
         "intrusive_node_trace"
       ],
       "run_id": "run-pi0-flashrt-nsys-node-001",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 1,
+      "capture_id": "capture-pi0-flashrt-nsys-node-002",
+      "duration": {
+        "sample_count": 1,
+        "statistic": "sum",
+        "value_ns": 6624
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 0.016666710279233825
+      },
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-recorded-kernel-001",
+      "launch": {
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 0,
+        "grid": [
+          588,
+          1,
+          1
+        ],
+        "registers_per_thread": 16,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-nsys-node_r002_001",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-flashrt-nsys-node-002",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 1,
+      "capture_id": "capture-pi0-flashrt-nsys-node-002",
+      "duration": {
+        "sample_count": 1,
+        "statistic": "sum",
+        "value_ns": 46112
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 0.1160228478858741
+      },
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-gemm-002",
+      "launch": {
+        "block": [
+          128,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 73728,
+        "grid": [
+          16,
+          3,
+          1
+        ],
+        "registers_per_thread": 148,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-nsys-node_r002_002",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-flashrt-nsys-node-002",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 1,
+      "capture_id": "capture-pi0-flashrt-nsys-node-002",
+      "duration": {
+        "sample_count": 1,
+        "statistic": "sum",
+        "value_ns": 13600
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 0.0342190911530163
+      },
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-recorded-kernel-003",
+      "launch": {
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 0,
+        "grid": [
+          1152,
+          1,
+          1
+        ],
+        "registers_per_thread": 16,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-nsys-node_r002_003",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-flashrt-nsys-node-002",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 54,
+      "capture_id": "capture-pi0-flashrt-nsys-node-002",
+      "duration": {
+        "sample_count": 54,
+        "statistic": "sum",
+        "value_ns": 693376
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 1.7446100402436642
+      },
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-siglip-layer-norm-004",
+      "launch": {
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 0,
+        "grid": [
+          256,
+          1,
+          1
+        ],
+        "registers_per_thread": 26,
+        "static_shared_memory_bytes": 128,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-nsys-node_r002_004",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-flashrt-nsys-node-002",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 27,
+      "capture_id": "capture-pi0-flashrt-nsys-node-002",
+      "duration": {
+        "sample_count": 27,
+        "statistic": "sum",
+        "value_ns": 583872
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 1.4690859698304364
+      },
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-recorded-kernel-005",
+      "launch": {
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 221864,
+        "grid": [
+          36,
+          1,
+          1
+        ],
+        "registers_per_thread": 255,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-nsys-node_r002_005",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-flashrt-nsys-node-002",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 27,
+      "capture_id": "capture-pi0-flashrt-nsys-node-002",
+      "duration": {
+        "sample_count": 27,
+        "statistic": "sum",
+        "value_ns": 652864
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 1.6426774063619733
+      },
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-siglip-fmha-006",
+      "launch": {
+        "block": [
+          512,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 164080,
+        "grid": [
+          1,
+          16,
+          1
+        ],
+        "registers_per_thread": 128,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-nsys-node_r002_006",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-flashrt-nsys-node-002",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 27,
+      "capture_id": "capture-pi0-flashrt-nsys-node-002",
+      "duration": {
+        "sample_count": 27,
+        "statistic": "sum",
+        "value_ns": 91488
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 0.23019383907405552
+      },
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-siglip-quantize-007",
+      "launch": {
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 0,
+        "grid": [
+          288,
+          1,
+          1
+        ],
+        "registers_per_thread": 16,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-nsys-node_r002_007",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-flashrt-nsys-node-002",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 54,
+      "capture_id": "capture-pi0-flashrt-nsys-node-002",
+      "duration": {
+        "sample_count": 54,
+        "statistic": "sum",
+        "value_ns": 904352
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 2.275448788412691
+      },
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-recorded-kernel-008",
+      "launch": {
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 213616,
+        "grid": [
+          20,
+          1,
+          1
+        ],
+        "registers_per_thread": 255,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-nsys-node_r002_008",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-flashrt-nsys-node-002",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 27,
+      "capture_id": "capture-pi0-flashrt-nsys-node-002",
+      "duration": {
+        "sample_count": 27,
+        "statistic": "sum",
+        "value_ns": 1136928
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 2.8606355048835677
+      },
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-recorded-kernel-009",
+      "launch": {
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 226416,
+        "grid": [
+          40,
+          1,
+          1
+        ],
+        "registers_per_thread": 255,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-nsys-node_r002_009",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-flashrt-nsys-node-002",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 27,
+      "capture_id": "capture-pi0-flashrt-nsys-node-002",
+      "duration": {
+        "sample_count": 27,
+        "statistic": "sum",
+        "value_ns": 241536
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 0.6077310588775695
+      },
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-siglip-quantize-010",
+      "launch": {
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 0,
+        "grid": [
+          1076,
+          1,
+          1
+        ],
+        "registers_per_thread": 16,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-nsys-node_r002_010",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-flashrt-nsys-node-002",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 1,
+      "capture_id": "capture-pi0-flashrt-nsys-node-002",
+      "duration": {
+        "sample_count": 1,
+        "statistic": "sum",
+        "value_ns": 14112
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 0.035507339290541624
+      },
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-recorded-kernel-011",
+      "launch": {
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 1024,
+        "grid": [
+          256,
+          1,
+          1
+        ],
+        "registers_per_thread": 40,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-nsys-node_r002_011",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-flashrt-nsys-node-002",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 1,
+      "capture_id": "capture-pi0-flashrt-nsys-node-002",
+      "duration": {
+        "sample_count": 1,
+        "statistic": "sum",
+        "value_ns": 23072
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 0.05805168169723472
+      },
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-recorded-kernel-012",
+      "launch": {
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 221464,
+        "grid": [
+          16,
+          1,
+          1
+        ],
+        "registers_per_thread": 255,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-nsys-node_r002_012",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-flashrt-nsys-node-002",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 1,
+      "capture_id": "capture-pi0-flashrt-nsys-node-002",
+      "duration": {
+        "sample_count": 1,
+        "statistic": "sum",
+        "value_ns": 15328
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 0.03856692861716425
+      },
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-recorded-kernel-013",
+      "launch": {
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 0,
+        "grid": [
+          2048,
+          1,
+          1
+        ],
+        "registers_per_thread": 16,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-nsys-node_r002_013",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-flashrt-nsys-node-002",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 1,
+      "capture_id": "capture-pi0-flashrt-nsys-node-002",
+      "duration": {
+        "sample_count": 1,
+        "statistic": "sum",
+        "value_ns": 2592
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 0.006521756196221931
+      },
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-recorded-kernel-014",
+      "launch": {
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 0,
+        "grid": [
+          2,
+          1,
+          1
+        ],
+        "registers_per_thread": 55,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-nsys-node_r002_014",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-flashrt-nsys-node-002",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 2,
+      "capture_id": "capture-pi0-flashrt-nsys-node-002",
+      "duration": {
+        "sample_count": 2,
+        "statistic": "sum",
+        "value_ns": 26688
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 0.06714993416850729
+      },
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-recorded-kernel-015",
+      "launch": {
+        "block": [
+          128,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 0,
+        "grid": [
+          2354,
+          1,
+          1
+        ],
+        "registers_per_thread": 16,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-nsys-node_r002_015",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-flashrt-nsys-node-002",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 1,
+      "capture_id": "capture-pi0-flashrt-nsys-node-002",
+      "duration": {
+        "sample_count": 1,
+        "statistic": "sum",
+        "value_ns": 3136
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 0.007890519842342581
+      },
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-recorded-kernel-016",
+      "launch": {
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 156184,
+        "grid": [
+          16,
+          1,
+          1
+        ],
+        "registers_per_thread": 255,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-nsys-node_r002_016",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-flashrt-nsys-node-002",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 1,
+      "capture_id": "capture-pi0-flashrt-nsys-node-002",
+      "duration": {
+        "sample_count": 1,
+        "statistic": "sum",
+        "value_ns": 1952
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 0.004911446024315281
+      },
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-recorded-kernel-017",
+      "launch": {
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 0,
+        "grid": [
+          4,
+          1,
+          1
+        ],
+        "registers_per_thread": 16,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-nsys-node_r002_017",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-flashrt-nsys-node-002",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 18,
+      "capture_id": "capture-pi0-flashrt-nsys-node-002",
+      "duration": {
+        "sample_count": 18,
+        "statistic": "sum",
+        "value_ns": 130848
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 0.3292279146463145
+      },
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-recorded-kernel-018",
+      "launch": {
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 0,
+        "grid": [
+          304,
+          1,
+          1
+        ],
+        "registers_per_thread": 27,
+        "static_shared_memory_bytes": 64,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-nsys-node_r002_018",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-flashrt-nsys-node-002",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 18,
+      "capture_id": "capture-pi0-flashrt-nsys-node-002",
+      "duration": {
+        "sample_count": 18,
+        "statistic": "sum",
+        "value_ns": 571104
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 1.4369602819008989
+      },
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-third-gemm-019",
+      "launch": {
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 231424,
+        "grid": [
+          4,
+          10,
+          1
+        ],
+        "registers_per_thread": 177,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-nsys-node_r002_019",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-flashrt-nsys-node-002",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 18,
+      "capture_id": "capture-pi0-flashrt-nsys-node-002",
+      "duration": {
+        "sample_count": 18,
+        "statistic": "sum",
+        "value_ns": 658016
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 1.6556404032458216
+      },
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-qkv-split-020",
+      "launch": {
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 0,
+        "grid": [
+          3040,
+          1,
+          1
+        ],
+        "registers_per_thread": 18,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-nsys-node_r002_020",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-flashrt-nsys-node-002",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 17,
+      "capture_id": "capture-pi0-flashrt-nsys-node-002",
+      "duration": {
+        "sample_count": 17,
+        "statistic": "sum",
+        "value_ns": 123520
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 0.31078986317798335
+      },
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-recorded-kernel-021",
+      "launch": {
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 221536,
+        "grid": [
+          40,
+          1,
+          1
+        ],
+        "registers_per_thread": 255,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-nsys-node_r002_021",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-flashrt-nsys-node-002",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 17,
+      "capture_id": "capture-pi0-flashrt-nsys-node-002",
+      "duration": {
+        "sample_count": 17,
+        "statistic": "sum",
+        "value_ns": 265920
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 0.6690838764272128
+      },
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-recorded-kernel-022",
+      "launch": {
+        "block": [
+          32,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 0,
+        "grid": [
+          2432,
+          1,
+          1
+        ],
+        "registers_per_thread": 59,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-nsys-node_r002_022",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-flashrt-nsys-node-002",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 17,
+      "capture_id": "capture-pi0-flashrt-nsys-node-002",
+      "duration": {
+        "sample_count": 17,
+        "statistic": "sum",
+        "value_ns": 112288
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 0.28252891966102167
+      },
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-recorded-kernel-023",
+      "launch": {
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 213296,
+        "grid": [
+          20,
+          1,
+          1
+        ],
+        "registers_per_thread": 255,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-nsys-node_r002_023",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-flashrt-nsys-node-002",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 17,
+      "capture_id": "capture-pi0-flashrt-nsys-node-002",
+      "duration": {
+        "sample_count": 17,
+        "statistic": "sum",
+        "value_ns": 92512
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 0.23277033534910618
+      },
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-siglip-quantize-024",
+      "launch": {
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 0,
+        "grid": [
+          608,
+          1,
+          1
+        ],
+        "registers_per_thread": 16,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-nsys-node_r002_024",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-flashrt-nsys-node-002",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 17,
+      "capture_id": "capture-pi0-flashrt-nsys-node-002",
+      "duration": {
+        "sample_count": 17,
+        "statistic": "sum",
+        "value_ns": 448704
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 1.128988461523752
+      },
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-third-gemm-025",
+      "launch": {
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 231424,
+        "grid": [
+          4,
+          8,
+          1
+        ],
+        "registers_per_thread": 177,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-nsys-node_r002_025",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-flashrt-nsys-node-002",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 17,
+      "capture_id": "capture-pi0-flashrt-nsys-node-002",
+      "duration": {
+        "sample_count": 17,
+        "statistic": "sum",
+        "value_ns": 147360
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 0.3707739170815061
+      },
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-residual-rms-026",
+      "launch": {
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 0,
+        "grid": [
+          304,
+          1,
+          1
+        ],
+        "registers_per_thread": 34,
+        "static_shared_memory_bytes": 64,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-nsys-node_r002_026",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-flashrt-nsys-node-002",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 17,
+      "capture_id": "capture-pi0-flashrt-nsys-node-002",
+      "duration": {
+        "sample_count": 17,
+        "statistic": "sum",
+        "value_ns": 7515808
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 18.910596988277142
+      },
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-large-gemm-027",
+      "launch": {
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 230400,
+        "grid": [
+          6,
+          128,
+          1
+        ],
+        "registers_per_thread": 119,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-nsys-node_r002_027",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-flashrt-nsys-node-002",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 17,
+      "capture_id": "capture-pi0-flashrt-nsys-node-002",
+      "duration": {
+        "sample_count": 17,
+        "statistic": "sum",
+        "value_ns": 1256160
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 3.160636289909776
+      },
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-geglu-fp8-028",
+      "launch": {
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 0,
+        "grid": [
+          4864,
+          1,
+          1
+        ],
+        "registers_per_thread": 21,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-nsys-node_r002_028",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-flashrt-nsys-node-002",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 17,
+      "capture_id": "capture-pi0-flashrt-nsys-node-002",
+      "duration": {
+        "sample_count": 17,
+        "statistic": "sum",
+        "value_ns": 3042144
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 7.654367855632473
+      },
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-second-gemm-029",
+      "launch": {
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 230400,
+        "grid": [
+          4,
+          16,
+          1
+        ],
+        "registers_per_thread": 122,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-nsys-node_r002_029",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-flashrt-nsys-node-002",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 17,
+      "capture_id": "capture-pi0-flashrt-nsys-node-002",
+      "duration": {
+        "sample_count": 17,
+        "statistic": "sum",
+        "value_ns": 216864
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 0.5456536017505681
+      },
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-recorded-kernel-030",
+      "launch": {
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 0,
+        "grid": [
+          1216,
+          1,
+          1
+        ],
+        "registers_per_thread": 16,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-nsys-node_r002_030",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-flashrt-nsys-node-002",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 30,
+      "capture_id": "capture-pi0-flashrt-nsys-node-002",
+      "duration": {
+        "sample_count": 30,
+        "statistic": "sum",
+        "value_ns": 236096
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 0.594043422416363
+      },
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-recorded-kernel-031",
+      "launch": {
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 164376,
+        "grid": [
+          16,
+          1,
+          1
+        ],
+        "registers_per_thread": 255,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-nsys-node_r002_031",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-flashrt-nsys-node-002",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 20,
+      "capture_id": "capture-pi0-flashrt-nsys-node-002",
+      "duration": {
+        "sample_count": 20,
+        "statistic": "sum",
+        "value_ns": 36352
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 0.0914656177642977
+      },
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-recorded-kernel-032",
+      "launch": {
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 0,
+        "grid": [
+          40,
+          1,
+          1
+        ],
+        "registers_per_thread": 16,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-nsys-node_r002_032",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-flashrt-nsys-node-002",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 10,
+      "capture_id": "capture-pi0-flashrt-nsys-node-002",
+      "duration": {
+        "sample_count": 10,
+        "statistic": "sum",
+        "value_ns": 19872
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 0.05000013083770147
+      },
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-recorded-kernel-033",
+      "launch": {
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 0,
+        "grid": [
+          20,
+          1,
+          1
+        ],
+        "registers_per_thread": 16,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-nsys-node_r002_033",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-flashrt-nsys-node-002",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 180,
+      "capture_id": "capture-pi0-flashrt-nsys-node-002",
+      "duration": {
+        "sample_count": 180,
+        "statistic": "sum",
+        "value_ns": 419680
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 1.0559608952277855
+      },
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-recorded-kernel-034",
+      "launch": {
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 0,
+        "grid": [
+          11,
+          1,
+          1
+        ],
+        "registers_per_thread": 27,
+        "static_shared_memory_bytes": 64,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-nsys-node_r002_034",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-flashrt-nsys-node-002",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 180,
+      "capture_id": "capture-pi0-flashrt-nsys-node-002",
+      "duration": {
+        "sample_count": 180,
+        "statistic": "sum",
+        "value_ns": 2252192
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 5.666762010448094
+      },
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-nvjet-128x16-035",
+      "launch": {
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 225720,
+        "grid": [
+          20,
+          1,
+          1
+        ],
+        "registers_per_thread": 255,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-nsys-node_r002_035",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-flashrt-nsys-node-002",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 180,
+      "capture_id": "capture-pi0-flashrt-nsys-node-002",
+      "duration": {
+        "sample_count": 180,
+        "statistic": "sum",
+        "value_ns": 435904
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 1.096782258085619
+      },
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-qkv-split-036",
+      "launch": {
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 0,
+        "grid": [
+          110,
+          1,
+          1
+        ],
+        "registers_per_thread": 18,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-nsys-node_r002_036",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-flashrt-nsys-node-002",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 180,
+      "capture_id": "capture-pi0-flashrt-nsys-node-002",
+      "duration": {
+        "sample_count": 180,
+        "statistic": "sum",
+        "value_ns": 1610207
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 4.051457360898891
+      },
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-gemm-037",
+      "launch": {
+        "block": [
+          128,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 33792,
+        "grid": [
+          24,
+          2,
+          1
+        ],
+        "registers_per_thread": 122,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-nsys-node_r002_037",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-flashrt-nsys-node-002",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 180,
+      "capture_id": "capture-pi0-flashrt-nsys-node-002",
+      "duration": {
+        "sample_count": 180,
+        "statistic": "sum",
+        "value_ns": 443872
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 1.1168306197258568
+      },
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-recorded-kernel-038",
+      "launch": {
+        "block": [
+          32,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 0,
+        "grid": [
+          88,
+          1,
+          1
+        ],
+        "registers_per_thread": 59,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-nsys-node_r002_038",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-flashrt-nsys-node-002",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 180,
+      "capture_id": "capture-pi0-flashrt-nsys-node-002",
+      "duration": {
+        "sample_count": 180,
+        "statistic": "sum",
+        "value_ns": 1944096
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 4.891558693692234
+      },
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-gemm-039",
+      "launch": {
+        "block": [
+          128,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 37376,
+        "grid": [
+          24,
+          1,
+          1
+        ],
+        "registers_per_thread": 108,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-nsys-node_r002_039",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-flashrt-nsys-node-002",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 180,
+      "capture_id": "capture-pi0-flashrt-nsys-node-002",
+      "duration": {
+        "sample_count": 180,
+        "statistic": "sum",
+        "value_ns": 280768
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 0.7064430724154471
+      },
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-siglip-quantize-040",
+      "launch": {
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 0,
+        "grid": [
+          22,
+          1,
+          1
+        ],
+        "registers_per_thread": 16,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-nsys-node_r002_040",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-flashrt-nsys-node-002",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 360,
+      "capture_id": "capture-pi0-flashrt-nsys-node-002",
+      "duration": {
+        "sample_count": 360,
+        "statistic": "sum",
+        "value_ns": 5269023
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 13.257439582672015
+      },
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-nvjet-64x16-041",
+      "launch": {
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 164376,
+        "grid": [
+          16,
+          1,
+          1
+        ],
+        "registers_per_thread": 255,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-nsys-node_r002_041",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-flashrt-nsys-node-002",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 350,
+      "capture_id": "capture-pi0-flashrt-nsys-node-002",
+      "duration": {
+        "sample_count": 350,
+        "statistic": "sum",
+        "value_ns": 862010
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 2.1689116738832044
+      },
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-residual-rms-042",
+      "launch": {
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 0,
+        "grid": [
+          11,
+          1,
+          1
+        ],
+        "registers_per_thread": 34,
+        "static_shared_memory_bytes": 64,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-nsys-node_r002_042",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-flashrt-nsys-node-002",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 180,
+      "capture_id": "capture-pi0-flashrt-nsys-node-002",
+      "duration": {
+        "sample_count": 180,
+        "statistic": "sum",
+        "value_ns": 6374464
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 16.038850343207418
+      },
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-nvjet-512x16-043",
+      "launch": {
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 216288,
+        "grid": [
+          16,
+          1,
+          1
+        ],
+        "registers_per_thread": 255,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-nsys-node_r002_043",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-flashrt-nsys-node-002",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 180,
+      "capture_id": "capture-pi0-flashrt-nsys-node-002",
+      "duration": {
+        "sample_count": 180,
+        "statistic": "sum",
+        "value_ns": 400768
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 1.008376229647944
+      },
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-geglu-fp8-044",
+      "launch": {
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 0,
+        "grid": [
+          44,
+          1,
+          1
+        ],
+        "registers_per_thread": 21,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-nsys-node_r002_044",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-flashrt-nsys-node-002",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 10,
+      "capture_id": "capture-pi0-flashrt-nsys-node-002",
+      "duration": {
+        "sample_count": 10,
+        "statistic": "sum",
+        "value_ns": 12096
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 0.030434862249035674
+      },
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-recorded-kernel-045",
+      "launch": {
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 0,
+        "grid": [
+          22,
+          1,
+          1
+        ],
+        "registers_per_thread": 16,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-nsys-node_r002_045",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-flashrt-nsys-node-002",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 10,
+      "capture_id": "capture-pi0-flashrt-nsys-node-002",
+      "duration": {
+        "sample_count": 10,
+        "statistic": "sum",
+        "value_ns": 44288
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 0.11143346389594015
+      },
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-recorded-kernel-046",
+      "launch": {
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 1024,
+        "grid": [
+          11,
+          1,
+          1
+        ],
+        "registers_per_thread": 36,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-nsys-node_r002_046",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-flashrt-nsys-node-002",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 10,
+      "capture_id": "capture-pi0-flashrt-nsys-node-002",
+      "duration": {
+        "sample_count": 10,
+        "statistic": "sum",
+        "value_ns": 45376
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 0.11417099118818146
+      },
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-recorded-kernel-047",
+      "launch": {
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 156184,
+        "grid": [
+          2,
+          1,
+          1
+        ],
+        "registers_per_thread": 255,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-nsys-node_r002_047",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-flashrt-nsys-node-002",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 10,
+      "capture_id": "capture-pi0-flashrt-nsys-node-002",
+      "duration": {
+        "sample_count": 10,
+        "statistic": "sum",
+        "value_ns": 15264
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 0.038405897599973586
+      },
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-recorded-kernel-048",
+      "launch": {
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 0,
+        "grid": [
+          2,
+          1,
+          1
+        ],
+        "registers_per_thread": 16,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-nsys-node_r002_048",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-flashrt-nsys-node-002",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 1,
+      "capture_id": "capture-pi0-flashrt-nsys-node-002",
+      "duration": {
+        "sample_count": 1,
+        "statistic": "sum",
+        "value_ns": 2688
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 0.006763302722007928
+      },
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-recorded-kernel-049",
+      "launch": {
+        "block": [
+          128,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 0,
+        "grid": [
+          1,
+          1,
+          1
+        ],
+        "registers_per_thread": 32,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-nsys-node_r002_049",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-flashrt-nsys-node-002",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 1,
+      "capture_id": "capture-pi0-realtime-vla-ncu-realtime-vla-gate-up-fusion-017-001",
+      "duration": {
+        "sample_count": 1,
+        "statistic": "single",
+        "value_ns": 1399520
+      },
+      "duration_share": null,
+      "kernel_signature_id": "kernel-signature-pi0-realtime-vla-gate-up-fusion-017",
+      "launch": {
+        "block": [
+          128,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 32768,
+        "grid": [
+          3,
+          256,
+          1
+        ],
+        "registers_per_thread": 255,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": 19.2
+      },
+      "missing": {
+        "duration_share": "not_applicable"
+      },
+      "observation_id": "kernel-observation-pi0-realtime-vla-ncu-realtime-vla-gate-up-fusion-017-001",
+      "observation_kind": "ncu_replayed_launch",
+      "population": "one_name_filtered_selected_match_replayed_launch",
+      "quality": [
+        "replayed_launch",
+        "gpu_frequency_not_fixed",
+        "work_id_unavailable"
+      ],
+      "run_id": "run-pi0-realtime-vla-ncu-realtime-vla-gate-up-fusion-017-001",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 1,
+      "capture_id": "capture-pi0-realtime-vla-nsys-node-004",
+      "duration": {
+        "sample_count": 1,
+        "statistic": "sum",
+        "value_ns": 6208
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 0.0069759239379773835
+      },
+      "kernel_signature_id": "kernel-signature-pi0-realtime-vla-recorded-kernel-001",
+      "launch": {
+        "block": [
+          128,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 0,
+        "grid": [
+          294,
+          1,
+          1
+        ],
+        "registers_per_thread": 20,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-realtime-vla-nsys-node_r004_001",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-realtime-vla-nsys-node-004",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 1,
+      "capture_id": "capture-pi0-realtime-vla-nsys-node-004",
+      "duration": {
+        "sample_count": 1,
+        "statistic": "sum",
+        "value_ns": 22240
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 0.024991067715949906
+      },
+      "kernel_signature_id": "kernel-signature-pi0-realtime-vla-recorded-kernel-002",
+      "launch": {
+        "block": [
+          128,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 16384,
+        "grid": [
+          72,
+          1,
+          1
+        ],
+        "registers_per_thread": 121,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-realtime-vla-nsys-node_r004_002",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-realtime-vla-nsys-node-004",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 55,
+      "capture_id": "capture-pi0-realtime-vla-nsys-node-004",
+      "duration": {
+        "sample_count": 55,
+        "statistic": "sum",
+        "value_ns": 310336
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 0.34872428015724055
+      },
+      "kernel_signature_id": "kernel-signature-pi0-realtime-vla-recorded-kernel-003",
+      "launch": {
+        "block": [
+          128,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 16,
+        "grid": [
+          256,
+          1,
+          1
+        ],
+        "registers_per_thread": 48,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-realtime-vla-nsys-node_r004_003",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-realtime-vla-nsys-node-004",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 27,
+      "capture_id": "capture-pi0-realtime-vla-nsys-node-004",
+      "duration": {
+        "sample_count": 27,
+        "statistic": "sum",
+        "value_ns": 2069216
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 2.3251761319661424
+      },
+      "kernel_signature_id": "kernel-signature-pi0-realtime-vla-recorded-kernel-004",
+      "launch": {
+        "block": [
+          128,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 16384,
+        "grid": [
+          216,
+          1,
+          1
+        ],
+        "registers_per_thread": 96,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-realtime-vla-nsys-node_r004_004",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-realtime-vla-nsys-node-004",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 27,
+      "capture_id": "capture-pi0-realtime-vla-nsys-node-004",
+      "duration": {
+        "sample_count": 27,
+        "statistic": "sum",
+        "value_ns": 560448
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 0.6297749064419376
+      },
+      "kernel_signature_id": "kernel-signature-pi0-realtime-vla-recorded-kernel-005",
+      "launch": {
+        "block": [
+          128,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 49152,
+        "grid": [
+          2,
+          1,
+          16
+        ],
+        "registers_per_thread": 253,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-realtime-vla-nsys-node_r004_005",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-realtime-vla-nsys-node-004",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 27,
+      "capture_id": "capture-pi0-realtime-vla-nsys-node-004",
+      "duration": {
+        "sample_count": 27,
+        "statistic": "sum",
+        "value_ns": 1033216
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 1.1610238768526482
+      },
+      "kernel_signature_id": "kernel-signature-pi0-realtime-vla-recorded-kernel-006",
+      "launch": {
+        "block": [
+          128,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 12288,
+        "grid": [
+          144,
+          1,
+          1
+        ],
+        "registers_per_thread": 72,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-realtime-vla-nsys-node_r004_006",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-realtime-vla-nsys-node-004",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 27,
+      "capture_id": "capture-pi0-realtime-vla-nsys-node-004",
+      "duration": {
+        "sample_count": 27,
+        "statistic": "sum",
+        "value_ns": 3359711
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 3.7753041864668067
+      },
+      "kernel_signature_id": "kernel-signature-pi0-realtime-vla-recorded-kernel-007",
+      "launch": {
+        "block": [
+          128,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 32768,
+        "grid": [
+          272,
+          1,
+          1
+        ],
+        "registers_per_thread": 125,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-realtime-vla-nsys-node_r004_007",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-realtime-vla-nsys-node-004",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 27,
+      "capture_id": "capture-pi0-realtime-vla-nsys-node-004",
+      "duration": {
+        "sample_count": 27,
+        "statistic": "sum",
+        "value_ns": 4075264
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 4.579370439944824
+      },
+      "kernel_signature_id": "kernel-signature-pi0-realtime-vla-recorded-kernel-008",
+      "launch": {
+        "block": [
+          128,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 32768,
+        "grid": [
+          360,
+          1,
+          1
+        ],
+        "registers_per_thread": 128,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-realtime-vla-nsys-node_r004_008",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-realtime-vla-nsys-node-004",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 27,
+      "capture_id": "capture-pi0-realtime-vla-nsys-node-004",
+      "duration": {
+        "sample_count": 27,
+        "statistic": "sum",
+        "value_ns": 143776
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 0.16156096006872364
+      },
+      "kernel_signature_id": "kernel-signature-pi0-realtime-vla-recorded-kernel-009",
+      "launch": {
+        "block": [
+          128,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 0,
+        "grid": [
+          288,
+          1,
+          1
+        ],
+        "registers_per_thread": 38,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-realtime-vla-nsys-node_r004_009",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-realtime-vla-nsys-node-004",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 1,
+      "capture_id": "capture-pi0-realtime-vla-nsys-node-004",
+      "duration": {
+        "sample_count": 1,
+        "statistic": "sum",
+        "value_ns": 46944
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 0.05275092998460217
+      },
+      "kernel_signature_id": "kernel-signature-pi0-realtime-vla-recorded-kernel-010",
+      "launch": {
+        "block": [
+          128,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 32768,
+        "grid": [
+          128,
+          1,
+          1
+        ],
+        "registers_per_thread": 122,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-realtime-vla-nsys-node_r004_010",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-realtime-vla-nsys-node-004",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 35,
+      "capture_id": "capture-pi0-realtime-vla-nsys-node-004",
+      "duration": {
+        "sample_count": 35,
+        "statistic": "sum",
+        "value_ns": 173536
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 0.1950022449260379
+      },
+      "kernel_signature_id": "kernel-signature-pi0-realtime-vla-recorded-kernel-011",
+      "launch": {
+        "block": [
+          128,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 16,
+        "grid": [
+          304,
+          1,
+          1
+        ],
+        "registers_per_thread": 28,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-realtime-vla-nsys-node_r004_011",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-realtime-vla-nsys-node-004",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 18,
+      "capture_id": "capture-pi0-realtime-vla-nsys-node-004",
+      "duration": {
+        "sample_count": 18,
+        "statistic": "sum",
+        "value_ns": 2302816
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 2.587672238910652
+      },
+      "kernel_signature_id": "kernel-signature-pi0-realtime-vla-recorded-kernel-012",
+      "launch": {
+        "block": [
+          128,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 32768,
+        "grid": [
+          5,
+          40,
+          1
+        ],
+        "registers_per_thread": 220,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-realtime-vla-nsys-node_r004_012",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-realtime-vla-nsys-node-004",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 17,
+      "capture_id": "capture-pi0-realtime-vla-nsys-node-004",
+      "duration": {
+        "sample_count": 17,
+        "statistic": "sum",
+        "value_ns": 121728
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 0.13678564257765963
+      },
+      "kernel_signature_id": "kernel-signature-pi0-realtime-vla-recorded-kernel-013",
+      "launch": {
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 221536,
+        "grid": [
+          40,
+          1,
+          1
+        ],
+        "registers_per_thread": 255,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-realtime-vla-nsys-node_r004_013",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-realtime-vla-nsys-node-004",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 17,
+      "capture_id": "capture-pi0-realtime-vla-nsys-node-004",
+      "duration": {
+        "sample_count": 17,
+        "statistic": "sum",
+        "value_ns": 225152
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 0.2530030970495303
+      },
+      "kernel_signature_id": "kernel-signature-pi0-realtime-vla-recorded-kernel-014",
+      "launch": {
+        "block": [
+          32,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 0,
+        "grid": [
+          1216,
+          1,
+          1
+        ],
+        "registers_per_thread": 79,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-realtime-vla-nsys-node_r004_014",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-realtime-vla-nsys-node-004",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 17,
+      "capture_id": "capture-pi0-realtime-vla-nsys-node-004",
+      "duration": {
+        "sample_count": 17,
+        "statistic": "sum",
+        "value_ns": 111616
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 0.12542279740033563
+      },
+      "kernel_signature_id": "kernel-signature-pi0-realtime-vla-recorded-kernel-015",
+      "launch": {
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 213296,
+        "grid": [
+          20,
+          1,
+          1
+        ],
+        "registers_per_thread": 255,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-realtime-vla-nsys-node_r004_015",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-realtime-vla-nsys-node-004",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 17,
+      "capture_id": "capture-pi0-realtime-vla-nsys-node-004",
+      "duration": {
+        "sample_count": 17,
+        "statistic": "sum",
+        "value_ns": 1893280
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 2.1274770092290307
+      },
+      "kernel_signature_id": "kernel-signature-pi0-realtime-vla-gemm-residual-016",
+      "launch": {
+        "block": [
+          128,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 49152,
+        "grid": [
+          96,
+          1,
+          1
+        ],
+        "registers_per_thread": 178,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-realtime-vla-nsys-node_r004_016",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-realtime-vla-nsys-node-004",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 17,
+      "capture_id": "capture-pi0-realtime-vla-nsys-node-004",
+      "duration": {
+        "sample_count": 17,
+        "statistic": "sum",
+        "value_ns": 22571072
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 25.36309302039482
+      },
+      "kernel_signature_id": "kernel-signature-pi0-realtime-vla-gate-up-fusion-017",
+      "launch": {
+        "block": [
+          128,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 32768,
+        "grid": [
+          3,
+          256,
+          1
+        ],
+        "registers_per_thread": 255,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-realtime-vla-nsys-node_r004_017",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-realtime-vla-nsys-node-004",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 17,
+      "capture_id": "capture-pi0-realtime-vla-nsys-node-004",
+      "duration": {
+        "sample_count": 17,
+        "statistic": "sum",
+        "value_ns": 11030464
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 12.394922336436496
+      },
+      "kernel_signature_id": "kernel-signature-pi0-realtime-vla-gemm-residual-018",
+      "launch": {
+        "block": [
+          128,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 32768,
+        "grid": [
+          160,
+          1,
+          1
+        ],
+        "registers_per_thread": 124,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-realtime-vla-nsys-node_r004_018",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-realtime-vla-nsys-node-004",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 1,
+      "capture_id": "capture-pi0-realtime-vla-nsys-node-004",
+      "duration": {
+        "sample_count": 1,
+        "statistic": "sum",
+        "value_ns": 2528
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 0.0028407112943309963
+      },
+      "kernel_signature_id": "kernel-signature-pi0-realtime-vla-recorded-kernel-019",
+      "launch": {
+        "block": [
+          128,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 64,
+        "grid": [
+          128,
+          1,
+          1
+        ],
+        "registers_per_thread": 29,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-realtime-vla-nsys-node_r004_019",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-realtime-vla-nsys-node-004",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 10,
+      "capture_id": "capture-pi0-realtime-vla-nsys-node-004",
+      "duration": {
+        "sample_count": 10,
+        "statistic": "sum",
+        "value_ns": 29920
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 0.033621076711385846
+      },
+      "kernel_signature_id": "kernel-signature-pi0-realtime-vla-recorded-kernel-020",
+      "launch": {
+        "block": [
+          128,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 10240,
+        "grid": [
+          64,
+          1,
+          1
+        ],
+        "registers_per_thread": 42,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-realtime-vla-nsys-node_r004_020",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-realtime-vla-nsys-node-004",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 10,
+      "capture_id": "capture-pi0-realtime-vla-nsys-node-004",
+      "duration": {
+        "sample_count": 10,
+        "statistic": "sum",
+        "value_ns": 150560
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 0.1691841346813587
+      },
+      "kernel_signature_id": "kernel-signature-pi0-realtime-vla-recorded-kernel-021",
+      "launch": {
+        "block": [
+          128,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 16384,
+        "grid": [
+          64,
+          1,
+          1
+        ],
+        "registers_per_thread": 64,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-realtime-vla-nsys-node_r004_021",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-realtime-vla-nsys-node-004",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 360,
+      "capture_id": "capture-pi0-realtime-vla-nsys-node-004",
+      "duration": {
+        "sample_count": 360,
+        "statistic": "sum",
+        "value_ns": 560544
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 0.6298827815543806
+      },
+      "kernel_signature_id": "kernel-signature-pi0-realtime-vla-recorded-kernel-022",
+      "launch": {
+        "block": [
+          128,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 16,
+        "grid": [
+          128,
+          1,
+          1
+        ],
+        "registers_per_thread": 20,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-realtime-vla-nsys-node_r004_022",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-realtime-vla-nsys-node-004",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 180,
+      "capture_id": "capture-pi0-realtime-vla-nsys-node-004",
+      "duration": {
+        "sample_count": 180,
+        "statistic": "sum",
+        "value_ns": 5045174
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 5.669257422335875
+      },
+      "kernel_signature_id": "kernel-signature-pi0-realtime-vla-scaled-qkv-rope-023",
+      "launch": {
+        "block": [
+          128,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 24576,
+        "grid": [
+          128,
+          1,
+          1
+        ],
+        "registers_per_thread": 80,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-realtime-vla-nsys-node_r004_023",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-realtime-vla-nsys-node-004",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 180,
+      "capture_id": "capture-pi0-realtime-vla-nsys-node-004",
+      "duration": {
+        "sample_count": 180,
+        "statistic": "sum",
+        "value_ns": 1393152
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 1.5654836317720793
+      },
+      "kernel_signature_id": "kernel-signature-pi0-realtime-vla-recorded-kernel-024",
+      "launch": {
+        "block": [
+          128,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 16384,
+        "grid": [
+          156,
+          1,
+          1
+        ],
+        "registers_per_thread": 56,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-realtime-vla-nsys-node_r004_024",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-realtime-vla-nsys-node-004",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 180,
+      "capture_id": "capture-pi0-realtime-vla-nsys-node-004",
+      "duration": {
+        "sample_count": 180,
+        "statistic": "sum",
+        "value_ns": 666240
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 0.7486532803540678
+      },
+      "kernel_signature_id": "kernel-signature-pi0-realtime-vla-masked-softmax-025",
+      "launch": {
+        "block": [
+          128,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 64,
+        "grid": [
+          102,
+          1,
+          1
+        ],
+        "registers_per_thread": 40,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-realtime-vla-nsys-node_r004_025",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-realtime-vla-nsys-node-004",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 180,
+      "capture_id": "capture-pi0-realtime-vla-nsys-node-004",
+      "duration": {
+        "sample_count": 180,
+        "statistic": "sum",
+        "value_ns": 2380992
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 2.6755185388100267
+      },
+      "kernel_signature_id": "kernel-signature-pi0-realtime-vla-recorded-kernel-026",
+      "launch": {
+        "block": [
+          128,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 12288,
+        "grid": [
+          96,
+          1,
+          1
+        ],
+        "registers_per_thread": 80,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-realtime-vla-nsys-node_r004_026",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-realtime-vla-nsys-node-004",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 180,
+      "capture_id": "capture-pi0-realtime-vla-nsys-node-004",
+      "duration": {
+        "sample_count": 180,
+        "statistic": "sum",
+        "value_ns": 4055712
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 4.557399875377277
+      },
+      "kernel_signature_id": "kernel-signature-pi0-realtime-vla-gemm-residual-027",
+      "launch": {
+        "block": [
+          128,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 32768,
+        "grid": [
+          128,
+          1,
+          1
+        ],
+        "registers_per_thread": 72,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-realtime-vla-nsys-node_r004_027",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-realtime-vla-nsys-node-004",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 180,
+      "capture_id": "capture-pi0-realtime-vla-nsys-node-004",
+      "duration": {
+        "sample_count": 180,
+        "statistic": "sum",
+        "value_ns": 12942815
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 14.543829410971771
+      },
+      "kernel_signature_id": "kernel-signature-pi0-realtime-vla-scaled-gate-up-fusion-028",
+      "launch": {
+        "block": [
+          128,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 49152,
+        "grid": [
+          128,
+          1,
+          1
+        ],
+        "registers_per_thread": 178,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-realtime-vla-nsys-node_r004_028",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-realtime-vla-nsys-node-004",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 180,
+      "capture_id": "capture-pi0-realtime-vla-nsys-node-004",
+      "duration": {
+        "sample_count": 180,
+        "statistic": "sum",
+        "value_ns": 11629248
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 13.067775371113985
+      },
+      "kernel_signature_id": "kernel-signature-pi0-realtime-vla-gemm-residual-029",
+      "launch": {
+        "block": [
+          128,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 49152,
+        "grid": [
+          128,
+          1,
+          1
+        ],
+        "registers_per_thread": 96,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-realtime-vla-nsys-node_r004_029",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-realtime-vla-nsys-node-004",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 10,
+      "capture_id": "capture-pi0-realtime-vla-nsys-node-004",
+      "duration": {
+        "sample_count": 10,
+        "statistic": "sum",
+        "value_ns": 15968
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 0.01794322703634389
+      },
+      "kernel_signature_id": "kernel-signature-pi0-realtime-vla-recorded-kernel-030",
+      "launch": {
+        "block": [
+          128,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 16,
+        "grid": [
+          50,
+          1,
+          1
+        ],
+        "registers_per_thread": 20,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-realtime-vla-nsys-node_r004_030",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-realtime-vla-nsys-node-004",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 10,
+      "capture_id": "capture-pi0-realtime-vla-nsys-node-004",
+      "duration": {
+        "sample_count": 10,
+        "statistic": "sum",
+        "value_ns": 58304
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 0.0655161516236845
+      },
+      "kernel_signature_id": "kernel-signature-pi0-realtime-vla-recorded-kernel-031",
+      "launch": {
+        "block": [
+          128,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 32768,
+        "grid": [
+          8,
+          1,
+          1
+        ],
+        "registers_per_thread": 80,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-realtime-vla-nsys-node_r004_031",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-realtime-vla-nsys-node-004",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 1,
+      "capture_id": "capture-pi0-realtime-vla-nsys-node-004",
+      "duration": {
+        "sample_count": 1,
+        "statistic": "sum",
+        "value_ns": 3616
+      },
+      "duration_share": {
+        "denominator": "kernel_duration_sum",
+        "unit": "percent",
+        "value": 0.0040632959020177545
+      },
+      "kernel_signature_id": "kernel-signature-pi0-realtime-vla-recorded-kernel-032",
+      "launch": {
+        "block": [
+          128,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 0,
+        "grid": [
+          4,
+          1,
+          1
+        ],
+        "registers_per_thread": 32,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": null
+      },
+      "missing": {
+        "launch.waves_per_sm": "not_collected"
+      },
+      "observation_id": "kernel-observation-pi0-realtime-vla-nsys-node_r004_032",
+      "observation_kind": "nsys_window_aggregate",
+      "population": "all_matching_launches_in_one_predict_window",
+      "quality": [
+        "intrusive_node_trace"
+      ],
+      "run_id": "run-pi0-realtime-vla-nsys-node-004",
       "source_id": "source-local-thor"
     },
     {

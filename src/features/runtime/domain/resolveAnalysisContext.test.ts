@@ -32,7 +32,7 @@ it("does not borrow a configuration or precision from a different model or stack
 });
 
 it("keeps NCU replay identities separate from request and timeline timing", () => {
-  const selected = data.datasets.runs.find((item) => item.model_id === "pi0" && item.runtime_id === "flashrt" && item.capture_method !== "ncu")!;
+  const selected = data.datasets.runs.find((item) => item.run_id === "run-pi0-flashrt-nsys-node-001")!;
   const context = resolve({ data, model, record, route: { ...route, runtime: selected.runtime_id, runtimePrecision: selected.precision.precision_id, workload: selected.configuration_id } });
   expect(context.captureIdentities.endToEnd).toBeNull();
   expect(context.captureIdentities.ncu.length).toBeGreaterThan(0);

@@ -1,0 +1,986 @@
+{
+  "dataset": "runtime_realizations",
+  "records": [
+    {
+      "availability": "measured",
+      "availability_reason_code": "source_and_selected_trace",
+      "configuration_ids": [
+        "cfg-pi0-realtime-vla-fixed-001",
+        "config-pi0-realtime-vla-nsys-node-004"
+      ],
+      "device_ids": [
+        "nvidia-jetson-agx-thor"
+      ],
+      "evidence": [
+        {
+          "evidence_id": "realtime-model",
+          "kind": "source_code",
+          "locator": "pi0_infer.py#pi0_model",
+          "observation_ids": [],
+          "revision": "b86a942a073ea241f9bd6916a705f81906f4638b",
+          "run_ids": [],
+          "source_id": "source-realtime-vla"
+        },
+        {
+          "evidence_id": "realtime-graph",
+          "kind": "source_code",
+          "locator": "pi0_infer.py#Pi0Inference.record_infer_graph",
+          "observation_ids": [],
+          "revision": "b86a942a073ea241f9bd6916a705f81906f4638b",
+          "run_ids": [],
+          "source_id": "source-realtime-vla"
+        },
+        {
+          "evidence_id": "realtime-forward",
+          "kind": "source_code",
+          "locator": "pi0_infer.py#Pi0Inference.forward",
+          "observation_ids": [],
+          "revision": "b86a942a073ea241f9bd6916a705f81906f4638b",
+          "run_ids": [],
+          "source_id": "source-realtime-vla"
+        },
+        {
+          "evidence_id": "realtime-prefix",
+          "kind": "source_code",
+          "locator": "pi0_infer.py#transformer_encoder",
+          "observation_ids": [],
+          "revision": "b86a942a073ea241f9bd6916a705f81906f4638b",
+          "run_ids": [],
+          "source_id": "source-realtime-vla"
+        },
+        {
+          "evidence_id": "realtime-decoder",
+          "kind": "source_code",
+          "locator": "pi0_infer.py#transformer_decoder",
+          "observation_ids": [],
+          "revision": "b86a942a073ea241f9bd6916a705f81906f4638b",
+          "run_ids": [],
+          "source_id": "source-realtime-vla"
+        },
+        {
+          "evidence_id": "realtime-weights",
+          "kind": "source_code",
+          "locator": "convert_from_jax.py#time_dependent_biases",
+          "observation_ids": [],
+          "revision": "b86a942a073ea241f9bd6916a705f81906f4638b",
+          "run_ids": [],
+          "source_id": "source-realtime-vla"
+        },
+        {
+          "evidence_id": "realtime-qkv",
+          "kind": "source_code",
+          "locator": "pi0_infer.py#scaled_matmul_rope_qkv",
+          "observation_ids": [],
+          "revision": "b86a942a073ea241f9bd6916a705f81906f4638b",
+          "run_ids": [],
+          "source_id": "source-realtime-vla"
+        },
+        {
+          "evidence_id": "realtime-gate",
+          "kind": "source_code",
+          "locator": "pi0_infer.py#scaled_matmul_small_gate",
+          "observation_ids": [],
+          "revision": "b86a942a073ea241f9bd6916a705f81906f4638b",
+          "run_ids": [],
+          "source_id": "source-realtime-vla"
+        },
+        {
+          "evidence_id": "realtime-prefix-gate",
+          "kind": "source_code",
+          "locator": "pi0_infer.py#matmul_small_gate",
+          "observation_ids": [],
+          "revision": "b86a942a073ea241f9bd6916a705f81906f4638b",
+          "run_ids": [],
+          "source_id": "source-realtime-vla"
+        },
+        {
+          "evidence_id": "realtime-init",
+          "kind": "source_code",
+          "locator": "pi0_infer.py#Pi0Inference.__init__",
+          "observation_ids": [],
+          "revision": "b86a942a073ea241f9bd6916a705f81906f4638b",
+          "run_ids": [],
+          "source_id": "source-realtime-vla"
+        },
+        {
+          "evidence_id": "realtime-harness",
+          "kind": "canonical_run",
+          "locator": null,
+          "observation_ids": [],
+          "revision": null,
+          "run_ids": [
+            "run-pi0-realtime-vla-w5-r10-001"
+          ],
+          "source_id": "source-local-thor"
+        },
+        {
+          "evidence_id": "realtime-prefix-gate-up-trace",
+          "kind": "profiler_correlation",
+          "locator": null,
+          "observation_ids": [
+            "kernel-observation-pi0-realtime-vla-nsys-node_r004_017"
+          ],
+          "revision": null,
+          "run_ids": [
+            "run-pi0-realtime-vla-nsys-node-004"
+          ],
+          "source_id": "source-local-thor"
+        },
+        {
+          "evidence_id": "realtime-action-qkv-rope-trace",
+          "kind": "profiler_correlation",
+          "locator": null,
+          "observation_ids": [
+            "kernel-observation-pi0-realtime-vla-nsys-node_r004_023"
+          ],
+          "revision": null,
+          "run_ids": [
+            "run-pi0-realtime-vla-nsys-node-004"
+          ],
+          "source_id": "source-local-thor"
+        },
+        {
+          "evidence_id": "realtime-action-gate-up-trace",
+          "kind": "profiler_correlation",
+          "locator": null,
+          "observation_ids": [
+            "kernel-observation-pi0-realtime-vla-nsys-node_r004_028"
+          ],
+          "revision": null,
+          "run_ids": [
+            "run-pi0-realtime-vla-nsys-node-004"
+          ],
+          "source_id": "source-local-thor"
+        }
+      ],
+      "execution_groups": [
+        {
+          "dependency_group_ids": [],
+          "evidence_ids": [
+            "realtime-prefix-gate",
+            "realtime-prefix",
+            "realtime-prefix-gate-up-trace"
+          ],
+          "execution_group_id": "prefix-gate-up",
+          "implementation": "独立 RMSNorm 之后，融合 Gate/Up 矩阵乘法、近似 GELU 与乘积；仅前缀层 0–16，最后一层仅生成 K/V。",
+          "kernel_resolution": "resolved",
+          "kernel_signature_ids": [
+            "kernel-signature-pi0-realtime-vla-gate-up-fusion-017"
+          ],
+          "kind": "custom_op",
+          "label": "前缀 Gate/Up 与 GELU 乘积",
+          "precision_path_id": "bf16-fused-fp32-accumulation",
+          "repeat_selectors": [
+            {
+              "indices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15,
+                16
+              ],
+              "scope_ref": "prefix-encoder/prefix-blocks",
+              "selection": "indices"
+            }
+          ],
+          "unmapped_reason_code": null
+        },
+        {
+          "dependency_group_ids": [],
+          "evidence_ids": [
+            "realtime-qkv",
+            "realtime-decoder",
+            "realtime-action-qkv-rope-trace"
+          ],
+          "execution_group_id": "action-qkv-rope",
+          "implementation": "读取独立 RMS 因子，完成比例缩放、Q/K/V 投影、Q/K RoPE 和 K/V 写入；RMS 因子由另一个 Kernel 生成。",
+          "kernel_resolution": "resolved",
+          "kernel_signature_ids": [
+            "kernel-signature-pi0-realtime-vla-scaled-qkv-rope-023"
+          ],
+          "kind": "custom_op",
+          "label": "动作 QKV 与 RoPE",
+          "precision_path_id": "bf16-fused-fp32-accumulation",
+          "repeat_selectors": [
+            {
+              "indices": [],
+              "scope_ref": "action-flow-decoder/action-flow-loop",
+              "selection": "all"
+            },
+            {
+              "indices": [],
+              "scope_ref": "action-flow-decoder/action-expert-blocks",
+              "selection": "all"
+            }
+          ],
+          "unmapped_reason_code": null
+        },
+        {
+          "dependency_group_ids": [],
+          "evidence_ids": [
+            "realtime-gate",
+            "realtime-decoder",
+            "realtime-action-gate-up-trace"
+          ],
+          "execution_group_id": "action-gate-up",
+          "implementation": "读取独立 RMS 因子，对输入缩放，融合 Gate/Up 矩阵乘法、近似 GELU 与逐元素乘积；不包含 RMS 因子计算。",
+          "kernel_resolution": "resolved",
+          "kernel_signature_ids": [
+            "kernel-signature-pi0-realtime-vla-scaled-gate-up-fusion-028"
+          ],
+          "kind": "custom_op",
+          "label": "动作 Gate/Up 与 GELU 乘积",
+          "precision_path_id": "bf16-fused-fp32-accumulation",
+          "repeat_selectors": [
+            {
+              "indices": [],
+              "scope_ref": "action-flow-decoder/action-flow-loop",
+              "selection": "all"
+            },
+            {
+              "indices": [],
+              "scope_ref": "action-flow-decoder/action-expert-blocks",
+              "selection": "all"
+            }
+          ],
+          "unmapped_reason_code": null
+        }
+      ],
+      "launch": {
+        "capture_scope": "whole_prediction",
+        "cuda_graph_state": "present",
+        "evidence_ids": [
+          "realtime-graph"
+        ],
+        "submission_mode": "cuda_graph_replay"
+      },
+      "mapping_coverage": "partial",
+      "mapping_level": "custom_runtime",
+      "mappings": [
+        {
+          "certainty": "exact",
+          "confidence": "high",
+          "evidence_ids": [
+            "realtime-prefix-gate",
+            "realtime-prefix",
+            "realtime-prefix-gate-up-trace"
+          ],
+          "execution_group_ids": [
+            "prefix-gate-up"
+          ],
+          "logical_targets": [
+            {
+              "ref": "prefix-encoder/prefix-blocks/feed-forward/gate-projection",
+              "repeat_selectors": [
+                {
+                  "indices": [
+                    0,
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                    16
+                  ],
+                  "scope_ref": "prefix-encoder/prefix-blocks",
+                  "selection": "indices"
+                }
+              ]
+            },
+            {
+              "ref": "prefix-encoder/prefix-blocks/feed-forward/up-projection",
+              "repeat_selectors": [
+                {
+                  "indices": [
+                    0,
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                    16
+                  ],
+                  "scope_ref": "prefix-encoder/prefix-blocks",
+                  "selection": "indices"
+                }
+              ]
+            },
+            {
+              "ref": "prefix-encoder/prefix-blocks/feed-forward/gate-gelu",
+              "repeat_selectors": [
+                {
+                  "indices": [
+                    0,
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                    16
+                  ],
+                  "scope_ref": "prefix-encoder/prefix-blocks",
+                  "selection": "indices"
+                }
+              ]
+            },
+            {
+              "ref": "prefix-encoder/prefix-blocks/feed-forward/gate-product",
+              "repeat_selectors": [
+                {
+                  "indices": [
+                    0,
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                    16
+                  ],
+                  "scope_ref": "prefix-encoder/prefix-blocks",
+                  "selection": "indices"
+                }
+              ]
+            }
+          ],
+          "mapping_id": "map-prefix-gate-up",
+          "method": "source_audit",
+          "path": "primary",
+          "reason_code": null,
+          "relation": "fused"
+        },
+        {
+          "certainty": "exact",
+          "confidence": "high",
+          "evidence_ids": [
+            "realtime-qkv",
+            "realtime-decoder",
+            "realtime-action-qkv-rope-trace"
+          ],
+          "execution_group_ids": [
+            "action-qkv-rope"
+          ],
+          "logical_targets": [
+            {
+              "ref": "action-flow-decoder/action-expert-blocks/self-attention/query-projection",
+              "repeat_selectors": [
+                {
+                  "indices": [],
+                  "scope_ref": "action-flow-decoder/action-flow-loop",
+                  "selection": "all"
+                },
+                {
+                  "indices": [],
+                  "scope_ref": "action-flow-decoder/action-expert-blocks",
+                  "selection": "all"
+                }
+              ]
+            },
+            {
+              "ref": "action-flow-decoder/action-expert-blocks/self-attention/key-projection",
+              "repeat_selectors": [
+                {
+                  "indices": [],
+                  "scope_ref": "action-flow-decoder/action-flow-loop",
+                  "selection": "all"
+                },
+                {
+                  "indices": [],
+                  "scope_ref": "action-flow-decoder/action-expert-blocks",
+                  "selection": "all"
+                }
+              ]
+            },
+            {
+              "ref": "action-flow-decoder/action-expert-blocks/self-attention/value-projection",
+              "repeat_selectors": [
+                {
+                  "indices": [],
+                  "scope_ref": "action-flow-decoder/action-flow-loop",
+                  "selection": "all"
+                },
+                {
+                  "indices": [],
+                  "scope_ref": "action-flow-decoder/action-expert-blocks",
+                  "selection": "all"
+                }
+              ]
+            },
+            {
+              "ref": "action-flow-decoder/action-expert-blocks/self-attention/query-rope",
+              "repeat_selectors": [
+                {
+                  "indices": [],
+                  "scope_ref": "action-flow-decoder/action-flow-loop",
+                  "selection": "all"
+                },
+                {
+                  "indices": [],
+                  "scope_ref": "action-flow-decoder/action-expert-blocks",
+                  "selection": "all"
+                }
+              ]
+            },
+            {
+              "ref": "action-flow-decoder/action-expert-blocks/self-attention/key-rope",
+              "repeat_selectors": [
+                {
+                  "indices": [],
+                  "scope_ref": "action-flow-decoder/action-flow-loop",
+                  "selection": "all"
+                },
+                {
+                  "indices": [],
+                  "scope_ref": "action-flow-decoder/action-expert-blocks",
+                  "selection": "all"
+                }
+              ]
+            }
+          ],
+          "mapping_id": "map-action-qkv-rope",
+          "method": "source_audit",
+          "path": "primary",
+          "reason_code": null,
+          "relation": "fused"
+        },
+        {
+          "certainty": "exact",
+          "confidence": "high",
+          "evidence_ids": [
+            "realtime-gate",
+            "realtime-decoder",
+            "realtime-action-gate-up-trace"
+          ],
+          "execution_group_ids": [
+            "action-gate-up"
+          ],
+          "logical_targets": [
+            {
+              "ref": "action-flow-decoder/action-expert-blocks/feed-forward/gate-projection",
+              "repeat_selectors": [
+                {
+                  "indices": [],
+                  "scope_ref": "action-flow-decoder/action-flow-loop",
+                  "selection": "all"
+                },
+                {
+                  "indices": [],
+                  "scope_ref": "action-flow-decoder/action-expert-blocks",
+                  "selection": "all"
+                }
+              ]
+            },
+            {
+              "ref": "action-flow-decoder/action-expert-blocks/feed-forward/up-projection",
+              "repeat_selectors": [
+                {
+                  "indices": [],
+                  "scope_ref": "action-flow-decoder/action-flow-loop",
+                  "selection": "all"
+                },
+                {
+                  "indices": [],
+                  "scope_ref": "action-flow-decoder/action-expert-blocks",
+                  "selection": "all"
+                }
+              ]
+            },
+            {
+              "ref": "action-flow-decoder/action-expert-blocks/feed-forward/gate-gelu",
+              "repeat_selectors": [
+                {
+                  "indices": [],
+                  "scope_ref": "action-flow-decoder/action-flow-loop",
+                  "selection": "all"
+                },
+                {
+                  "indices": [],
+                  "scope_ref": "action-flow-decoder/action-expert-blocks",
+                  "selection": "all"
+                }
+              ]
+            },
+            {
+              "ref": "action-flow-decoder/action-expert-blocks/feed-forward/gate-product",
+              "repeat_selectors": [
+                {
+                  "indices": [],
+                  "scope_ref": "action-flow-decoder/action-flow-loop",
+                  "selection": "all"
+                },
+                {
+                  "indices": [],
+                  "scope_ref": "action-flow-decoder/action-expert-blocks",
+                  "selection": "all"
+                }
+              ]
+            }
+          ],
+          "mapping_id": "map-action-gate-up",
+          "method": "source_audit",
+          "path": "primary",
+          "reason_code": null,
+          "relation": "fused"
+        }
+      ],
+      "model_artifact_ids": [
+        "pi0-realtime-vla-libero-v044-p48"
+      ],
+      "model_graph_id": "pi0-logical-v1",
+      "model_id": "pi0",
+      "precision_paths": [
+        {
+          "accumulation_dtype": null,
+          "activation_dtype": "bf16",
+          "evidence_ids": [
+            "realtime-init"
+          ],
+          "label": "BF16 权重、主激活及 K/V；累加依 Kernel",
+          "missing_fields": [
+            "accumulation_dtype"
+          ],
+          "missing_reason_code": "not_established_by_source",
+          "output_dtype": "bf16",
+          "precision_path_id": "bf16",
+          "quant_scheme": "none",
+          "weight_dtype": "bf16"
+        },
+        {
+          "accumulation_dtype": "fp32",
+          "activation_dtype": "bf16",
+          "evidence_ids": [
+            "realtime-qkv",
+            "realtime-gate",
+            "realtime-prefix-gate"
+          ],
+          "label": "已审计融合核：BF16 输入/输出、FP32 累加",
+          "missing_fields": [],
+          "missing_reason_code": null,
+          "output_dtype": "bf16",
+          "precision_path_id": "bf16-fused-fp32-accumulation",
+          "quant_scheme": "none",
+          "weight_dtype": "bf16"
+        }
+      ],
+      "realization_id": "rr-realtime-vla-pi0-thor-bf16-v1",
+      "reuse": [
+        {
+          "consumer_refs": [
+            "action-flow-decoder/action-expert-blocks/self-attention/attention"
+          ],
+          "evidence_ids": [
+            "realtime-prefix",
+            "realtime-decoder"
+          ],
+          "implementation_status": "implemented",
+          "invalidation_conditions": [
+            "新观测重算前缀"
+          ],
+          "kind": "computed_result",
+          "label": "单观测 Prefix K/V",
+          "lifetime": "observation",
+          "preparation_ns": null,
+          "producer_refs": [
+            "prefix-encoder/prefix-blocks/self-attention/key-projection",
+            "prefix-encoder/prefix-blocks/self-attention/value-projection"
+          ],
+          "read_ns": null,
+          "repeat_scope": "当前观测的 10 步",
+          "reuse_id": "prefix-kv",
+          "storage_bytes": null,
+          "value_dependencies": [
+            "图像",
+            "提示 embedding",
+            "位置",
+            "权重"
+          ]
+        },
+        {
+          "consumer_refs": [],
+          "evidence_ids": [
+            "realtime-weights"
+          ],
+          "implementation_status": "implemented",
+          "invalidation_conditions": [
+            "权重或时间计划改变需重新转换"
+          ],
+          "kind": "computed_result",
+          "label": "离线预计算时间偏置",
+          "lifetime": "across_observations",
+          "preparation_ns": null,
+          "producer_refs": [
+            "action-flow-decoder/action-suffix-builder/time-embedding"
+          ],
+          "read_ns": null,
+          "repeat_scope": "同一权重与固定 10 步计划",
+          "reuse_id": "time-bias",
+          "storage_bytes": 20480,
+          "value_dependencies": [
+            "时间计划",
+            "动作输入投影及 MLP 权重"
+          ]
+        },
+        {
+          "consumer_refs": [],
+          "evidence_ids": [
+            "realtime-decoder"
+          ],
+          "implementation_status": "implemented",
+          "invalidation_conditions": [
+            "下一观测状态重新投影"
+          ],
+          "kind": "computed_result",
+          "label": "单观测状态投影",
+          "lifetime": "observation",
+          "preparation_ns": null,
+          "producer_refs": [],
+          "read_ns": null,
+          "repeat_scope": "投影一次，每步复制到 token 0",
+          "reuse_id": "state-token",
+          "storage_bytes": null,
+          "value_dependencies": [
+            "当前状态",
+            "状态投影权重"
+          ]
+        },
+        {
+          "consumer_refs": [],
+          "evidence_ids": [
+            "realtime-graph",
+            "realtime-init"
+          ],
+          "implementation_status": "implemented",
+          "invalidation_conditions": [
+            "重建模型对象或输入形状改变"
+          ],
+          "kind": "execution_plan",
+          "label": "全模型 Graph 计划",
+          "lifetime": "across_observations",
+          "preparation_ns": null,
+          "producer_refs": [],
+          "read_ns": null,
+          "repeat_scope": "同一推理对象与固定形状",
+          "reuse_id": "graph-plan",
+          "storage_bytes": null,
+          "value_dependencies": [
+            "固定输入地址",
+            "view/prompt/chunk 形状",
+            "模型权重"
+          ]
+        }
+      ],
+      "runtime_id": "realtime-vla",
+      "runtime_revision": "b86a942a073ea241f9bd6916a705f81906f4638b",
+      "system_flow": {
+        "edges": [
+          {
+            "from": "prepare",
+            "kind": "data",
+            "label": "上传输入",
+            "to": "upload"
+          },
+          {
+            "from": "upload",
+            "kind": "data",
+            "label": "固定 GPU 图像",
+            "to": "vision"
+          },
+          {
+            "from": "prompt",
+            "kind": "data",
+            "label": "语言 embedding",
+            "to": "prefix"
+          },
+          {
+            "from": "vision",
+            "kind": "data",
+            "label": "GPU 视觉结果",
+            "to": "prefix"
+          },
+          {
+            "from": "prefix",
+            "kind": "data",
+            "label": "逐层 K/V",
+            "to": "action"
+          },
+          {
+            "from": "action",
+            "kind": "data",
+            "label": "动作",
+            "to": "download"
+          },
+          {
+            "from": "download",
+            "kind": "data",
+            "label": "下载完成",
+            "to": "output"
+          },
+          {
+            "from": "submit",
+            "kind": "control",
+            "label": "一次 Graph replay",
+            "to": "prompt"
+          },
+          {
+            "from": "prefix",
+            "kind": "reuse",
+            "label": "同观测 K/V 复用",
+            "to": "action"
+          }
+        ],
+        "groups": [
+          {
+            "kind": "cuda_graph",
+            "label": "一个全模型 CUDA Graph",
+            "node_ids": [
+              "prompt",
+              "vision",
+              "prefix",
+              "action"
+            ]
+          },
+          {
+            "kind": "repeat",
+            "label": "状态投影后执行 10 步",
+            "node_ids": [
+              "action"
+            ]
+          }
+        ],
+        "nodes": [
+          {
+            "evidence_ids": [
+              "realtime-harness"
+            ],
+            "label": "输入归一化",
+            "lane": "cpu",
+            "node_id": "prepare",
+            "operation": "固定测量 harness 在 CPU 归一化图像及状态；噪声与提示来自预备输入。",
+            "reads": [
+              "图像",
+              "状态",
+              "噪声"
+            ],
+            "reuse": null,
+            "step": 0,
+            "writes": [
+              "归一化输入"
+            ]
+          },
+          {
+            "evidence_ids": [
+              "realtime-harness",
+              "realtime-forward"
+            ],
+            "label": "上传与固定缓冲区复制",
+            "lane": "gpu",
+            "node_id": "upload",
+            "operation": "harness 转 CUDA BF16；forward 再 copy_ 至 Graph 固定输入地址。这些复制不在捕获图内。",
+            "reads": [
+              "归一化输入"
+            ],
+            "reuse": null,
+            "step": 1,
+            "writes": [
+              "固定 GPU 输入"
+            ]
+          },
+          {
+            "evidence_ids": [
+              "realtime-forward"
+            ],
+            "label": "提交全模型图",
+            "lane": "cpu",
+            "node_id": "submit",
+            "operation": "调用一次 infer_graph.replay；提交返回不表示 GPU 工作完成。",
+            "reads": [],
+            "reuse": "复用执行计划，不缓存当前观测计算结果",
+            "step": 2,
+            "writes": [
+              "图提交"
+            ]
+          },
+          {
+            "evidence_ids": [
+              "realtime-graph"
+            ],
+            "label": "复制语言 embedding",
+            "lane": "gpu",
+            "node_id": "prompt",
+            "operation": "record_run 将权重中预备好的语言 embedding 复制到 prefix 尾部。",
+            "reads": [
+              "预备语言 embedding"
+            ],
+            "reuse": null,
+            "step": 2,
+            "writes": [
+              "语言 token"
+            ]
+          },
+          {
+            "evidence_ids": [
+              "realtime-model"
+            ],
+            "label": "视觉编码",
+            "lane": "gpu",
+            "node_id": "vision",
+            "operation": "patch embedding 与 27 层视觉 Transformer；归一化和部分 GEMM 是独立 Kernel。",
+            "reads": [
+              "固定 GPU 图像"
+            ],
+            "reuse": null,
+            "step": 3,
+            "writes": [
+              "GPU 视觉 token"
+            ]
+          },
+          {
+            "evidence_ids": [
+              "realtime-prefix"
+            ],
+            "label": "多模态前缀与 K/V",
+            "lane": "gpu",
+            "node_id": "prefix",
+            "operation": "视觉投影后运行 18 层前缀；最后层仅生成动作专家需要的 K/V，跳过不再消费的注意力输出和 MLP。",
+            "reads": [
+              "视觉 token",
+              "语言 token"
+            ],
+            "reuse": "每观测重新生成，同观测 10 步复用",
+            "step": 4,
+            "writes": [
+              "Prefix K/V"
+            ]
+          },
+          {
+            "evidence_ids": [
+              "realtime-decoder",
+              "realtime-weights"
+            ],
+            "label": "状态投影与动作去噪",
+            "lane": "gpu",
+            "node_id": "action",
+            "operation": "状态投影一次；随后 10 步各运行 18 层动作专家，读取时间偏置、Prefix K/V，融合输出投影与 Euler 更新。",
+            "reads": [
+              "Prefix K/V",
+              "状态",
+              "时间偏置",
+              "噪声"
+            ],
+            "reuse": "状态 token 与 Prefix K/V 在单次观测内复用",
+            "step": 5,
+            "writes": [
+              "BF16 动作"
+            ]
+          },
+          {
+            "evidence_ids": [
+              "realtime-harness",
+              "realtime-forward"
+            ],
+            "label": "转换与回读",
+            "lane": "gpu",
+            "node_id": "download",
+            "operation": "harness 将输出转 FP32，再执行完成请求所需的 CPU 回读；原 forward 只返回 GPU Tensor。",
+            "reads": [
+              "BF16 动作"
+            ],
+            "reuse": null,
+            "step": 6,
+            "writes": [
+              "CPU FP32 动作"
+            ]
+          },
+          {
+            "evidence_ids": [
+              "realtime-harness"
+            ],
+            "label": "动作反归一化",
+            "lane": "cpu",
+            "node_id": "output",
+            "operation": "前 7 维按统计量反归一化，其余维置零；外部计时包含此步骤。",
+            "reads": [
+              "CPU FP32 动作"
+            ],
+            "reuse": null,
+            "step": 7,
+            "writes": [
+              "50×32 动作数组"
+            ]
+          }
+        ],
+        "notes": [
+          "位置只表达源码执行顺序，不表示耗时。",
+          "Graph 外包含输入上传与固定缓冲区复制、输出转换及回读。",
+          "主存储为 BF16；split-K 临时缓冲区包含 FP32，不能据此断言全部 Kernel 的执行与累加精度。",
+          "固定提示 embedding 在测量前准备；10 步时间偏置在权重转换时预计算。"
+        ],
+        "semantics": "qualitative_order"
+      },
+      "workload_applicability": {
+        "denoise_steps": 10,
+        "evidence_ids": [
+          "realtime-init",
+          "realtime-harness"
+        ],
+        "missing_reason_code": "chunk_size_is_constructor_parameter",
+        "public_action_dimension": 32,
+        "public_action_horizon": null,
+        "runtime_action_horizon": null,
+        "runtime_internal_action_dimension": 32
+      }
+    }
+  ],
+  "schema_version": "1.0.0"
+}

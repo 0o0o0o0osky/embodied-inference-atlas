@@ -42,7 +42,7 @@ export function Pi0RuntimeWorkspace({data, model, record, route, navigate}: Prop
   const selectedWorkload = selectedRun?.workload.vla ?? {camera_views:overrides.V ?? null,executed_prompt_tokens:overrides.L_PROMPT ?? null,action_chunk:overrides.T_ACTION ?? null,denoise_steps:overrides.N_DENOISE ?? null};
   const hasLatency = selectedRun?.evidence === 'measured_local' && selectedEvidence?.measurement.evidence === 'measured_local' && selectedEvidence.selected?.value != null;
   const currentProtocol = isPi0 && selectedRun?.timing.warmup_iterations === PI0_PERFORMANCE_TARGET.warmupIterations && selectedEvidence?.measurement.sampleCount === PI0_PERFORMANCE_TARGET.sampleCount
-    && selectedWorkload.executed_prompt_tokens === 48 && selectedWorkload.denoise_steps === 10 && [20,50].includes(selectedWorkload.action_chunk ?? 0);
+    && selectedWorkload.executed_prompt_tokens === 48 && selectedWorkload.denoise_steps === 10 && (overview?.availableActionChunks ?? [20,50]).includes(selectedWorkload.action_chunk ?? 0);
   const group = overview?.groups.find(item=>item.runtimeId === route.runtime && item.precisionId === actualPrecision);
   const supportCells = group?.facets.length ? group.facets.map(item=>item.series.find(series=>series.actionChunk === selectedWorkload.action_chunk)?.cells.find(cell=>cell.cameraViews === selectedWorkload.camera_views))
     : group?.unmeasuredSeries?.find(series=>series.actionChunk === selectedWorkload.action_chunk)?.cells.filter(cell=>cell.cameraViews === selectedWorkload.camera_views) ?? [];
@@ -51,6 +51,8 @@ export function Pi0RuntimeWorkspace({data, model, record, route, navigate}: Prop
   const selectEvidence = (selection: Pi0RoutablePerformanceSelection) => navigate({
     runtime:selection.runtimeId,runtimePrecision:selection.precisionId,runtimeFacet:selection.facetId,
     hardware:selection.hardwareId,workload:selection.configurationId,selectedRun:selection.runId,
+    inputShape: Object.values(selection.workload).every(value=>value!==null)
+      ? `v=${selection.workload.cameraViews},p=${selection.workload.promptTokens},a=${selection.workload.actionChunk},n=${selection.workload.denoiseSteps}` : route.inputShape ?? null,
     analysisView:route.selectedRun===selection.runId?route.analysisView??'system':'system',
     entity:route.selectedRun===selection.runId?route.entity:null,
     timelineCapture:route.selectedRun===selection.runId?route.timelineCapture:null,basis:null,rooflineLevel:'overview',

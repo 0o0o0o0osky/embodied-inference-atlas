@@ -1,3 +1,6 @@
+import { createElement } from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
+import { Pi0PerformanceOverviewChart } from '../components/Pi0PerformanceOverviewChart';
 import { expect, it } from "vitest";
 
 import type { AtlasData, RunRecord } from "../../../types/atlas";
@@ -377,6 +380,7 @@ it("builds exact six-cell Pi0 target grids without borrowing mismatched evidence
   ])).toEqual([
     [20, ["40 ms", "待测", "待测"]],
     [50, ["待测", "待测", "待测"]],
+    [10, ["待测", "待测", "待测"]],
   ]);
   const selected = primary.series[0]!.cells[0]!;
   expect(selected.state).toBe("measured");
@@ -515,20 +519,25 @@ it("uses source-audited action horizons to distinguish unsupported targets from 
   expect(fixed10.series.map((series) => [series.actionChunk, series.cells.map((cell) => cell.state)])).toEqual([
     [20, ["unsupported", "unsupported", "unsupported"]],
     [50, ["unsupported", "unsupported", "unsupported"]],
+    [10, ["pending_supported", "pending_supported", "pending_supported"]],
   ]);
   expect(fixed50.series.map((series) => [series.actionChunk, series.cells.map((cell) => cell.state)])).toEqual([
     [20, ["unsupported", "unsupported", "unsupported"]],
     [50, ["pending_supported", "pending_supported", "pending_supported"]],
+    [10, ["unsupported", "unsupported", "unsupported"]],
   ]);
   expect(unknown.series.flatMap((series) => series.cells.map((cell) => cell.state))).toEqual([
+    "pending_supported", "pending_supported", "pending_supported",
     "pending_supported", "pending_supported", "pending_supported",
     "pending_supported", "pending_supported", "pending_supported",
   ]);
   expect(unmeasured.series.flatMap((series) => series.cells.map((cell) => cell.state))).toEqual([
     "pending_supported", "pending_supported", "pending_supported",
     "pending_supported", "pending_supported", "pending_supported",
+    "pending_supported", "pending_supported", "pending_supported",
   ]);
   expect(runOnly.series.flatMap((series) => series.cells.map((cell) => cell.state))).toEqual([
+    "pending_supported", "pending_supported", "pending_supported",
     "pending_supported", "pending_supported", "pending_supported",
     "pending_supported", "pending_supported", "pending_supported",
   ]);
@@ -538,4 +547,21 @@ it("uses source-audited action horizons to distinguish unsupported targets from 
     workload: { cameraViews: 2, promptTokens: 49, actionChunk: 10, denoiseSteps: 10 },
   });
   expect(fixed10.series.flatMap((series) => series.cells).some((cell) => cell.state === "measured")).toBe(false);
+});
+
+it('exposes an audited chunk-10 case without borrowing its latency for chunk 50', () => {
+  const sample = run({runId:'flash-chunk-10',runtimeId:'flashrt',precisionId:'fp16',workload:{views:1,prompt:48,chunk:10,denoise:10}});
+  const data={format_version:'1.0.0',datasets:{runs:[sample],end_to_end:[measurement(sample,42)],stages:[],models:[],
+    devices:[{device_id:'thor',display_name:'Thor'}],runtimes:[{runtime_id:'flashrt',display_name:'FlashRT',backend:'cuda',model_support:[]}]}} as unknown as AtlasData;
+  const overview=buildPi0PerformanceOverview({data,hardwareId:'thor',realizations:[realization({id:'flash',runtimeId:'flashrt',precisionId:'fp16',actionHorizon:10})]});
+  expect(overview.availableActionChunks).toEqual([10,20,50]);
+  const facet=overview.groups[0]!.facets[0]!;
+  expect(facet.series.find(series=>series.actionChunk===10)?.cells[0]).toMatchObject({state:'measured',latency:{value:42}});
+  expect(facet.series.find(series=>series.actionChunk===50)?.cells[0]?.state).toBe('unsupported');
+  const markup=renderToStaticMarkup(createElement(Pi0PerformanceOverviewChart,{model:overview,selectedRunId:null,coordinate:{cameraViews:1,actionChunk:50},onSelectEvidence:()=>undefined}));
+  expect(markup).toContain('当前实现输出块 10');
+  expect(markup).toContain('查看已有测量');
+  expect(markup).not.toContain('class="pi0-runtime-bar');
+  const matching=renderToStaticMarkup(createElement(Pi0PerformanceOverviewChart,{model:overview,selectedRunId:null,coordinate:{cameraViews:1,actionChunk:10},onSelectEvidence:()=>undefined}));
+  expect(matching).toContain('class="pi0-runtime-bar');
 });

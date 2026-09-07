@@ -13,12 +13,12 @@ export interface Pi0PerformanceOverviewChartProps {
 }
 const PRECISIONS: Readonly<Record<string, string>> = {
   "mixed-fp8-e4m3-fp16": "混合 FP8 / FP16", "mixed-bf16-fp32": "BF16 权重 / F32 激活",
-  "uniform-fp16": "FP16", "uniform-bf16": "BF16", q8_0: "Q8 仅权重 / F32 激活", "q8_0-weight-only": "Q8 仅权重 / F32 激活",
+  "uniform-fp16": "FP16", "uniform-bf16": "BF16", bf16: "BF16", q8_0: "Q8 仅权重 / F32 激活", "q8_0-weight-only": "Q8 仅权重 / F32 激活",
   unknown: "精度待核对",
 };
 const BOUNDARIES: Readonly<Record<string, string>> = {
   predict_cached_graph_sync: "缓存图预测并同步", vlacpp_engine_predict_synthetic: "合成输入引擎预测",
-  predict: "预测窗口", "predict-with-preprocess": "预处理与预测",
+  predict: "预测窗口", "predict-with-preprocess": "预处理与预测", "raw-observation-cached-prompt": "CPU 输入至 CPU 动作（固定提示）",
 };
 const statisticLabel = (value: string) => ({ mean: "均值", p50: "中位数" }[value] ?? value);
 const precisionLabel = (value: string) => PRECISIONS[value] ?? value;
@@ -41,7 +41,7 @@ interface ChartColumn {
   id: string; runtimeLabel: string; runtimeId: string; precisionId: string;
   facet: Pi0PerformanceFacet | null; cell: Pi0PerformanceMeasuredCell | null;
   replicates?: readonly Pi0PerformanceMeasuredCell[] | undefined;
-  contractIndex?: number; missing: string;
+  contractIndex?: number; missing: string; alternative?: Pi0PerformanceMeasuredCell;
 }
 export function Pi0PerformanceOverviewChart({ model, selectedRunId, onSelectEvidence, onInspectRuntime, coordinate: controlledCoordinate, onCoordinateChange }: Pi0PerformanceOverviewChartProps) {
   const [localCoordinate, setLocalCoordinate] = useState<Pi0PerformanceCoordinate>({ cameraViews: 1, actionChunk: 50 });
@@ -63,7 +63,17 @@ export function Pi0PerformanceOverviewChart({ model, selectedRunId, onSelectEvid
         .filter((cell) => cell.cameraViews === coordinate.cameraViews) ?? [];
     const unsupported = cells.length > 0 && cells.every((cell) => cell?.state === "unsupported");
     const ambiguous = cells.some((cell) => cell?.state === "pending_supported" && cell.reason === "multiple_exact_measurements");
-    return [{ ...identity, id: group.id, facet: null, cell: null, missing: unsupported ? "此形状不支持" : ambiguous ? "多条记录待复核" : "暂无此形状的 P48 实测" }];
+    const alternative = group.facets.flatMap(facet=>facet.series.flatMap(series=>series.cells))
+      .filter((cell): cell is Pi0PerformanceMeasuredCell => cell.state === 'measured'
+        && cell.cameraViews === coordinate.cameraViews && cell.actionChunk !== coordinate.actionChunk)
+      .sort((a,b)=>Math.abs(a.actionChunk-coordinate.actionChunk)-Math.abs(b.actionChunk-coordinate.actionChunk)
+        || a.selection.runId.localeCompare(b.selection.runId))[0];
+    const supportedChunks = [...new Set((group.facets.length ? group.facets.flatMap(facet=>facet.series) : group.unmeasuredSeries ?? [])
+      .filter(series=>series.cells.some(cell=>cell.cameraViews===coordinate.cameraViews && cell.state!=='unsupported'))
+      .map(series=>series.actionChunk))];
+    const support = unsupported && supportedChunks.length ? `当前实现输出块 ${supportedChunks.join(' / ')}` : '此形状不支持';
+    return [{ ...identity, id: group.id, facet: null, cell: null, ...(alternative ? {alternative} : {}),
+      missing: unsupported ? support : ambiguous ? '多条记录待复核' : '暂无此形状的 P48 实测' }];
   });
   const measured = columns.filter((column) => column.cell?.latency.unit === "ms");
   const maximum = chartCeiling(Math.max(0, ...measured.map((column) => column.cell!.latency.value)));
@@ -74,7 +84,7 @@ export function Pi0PerformanceOverviewChart({ model, selectedRunId, onSelectEvid
       <div><h3 id="pi0-performance-overview-title">推理耗时对比</h3><p>{model.hardwareLabel} · 提示词 48 token · 去噪 10 步 · 预热 {model.target.warmupIterations} 次 / 测量 {model.target.sampleCount} 次</p></div>
       <div className="pi0-shape-controls">
         <fieldset><legend>视角数</legend><div>{model.target.cameraViews.map((value) => <button key={value} type="button" aria-pressed={coordinate.cameraViews === value} onClick={() => setCoordinate({ ...coordinate, cameraViews: value })}>{value}</button>)}</div></fieldset>
-        <fieldset><legend>动作块长度</legend><div>{model.target.actionChunks.map((value) => <button key={value} type="button" aria-pressed={coordinate.actionChunk === value} onClick={() => setCoordinate({ ...coordinate, actionChunk: value })}>{value}</button>)}</div></fieldset>
+        <fieldset><legend>动作块长度</legend><div>{model.availableActionChunks.map((value) => <button key={value} type="button" aria-pressed={coordinate.actionChunk === value} onClick={() => setCoordinate({ ...coordinate, actionChunk: value })}>{value}</button>)}</div></fieldset>
       </div>
     </header>
     <figure className="pi0-runtime-chart" aria-label={`视角 ${coordinate.cameraViews}，动作块 ${coordinate.actionChunk} 的推理栈耗时柱状图`}>
@@ -90,7 +100,7 @@ export function Pi0PerformanceOverviewChart({ model, selectedRunId, onSelectEvid
                   : <span className="pi0-runtime-missing">{cell ? `记录单位 ${cell.latency.unit}` : column.missing}</span>}
               </div>
               <div className="pi0-runtime-column-label"><strong>{column.runtimeLabel}</strong><span>{precisionLabel(column.precisionId)}</span>{column.contractIndex ? <small>独立口径 {column.contractIndex}</small> : null}</div>
-              {onInspectRuntime ? <button type="button" className="pi0-runtime-source-link" onClick={() => onInspectRuntime(column.runtimeId, column.precisionId, coordinate)}>查看推理栈</button> : null}
+              {column.alternative ? <button type="button" className="pi0-runtime-source-link" onClick={()=>onSelectEvidence(column.alternative!.selection)}>查看已有测量 · 块 {column.alternative.actionChunk}</button> : onInspectRuntime ? <button type="button" className="pi0-runtime-source-link" onClick={() => onInspectRuntime(column.runtimeId, column.precisionId, coordinate)}>查看推理栈</button> : null}
             </div>;
           })}
         </div>

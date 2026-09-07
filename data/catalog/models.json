@@ -1,11 +1,8 @@
 {
-  "schema_version": "1.0.0",
   "dataset": "models",
   "records": [
     {
-      "model_id": "pi0",
-      "display_name": "Pi0",
-      "model_type": "vla",
+      "architecture_id": "pi0",
       "artifacts": [
         {
           "artifact_id": "pi0-flashrt-local-01",
@@ -30,19 +27,39 @@
           "label": "Pi0 VLA-Perf stock analytical artifact",
           "public_model_id": null,
           "public_revision": null
+        },
+        {
+          "artifact_id": "pi0-realtime-vla-libero-v044-p48",
+          "label": "Pi0 Libero adapted BF16 artifact with fixed prompt embedding",
+          "public_model_id": null,
+          "public_revision": null
         }
       ],
+      "display_name": "Pi0",
+      "execution_modes": [
+        "iterative_action_generation"
+      ],
+      "input_modalities": [
+        "image",
+        "language",
+        "state"
+      ],
+      "model_id": "pi0",
+      "model_type": "vla",
+      "output_modalities": [
+        "action_chunk"
+      ],
       "parameter_count": null,
-      "architecture_id": "pi0",
-      "input_modalities": ["image", "language", "state"],
-      "output_modalities": ["action_chunk"],
-      "execution_modes": ["iterative_action_generation"],
-      "source_ids": ["source-flashrt", "source-vla-cpp", "source-vla-perf", "source-local-thor", "source-openpi"]
+      "source_ids": [
+        "source-flashrt",
+        "source-vla-cpp",
+        "source-vla-perf",
+        "source-local-thor",
+        "source-openpi"
+      ]
     },
     {
-      "model_id": "pi05",
-      "display_name": "Pi0.5",
-      "model_type": "vla",
+      "architecture_id": "pi05",
       "artifacts": [
         {
           "artifact_id": "pi05-droid-logical-01",
@@ -63,17 +80,31 @@
           "public_revision": null
         }
       ],
+      "display_name": "Pi0.5",
+      "execution_modes": [
+        "iterative_action_generation"
+      ],
+      "input_modalities": [
+        "image",
+        "language",
+        "state"
+      ],
+      "model_id": "pi05",
+      "model_type": "vla",
+      "output_modalities": [
+        "action_chunk"
+      ],
       "parameter_count": null,
-      "architecture_id": "pi05",
-      "input_modalities": ["image", "language", "state"],
-      "output_modalities": ["action_chunk"],
-      "execution_modes": ["iterative_action_generation"],
-      "source_ids": ["source-pi05-droid", "source-lerobot-fbb811f", "source-flashrt", "source-vla-perf", "source-local-thor"]
+      "source_ids": [
+        "source-pi05-droid",
+        "source-lerobot-fbb811f",
+        "source-flashrt",
+        "source-vla-perf",
+        "source-local-thor"
+      ]
     },
     {
-      "model_id": "smolvla",
-      "display_name": "SmolVLA",
-      "model_type": "vla",
+      "architecture_id": "smolvla",
       "artifacts": [
         {
           "artifact_id": "smolvla-lerobot-local-01",
@@ -94,12 +125,32 @@
           "public_revision": null
         }
       ],
+      "display_name": "SmolVLA",
+      "execution_modes": [
+        "flow_matching_action_generation"
+      ],
+      "input_modalities": [
+        "image",
+        "language",
+        "state"
+      ],
+      "model_id": "smolvla",
+      "model_type": "vla",
+      "output_modalities": [
+        "action_chunk"
+      ],
       "parameter_count": null,
-      "architecture_id": "smolvla",
-      "input_modalities": ["image", "language", "state"],
-      "output_modalities": ["action_chunk"],
-      "execution_modes": ["flow_matching_action_generation"],
-      "source_ids": ["source-smolvla-base-c83c316", "source-smolvlm2-7b375e", "source-lerobot-fbb811f", "source-transformers-5-5-4", "source-lerobot", "source-vla-cpp", "source-vla-perf", "source-local-thor"]
+      "source_ids": [
+        "source-smolvla-base-c83c316",
+        "source-smolvlm2-7b375e",
+        "source-lerobot-fbb811f",
+        "source-transformers-5-5-4",
+        "source-lerobot",
+        "source-vla-cpp",
+        "source-vla-perf",
+        "source-local-thor"
+      ]
     }
-  ]
+  ],
+  "schema_version": "1.0.0"
 }

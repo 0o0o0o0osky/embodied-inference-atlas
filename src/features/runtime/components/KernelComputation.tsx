@@ -5,6 +5,7 @@ import './kernelComputation.css';
 const dtype=(value:string|null|undefined)=>value?.toUpperCase() ?? '未记录';
 // Source-audited exact signature allowlist; not a symbol-name heuristic.
 const CONVERSIONS = new Set(['009','016','028','030','041','045','055'].map(id=>`kernel-signature-pi0-vlacpp-fp32-to-bf16-conversion-${id}`));
+const FLASH_GEGLU = new Set(['028','044'].map(id=>`kernel-signature-pi0-flashrt-geglu-fp8-${id}`));
 
 export function KernelResources({launch,label='执行资源'}:{launch:KernelLaunch;label?:string}) {
  const items=[['Grid',launch.grid?.join(' × ')],['Block（线程）',launch.block?.join(' × ')],['每线程寄存器',launch.registersPerThread],['静态 shared memory',launch.staticSharedMemoryBytes==null?null:`${launch.staticSharedMemoryBytes} B`],['动态 shared memory',launch.dynamicSharedMemoryBytes==null?null:`${launch.dynamicSharedMemoryBytes} B`],['Waves / SM',launch.wavesPerSm]] as const;
@@ -26,12 +27,22 @@ export function KernelPrecisionSummary({row}:{row:KernelRow}) {
 export function KernelComputation({row,point}:{row:KernelRow;point?:RooflinePointRecord | undefined}) {
  const precision=row.signature.precisionPath;
  const conversion=isVerifiedConversion(row),strideCopy=isVerifiedStrideCopy(row);
+ const fusedGate=row.signature.kernelSignatureId==='kernel-signature-pi0-realtime-vla-gate-up-fusion-017';
+ const fp8Geglu=FLASH_GEGLU.has(row.signature.kernelSignatureId);
  const dimensions=point?.entity.shape_or_coverage.match(/M\s*=\s*(\d+).*N\s*=\s*(\d+).*K\s*=\s*(\d+)/);
  const projection=['kernel-signature-pi0-vlacpp-bf16-gemm-4096x51x1024','kernel-signature-pi0-vlacpp-bf16-gemm-16384x304x2048'].includes(row.signature.kernelSignatureId);
  const downProjection=['kernel-signature-pi0-vlacpp-bf16-gemm-2048x304x16384','kernel-signature-pi0-vlacpp-bf16-gemm-1024x51x4096'].includes(row.signature.kernelSignatureId);
  return <section className="kernel-computation" aria-label="计算与数据流"><h4>计算与数据流</h4>
  <KernelPrecisionSummary row={row} />
- {dimensions?<><div className="kernel-matrix-flow" aria-label="GEMM 数学维度"><div><strong>A</strong><span>{dimensions[1]} × {dimensions[3]}</span><small>{dtype(precision.inputDtypeClass)}</small></div><b>×</b><div><strong>B</strong><span>{dimensions[3]} × {dimensions[2]}</span><small>{dtype(precision.inputDtypeClass)}</small></div><b>→</b><div><strong>C</strong><span>{dimensions[1]} × {dimensions[2]}</span><small>{dtype(precision.outputDtypeClass)}</small></div></div><p>Cᵢⱼ = Σₖ Aᵢₖ Bₖⱼ；维度为数学视图，未表示物理 stride 或实际线程 tile。</p></>:conversion?<>
+ {dimensions?<><div className="kernel-matrix-flow" aria-label="GEMM 数学维度"><div><strong>A</strong><span>{dimensions[1]} × {dimensions[3]}</span><small>{dtype(precision.inputDtypeClass)}</small></div><b>×</b><div><strong>B</strong><span>{dimensions[3]} × {dimensions[2]}</span><small>{dtype(precision.inputDtypeClass)}</small></div><b>→</b><div><strong>C</strong><span>{dimensions[1]} × {dimensions[2]}</span><small>{dtype(precision.outputDtypeClass)}</small></div></div><p>Cᵢⱼ = Σₖ Aᵢₖ Bₖⱼ；维度为数学视图，未表示物理 stride 或实际线程 tile。</p></>:fusedGate?<>
+  <div className="kernel-matrix-flow" aria-label="Gate Up 融合计算"><div><strong>共享输入 X</strong><span>BF16 输入与两组权重</span></div><b>→</b><div><strong>Gate / Up 矩阵乘</strong><span>两组 FP32 累加器</span></div><b>→</b><div><strong>GELU(Gate) × Up</strong><span>写出 BF16</span></div></div>
+  <p>G = XWgate，U = XWup，Y = BF16(GELU(G) ⊙ U)。两次矩阵乘、原生 GELU 近似和逐元素乘法在同一次 Kernel 中完成；计算两组投影时共用已读取的输入块。</p>
+  <p>Gate 与 Up 中间结果保存在 Kernel 内部，存储边界应按融合后的输入和最终输出计算。实际缓存与调度指标见「执行与资源」。</p>
+ </>:fp8Geglu?<>
+  <div className="kernel-matrix-flow" aria-label="GEGLU 与 FP8 转换"><div><strong>读取 Gate / Up</strong><span>合并布局 · FP16</span></div><b>→</b><div><strong>GELU × Up × scale</strong><span>FP32 运算与裁剪</span></div><b>→</b><div><strong>写出 FP8 E4M3</strong><span>供后续投影读取</span></div></div>
+  <p>Y = FP8(clamp(GELU(Gate) ⊙ Up / max(descale, 10⁻¹²), −448, 448))。激活、逐元素乘法和量化在同一次 Kernel 中完成；上游 GEMM 另行执行。</p>
+  <p>每个输出元素读取两份 FP16 值、写出一份 FP8 值，另读取缩放参数。这里描述存储边界，硬件访存与缓存行为由独立 NCU 指标提供。</p>
+ </>:conversion?<>
    <div className="kernel-matrix-flow" aria-label="已确认的元素转换"><div><strong>读取 x[ix]</strong><span>FP32 · 4 B / 元素</span></div><b>→</b><div><strong>BF16(x[ix])</strong><span>逐元素类型转换</span></div><b>→</b><div><strong>写出 y[iy]</strong><span>BF16 · 2 B / 元素</span></div></div>
    <p>y[iy] = BF16(x[ix])。输入与输出索引可能包含步幅重排；没有乘加或归约。</p><p>全局存储边界：读取 4E B，写出 2E B，总计 6E B。当前采集未记录元素数 E，不能从 Grid 反推，也不生成数值流量或 FLOPs Roofline。</p>
    <details><summary>转换语义来源</summary><p>source-vla-cpp · ggml/src/ggml-cuda/convert.cu#convert_unary · revision 458681e1d5d4a29a1463c4732e03226cf384b997。已审计 convert_unary&lt;float, nv_bfloat16&gt; 的读取、类型转换与写入；实际 tile、缓存命中和线程内部复用未记录。</p></details>

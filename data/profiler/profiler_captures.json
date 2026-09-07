@@ -550,6 +550,96 @@
       ]
     },
     {
+      "capture_id": "capture-pi0-flashrt-ncu-flashrt-geglu-fp8-028-001",
+      "collection_scope": "representative_kernel_launch",
+      "coverage": {
+        "is_complete_for_population": true,
+        "observed_count": 1,
+        "population": "one_replayed_launch"
+      },
+      "evidence": "measured_local",
+      "missing": {
+        "ncu.backing_store_bytes": "unavailable",
+        "nsys": "not_applicable",
+        "target_window_label": "not_applicable"
+      },
+      "ncu": {
+        "backing_store_bytes": null,
+        "cache_control_request": "none",
+        "clock_control_request": "none",
+        "origins": {
+          "backing_store_bytes": "unavailable",
+          "cache_control_request": "session_command",
+          "clock_control_request": "session_command",
+          "gpu_frequency_not_fixed": "collection_log_manual_audit",
+          "replay_mode": "session_command",
+          "replay_passes": "collection_log_manual_audit",
+          "selection_policy": "session_command",
+          "warmup_count": "harness_source_audit"
+        },
+        "replay_mode": "kernel",
+        "replay_passes": 13,
+        "warmup_count": 5
+      },
+      "nsys": null,
+      "run_id": "run-pi0-flashrt-ncu-flashrt-geglu-fp8-028-001",
+      "selection_policy": "name_filter_selected_match",
+      "source_id": "source-local-thor",
+      "target_window_count": 1,
+      "target_window_label": null,
+      "tool": "ncu",
+      "tool_version": "2025.3.0.0",
+      "warnings": [
+        "gpu_frequency_not_fixed",
+        "work_id_unavailable"
+      ]
+    },
+    {
+      "capture_id": "capture-pi0-flashrt-ncu-flashrt-large-gemm-027-001",
+      "collection_scope": "representative_kernel_launch",
+      "coverage": {
+        "is_complete_for_population": true,
+        "observed_count": 1,
+        "population": "one_replayed_launch"
+      },
+      "evidence": "measured_local",
+      "missing": {
+        "ncu.backing_store_bytes": "unavailable",
+        "nsys": "not_applicable",
+        "target_window_label": "not_applicable"
+      },
+      "ncu": {
+        "backing_store_bytes": null,
+        "cache_control_request": "none",
+        "clock_control_request": "none",
+        "origins": {
+          "backing_store_bytes": "unavailable",
+          "cache_control_request": "session_command",
+          "clock_control_request": "session_command",
+          "gpu_frequency_not_fixed": "collection_log_manual_audit",
+          "replay_mode": "session_command",
+          "replay_passes": "collection_log_manual_audit",
+          "selection_policy": "session_command",
+          "warmup_count": "harness_source_audit"
+        },
+        "replay_mode": "kernel",
+        "replay_passes": 13,
+        "warmup_count": 5
+      },
+      "nsys": null,
+      "run_id": "run-pi0-flashrt-ncu-flashrt-large-gemm-027-001",
+      "selection_policy": "name_filter_selected_match",
+      "source_id": "source-local-thor",
+      "target_window_count": 1,
+      "target_window_label": null,
+      "tool": "ncu",
+      "tool_version": "2025.3.0.0",
+      "warnings": [
+        "gpu_frequency_not_fixed",
+        "work_id_unavailable"
+      ]
+    },
+    {
       "capture_id": "capture-pi0-flashrt-ncu-siglip-broadcast-add-001",
       "collection_scope": "representative_kernel_launch",
       "coverage": {
@@ -801,6 +891,247 @@
       "warnings": [
         "intrusive_node_trace",
         "partial_kernel_signature_coverage"
+      ]
+    },
+    {
+      "analysis_sample": {
+        "batch_id": "batch-pi0-flashrt-nsys-001",
+        "input_case_id": "input-pi0-flashrt-synthetic-v1-p48-c10-d10",
+        "input_recipe": "synthetic-rgb-pattern-sequential-tokens-zero-state-fixed-native-rng-v1",
+        "measured_iterations": 10,
+        "output_finite": true,
+        "output_shape": [
+          10,
+          7
+        ],
+        "sample_index": 3,
+        "warmup_iterations": 5,
+        "window_end_ns": 401335010,
+        "window_start_ns": 358366547
+      },
+      "analysis_summary": {
+        "batch_id": "batch-pi0-flashrt-nsys-001",
+        "hotspots": [
+          {
+            "calls": 17,
+            "counts_match": true,
+            "cv": 0.00859618601353953,
+            "id": "kernel-signature-pi0-flashrt-large-gemm-027|[[6,128,1],[256,1,1],119,0,230400]",
+            "label": "flashrt large gemm 027",
+            "median_ns": 7609120.0
+          },
+          {
+            "calls": 180,
+            "counts_match": true,
+            "cv": 0.004671609813290977,
+            "id": "kernel-signature-pi0-flashrt-nvjet-512x16-043|[[16,1,1],[256,1,1],255,0,216288]",
+            "label": "flashrt nvjet 512x16 043",
+            "median_ns": 6317551.5
+          },
+          {
+            "calls": 17,
+            "counts_match": true,
+            "cv": 0.003521272567699487,
+            "id": "kernel-signature-pi0-flashrt-geglu-fp8-028|[[4864,1,1],[256,1,1],21,0,0]",
+            "label": "flashrt geglu fp8 028",
+            "median_ns": 1257712.0
+          }
+        ],
+        "input_case_id": "input-pi0-flashrt-synthetic-v1-p48-c10-d10",
+        "representative_capture_id": "capture-pi0-flashrt-nsys-node-002",
+        "sample_count": 10,
+        "status": "stable",
+        "system_medians": {
+          "api_wall_union_ns": 41725796.5,
+          "cpu_core_time_ns": 7797547.5,
+          "gpu_activity_union_ns": 39778614.0
+        },
+        "wall": {
+          "cv": 0.009550839053639754,
+          "median_ns": 43010741.0
+        },
+        "warmup_iterations": 5
+      },
+      "capture_id": "capture-pi0-flashrt-nsys-node-002",
+      "collection_scope": "prediction_window",
+      "coverage": {
+        "is_complete_for_population": true,
+        "observed_count": 1,
+        "population": "one_profiled_prediction"
+      },
+      "cpu_capabilities": {
+        "association_events": false,
+        "function_samples": true,
+        "scheduler_running": true,
+        "task_markers": false,
+        "thread_states": false
+      },
+      "evidence": "measured_local",
+      "missing": {
+        "ncu": "not_applicable"
+      },
+      "ncu": null,
+      "nsys": {
+        "cuda_graph_trace_present": false,
+        "graph_node_trace_present": true,
+        "logical_cpu_count": 14,
+        "profiler_overhead_trace_present": true,
+        "report_mode": "node",
+        "scheduler_scope": "process_tree",
+        "scheduler_trace_present": true
+      },
+      "run_id": "run-pi0-flashrt-nsys-node-002",
+      "selection_policy": "single_predict_window",
+      "source_id": "source-local-thor",
+      "target_window_count": 1,
+      "target_window_label": "predict",
+      "tool": "nsys",
+      "tool_version": "2025.3.2.367",
+      "warnings": [
+        "intrusive_node_trace"
+      ]
+    },
+    {
+      "capture_id": "capture-pi0-realtime-vla-ncu-realtime-vla-gate-up-fusion-017-001",
+      "collection_scope": "representative_kernel_launch",
+      "coverage": {
+        "is_complete_for_population": true,
+        "observed_count": 1,
+        "population": "one_replayed_launch"
+      },
+      "evidence": "measured_local",
+      "missing": {
+        "ncu.backing_store_bytes": "unavailable",
+        "nsys": "not_applicable",
+        "target_window_label": "not_applicable"
+      },
+      "ncu": {
+        "backing_store_bytes": null,
+        "cache_control_request": "none",
+        "clock_control_request": "none",
+        "origins": {
+          "backing_store_bytes": "unavailable",
+          "cache_control_request": "session_command",
+          "clock_control_request": "session_command",
+          "gpu_frequency_not_fixed": "collection_log_manual_audit",
+          "replay_mode": "session_command",
+          "replay_passes": "collection_log_manual_audit",
+          "selection_policy": "session_command",
+          "warmup_count": "harness_source_audit"
+        },
+        "replay_mode": "kernel",
+        "replay_passes": 13,
+        "warmup_count": 5
+      },
+      "nsys": null,
+      "run_id": "run-pi0-realtime-vla-ncu-realtime-vla-gate-up-fusion-017-001",
+      "selection_policy": "name_filter_selected_match",
+      "source_id": "source-local-thor",
+      "target_window_count": 1,
+      "target_window_label": null,
+      "tool": "ncu",
+      "tool_version": "2025.3.0.0",
+      "warnings": [
+        "gpu_frequency_not_fixed",
+        "work_id_unavailable"
+      ]
+    },
+    {
+      "analysis_sample": {
+        "batch_id": "batch-pi0-realtime-vla-nsys-002",
+        "input_case_id": "input-pi0-synthetic-v1-p48-c50-d10",
+        "input_recipe": "fixed-cpp-exported-state-noise-v1; synthetic224-u8; tokens1-48; native-bf16-normalization",
+        "measured_iterations": 10,
+        "output_finite": true,
+        "output_shape": [
+          50,
+          32
+        ],
+        "sample_index": 3,
+        "warmup_iterations": 5,
+        "window_end_ns": 966625495,
+        "window_start_ns": 870408958
+      },
+      "analysis_summary": {
+        "batch_id": "batch-pi0-realtime-vla-nsys-002",
+        "hotspots": [
+          {
+            "calls": 17,
+            "counts_match": true,
+            "cv": 0.004700191524291116,
+            "id": "kernel-signature-pi0-realtime-vla-gate-up-fusion-017|[[3,256,1],[128,1,1],255,0,32768]",
+            "label": "realtime vla gate up fusion 017",
+            "median_ns": 22589216.0
+          },
+          {
+            "calls": 180,
+            "counts_match": true,
+            "cv": 0.02043197138205913,
+            "id": "kernel-signature-pi0-realtime-vla-scaled-gate-up-fusion-028|[[128,1,1],[128,1,1],178,0,49152]",
+            "label": "realtime vla scaled gate up fusion 028",
+            "median_ns": 13059088.0
+          },
+          {
+            "calls": 180,
+            "counts_match": true,
+            "cv": 0.0021806994791731577,
+            "id": "kernel-signature-pi0-realtime-vla-masked-softmax-025|[[102,1,1],[128,1,1],40,0,64]",
+            "label": "realtime vla masked softmax 025",
+            "median_ns": 666976.0
+          }
+        ],
+        "input_case_id": "input-pi0-synthetic-v1-p48-c50-d10",
+        "representative_capture_id": "capture-pi0-realtime-vla-nsys-node-004",
+        "sample_count": 10,
+        "status": "stable",
+        "system_medians": {
+          "api_wall_union_ns": 94577098.5,
+          "cpu_core_time_ns": 10341050.5,
+          "gpu_activity_union_ns": 89288359.5
+        },
+        "wall": {
+          "cv": 0.01969301228366907,
+          "median_ns": 96254088.0
+        },
+        "warmup_iterations": 5
+      },
+      "capture_id": "capture-pi0-realtime-vla-nsys-node-004",
+      "collection_scope": "prediction_window",
+      "coverage": {
+        "is_complete_for_population": true,
+        "observed_count": 1,
+        "population": "one_profiled_prediction"
+      },
+      "cpu_capabilities": {
+        "association_events": false,
+        "function_samples": true,
+        "scheduler_running": true,
+        "task_markers": false,
+        "thread_states": false
+      },
+      "evidence": "measured_local",
+      "missing": {
+        "ncu": "not_applicable"
+      },
+      "ncu": null,
+      "nsys": {
+        "cuda_graph_trace_present": false,
+        "graph_node_trace_present": true,
+        "logical_cpu_count": 14,
+        "profiler_overhead_trace_present": true,
+        "report_mode": "node",
+        "scheduler_scope": "process_tree",
+        "scheduler_trace_present": true
+      },
+      "run_id": "run-pi0-realtime-vla-nsys-node-004",
+      "selection_policy": "single_predict_window",
+      "source_id": "source-local-thor",
+      "target_window_count": 1,
+      "target_window_label": "predict",
+      "tool": "nsys",
+      "tool_version": "2025.3.2.367",
+      "warnings": [
+        "intrusive_node_trace"
       ]
     },
     {

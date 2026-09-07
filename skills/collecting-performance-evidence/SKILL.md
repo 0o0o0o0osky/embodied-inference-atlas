@@ -14,6 +14,8 @@ batch locally, including total wall time and major hotspot counts/durations.
 Use one real stable representative trace for analysis and store a compact check
 summary. Keep all other samples/raw exports local; their existence is not a
 reason to add them to the repository or page. Do not discard outliers to pass.
+For node tracing, enable instrumentation before the same five warmups when
+startup affects the first measurement; label only the ten measured windows.
 
 Use Nsys node events when the question concerns individual kernels; include CPU
 scheduling when the question concerns CPU/GPU execution. Graph envelopes answer

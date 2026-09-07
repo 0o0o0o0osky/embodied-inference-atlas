@@ -255,6 +255,1823 @@
     {
       "classification_confidence": "high",
       "classification_method": "allowlisted_symbol_rule",
+      "function_family": "elementwise",
+      "implementation_family": "fused-elementwise",
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-geglu-fp8-028",
+      "label_sanitized": "flashrt geglu fp8 028",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": "fp32",
+        "input_dtype_class": "fp16",
+        "missing": {},
+        "output_dtype_class": "fp8_e4m3",
+        "sparsity": "off"
+      },
+      "runtime_id": "flashrt"
+    },
+    {
+      "classification_confidence": "high",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "elementwise",
+      "implementation_family": "fused-elementwise",
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-geglu-fp8-044",
+      "label_sanitized": "flashrt geglu fp8 044",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": "fp32",
+        "input_dtype_class": "fp16",
+        "missing": {},
+        "output_dtype_class": "fp8_e4m3",
+        "sparsity": "off"
+      },
+      "runtime_id": "flashrt"
+    },
+    {
+      "classification_confidence": "high",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "gemm",
+      "implementation_family": "cutlass-tensor-core",
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-gemm-002",
+      "label_sanitized": "flashrt gemm 002",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "flashrt"
+    },
+    {
+      "classification_confidence": "high",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "gemm",
+      "implementation_family": "cutlass-tensor-core",
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-gemm-037",
+      "label_sanitized": "flashrt gemm 037",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "flashrt"
+    },
+    {
+      "classification_confidence": "high",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "gemm",
+      "implementation_family": "cutlass-tensor-core",
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-gemm-039",
+      "label_sanitized": "flashrt gemm 039",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "flashrt"
+    },
+    {
+      "classification_confidence": "high",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "gemm",
+      "implementation_family": "cutlass-tensor-core",
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-large-gemm-027",
+      "label_sanitized": "flashrt large gemm 027",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": "fp32",
+        "input_dtype_class": "fp8_e4m3",
+        "missing": {
+          "output_dtype_class": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "off"
+      },
+      "runtime_id": "flashrt"
+    },
+    {
+      "classification_confidence": "high",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "gemm",
+      "implementation_family": "nvjet",
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-nvjet-128x16-035",
+      "label_sanitized": "flashrt nvjet 128x16 035",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "flashrt"
+    },
+    {
+      "classification_confidence": "high",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "gemm",
+      "implementation_family": "nvjet",
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-nvjet-512x16-043",
+      "label_sanitized": "flashrt nvjet 512x16 043",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "flashrt"
+    },
+    {
+      "classification_confidence": "high",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "gemm",
+      "implementation_family": "nvjet",
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-nvjet-64x16-041",
+      "label_sanitized": "flashrt nvjet 64x16 041",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "flashrt"
+    },
+    {
+      "classification_confidence": "high",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "other",
+      "implementation_family": "fused-elementwise",
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-qkv-split-020",
+      "label_sanitized": "flashrt qkv split 020",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "flashrt"
+    },
+    {
+      "classification_confidence": "high",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "other",
+      "implementation_family": "fused-elementwise",
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-qkv-split-036",
+      "label_sanitized": "flashrt qkv split 036",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "flashrt"
+    },
+    {
+      "classification_confidence": "unknown",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "other",
+      "implementation_family": "other",
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-recorded-kernel-001",
+      "label_sanitized": "flashrt recorded kernel 001",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "flashrt"
+    },
+    {
+      "classification_confidence": "unknown",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "other",
+      "implementation_family": "other",
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-recorded-kernel-003",
+      "label_sanitized": "flashrt recorded kernel 003",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "flashrt"
+    },
+    {
+      "classification_confidence": "unknown",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "other",
+      "implementation_family": "other",
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-recorded-kernel-005",
+      "label_sanitized": "flashrt recorded kernel 005",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "flashrt"
+    },
+    {
+      "classification_confidence": "unknown",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "other",
+      "implementation_family": "other",
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-recorded-kernel-008",
+      "label_sanitized": "flashrt recorded kernel 008",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "flashrt"
+    },
+    {
+      "classification_confidence": "unknown",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "other",
+      "implementation_family": "other",
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-recorded-kernel-009",
+      "label_sanitized": "flashrt recorded kernel 009",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "flashrt"
+    },
+    {
+      "classification_confidence": "unknown",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "other",
+      "implementation_family": "other",
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-recorded-kernel-011",
+      "label_sanitized": "flashrt recorded kernel 011",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "flashrt"
+    },
+    {
+      "classification_confidence": "unknown",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "other",
+      "implementation_family": "other",
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-recorded-kernel-012",
+      "label_sanitized": "flashrt recorded kernel 012",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "flashrt"
+    },
+    {
+      "classification_confidence": "unknown",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "other",
+      "implementation_family": "other",
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-recorded-kernel-013",
+      "label_sanitized": "flashrt recorded kernel 013",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "flashrt"
+    },
+    {
+      "classification_confidence": "unknown",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "other",
+      "implementation_family": "other",
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-recorded-kernel-014",
+      "label_sanitized": "flashrt recorded kernel 014",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "flashrt"
+    },
+    {
+      "classification_confidence": "unknown",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "other",
+      "implementation_family": "other",
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-recorded-kernel-015",
+      "label_sanitized": "flashrt recorded kernel 015",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "flashrt"
+    },
+    {
+      "classification_confidence": "unknown",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "other",
+      "implementation_family": "other",
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-recorded-kernel-016",
+      "label_sanitized": "flashrt recorded kernel 016",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "flashrt"
+    },
+    {
+      "classification_confidence": "unknown",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "other",
+      "implementation_family": "other",
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-recorded-kernel-017",
+      "label_sanitized": "flashrt recorded kernel 017",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "flashrt"
+    },
+    {
+      "classification_confidence": "unknown",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "other",
+      "implementation_family": "other",
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-recorded-kernel-018",
+      "label_sanitized": "flashrt recorded kernel 018",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "flashrt"
+    },
+    {
+      "classification_confidence": "unknown",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "other",
+      "implementation_family": "other",
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-recorded-kernel-021",
+      "label_sanitized": "flashrt recorded kernel 021",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "flashrt"
+    },
+    {
+      "classification_confidence": "unknown",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "other",
+      "implementation_family": "other",
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-recorded-kernel-022",
+      "label_sanitized": "flashrt recorded kernel 022",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "flashrt"
+    },
+    {
+      "classification_confidence": "unknown",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "other",
+      "implementation_family": "other",
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-recorded-kernel-023",
+      "label_sanitized": "flashrt recorded kernel 023",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "flashrt"
+    },
+    {
+      "classification_confidence": "unknown",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "other",
+      "implementation_family": "other",
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-recorded-kernel-030",
+      "label_sanitized": "flashrt recorded kernel 030",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "flashrt"
+    },
+    {
+      "classification_confidence": "unknown",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "other",
+      "implementation_family": "other",
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-recorded-kernel-031",
+      "label_sanitized": "flashrt recorded kernel 031",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "flashrt"
+    },
+    {
+      "classification_confidence": "unknown",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "other",
+      "implementation_family": "other",
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-recorded-kernel-032",
+      "label_sanitized": "flashrt recorded kernel 032",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "flashrt"
+    },
+    {
+      "classification_confidence": "unknown",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "other",
+      "implementation_family": "other",
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-recorded-kernel-033",
+      "label_sanitized": "flashrt recorded kernel 033",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "flashrt"
+    },
+    {
+      "classification_confidence": "unknown",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "other",
+      "implementation_family": "other",
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-recorded-kernel-034",
+      "label_sanitized": "flashrt recorded kernel 034",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "flashrt"
+    },
+    {
+      "classification_confidence": "unknown",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "other",
+      "implementation_family": "other",
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-recorded-kernel-038",
+      "label_sanitized": "flashrt recorded kernel 038",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "flashrt"
+    },
+    {
+      "classification_confidence": "unknown",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "other",
+      "implementation_family": "other",
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-recorded-kernel-045",
+      "label_sanitized": "flashrt recorded kernel 045",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "flashrt"
+    },
+    {
+      "classification_confidence": "unknown",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "other",
+      "implementation_family": "other",
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-recorded-kernel-046",
+      "label_sanitized": "flashrt recorded kernel 046",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "flashrt"
+    },
+    {
+      "classification_confidence": "unknown",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "other",
+      "implementation_family": "other",
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-recorded-kernel-047",
+      "label_sanitized": "flashrt recorded kernel 047",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "flashrt"
+    },
+    {
+      "classification_confidence": "unknown",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "other",
+      "implementation_family": "other",
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-recorded-kernel-048",
+      "label_sanitized": "flashrt recorded kernel 048",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "flashrt"
+    },
+    {
+      "classification_confidence": "unknown",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "other",
+      "implementation_family": "other",
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-recorded-kernel-049",
+      "label_sanitized": "flashrt recorded kernel 049",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "flashrt"
+    },
+    {
+      "classification_confidence": "high",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "normalization",
+      "implementation_family": "fused-elementwise",
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-residual-rms-026",
+      "label_sanitized": "flashrt residual rms 026",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "flashrt"
+    },
+    {
+      "classification_confidence": "high",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "normalization",
+      "implementation_family": "fused-elementwise",
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-residual-rms-042",
+      "label_sanitized": "flashrt residual rms 042",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "flashrt"
+    },
+    {
+      "classification_confidence": "high",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "gemm",
+      "implementation_family": "cutlass-tensor-core",
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-second-gemm-029",
+      "label_sanitized": "flashrt second gemm 029",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": "fp32",
+        "input_dtype_class": "fp8_e4m3",
+        "missing": {
+          "output_dtype_class": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "off"
+      },
+      "runtime_id": "flashrt"
+    },
+    {
+      "classification_confidence": "high",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "attention",
+      "implementation_family": "fmha",
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-siglip-fmha-006",
+      "label_sanitized": "flashrt siglip fmha 006",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "flashrt"
+    },
+    {
+      "classification_confidence": "high",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "normalization",
+      "implementation_family": "layer-normalization",
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-siglip-layer-norm-004",
+      "label_sanitized": "flashrt siglip layer norm 004",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "flashrt"
+    },
+    {
+      "classification_confidence": "high",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "quantize",
+      "implementation_family": "quantization",
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-siglip-quantize-007",
+      "label_sanitized": "flashrt siglip quantize 007",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "flashrt"
+    },
+    {
+      "classification_confidence": "high",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "quantize",
+      "implementation_family": "quantization",
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-siglip-quantize-010",
+      "label_sanitized": "flashrt siglip quantize 010",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "flashrt"
+    },
+    {
+      "classification_confidence": "high",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "quantize",
+      "implementation_family": "quantization",
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-siglip-quantize-024",
+      "label_sanitized": "flashrt siglip quantize 024",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "flashrt"
+    },
+    {
+      "classification_confidence": "high",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "quantize",
+      "implementation_family": "quantization",
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-siglip-quantize-040",
+      "label_sanitized": "flashrt siglip quantize 040",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "flashrt"
+    },
+    {
+      "classification_confidence": "high",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "gemm",
+      "implementation_family": "cutlass-tensor-core",
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-third-gemm-019",
+      "label_sanitized": "flashrt third gemm 019",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "flashrt"
+    },
+    {
+      "classification_confidence": "high",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "gemm",
+      "implementation_family": "cutlass-tensor-core",
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-third-gemm-025",
+      "label_sanitized": "flashrt third gemm 025",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "flashrt"
+    },
+    {
+      "classification_confidence": "high",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "gemm",
+      "implementation_family": "other",
+      "kernel_signature_id": "kernel-signature-pi0-realtime-vla-gate-up-fusion-017",
+      "label_sanitized": "realtime vla gate up fusion 017",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": "fp32",
+        "input_dtype_class": "bf16",
+        "missing": {},
+        "output_dtype_class": "bf16",
+        "sparsity": "off"
+      },
+      "runtime_id": "realtime-vla"
+    },
+    {
+      "classification_confidence": "high",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "gemm",
+      "implementation_family": "other",
+      "kernel_signature_id": "kernel-signature-pi0-realtime-vla-gemm-residual-016",
+      "label_sanitized": "realtime vla gemm residual 016",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": "fp32",
+        "input_dtype_class": "bf16",
+        "missing": {},
+        "output_dtype_class": "bf16",
+        "sparsity": "off"
+      },
+      "runtime_id": "realtime-vla"
+    },
+    {
+      "classification_confidence": "high",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "gemm",
+      "implementation_family": "other",
+      "kernel_signature_id": "kernel-signature-pi0-realtime-vla-gemm-residual-018",
+      "label_sanitized": "realtime vla gemm residual 018",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": "fp32",
+        "input_dtype_class": "bf16",
+        "missing": {},
+        "output_dtype_class": "bf16",
+        "sparsity": "off"
+      },
+      "runtime_id": "realtime-vla"
+    },
+    {
+      "classification_confidence": "high",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "gemm",
+      "implementation_family": "other",
+      "kernel_signature_id": "kernel-signature-pi0-realtime-vla-gemm-residual-027",
+      "label_sanitized": "realtime vla gemm residual 027",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": "fp32",
+        "input_dtype_class": "bf16",
+        "missing": {},
+        "output_dtype_class": "bf16",
+        "sparsity": "off"
+      },
+      "runtime_id": "realtime-vla"
+    },
+    {
+      "classification_confidence": "high",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "gemm",
+      "implementation_family": "other",
+      "kernel_signature_id": "kernel-signature-pi0-realtime-vla-gemm-residual-029",
+      "label_sanitized": "realtime vla gemm residual 029",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": "fp32",
+        "input_dtype_class": "bf16",
+        "missing": {},
+        "output_dtype_class": "bf16",
+        "sparsity": "off"
+      },
+      "runtime_id": "realtime-vla"
+    },
+    {
+      "classification_confidence": "high",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "normalization",
+      "implementation_family": "other",
+      "kernel_signature_id": "kernel-signature-pi0-realtime-vla-masked-softmax-025",
+      "label_sanitized": "realtime vla masked softmax 025",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "realtime-vla"
+    },
+    {
+      "classification_confidence": "unknown",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "other",
+      "implementation_family": "other",
+      "kernel_signature_id": "kernel-signature-pi0-realtime-vla-recorded-kernel-001",
+      "label_sanitized": "realtime vla recorded kernel 001",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "realtime-vla"
+    },
+    {
+      "classification_confidence": "unknown",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "other",
+      "implementation_family": "other",
+      "kernel_signature_id": "kernel-signature-pi0-realtime-vla-recorded-kernel-002",
+      "label_sanitized": "realtime vla recorded kernel 002",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "realtime-vla"
+    },
+    {
+      "classification_confidence": "unknown",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "other",
+      "implementation_family": "other",
+      "kernel_signature_id": "kernel-signature-pi0-realtime-vla-recorded-kernel-003",
+      "label_sanitized": "realtime vla recorded kernel 003",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "realtime-vla"
+    },
+    {
+      "classification_confidence": "unknown",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "other",
+      "implementation_family": "other",
+      "kernel_signature_id": "kernel-signature-pi0-realtime-vla-recorded-kernel-004",
+      "label_sanitized": "realtime vla recorded kernel 004",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "realtime-vla"
+    },
+    {
+      "classification_confidence": "unknown",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "other",
+      "implementation_family": "other",
+      "kernel_signature_id": "kernel-signature-pi0-realtime-vla-recorded-kernel-005",
+      "label_sanitized": "realtime vla recorded kernel 005",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "realtime-vla"
+    },
+    {
+      "classification_confidence": "unknown",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "other",
+      "implementation_family": "other",
+      "kernel_signature_id": "kernel-signature-pi0-realtime-vla-recorded-kernel-006",
+      "label_sanitized": "realtime vla recorded kernel 006",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "realtime-vla"
+    },
+    {
+      "classification_confidence": "unknown",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "other",
+      "implementation_family": "other",
+      "kernel_signature_id": "kernel-signature-pi0-realtime-vla-recorded-kernel-007",
+      "label_sanitized": "realtime vla recorded kernel 007",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "realtime-vla"
+    },
+    {
+      "classification_confidence": "unknown",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "other",
+      "implementation_family": "other",
+      "kernel_signature_id": "kernel-signature-pi0-realtime-vla-recorded-kernel-008",
+      "label_sanitized": "realtime vla recorded kernel 008",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "realtime-vla"
+    },
+    {
+      "classification_confidence": "unknown",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "other",
+      "implementation_family": "other",
+      "kernel_signature_id": "kernel-signature-pi0-realtime-vla-recorded-kernel-009",
+      "label_sanitized": "realtime vla recorded kernel 009",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "realtime-vla"
+    },
+    {
+      "classification_confidence": "unknown",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "other",
+      "implementation_family": "other",
+      "kernel_signature_id": "kernel-signature-pi0-realtime-vla-recorded-kernel-010",
+      "label_sanitized": "realtime vla recorded kernel 010",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "realtime-vla"
+    },
+    {
+      "classification_confidence": "unknown",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "other",
+      "implementation_family": "other",
+      "kernel_signature_id": "kernel-signature-pi0-realtime-vla-recorded-kernel-011",
+      "label_sanitized": "realtime vla recorded kernel 011",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "realtime-vla"
+    },
+    {
+      "classification_confidence": "unknown",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "other",
+      "implementation_family": "other",
+      "kernel_signature_id": "kernel-signature-pi0-realtime-vla-recorded-kernel-012",
+      "label_sanitized": "realtime vla recorded kernel 012",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "realtime-vla"
+    },
+    {
+      "classification_confidence": "unknown",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "other",
+      "implementation_family": "other",
+      "kernel_signature_id": "kernel-signature-pi0-realtime-vla-recorded-kernel-013",
+      "label_sanitized": "realtime vla recorded kernel 013",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "realtime-vla"
+    },
+    {
+      "classification_confidence": "unknown",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "other",
+      "implementation_family": "other",
+      "kernel_signature_id": "kernel-signature-pi0-realtime-vla-recorded-kernel-014",
+      "label_sanitized": "realtime vla recorded kernel 014",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "realtime-vla"
+    },
+    {
+      "classification_confidence": "unknown",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "other",
+      "implementation_family": "other",
+      "kernel_signature_id": "kernel-signature-pi0-realtime-vla-recorded-kernel-015",
+      "label_sanitized": "realtime vla recorded kernel 015",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "realtime-vla"
+    },
+    {
+      "classification_confidence": "unknown",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "other",
+      "implementation_family": "other",
+      "kernel_signature_id": "kernel-signature-pi0-realtime-vla-recorded-kernel-019",
+      "label_sanitized": "realtime vla recorded kernel 019",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "realtime-vla"
+    },
+    {
+      "classification_confidence": "unknown",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "other",
+      "implementation_family": "other",
+      "kernel_signature_id": "kernel-signature-pi0-realtime-vla-recorded-kernel-020",
+      "label_sanitized": "realtime vla recorded kernel 020",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "realtime-vla"
+    },
+    {
+      "classification_confidence": "unknown",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "other",
+      "implementation_family": "other",
+      "kernel_signature_id": "kernel-signature-pi0-realtime-vla-recorded-kernel-021",
+      "label_sanitized": "realtime vla recorded kernel 021",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "realtime-vla"
+    },
+    {
+      "classification_confidence": "unknown",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "other",
+      "implementation_family": "other",
+      "kernel_signature_id": "kernel-signature-pi0-realtime-vla-recorded-kernel-022",
+      "label_sanitized": "realtime vla recorded kernel 022",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "realtime-vla"
+    },
+    {
+      "classification_confidence": "unknown",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "other",
+      "implementation_family": "other",
+      "kernel_signature_id": "kernel-signature-pi0-realtime-vla-recorded-kernel-024",
+      "label_sanitized": "realtime vla recorded kernel 024",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "realtime-vla"
+    },
+    {
+      "classification_confidence": "unknown",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "other",
+      "implementation_family": "other",
+      "kernel_signature_id": "kernel-signature-pi0-realtime-vla-recorded-kernel-026",
+      "label_sanitized": "realtime vla recorded kernel 026",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "realtime-vla"
+    },
+    {
+      "classification_confidence": "unknown",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "other",
+      "implementation_family": "other",
+      "kernel_signature_id": "kernel-signature-pi0-realtime-vla-recorded-kernel-030",
+      "label_sanitized": "realtime vla recorded kernel 030",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "realtime-vla"
+    },
+    {
+      "classification_confidence": "unknown",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "other",
+      "implementation_family": "other",
+      "kernel_signature_id": "kernel-signature-pi0-realtime-vla-recorded-kernel-031",
+      "label_sanitized": "realtime vla recorded kernel 031",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "realtime-vla"
+    },
+    {
+      "classification_confidence": "unknown",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "other",
+      "implementation_family": "other",
+      "kernel_signature_id": "kernel-signature-pi0-realtime-vla-recorded-kernel-032",
+      "label_sanitized": "realtime vla recorded kernel 032",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "realtime-vla"
+    },
+    {
+      "classification_confidence": "high",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "gemm",
+      "implementation_family": "other",
+      "kernel_signature_id": "kernel-signature-pi0-realtime-vla-scaled-gate-up-fusion-028",
+      "label_sanitized": "realtime vla scaled gate up fusion 028",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": "fp32",
+        "input_dtype_class": "bf16",
+        "missing": {},
+        "output_dtype_class": "bf16",
+        "sparsity": "off"
+      },
+      "runtime_id": "realtime-vla"
+    },
+    {
+      "classification_confidence": "high",
+      "classification_method": "allowlisted_symbol_rule",
+      "function_family": "gemm",
+      "implementation_family": "other",
+      "kernel_signature_id": "kernel-signature-pi0-realtime-vla-scaled-qkv-rope-023",
+      "label_sanitized": "realtime vla scaled qkv rope 023",
+      "missing": {},
+      "model_id": "pi0",
+      "precision_path": {
+        "accumulator_dtype_class": null,
+        "input_dtype_class": null,
+        "missing": {
+          "accumulator_dtype_class": "not_collected",
+          "input_dtype_class": "not_collected",
+          "output_dtype_class": "not_collected",
+          "sparsity": "not_collected"
+        },
+        "output_dtype_class": null,
+        "sparsity": "unknown"
+      },
+      "runtime_id": "realtime-vla"
+    },
+    {
+      "classification_confidence": "high",
+      "classification_method": "allowlisted_symbol_rule",
       "function_family": "gemm",
       "implementation_family": "nvjet",
       "kernel_signature_id": "kernel-signature-pi0-siglip-broadcast-add",

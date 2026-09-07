@@ -2,9 +2,12 @@
   "dataset": "runtime_realizations",
   "records": [
     {
-      "availability": "source_audited",
-      "availability_reason_code": "source_mapping_retained_non_p48_measurements_removed",
-      "configuration_ids": [],
+      "availability": "measured",
+      "availability_reason_code": "fixed_p48_measurement_and_launch_correlated_geglu",
+      "configuration_ids": [
+        "config-pi0-flashrt-nsys-node-002",
+        "cfg-pi0-flashrt-fixed-001"
+      ],
       "device_ids": [
         "nvidia-jetson-agx-thor"
       ],
@@ -111,6 +114,32 @@
           "revision": "054bea4d02ebc63f6a0c45991c6061b1e1caa46c",
           "run_ids": [],
           "source_id": "source-flashrt"
+        },
+        {
+          "evidence_id": "flashrt-fixed-prefix-geglu-fp8-trace",
+          "kind": "profiler_correlation",
+          "locator": null,
+          "observation_ids": [
+            "kernel-observation-pi0-flashrt-nsys-node_r002_028"
+          ],
+          "revision": null,
+          "run_ids": [
+            "run-pi0-flashrt-nsys-node-002"
+          ],
+          "source_id": "source-local-thor"
+        },
+        {
+          "evidence_id": "flashrt-fixed-action-geglu-fp8-trace",
+          "kind": "profiler_correlation",
+          "locator": null,
+          "observation_ids": [
+            "kernel-observation-pi0-flashrt-nsys-node_r002_044"
+          ],
+          "revision": null,
+          "run_ids": [
+            "run-pi0-flashrt-nsys-node-002"
+          ],
+          "source_id": "source-local-thor"
         }
       ],
       "execution_groups": [
@@ -186,13 +215,15 @@
             "flashrt-pi0-encoder-source",
             "flashrt-pi0-geglu-kernel-source",
             "flashrt-pi0-torch-capture-source",
-            "flashrt-pi0-geglu-shared-trace"
+            "flashrt-pi0-geglu-shared-trace",
+            "flashrt-fixed-prefix-geglu-fp8-trace"
           ],
           "execution_group_id": "prefix-geglu-fp8",
-          "implementation": "GELU(gate) × up, static rescale, clamp and FP8 cast in one kernel; signature shared across prefix and action groups",
+          "implementation": "GELU(gate) × up、静态缩放、clamp 与 FP8 转换。新 V1/P48/C10 采集按启动配置和调用次数区分前缀/动作；旧共享签名仍保留共享归属。",
           "kernel_resolution": "partial",
           "kernel_signature_ids": [
-            "kernel-signature-pi0-encoder-geglu"
+            "kernel-signature-pi0-encoder-geglu",
+            "kernel-signature-pi0-flashrt-geglu-fp8-028"
           ],
           "kind": "custom_op",
           "label": "Prefix GELU × up + FP8 cast",
@@ -230,13 +261,15 @@
             "flashrt-pi0-decoder-source",
             "flashrt-pi0-geglu-kernel-source",
             "flashrt-pi0-torch-capture-source",
-            "flashrt-pi0-geglu-shared-trace"
+            "flashrt-pi0-geglu-shared-trace",
+            "flashrt-fixed-action-geglu-fp8-trace"
           ],
           "execution_group_id": "action-geglu-fp8",
-          "implementation": "GELU(gate) × up, static rescale, clamp and FP8 cast in one kernel; signature shared across prefix and action groups",
+          "implementation": "GELU(gate) × up、静态缩放、clamp 与 FP8 转换。新 V1/P48/C10 采集按启动配置和调用次数区分前缀/动作；旧共享签名仍保留共享归属。",
           "kernel_resolution": "partial",
           "kernel_signature_ids": [
-            "kernel-signature-pi0-encoder-geglu"
+            "kernel-signature-pi0-encoder-geglu",
+            "kernel-signature-pi0-flashrt-geglu-fp8-044"
           ],
           "kind": "custom_op",
           "label": "Action GELU × up + FP8 cast",

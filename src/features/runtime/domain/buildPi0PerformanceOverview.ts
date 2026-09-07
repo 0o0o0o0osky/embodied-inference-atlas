@@ -173,6 +173,7 @@ export interface Pi0PerformanceGroup {
 
 export interface Pi0PerformanceOverviewModel {
   target: typeof PI0_PERFORMANCE_TARGET;
+  availableActionChunks: readonly number[];
   hardwareId: string | null;
   hardwareLabel: string;
   facets: readonly Pi0PerformanceFacet[];
@@ -498,6 +499,18 @@ export function buildPi0PerformanceOverview({
   const availableRealizations = realizations ?? (data.datasets.runtime_realizations ?? [])
     .filter((record) => isRuntimeRealizationRecord(record, "pi0"))
     .map(adaptRuntimeRealization);
+  const observedChunks = data.datasets.runs.filter(run => run.model_id === 'pi0' && run.evidence === 'measured_local'
+    && (hardwareId === null || run.device_id === hardwareId)).map(run => run.workload.vla?.action_chunk);
+  const auditedChunks = availableRealizations.filter(realization => realization.modelId === 'pi0'
+    && (hardwareId === null || realization.deviceIds.includes(hardwareId))
+    && ['source_audited','measured'].includes(realization.availability)
+    && realization.evidence.some(evidence => evidence.kind === 'source_code'
+      && realization.workloadApplicability.evidenceIds.includes(evidence.evidenceId)))
+    .map(realization => realization.workloadApplicability.publicActionHorizon ?? realization.workloadApplicability.runtimeActionHorizon);
+  const extraChunks = [...new Set([...observedChunks,...auditedChunks].filter((value): value is number =>
+    value != null && Number.isSafeInteger(value) && value > 0))].filter(value => !PI0_PERFORMANCE_TARGET.actionChunks.some(target => target === value));
+  const seriesChunks = [...PI0_PERFORMANCE_TARGET.actionChunks,...extraChunks.sort((a,b)=>a-b)];
+  const availableActionChunks = [...seriesChunks].sort((a,b)=>a-b);
   const measuredRows = buildEvidenceRows(data, "pi0", {
     runtimeId: null,
     hardwareId,
@@ -541,7 +554,7 @@ export function buildPi0PerformanceOverview({
         && realization.runtimeId === facet.runtimeId
         && realization.precisionPaths.some((path) => path.precisionPathId === facet.precisionId),
       );
-      const series = PI0_PERFORMANCE_TARGET.actionChunks.map((actionChunk): Pi0PerformanceSeries => ({
+      const series = seriesChunks.map((actionChunk): Pi0PerformanceSeries => ({
         actionChunk,
         cells: PI0_PERFORMANCE_TARGET.cameraViews.map((cameraViews) =>
           cellFor(facet.rows, facetRealizations, facet.id, cameraViews, actionChunk),
@@ -574,7 +587,7 @@ export function buildPi0PerformanceOverview({
     });
   const targetCellCount = builtFacets.length
     * PI0_PERFORMANCE_TARGET.cameraViews.length
-    * PI0_PERFORMANCE_TARGET.actionChunks.length;
+    * availableActionChunks.length;
   const measuredCellCount = builtFacets.reduce((count, facet) => count + facet.measuredCellCount, 0);
   const groupedFacets = new Map<string, Pi0PerformanceFacet[]>();
   builtFacets.forEach((facet) => {
@@ -623,7 +636,7 @@ export function buildPi0PerformanceOverview({
       runtimeId: runtime.runtime_id, runtimeLabel: runtime.display_name,
       hardwareId: hardwareId ?? audited[0]?.deviceIds[0] ?? "unknown",
       precisionId, facets: [], primaryFacetId: "", comparison: { state: "unavailable" },
-      unmeasuredSeries: PI0_PERFORMANCE_TARGET.actionChunks.map((actionChunk) => ({
+      unmeasuredSeries: seriesChunks.map((actionChunk) => ({
         actionChunk,
         cells: PI0_PERFORMANCE_TARGET.cameraViews.map((cameraViews) =>
           unsupportedCell(audited, cameraViews, actionChunk) ?? pendingCell([], cameraViews, actionChunk)),
@@ -638,6 +651,7 @@ export function buildPi0PerformanceOverview({
 
   return {
     target: PI0_PERFORMANCE_TARGET,
+    availableActionChunks,
     hardwareId,
     hardwareLabel,
     facets: builtFacets,

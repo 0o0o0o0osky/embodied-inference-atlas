@@ -192,7 +192,7 @@ export interface TimelineRecord {
 export interface KernelPrecisionPath {
   inputDtypeClass: "fp8_e4m3" | "bf16" | "fp16" | "fp32" | null;
   accumulatorDtypeClass: "fp16" | "fp32" | null;
-  outputDtypeClass: "bf16" | "fp16" | "fp32" | null;
+  outputDtypeClass: "bf16" | "fp16" | "fp32" | "fp8_e4m3" | null;
   sparsity: "on" | "off" | "unknown";
   missing: ProfilerMissing;
 }

@@ -114,6 +114,464 @@
       "status": "partial"
     },
     {
+      "confidence": "high",
+      "coverage": {
+        "mapped_launches": 17,
+        "population_launches": 17,
+        "unit": "launch"
+      },
+      "evidence_ids": [
+        "capture-pi0-flashrt-nsys-node-002"
+      ],
+      "execution_group_ids": [
+        "prefix-geglu-fp8"
+      ],
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-geglu-fp8-028",
+      "link_id": "operator-kernel-link-pi0-flashrt-nsys-node_r002_028_001",
+      "logical_targets": [
+        {
+          "ref": "prefix-encoder/prefix-blocks/feed-forward/gate-gelu",
+          "repeat_selectors": [
+            {
+              "indices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15,
+                16
+              ],
+              "scope_ref": "prefix-encoder/prefix-blocks",
+              "selection": "indices"
+            }
+          ]
+        },
+        {
+          "ref": "prefix-encoder/prefix-blocks/feed-forward/gate-product",
+          "repeat_selectors": [
+            {
+              "indices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15,
+                16
+              ],
+              "scope_ref": "prefix-encoder/prefix-blocks",
+              "selection": "indices"
+            }
+          ]
+        }
+      ],
+      "mapping_method": "combined",
+      "model_graph_id": "pi0-logical-v1",
+      "observation_id": "kernel-observation-pi0-flashrt-nsys-node_r002_028",
+      "realization_id": "rr-flashrt-pi0-thor-fp8-v1",
+      "reason_code": null,
+      "run_id": "run-pi0-flashrt-nsys-node-002",
+      "status": "resolved"
+    },
+    {
+      "confidence": "high",
+      "coverage": {
+        "mapped_launches": 180,
+        "population_launches": 180,
+        "unit": "launch"
+      },
+      "evidence_ids": [
+        "capture-pi0-flashrt-nsys-node-002"
+      ],
+      "execution_group_ids": [
+        "action-geglu-fp8"
+      ],
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-geglu-fp8-044",
+      "link_id": "operator-kernel-link-pi0-flashrt-nsys-node_r002_044_001",
+      "logical_targets": [
+        {
+          "ref": "action-flow-decoder/action-expert-blocks/feed-forward/gate-gelu",
+          "repeat_selectors": [
+            {
+              "indices": [],
+              "scope_ref": "action-flow-decoder/action-flow-loop",
+              "selection": "all"
+            },
+            {
+              "indices": [],
+              "scope_ref": "action-flow-decoder/action-expert-blocks",
+              "selection": "all"
+            }
+          ]
+        },
+        {
+          "ref": "action-flow-decoder/action-expert-blocks/feed-forward/gate-product",
+          "repeat_selectors": [
+            {
+              "indices": [],
+              "scope_ref": "action-flow-decoder/action-flow-loop",
+              "selection": "all"
+            },
+            {
+              "indices": [],
+              "scope_ref": "action-flow-decoder/action-expert-blocks",
+              "selection": "all"
+            }
+          ]
+        }
+      ],
+      "mapping_method": "combined",
+      "model_graph_id": "pi0-logical-v1",
+      "observation_id": "kernel-observation-pi0-flashrt-nsys-node_r002_044",
+      "realization_id": "rr-flashrt-pi0-thor-fp8-v1",
+      "reason_code": null,
+      "run_id": "run-pi0-flashrt-nsys-node-002",
+      "status": "resolved"
+    },
+    {
+      "confidence": "high",
+      "coverage": {
+        "mapped_launches": 17,
+        "population_launches": 17,
+        "unit": "launch"
+      },
+      "evidence_ids": [
+        "capture-pi0-realtime-vla-nsys-node-004"
+      ],
+      "execution_group_ids": [
+        "prefix-gate-up"
+      ],
+      "kernel_signature_id": "kernel-signature-pi0-realtime-vla-gate-up-fusion-017",
+      "link_id": "operator-kernel-link-pi0-realtime-vla-nsys-node_r004_017_001",
+      "logical_targets": [
+        {
+          "ref": "prefix-encoder/prefix-blocks/feed-forward/gate-projection",
+          "repeat_selectors": [
+            {
+              "indices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15,
+                16
+              ],
+              "scope_ref": "prefix-encoder/prefix-blocks",
+              "selection": "indices"
+            }
+          ]
+        },
+        {
+          "ref": "prefix-encoder/prefix-blocks/feed-forward/up-projection",
+          "repeat_selectors": [
+            {
+              "indices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15,
+                16
+              ],
+              "scope_ref": "prefix-encoder/prefix-blocks",
+              "selection": "indices"
+            }
+          ]
+        },
+        {
+          "ref": "prefix-encoder/prefix-blocks/feed-forward/gate-gelu",
+          "repeat_selectors": [
+            {
+              "indices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15,
+                16
+              ],
+              "scope_ref": "prefix-encoder/prefix-blocks",
+              "selection": "indices"
+            }
+          ]
+        },
+        {
+          "ref": "prefix-encoder/prefix-blocks/feed-forward/gate-product",
+          "repeat_selectors": [
+            {
+              "indices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15,
+                16
+              ],
+              "scope_ref": "prefix-encoder/prefix-blocks",
+              "selection": "indices"
+            }
+          ]
+        }
+      ],
+      "mapping_method": "combined",
+      "model_graph_id": "pi0-logical-v1",
+      "observation_id": "kernel-observation-pi0-realtime-vla-nsys-node_r004_017",
+      "realization_id": "rr-realtime-vla-pi0-thor-bf16-v1",
+      "reason_code": null,
+      "run_id": "run-pi0-realtime-vla-nsys-node-004",
+      "status": "resolved"
+    },
+    {
+      "confidence": "high",
+      "coverage": {
+        "mapped_launches": 180,
+        "population_launches": 180,
+        "unit": "launch"
+      },
+      "evidence_ids": [
+        "capture-pi0-realtime-vla-nsys-node-004"
+      ],
+      "execution_group_ids": [
+        "action-qkv-rope"
+      ],
+      "kernel_signature_id": "kernel-signature-pi0-realtime-vla-scaled-qkv-rope-023",
+      "link_id": "operator-kernel-link-pi0-realtime-vla-nsys-node_r004_023_001",
+      "logical_targets": [
+        {
+          "ref": "action-flow-decoder/action-expert-blocks/self-attention/query-projection",
+          "repeat_selectors": [
+            {
+              "indices": [],
+              "scope_ref": "action-flow-decoder/action-flow-loop",
+              "selection": "all"
+            },
+            {
+              "indices": [],
+              "scope_ref": "action-flow-decoder/action-expert-blocks",
+              "selection": "all"
+            }
+          ]
+        },
+        {
+          "ref": "action-flow-decoder/action-expert-blocks/self-attention/key-projection",
+          "repeat_selectors": [
+            {
+              "indices": [],
+              "scope_ref": "action-flow-decoder/action-flow-loop",
+              "selection": "all"
+            },
+            {
+              "indices": [],
+              "scope_ref": "action-flow-decoder/action-expert-blocks",
+              "selection": "all"
+            }
+          ]
+        },
+        {
+          "ref": "action-flow-decoder/action-expert-blocks/self-attention/value-projection",
+          "repeat_selectors": [
+            {
+              "indices": [],
+              "scope_ref": "action-flow-decoder/action-flow-loop",
+              "selection": "all"
+            },
+            {
+              "indices": [],
+              "scope_ref": "action-flow-decoder/action-expert-blocks",
+              "selection": "all"
+            }
+          ]
+        },
+        {
+          "ref": "action-flow-decoder/action-expert-blocks/self-attention/query-rope",
+          "repeat_selectors": [
+            {
+              "indices": [],
+              "scope_ref": "action-flow-decoder/action-flow-loop",
+              "selection": "all"
+            },
+            {
+              "indices": [],
+              "scope_ref": "action-flow-decoder/action-expert-blocks",
+              "selection": "all"
+            }
+          ]
+        },
+        {
+          "ref": "action-flow-decoder/action-expert-blocks/self-attention/key-rope",
+          "repeat_selectors": [
+            {
+              "indices": [],
+              "scope_ref": "action-flow-decoder/action-flow-loop",
+              "selection": "all"
+            },
+            {
+              "indices": [],
+              "scope_ref": "action-flow-decoder/action-expert-blocks",
+              "selection": "all"
+            }
+          ]
+        }
+      ],
+      "mapping_method": "combined",
+      "model_graph_id": "pi0-logical-v1",
+      "observation_id": "kernel-observation-pi0-realtime-vla-nsys-node_r004_023",
+      "realization_id": "rr-realtime-vla-pi0-thor-bf16-v1",
+      "reason_code": null,
+      "run_id": "run-pi0-realtime-vla-nsys-node-004",
+      "status": "resolved"
+    },
+    {
+      "confidence": "high",
+      "coverage": {
+        "mapped_launches": 180,
+        "population_launches": 180,
+        "unit": "launch"
+      },
+      "evidence_ids": [
+        "capture-pi0-realtime-vla-nsys-node-004"
+      ],
+      "execution_group_ids": [
+        "action-gate-up"
+      ],
+      "kernel_signature_id": "kernel-signature-pi0-realtime-vla-scaled-gate-up-fusion-028",
+      "link_id": "operator-kernel-link-pi0-realtime-vla-nsys-node_r004_028_001",
+      "logical_targets": [
+        {
+          "ref": "action-flow-decoder/action-expert-blocks/feed-forward/gate-projection",
+          "repeat_selectors": [
+            {
+              "indices": [],
+              "scope_ref": "action-flow-decoder/action-flow-loop",
+              "selection": "all"
+            },
+            {
+              "indices": [],
+              "scope_ref": "action-flow-decoder/action-expert-blocks",
+              "selection": "all"
+            }
+          ]
+        },
+        {
+          "ref": "action-flow-decoder/action-expert-blocks/feed-forward/up-projection",
+          "repeat_selectors": [
+            {
+              "indices": [],
+              "scope_ref": "action-flow-decoder/action-flow-loop",
+              "selection": "all"
+            },
+            {
+              "indices": [],
+              "scope_ref": "action-flow-decoder/action-expert-blocks",
+              "selection": "all"
+            }
+          ]
+        },
+        {
+          "ref": "action-flow-decoder/action-expert-blocks/feed-forward/gate-gelu",
+          "repeat_selectors": [
+            {
+              "indices": [],
+              "scope_ref": "action-flow-decoder/action-flow-loop",
+              "selection": "all"
+            },
+            {
+              "indices": [],
+              "scope_ref": "action-flow-decoder/action-expert-blocks",
+              "selection": "all"
+            }
+          ]
+        },
+        {
+          "ref": "action-flow-decoder/action-expert-blocks/feed-forward/gate-product",
+          "repeat_selectors": [
+            {
+              "indices": [],
+              "scope_ref": "action-flow-decoder/action-flow-loop",
+              "selection": "all"
+            },
+            {
+              "indices": [],
+              "scope_ref": "action-flow-decoder/action-expert-blocks",
+              "selection": "all"
+            }
+          ]
+        }
+      ],
+      "mapping_method": "combined",
+      "model_graph_id": "pi0-logical-v1",
+      "observation_id": "kernel-observation-pi0-realtime-vla-nsys-node_r004_028",
+      "realization_id": "rr-realtime-vla-pi0-thor-bf16-v1",
+      "reason_code": null,
+      "run_id": "run-pi0-realtime-vla-nsys-node-004",
+      "status": "resolved"
+    },
+    {
       "confidence": "medium",
       "coverage": {
         "mapped_launches": 1,

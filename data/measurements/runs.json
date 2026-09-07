@@ -1064,6 +1064,178 @@
       }
     },
     {
+      "analysis_batch": {
+        "batch_id": "batch-pi0-flashrt-e2e-001",
+        "input_case_id": "input-pi0-flashrt-synthetic-v1-p48-c10-d10",
+        "input_recipe": "synthetic-rgb-pattern-sequential-tokens-zero-state-fixed-native-rng-v1",
+        "output_finite": true,
+        "output_shape": [
+          10,
+          7
+        ],
+        "samples": [
+          {
+            "sample_index": 0,
+            "wall_time_ns": 40915613
+          },
+          {
+            "sample_index": 1,
+            "wall_time_ns": 40525678
+          },
+          {
+            "sample_index": 2,
+            "wall_time_ns": 40699225
+          },
+          {
+            "sample_index": 3,
+            "wall_time_ns": 40328975
+          },
+          {
+            "sample_index": 4,
+            "wall_time_ns": 40931956
+          },
+          {
+            "sample_index": 5,
+            "wall_time_ns": 40960068
+          },
+          {
+            "sample_index": 6,
+            "wall_time_ns": 40995002
+          },
+          {
+            "sample_index": 7,
+            "wall_time_ns": 40732048
+          },
+          {
+            "sample_index": 8,
+            "wall_time_ns": 40880558
+          },
+          {
+            "sample_index": 9,
+            "wall_time_ns": 40193735
+          }
+        ],
+        "warmup_iterations": 5
+      },
+      "capture_method": "wall_clock",
+      "comparison_context": {
+        "evidence": "measured_local",
+        "model_artifact_id": "pi0-flashrt-local-01",
+        "model_id": "pi0",
+        "platform": {
+          "device_id": "nvidia-jetson-agx-thor",
+          "operating_point_id": "unknown",
+          "system_id": "thor-unit-01"
+        },
+        "precision": {
+          "accumulation_dtype": "fp16",
+          "activation_dtype": "mixed-fp8-e4m3-fp16",
+          "dequant_strategy": "none",
+          "execution_dtype": "mixed-fp8-e4m3-fp16",
+          "fused": false,
+          "granularity": "operator_path",
+          "precision_id": "mixed-fp8-e4m3-fp16",
+          "quant_scheme": "selective_fp8_e4m3_gemm",
+          "requested": "fp8",
+          "scale_zero_point_bytes": null,
+          "weight_dtype": "mixed-fp8-e4m3-fp16"
+        },
+        "runtime_id": "flashrt",
+        "runtime_overhead": "included",
+        "task": {
+          "correctness_policy_id": "finite-only",
+          "input_contract_id": "raw-observation-cached-prompt",
+          "output_contract_id": "action-chunk",
+          "task_id": "vla-action-chunk-inference"
+        },
+        "timing": {
+          "state_reuse": "cached_prompt_and_graph",
+          "timing_boundary_id": "predict_cached_graph_sync",
+          "warm_policy": "steady_state",
+          "warmup_iterations": 5
+        },
+        "workload": {
+          "common": {
+            "batch_size": 1,
+            "input_contract_id": "raw-observation-cached-prompt",
+            "output_contract_id": "action-chunk"
+          },
+          "vla": {
+            "action_chunk": 10,
+            "action_dimension": 7,
+            "camera_views": 1,
+            "denoise_steps": 10,
+            "executed_prompt_tokens": 48,
+            "image_height": 224,
+            "image_width": 224,
+            "semantic_prompt_tokens": 48
+          }
+        }
+      },
+      "configuration_id": "cfg-pi0-flashrt-fixed-001",
+      "correctness": {
+        "criterion": "finite-only",
+        "status": "not_assessed"
+      },
+      "device_id": "nvidia-jetson-agx-thor",
+      "evidence": "measured_local",
+      "missing": {
+        "operating_point.clock_policy": "not_collected",
+        "operating_point.power_mode": "not_collected",
+        "operating_point.throttle_status": "not_collected",
+        "precision.scale_zero_point_bytes": "not_reported"
+      },
+      "model_artifact_id": "pi0-flashrt-local-01",
+      "model_id": "pi0",
+      "operating_point": {
+        "clock_policy": null,
+        "operating_point_id": "unknown",
+        "power_mode": null,
+        "throttle_status": null
+      },
+      "precision": {
+        "accumulation_dtype": "fp16",
+        "activation_dtype": "mixed-fp8-e4m3-fp16",
+        "dequant_strategy": "none",
+        "execution_dtype": "mixed-fp8-e4m3-fp16",
+        "fused": false,
+        "granularity": "operator_path",
+        "precision_id": "mixed-fp8-e4m3-fp16",
+        "quant_scheme": "selective_fp8_e4m3_gemm",
+        "requested": "fp8",
+        "scale_zero_point_bytes": null,
+        "weight_dtype": "mixed-fp8-e4m3-fp16"
+      },
+      "run_id": "run-pi0-flashrt-fixed-e2e-001",
+      "runtime_id": "flashrt",
+      "schema_version": "1.0.0",
+      "source_id": "source-local-thor",
+      "system_id": "thor-unit-01",
+      "timing": {
+        "state_reuse": "cached_prompt_and_graph",
+        "timing_boundary_id": "predict_cached_graph_sync",
+        "warm_policy": "steady_state",
+        "warmup_iterations": 5
+      },
+      "workload": {
+        "common": {
+          "batch_size": 1,
+          "input_contract_id": "raw-observation-cached-prompt",
+          "output_contract_id": "action-chunk"
+        },
+        "vla": {
+          "action_chunk": 10,
+          "action_dimension": 7,
+          "camera_views": 1,
+          "denoise_steps": 10,
+          "executed_prompt_tokens": 48,
+          "image_height": 224,
+          "image_width": 224,
+          "semantic_prompt_tokens": 48
+        }
+      }
+    },
+    {
       "capture_method": "ncu",
       "comparison_context": {
         "evidence": "measured_local",
@@ -2552,6 +2724,244 @@
         "runtime_overhead": "included",
         "task": {
           "correctness_policy_id": "finite-only",
+          "input_contract_id": "raw-observation-cached-prompt",
+          "output_contract_id": "action-chunk",
+          "task_id": "vla-action-chunk-inference"
+        },
+        "timing": {
+          "state_reuse": "cached_prompt_and_graph",
+          "timing_boundary_id": "predict_cached_graph_sync",
+          "warm_policy": "steady_state",
+          "warmup_iterations": 5
+        },
+        "workload": {
+          "common": {
+            "batch_size": 1,
+            "input_contract_id": "raw-observation-cached-prompt",
+            "output_contract_id": "action-chunk"
+          },
+          "vla": {
+            "action_chunk": 10,
+            "action_dimension": 7,
+            "camera_views": 1,
+            "denoise_steps": 10,
+            "executed_prompt_tokens": 48,
+            "image_height": 224,
+            "image_width": 224,
+            "semantic_prompt_tokens": 48
+          }
+        }
+      },
+      "configuration_id": "config-pi0-flashrt-ncu-flashrt-geglu-fp8-028-001",
+      "correctness": {
+        "criterion": "finite-only",
+        "status": "not_assessed"
+      },
+      "device_id": "nvidia-jetson-agx-thor",
+      "evidence": "measured_local",
+      "missing": {
+        "operating_point.clock_policy": "not_collected",
+        "operating_point.power_mode": "not_collected",
+        "operating_point.throttle_status": "not_collected",
+        "precision.scale_zero_point_bytes": "not_reported"
+      },
+      "model_artifact_id": "pi0-flashrt-local-01",
+      "model_id": "pi0",
+      "operating_point": {
+        "clock_policy": null,
+        "operating_point_id": "unknown",
+        "power_mode": null,
+        "throttle_status": null
+      },
+      "precision": {
+        "accumulation_dtype": "fp16",
+        "activation_dtype": "mixed-fp8-e4m3-fp16",
+        "dequant_strategy": "none",
+        "execution_dtype": "mixed-fp8-e4m3-fp16",
+        "fused": false,
+        "granularity": "operator_path",
+        "precision_id": "mixed-fp8-e4m3-fp16",
+        "quant_scheme": "selective_fp8_e4m3_gemm",
+        "requested": "fp8",
+        "scale_zero_point_bytes": null,
+        "weight_dtype": "mixed-fp8-e4m3-fp16"
+      },
+      "run_id": "run-pi0-flashrt-ncu-flashrt-geglu-fp8-028-001",
+      "runtime_id": "flashrt",
+      "schema_version": "1.0.0",
+      "source_id": "source-local-thor",
+      "system_id": "thor-unit-01",
+      "timing": {
+        "state_reuse": "cached_prompt_and_graph",
+        "timing_boundary_id": "predict_cached_graph_sync",
+        "warm_policy": "steady_state",
+        "warmup_iterations": 5
+      },
+      "workload": {
+        "common": {
+          "batch_size": 1,
+          "input_contract_id": "raw-observation-cached-prompt",
+          "output_contract_id": "action-chunk"
+        },
+        "vla": {
+          "action_chunk": 10,
+          "action_dimension": 7,
+          "camera_views": 1,
+          "denoise_steps": 10,
+          "executed_prompt_tokens": 48,
+          "image_height": 224,
+          "image_width": 224,
+          "semantic_prompt_tokens": 48
+        }
+      }
+    },
+    {
+      "capture_method": "ncu",
+      "comparison_context": {
+        "evidence": "measured_local",
+        "model_artifact_id": "pi0-flashrt-local-01",
+        "model_id": "pi0",
+        "platform": {
+          "device_id": "nvidia-jetson-agx-thor",
+          "operating_point_id": "unknown",
+          "system_id": "thor-unit-01"
+        },
+        "precision": {
+          "accumulation_dtype": "fp16",
+          "activation_dtype": "mixed-fp8-e4m3-fp16",
+          "dequant_strategy": "none",
+          "execution_dtype": "mixed-fp8-e4m3-fp16",
+          "fused": false,
+          "granularity": "operator_path",
+          "precision_id": "mixed-fp8-e4m3-fp16",
+          "quant_scheme": "selective_fp8_e4m3_gemm",
+          "requested": "fp8",
+          "scale_zero_point_bytes": null,
+          "weight_dtype": "mixed-fp8-e4m3-fp16"
+        },
+        "runtime_id": "flashrt",
+        "runtime_overhead": "included",
+        "task": {
+          "correctness_policy_id": "finite-only",
+          "input_contract_id": "raw-observation-cached-prompt",
+          "output_contract_id": "action-chunk",
+          "task_id": "vla-action-chunk-inference"
+        },
+        "timing": {
+          "state_reuse": "cached_prompt_and_graph",
+          "timing_boundary_id": "predict_cached_graph_sync",
+          "warm_policy": "steady_state",
+          "warmup_iterations": 5
+        },
+        "workload": {
+          "common": {
+            "batch_size": 1,
+            "input_contract_id": "raw-observation-cached-prompt",
+            "output_contract_id": "action-chunk"
+          },
+          "vla": {
+            "action_chunk": 10,
+            "action_dimension": 7,
+            "camera_views": 1,
+            "denoise_steps": 10,
+            "executed_prompt_tokens": 48,
+            "image_height": 224,
+            "image_width": 224,
+            "semantic_prompt_tokens": 48
+          }
+        }
+      },
+      "configuration_id": "config-pi0-flashrt-ncu-flashrt-large-gemm-027-001",
+      "correctness": {
+        "criterion": "finite-only",
+        "status": "not_assessed"
+      },
+      "device_id": "nvidia-jetson-agx-thor",
+      "evidence": "measured_local",
+      "missing": {
+        "operating_point.clock_policy": "not_collected",
+        "operating_point.power_mode": "not_collected",
+        "operating_point.throttle_status": "not_collected",
+        "precision.scale_zero_point_bytes": "not_reported"
+      },
+      "model_artifact_id": "pi0-flashrt-local-01",
+      "model_id": "pi0",
+      "operating_point": {
+        "clock_policy": null,
+        "operating_point_id": "unknown",
+        "power_mode": null,
+        "throttle_status": null
+      },
+      "precision": {
+        "accumulation_dtype": "fp16",
+        "activation_dtype": "mixed-fp8-e4m3-fp16",
+        "dequant_strategy": "none",
+        "execution_dtype": "mixed-fp8-e4m3-fp16",
+        "fused": false,
+        "granularity": "operator_path",
+        "precision_id": "mixed-fp8-e4m3-fp16",
+        "quant_scheme": "selective_fp8_e4m3_gemm",
+        "requested": "fp8",
+        "scale_zero_point_bytes": null,
+        "weight_dtype": "mixed-fp8-e4m3-fp16"
+      },
+      "run_id": "run-pi0-flashrt-ncu-flashrt-large-gemm-027-001",
+      "runtime_id": "flashrt",
+      "schema_version": "1.0.0",
+      "source_id": "source-local-thor",
+      "system_id": "thor-unit-01",
+      "timing": {
+        "state_reuse": "cached_prompt_and_graph",
+        "timing_boundary_id": "predict_cached_graph_sync",
+        "warm_policy": "steady_state",
+        "warmup_iterations": 5
+      },
+      "workload": {
+        "common": {
+          "batch_size": 1,
+          "input_contract_id": "raw-observation-cached-prompt",
+          "output_contract_id": "action-chunk"
+        },
+        "vla": {
+          "action_chunk": 10,
+          "action_dimension": 7,
+          "camera_views": 1,
+          "denoise_steps": 10,
+          "executed_prompt_tokens": 48,
+          "image_height": 224,
+          "image_width": 224,
+          "semantic_prompt_tokens": 48
+        }
+      }
+    },
+    {
+      "capture_method": "ncu",
+      "comparison_context": {
+        "evidence": "measured_local",
+        "model_artifact_id": "pi0-flashrt-local-01",
+        "model_id": "pi0",
+        "platform": {
+          "device_id": "nvidia-jetson-agx-thor",
+          "operating_point_id": "unknown",
+          "system_id": "thor-unit-01"
+        },
+        "precision": {
+          "accumulation_dtype": "fp16",
+          "activation_dtype": "mixed-fp8-e4m3-fp16",
+          "dequant_strategy": "none",
+          "execution_dtype": "mixed-fp8-e4m3-fp16",
+          "fused": false,
+          "granularity": "operator_path",
+          "precision_id": "mixed-fp8-e4m3-fp16",
+          "quant_scheme": "selective_fp8_e4m3_gemm",
+          "requested": "fp8",
+          "scale_zero_point_bytes": null,
+          "weight_dtype": "mixed-fp8-e4m3-fp16"
+        },
+        "runtime_id": "flashrt",
+        "runtime_overhead": "included",
+        "task": {
+          "correctness_policy_id": "finite-only",
           "input_contract_id": "deterministic-preprocessed-observation",
           "output_contract_id": "action-chunk",
           "task_id": "vla-action-chunk-inference"
@@ -3253,6 +3663,532 @@
           "image_height": 224,
           "image_width": 224,
           "semantic_prompt_tokens": null
+        }
+      }
+    },
+    {
+      "capture_method": "nsys",
+      "comparison_context": {
+        "evidence": "measured_local",
+        "model_artifact_id": "pi0-flashrt-local-01",
+        "model_id": "pi0",
+        "platform": {
+          "device_id": "nvidia-jetson-agx-thor",
+          "operating_point_id": "unknown",
+          "system_id": "thor-unit-01"
+        },
+        "precision": {
+          "accumulation_dtype": "fp16",
+          "activation_dtype": "mixed-fp8-e4m3-fp16",
+          "dequant_strategy": "none",
+          "execution_dtype": "mixed-fp8-e4m3-fp16",
+          "fused": false,
+          "granularity": "operator_path",
+          "precision_id": "mixed-fp8-e4m3-fp16",
+          "quant_scheme": "selective_fp8_e4m3_gemm",
+          "requested": "fp8",
+          "scale_zero_point_bytes": null,
+          "weight_dtype": "mixed-fp8-e4m3-fp16"
+        },
+        "runtime_id": "flashrt",
+        "runtime_overhead": "included",
+        "task": {
+          "correctness_policy_id": "finite-only",
+          "input_contract_id": "raw-observation-cached-prompt",
+          "output_contract_id": "action-chunk",
+          "task_id": "vla-action-chunk-inference"
+        },
+        "timing": {
+          "state_reuse": "cached_prompt_and_graph",
+          "timing_boundary_id": "predict_cached_graph_sync",
+          "warm_policy": "steady_state",
+          "warmup_iterations": 5
+        },
+        "workload": {
+          "common": {
+            "batch_size": 1,
+            "input_contract_id": "raw-observation-cached-prompt",
+            "output_contract_id": "action-chunk"
+          },
+          "vla": {
+            "action_chunk": 10,
+            "action_dimension": 7,
+            "camera_views": 1,
+            "denoise_steps": 10,
+            "executed_prompt_tokens": 48,
+            "image_height": 224,
+            "image_width": 224,
+            "semantic_prompt_tokens": 48
+          }
+        }
+      },
+      "configuration_id": "config-pi0-flashrt-nsys-node-002",
+      "correctness": {
+        "criterion": "finite-only",
+        "status": "not_assessed"
+      },
+      "device_id": "nvidia-jetson-agx-thor",
+      "evidence": "measured_local",
+      "missing": {
+        "operating_point.clock_policy": "not_collected",
+        "operating_point.power_mode": "not_collected",
+        "operating_point.throttle_status": "not_collected",
+        "precision.scale_zero_point_bytes": "not_reported"
+      },
+      "model_artifact_id": "pi0-flashrt-local-01",
+      "model_id": "pi0",
+      "operating_point": {
+        "clock_policy": null,
+        "operating_point_id": "unknown",
+        "power_mode": null,
+        "throttle_status": null
+      },
+      "precision": {
+        "accumulation_dtype": "fp16",
+        "activation_dtype": "mixed-fp8-e4m3-fp16",
+        "dequant_strategy": "none",
+        "execution_dtype": "mixed-fp8-e4m3-fp16",
+        "fused": false,
+        "granularity": "operator_path",
+        "precision_id": "mixed-fp8-e4m3-fp16",
+        "quant_scheme": "selective_fp8_e4m3_gemm",
+        "requested": "fp8",
+        "scale_zero_point_bytes": null,
+        "weight_dtype": "mixed-fp8-e4m3-fp16"
+      },
+      "run_id": "run-pi0-flashrt-nsys-node-002",
+      "runtime_id": "flashrt",
+      "schema_version": "1.0.0",
+      "source_id": "source-local-thor",
+      "system_id": "thor-unit-01",
+      "timing": {
+        "state_reuse": "cached_prompt_and_graph",
+        "timing_boundary_id": "predict_cached_graph_sync",
+        "warm_policy": "steady_state",
+        "warmup_iterations": 5
+      },
+      "workload": {
+        "common": {
+          "batch_size": 1,
+          "input_contract_id": "raw-observation-cached-prompt",
+          "output_contract_id": "action-chunk"
+        },
+        "vla": {
+          "action_chunk": 10,
+          "action_dimension": 7,
+          "camera_views": 1,
+          "denoise_steps": 10,
+          "executed_prompt_tokens": 48,
+          "image_height": 224,
+          "image_width": 224,
+          "semantic_prompt_tokens": 48
+        }
+      }
+    },
+    {
+      "capture_method": "ncu",
+      "comparison_context": {
+        "evidence": "measured_local",
+        "model_artifact_id": "pi0-realtime-vla-libero-v044-p48",
+        "model_id": "pi0",
+        "platform": {
+          "device_id": "nvidia-jetson-agx-thor",
+          "operating_point_id": "unknown",
+          "system_id": "thor-unit-01"
+        },
+        "precision": {
+          "accumulation_dtype": "fp32",
+          "activation_dtype": "bf16",
+          "dequant_strategy": "none",
+          "execution_dtype": "bf16",
+          "fused": true,
+          "granularity": "none",
+          "precision_id": "bf16",
+          "quant_scheme": "none",
+          "requested": "bf16",
+          "scale_zero_point_bytes": 0,
+          "weight_dtype": "bf16"
+        },
+        "runtime_id": "realtime-vla",
+        "runtime_overhead": "included",
+        "task": {
+          "correctness_policy_id": "finite-only",
+          "input_contract_id": "synthetic-vla-observation",
+          "output_contract_id": "action-chunk",
+          "task_id": "vla-action-chunk-inference"
+        },
+        "timing": {
+          "state_reuse": "fixed_prompt_and_noise",
+          "timing_boundary_id": "raw-observation-cached-prompt",
+          "warm_policy": "steady_state",
+          "warmup_iterations": 5
+        },
+        "workload": {
+          "common": {
+            "batch_size": 1,
+            "input_contract_id": "synthetic-vla-observation",
+            "output_contract_id": "action-chunk"
+          },
+          "vla": {
+            "action_chunk": 50,
+            "action_dimension": 32,
+            "camera_views": 1,
+            "denoise_steps": 10,
+            "executed_prompt_tokens": 48,
+            "image_height": 224,
+            "image_width": 224,
+            "semantic_prompt_tokens": 48
+          }
+        }
+      },
+      "configuration_id": "config-pi0-realtime-vla-ncu-realtime-vla-gate-up-fusion-017-001",
+      "correctness": {
+        "criterion": "finite-only",
+        "status": "not_assessed"
+      },
+      "device_id": "nvidia-jetson-agx-thor",
+      "evidence": "measured_local",
+      "missing": {
+        "operating_point.clock_policy": "not_collected",
+        "operating_point.power_mode": "not_collected",
+        "operating_point.throttle_status": "not_collected"
+      },
+      "model_artifact_id": "pi0-realtime-vla-libero-v044-p48",
+      "model_id": "pi0",
+      "operating_point": {
+        "clock_policy": null,
+        "operating_point_id": "unknown",
+        "power_mode": null,
+        "throttle_status": null
+      },
+      "precision": {
+        "accumulation_dtype": "fp32",
+        "activation_dtype": "bf16",
+        "dequant_strategy": "none",
+        "execution_dtype": "bf16",
+        "fused": true,
+        "granularity": "none",
+        "precision_id": "bf16",
+        "quant_scheme": "none",
+        "requested": "bf16",
+        "scale_zero_point_bytes": 0,
+        "weight_dtype": "bf16"
+      },
+      "run_id": "run-pi0-realtime-vla-ncu-realtime-vla-gate-up-fusion-017-001",
+      "runtime_id": "realtime-vla",
+      "schema_version": "1.0.0",
+      "source_id": "source-local-thor",
+      "system_id": "thor-unit-01",
+      "timing": {
+        "state_reuse": "fixed_prompt_and_noise",
+        "timing_boundary_id": "raw-observation-cached-prompt",
+        "warm_policy": "steady_state",
+        "warmup_iterations": 5
+      },
+      "workload": {
+        "common": {
+          "batch_size": 1,
+          "input_contract_id": "synthetic-vla-observation",
+          "output_contract_id": "action-chunk"
+        },
+        "vla": {
+          "action_chunk": 50,
+          "action_dimension": 32,
+          "camera_views": 1,
+          "denoise_steps": 10,
+          "executed_prompt_tokens": 48,
+          "image_height": 224,
+          "image_width": 224,
+          "semantic_prompt_tokens": 48
+        }
+      }
+    },
+    {
+      "capture_method": "nsys",
+      "comparison_context": {
+        "evidence": "measured_local",
+        "model_artifact_id": "pi0-realtime-vla-libero-v044-p48",
+        "model_id": "pi0",
+        "platform": {
+          "device_id": "nvidia-jetson-agx-thor",
+          "operating_point_id": "unknown",
+          "system_id": "thor-unit-01"
+        },
+        "precision": {
+          "accumulation_dtype": "fp32",
+          "activation_dtype": "bf16",
+          "dequant_strategy": "none",
+          "execution_dtype": "bf16",
+          "fused": true,
+          "granularity": "none",
+          "precision_id": "bf16",
+          "quant_scheme": "none",
+          "requested": "bf16",
+          "scale_zero_point_bytes": 0,
+          "weight_dtype": "bf16"
+        },
+        "runtime_id": "realtime-vla",
+        "runtime_overhead": "included",
+        "task": {
+          "correctness_policy_id": "finite-only",
+          "input_contract_id": "synthetic-vla-observation",
+          "output_contract_id": "action-chunk",
+          "task_id": "vla-action-chunk-inference"
+        },
+        "timing": {
+          "state_reuse": "fixed_prompt_and_noise",
+          "timing_boundary_id": "raw-observation-cached-prompt",
+          "warm_policy": "steady_state",
+          "warmup_iterations": 5
+        },
+        "workload": {
+          "common": {
+            "batch_size": 1,
+            "input_contract_id": "synthetic-vla-observation",
+            "output_contract_id": "action-chunk"
+          },
+          "vla": {
+            "action_chunk": 50,
+            "action_dimension": 32,
+            "camera_views": 1,
+            "denoise_steps": 10,
+            "executed_prompt_tokens": 48,
+            "image_height": 224,
+            "image_width": 224,
+            "semantic_prompt_tokens": 48
+          }
+        }
+      },
+      "configuration_id": "config-pi0-realtime-vla-nsys-node-004",
+      "correctness": {
+        "criterion": "finite-only",
+        "status": "not_assessed"
+      },
+      "device_id": "nvidia-jetson-agx-thor",
+      "evidence": "measured_local",
+      "missing": {
+        "operating_point.clock_policy": "not_collected",
+        "operating_point.power_mode": "not_collected",
+        "operating_point.throttle_status": "not_collected"
+      },
+      "model_artifact_id": "pi0-realtime-vla-libero-v044-p48",
+      "model_id": "pi0",
+      "operating_point": {
+        "clock_policy": null,
+        "operating_point_id": "unknown",
+        "power_mode": null,
+        "throttle_status": null
+      },
+      "precision": {
+        "accumulation_dtype": "fp32",
+        "activation_dtype": "bf16",
+        "dequant_strategy": "none",
+        "execution_dtype": "bf16",
+        "fused": true,
+        "granularity": "none",
+        "precision_id": "bf16",
+        "quant_scheme": "none",
+        "requested": "bf16",
+        "scale_zero_point_bytes": 0,
+        "weight_dtype": "bf16"
+      },
+      "run_id": "run-pi0-realtime-vla-nsys-node-004",
+      "runtime_id": "realtime-vla",
+      "schema_version": "1.0.0",
+      "source_id": "source-local-thor",
+      "system_id": "thor-unit-01",
+      "timing": {
+        "state_reuse": "fixed_prompt_and_noise",
+        "timing_boundary_id": "raw-observation-cached-prompt",
+        "warm_policy": "steady_state",
+        "warmup_iterations": 5
+      },
+      "workload": {
+        "common": {
+          "batch_size": 1,
+          "input_contract_id": "synthetic-vla-observation",
+          "output_contract_id": "action-chunk"
+        },
+        "vla": {
+          "action_chunk": 50,
+          "action_dimension": 32,
+          "camera_views": 1,
+          "denoise_steps": 10,
+          "executed_prompt_tokens": 48,
+          "image_height": 224,
+          "image_width": 224,
+          "semantic_prompt_tokens": 48
+        }
+      }
+    },
+    {
+      "analysis_batch": {
+        "batch_id": "batch-pi0-realtime-vla-e2e-001",
+        "input_case_id": "input-pi0-synthetic-v1-p48-c50-d10",
+        "input_recipe": "fixed-cpp-exported-state-noise-v1; synthetic224-u8; tokens1-48; native-bf16-normalization",
+        "output_finite": true,
+        "output_shape": [
+          50,
+          32
+        ],
+        "samples": [
+          {
+            "sample_index": 0,
+            "wall_time_ns": 90879462
+          },
+          {
+            "sample_index": 1,
+            "wall_time_ns": 90069240
+          },
+          {
+            "sample_index": 2,
+            "wall_time_ns": 89630684
+          },
+          {
+            "sample_index": 3,
+            "wall_time_ns": 89897850
+          },
+          {
+            "sample_index": 4,
+            "wall_time_ns": 89524619
+          },
+          {
+            "sample_index": 5,
+            "wall_time_ns": 89792295
+          },
+          {
+            "sample_index": 6,
+            "wall_time_ns": 89185239
+          },
+          {
+            "sample_index": 7,
+            "wall_time_ns": 89496675
+          },
+          {
+            "sample_index": 8,
+            "wall_time_ns": 90509823
+          },
+          {
+            "sample_index": 9,
+            "wall_time_ns": 89275841
+          }
+        ],
+        "warmup_iterations": 5
+      },
+      "capture_method": "wall_clock",
+      "comparison_context": {
+        "evidence": "measured_local",
+        "model_artifact_id": "pi0-realtime-vla-libero-v044-p48",
+        "model_id": "pi0",
+        "platform": {
+          "device_id": "nvidia-jetson-agx-thor",
+          "operating_point_id": "unknown",
+          "system_id": "thor-unit-01"
+        },
+        "precision": {
+          "accumulation_dtype": "fp32",
+          "activation_dtype": "bf16",
+          "dequant_strategy": "none",
+          "execution_dtype": "bf16",
+          "fused": true,
+          "granularity": "none",
+          "precision_id": "bf16",
+          "quant_scheme": "none",
+          "requested": "bf16",
+          "scale_zero_point_bytes": 0,
+          "weight_dtype": "bf16"
+        },
+        "runtime_id": "realtime-vla",
+        "runtime_overhead": "included",
+        "task": {
+          "correctness_policy_id": "finite-only",
+          "input_contract_id": "synthetic-vla-observation",
+          "output_contract_id": "action-chunk",
+          "task_id": "vla-action-chunk-inference"
+        },
+        "timing": {
+          "state_reuse": "fixed_prompt_and_noise",
+          "timing_boundary_id": "raw-observation-cached-prompt",
+          "warm_policy": "steady_state",
+          "warmup_iterations": 5
+        },
+        "workload": {
+          "common": {
+            "batch_size": 1,
+            "input_contract_id": "synthetic-vla-observation",
+            "output_contract_id": "action-chunk"
+          },
+          "vla": {
+            "action_chunk": 50,
+            "action_dimension": 32,
+            "camera_views": 1,
+            "denoise_steps": 10,
+            "executed_prompt_tokens": 48,
+            "image_height": 224,
+            "image_width": 224,
+            "semantic_prompt_tokens": 48
+          }
+        }
+      },
+      "configuration_id": "cfg-pi0-realtime-vla-fixed-001",
+      "correctness": {
+        "criterion": "finite-only",
+        "status": "not_assessed"
+      },
+      "device_id": "nvidia-jetson-agx-thor",
+      "evidence": "measured_local",
+      "missing": {
+        "operating_point.clock_policy": "not_collected",
+        "operating_point.power_mode": "not_collected",
+        "operating_point.throttle_status": "not_collected"
+      },
+      "model_artifact_id": "pi0-realtime-vla-libero-v044-p48",
+      "model_id": "pi0",
+      "operating_point": {
+        "clock_policy": null,
+        "operating_point_id": "unknown",
+        "power_mode": null,
+        "throttle_status": null
+      },
+      "precision": {
+        "accumulation_dtype": "fp32",
+        "activation_dtype": "bf16",
+        "dequant_strategy": "none",
+        "execution_dtype": "bf16",
+        "fused": true,
+        "granularity": "none",
+        "precision_id": "bf16",
+        "quant_scheme": "none",
+        "requested": "bf16",
+        "scale_zero_point_bytes": 0,
+        "weight_dtype": "bf16"
+      },
+      "run_id": "run-pi0-realtime-vla-w5-r10-001",
+      "runtime_id": "realtime-vla",
+      "schema_version": "1.0.0",
+      "source_id": "source-local-thor",
+      "system_id": "thor-unit-01",
+      "timing": {
+        "state_reuse": "fixed_prompt_and_noise",
+        "timing_boundary_id": "raw-observation-cached-prompt",
+        "warm_policy": "steady_state",
+        "warmup_iterations": 5
+      },
+      "workload": {
+        "common": {
+          "batch_size": 1,
+          "input_contract_id": "synthetic-vla-observation",
+          "output_contract_id": "action-chunk"
+        },
+        "vla": {
+          "action_chunk": 50,
+          "action_dimension": 32,
+          "camera_views": 1,
+          "denoise_steps": 10,
+          "executed_prompt_tokens": 48,
+          "image_height": 224,
+          "image_width": 224,
+          "semantic_prompt_tokens": 48
         }
       }
     },

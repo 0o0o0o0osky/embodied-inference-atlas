@@ -268,6 +268,36 @@
     },
     {
       "alignment": "same_run_unaligned",
+      "capture_id": "capture-pi0-flashrt-ncu-flashrt-geglu-fp8-028-001",
+      "evidence_semantics": "observed_samples",
+      "metric_name": "throttle_status",
+      "missing_reason": "not_collected",
+      "operating_point_id": "unknown",
+      "record_kind": "sampled_series",
+      "run_id": "run-pi0-flashrt-ncu-flashrt-geglu-fp8-028-001",
+      "samples": [],
+      "source_id": "source-local-thor",
+      "summary": null,
+      "telemetry_id": "telemetry-pi0-flashrt-ncu-flashrt-geglu-fp8-028-001",
+      "window": null
+    },
+    {
+      "alignment": "same_run_unaligned",
+      "capture_id": "capture-pi0-flashrt-ncu-flashrt-large-gemm-027-001",
+      "evidence_semantics": "observed_samples",
+      "metric_name": "throttle_status",
+      "missing_reason": "not_collected",
+      "operating_point_id": "unknown",
+      "record_kind": "sampled_series",
+      "run_id": "run-pi0-flashrt-ncu-flashrt-large-gemm-027-001",
+      "samples": [],
+      "source_id": "source-local-thor",
+      "summary": null,
+      "telemetry_id": "telemetry-pi0-flashrt-ncu-flashrt-large-gemm-027-001",
+      "window": null
+    },
+    {
+      "alignment": "same_run_unaligned",
       "capture_id": "capture-pi0-flashrt-ncu-siglip-broadcast-add-001",
       "evidence_semantics": "observed_samples",
       "metric_name": "throttle_status",
@@ -414,6 +444,173 @@
       "telemetry_id": "telemetry-pi0-flashrt-nsys-node-004",
       "window": {
         "duration_ns": 51001955,
+        "start_ns": 0
+      }
+    },
+    {
+      "alignment": "metadata_only",
+      "capture_id": "capture-pi0-flashrt-nsys-node-002",
+      "evidence_semantics": "profiler_target_environment_metadata",
+      "metric_name": "emc_target_environment_frequency",
+      "missing_reason": null,
+      "operating_point_id": "unknown",
+      "record_kind": "metadata_snapshot",
+      "run_id": "run-pi0-flashrt-nsys-node-002",
+      "samples": [],
+      "source_id": "source-local-thor",
+      "summary": {
+        "sample_count": 0,
+        "statistic": "metadata_value",
+        "unit": "MHz",
+        "value": 1600
+      },
+      "telemetry_id": "telemetry-pi0-flashrt-nsys-node_r002_001",
+      "window": null
+    },
+    {
+      "alignment": "metadata_only",
+      "capture_id": "capture-pi0-flashrt-nsys-node-002",
+      "evidence_semantics": "profiler_target_environment_metadata",
+      "metric_name": "cpu_target_environment_frequency",
+      "missing_reason": null,
+      "operating_point_id": "unknown",
+      "record_kind": "metadata_snapshot",
+      "run_id": "run-pi0-flashrt-nsys-node-002",
+      "samples": [],
+      "source_id": "source-local-thor",
+      "summary": {
+        "sample_count": 0,
+        "statistic": "metadata_value",
+        "unit": "MHz",
+        "value": 2601
+      },
+      "telemetry_id": "telemetry-pi0-flashrt-nsys-node_r002_002",
+      "window": null
+    },
+    {
+      "alignment": "same_capture_relative_time",
+      "capture_id": "capture-pi0-flashrt-nsys-node-002",
+      "evidence_semantics": "observed_samples",
+      "metric_name": "observed_emc_frequency",
+      "missing_reason": "not_collected",
+      "operating_point_id": "unknown",
+      "record_kind": "sampled_series",
+      "run_id": "run-pi0-flashrt-nsys-node-002",
+      "samples": [],
+      "source_id": "source-local-thor",
+      "summary": null,
+      "telemetry_id": "telemetry-pi0-flashrt-nsys-node_r002_003",
+      "window": {
+        "duration_ns": 42968463,
+        "start_ns": 0
+      }
+    },
+    {
+      "alignment": "same_capture_relative_time",
+      "capture_id": "capture-pi0-flashrt-nsys-node-002",
+      "evidence_semantics": "observed_samples",
+      "metric_name": "throttle_status",
+      "missing_reason": "not_collected",
+      "operating_point_id": "unknown",
+      "record_kind": "sampled_series",
+      "run_id": "run-pi0-flashrt-nsys-node-002",
+      "samples": [],
+      "source_id": "source-local-thor",
+      "summary": null,
+      "telemetry_id": "telemetry-pi0-flashrt-nsys-node_r002_004",
+      "window": {
+        "duration_ns": 42968463,
+        "start_ns": 0
+      }
+    },
+    {
+      "alignment": "same_run_unaligned",
+      "capture_id": "capture-pi0-realtime-vla-ncu-realtime-vla-gate-up-fusion-017-001",
+      "evidence_semantics": "observed_samples",
+      "metric_name": "throttle_status",
+      "missing_reason": "not_collected",
+      "operating_point_id": "unknown",
+      "record_kind": "sampled_series",
+      "run_id": "run-pi0-realtime-vla-ncu-realtime-vla-gate-up-fusion-017-001",
+      "samples": [],
+      "source_id": "source-local-thor",
+      "summary": null,
+      "telemetry_id": "telemetry-pi0-realtime-vla-ncu-realtime-vla-gate-up-fusion-017-001",
+      "window": null
+    },
+    {
+      "alignment": "metadata_only",
+      "capture_id": "capture-pi0-realtime-vla-nsys-node-004",
+      "evidence_semantics": "profiler_target_environment_metadata",
+      "metric_name": "emc_target_environment_frequency",
+      "missing_reason": null,
+      "operating_point_id": "unknown",
+      "record_kind": "metadata_snapshot",
+      "run_id": "run-pi0-realtime-vla-nsys-node-004",
+      "samples": [],
+      "source_id": "source-local-thor",
+      "summary": {
+        "sample_count": 0,
+        "statistic": "metadata_value",
+        "unit": "MHz",
+        "value": 1600
+      },
+      "telemetry_id": "telemetry-pi0-realtime-vla-nsys-node_r004_001",
+      "window": null
+    },
+    {
+      "alignment": "metadata_only",
+      "capture_id": "capture-pi0-realtime-vla-nsys-node-004",
+      "evidence_semantics": "profiler_target_environment_metadata",
+      "metric_name": "cpu_target_environment_frequency",
+      "missing_reason": null,
+      "operating_point_id": "unknown",
+      "record_kind": "metadata_snapshot",
+      "run_id": "run-pi0-realtime-vla-nsys-node-004",
+      "samples": [],
+      "source_id": "source-local-thor",
+      "summary": {
+        "sample_count": 0,
+        "statistic": "metadata_value",
+        "unit": "MHz",
+        "value": 2601
+      },
+      "telemetry_id": "telemetry-pi0-realtime-vla-nsys-node_r004_002",
+      "window": null
+    },
+    {
+      "alignment": "same_capture_relative_time",
+      "capture_id": "capture-pi0-realtime-vla-nsys-node-004",
+      "evidence_semantics": "observed_samples",
+      "metric_name": "observed_emc_frequency",
+      "missing_reason": "not_collected",
+      "operating_point_id": "unknown",
+      "record_kind": "sampled_series",
+      "run_id": "run-pi0-realtime-vla-nsys-node-004",
+      "samples": [],
+      "source_id": "source-local-thor",
+      "summary": null,
+      "telemetry_id": "telemetry-pi0-realtime-vla-nsys-node_r004_003",
+      "window": {
+        "duration_ns": 96216537,
+        "start_ns": 0
+      }
+    },
+    {
+      "alignment": "same_capture_relative_time",
+      "capture_id": "capture-pi0-realtime-vla-nsys-node-004",
+      "evidence_semantics": "observed_samples",
+      "metric_name": "throttle_status",
+      "missing_reason": "not_collected",
+      "operating_point_id": "unknown",
+      "record_kind": "sampled_series",
+      "run_id": "run-pi0-realtime-vla-nsys-node-004",
+      "samples": [],
+      "source_id": "source-local-thor",
+      "summary": null,
+      "telemetry_id": "telemetry-pi0-realtime-vla-nsys-node_r004_004",
+      "window": {
+        "duration_ns": 96216537,
         "start_ns": 0
       }
     },
