@@ -314,8 +314,11 @@ function routeRail(
     const railX = hint.side === "left" ? stage.x + inset : stage.x + stage.width - inset;
     const sourceX = hint.side === "left" ? source.left : source.right;
     const targetX = hint.side === "left" ? target.left : target.right;
+    const end = hint.targetSide === "top"
+      ? `V ${target.top + (hint.busOffset ?? -10)} H ${target.x} V ${target.top}`
+      : `V ${target.y + (hint.targetOffset ?? 0)} H ${targetX}`;
     add(
-      `M ${sourceX} ${source.y + (hint.sourceOffset ?? 0)} H ${railX} V ${target.y + (hint.targetOffset ?? 0)} H ${targetX}`,
+      `M ${sourceX} ${source.y + (hint.sourceOffset ?? 0)} H ${railX} ${end}`,
       true,
       [sourceRef],
       [targetRef],

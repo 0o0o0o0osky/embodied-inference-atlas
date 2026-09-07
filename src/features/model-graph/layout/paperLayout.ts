@@ -108,8 +108,14 @@ function placeRow(
   rowIndex: number | string,
 ) {
   const effectiveCenter = centerY + (row.offsetY ?? 0);
-  const slotWidth = stage.contentWidth / row.slots.length;
+  const region = row.region ?? [0, 1];
+  const contentX = stage.contentX + stage.contentWidth * region[0];
+  const contentWidth = stage.contentWidth * (region[1] - region[0]);
+  const weights = row.slots.map((_, index) => row.slotWeights?.[index] ?? 1);
+  const weightSum = weights.reduce((sum, weight) => sum + weight, 0);
   row.slots.forEach((slot, slotIndex) => {
+    const slotWidth = contentWidth * weights[slotIndex]! / weightSum;
+    const slotX = contentX + contentWidth * weights.slice(0, slotIndex).reduce((sum, weight) => sum + weight, 0) / weightSum;
     const refs = slotRefs(slot);
     if (!refs.length) return;
     const chainGap = 10;
@@ -122,7 +128,7 @@ function placeRow(
       (total, size) => total + (size?.width ?? 0),
       chainGap * (refs.length - 1),
     );
-    let x = stage.contentX + slotIndex * slotWidth + (slotWidth - chainWidth) / 2;
+    let x = slotX + (slotWidth - chainWidth) / 2;
     if (row.centerBetween && row.slots.length === 1 && refs.length === 1) {
       const sourceBoxes = row.centerBetween.map((ref) => boxes.get(ref));
       if (sourceBoxes.every((box) => box !== undefined)) {
@@ -164,14 +170,16 @@ function placeBoundary(
 ) {
   if (!refs.length) return;
   const slotCount = authored?.slotCount ?? refs.length;
-  const slotWidth = stage.contentWidth / slotCount;
+  const region = authored?.region ?? [0, 1];
+  const contentX = stage.contentX + stage.contentWidth * region[0];
+  const slotWidth = stage.contentWidth * (region[1] - region[0]) / slotCount;
   refs.forEach((ref, index) => {
     const node = dag.nodes.get(ref);
     if (!node) return;
     const lane = authored?.lanes[ref] ?? index;
     const size = nodeSize(node, presentation, slotWidth - 10, slotCount === 1);
     boxes.set(ref, {
-      x: stage.contentX + lane * slotWidth + (slotWidth - size.width) / 2,
+      x: contentX + lane * slotWidth + (slotWidth - size.width) / 2,
       y: centerY - size.height / 2,
       width: size.width,
       height: size.height,
@@ -188,13 +196,14 @@ function scopeBounds(
   refs: readonly LogicalRef[],
   boxes: ReadonlyMap<LogicalRef, NodeBox>,
   padding: number,
+  labels: NonNullable<LogicalLayout["rowLabels"]>,
 ): ScopeBox | null {
   const values = refs.map((ref) => boxes.get(ref)).filter((box): box is NodeBox => box !== undefined);
   if (!values.length) return null;
   const headerHeight = 18;
   const headerGap = 12;
   const left = Math.min(...values.map((value) => value.x));
-  const top = Math.min(...values.map((value) => value.y));
+  const top = Math.min(...values.map((value) => value.y), ...labels.filter(label => refs.includes(label.ref)).map(label => label.y - 11));
   const right = Math.max(...values.map((value) => value.x + value.width));
   const bottom = Math.max(...values.map((value) => value.y + value.height));
   const contentTop = top - padding;
@@ -218,6 +227,7 @@ export function layoutLogicalDag(
   const nodeBoxes = new Map<LogicalRef, NodeBox>();
   const stageBoxes: StageBox[] = [];
   const diagnostics: string[] = [];
+  const rowLabels: NonNullable<LogicalLayout["rowLabels"]>[number][] = [];
   const configured = new Set(
     Object.values(presentation.rowsByStage).flatMap((rows) =>
       rows.flatMap((row) => row.slots.flatMap(slotRefs)),
@@ -291,7 +301,14 @@ export function layoutLogicalDag(
     let lastCenter = rowY;
     rows.forEach((row, rowIndex) => {
       if (rowIndex && row.gapBefore) rowY += PAPER_LAYOUT.moduleGap;
+      if (row.label) rowY += 26;
       placeRow(nodeBoxes, dag, presentation, stage, row, rowY, rowIndex);
+      if (row.label) {
+        const refs = row.slots.flatMap(slotRefs);
+        const top = Math.min(...refs.map(ref => nodeBoxes.get(ref)?.y ?? rowY));
+        if (refs[0]) rowLabels.push({ ref: refs[0], label: row.label, x: stage.contentX,
+          y: top - 10, width: stage.contentWidth });
+      }
       lastCenter = rowY;
       rowY += PAPER_LAYOUT.rowStep;
     });
@@ -320,6 +337,7 @@ export function layoutLogicalDag(
       outputs,
       lastCenter + PAPER_LAYOUT.outputGap,
       "output",
+      boundary?.output,
     );
     const stageNodeBoxes = stageRefs
       .map((ref) => nodeBoxes.get(ref))
@@ -331,7 +349,7 @@ export function layoutLogicalDag(
 
   const scopeBoxes = dag.scopes
     .filter((scope) => scope.kind !== "component" && scope.kind !== "module")
-    .map((scope) => scopeBounds(scope.id, scope.nodeRefs, nodeBoxes, scope.kind === "denoise" ? 8 : 4))
+    .map((scope) => scopeBounds(scope.id, scope.nodeRefs, nodeBoxes, scope.kind === "denoise" ? 8 : 4, rowLabels))
     .filter((box): box is ScopeBox => box !== null);
 
   return {
@@ -345,6 +363,7 @@ export function layoutLogicalDag(
     nodeBoxes,
     stageBoxes,
     scopeBoxes,
+    ...(rowLabels.length ? { rowLabels } : {}),
     diagnostics: [...dag.diagnostics, ...diagnostics],
   };
 }

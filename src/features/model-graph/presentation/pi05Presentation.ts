@@ -21,17 +21,22 @@ const MLP = `${EXPERT}/feed-forward`;
 const MLP_RESIDUAL = `${EXPERT}/mlp-gated-residual`;
 const HEAD = "action-flow-decoder/velocity-projection";
 
-function adarmsRows(scope: string): RowSpec[] {
+const COMPUTE_REGION = [0, 0.75] as const;
+const mainRow = (ref: string): RowSpec => ({ slots: [ref], region: COMPUTE_REGION });
+const splitRow = (main: string | null, condition: string | null): RowSpec => ({ slots: [main, condition], slotWeights: [3, 1] });
+const computeRow = (scope: string, operators: readonly (string | null)[]): RowSpec => ({ ...scopedRow(scope, operators), region: COMPUTE_REGION });
+
+function adarmsRows(scope: string, label: string): RowSpec[] {
   return [
-    scopedRow(scope, ["rms-norm", "condition-projection"], true),
-    { slots: [`${scope}/scale-product`, [`${scope}/scale-slice`, `${scope}/shift-slice`, `${scope}/gate-slice`]] },
-    scopedRow(scope, ["scale-offset", null]),
-    scopedRow(scope, ["shift-add", null]),
+    { ...splitRow(`${scope}/rms-norm`, `${scope}/condition-projection`), gapBefore: true, label },
+    splitRow(`${scope}/scale-product`, `${scope}/scale-slice`),
+    mainRow(`${scope}/scale-offset`),
+    splitRow(`${scope}/shift-add`, `${scope}/shift-slice`),
   ];
 }
 
-function gatedResidualRows(scope: string): RowSpec[] {
-  return [scopedRow(scope, ["residual-add", "residual-gate"])];
+function gatedResidualRows(scope: string, condition: string): RowSpec[] {
+  return [splitRow(`${scope}/residual-gate`, `${condition}/gate-slice`), mainRow(`${scope}/residual-add`)];
 }
 
 export const pi05Presentation: GraphPresentation = {
@@ -59,32 +64,33 @@ export const pi05Presentation: GraphPresentation = {
       ...gatedMlpRows(PREFIX_MLP),
     ],
     "action-flow-decoder": [
-      scopedRow(SUFFIX, ["action-projection", "time-embedding"]),
-      { slots: [null, [`${SUFFIX}/time-mlp-in`, `${SUFFIX}/time-silu-in`]] },
-      { slots: [null, [`${SUFFIX}/time-mlp-out`, `${SUFFIX}/time-silu-out`]] },
-      ...adarmsRows(ATTENTION_ADARMS),
-      scopedRow(ATTENTION, ["query-projection", "key-projection", "value-projection"], true),
-      scopedRow(ATTENTION, ["query-rope", "key-rope", null]),
-      { slots: [null, [`${ATTENTION}/extract-prefix-key`, `${ATTENTION}/key-concat`], [`${ATTENTION}/extract-prefix-value`, `${ATTENTION}/value-concat`]] },
-      scopedRow(ATTENTION, ["attention"]),
-      scopedRow(ATTENTION, ["output-projection"]),
-      ...gatedResidualRows(ATTENTION_RESIDUAL),
-      ...adarmsRows(MLP_ADARMS),
-      scopedRow(MLP, ["gate-projection", "up-projection"], true),
-      scopedRow(MLP, ["gate-gelu", null]),
-      scopedRow(MLP, ["gate-product"]),
-      scopedRow(MLP, ["down-projection"]),
-      ...gatedResidualRows(MLP_RESIDUAL),
-      scopedRow(HEAD, ["final-rms-norm", "final-condition-projection"], true),
-      { slots: [`${HEAD}/final-scale-product`, [`${HEAD}/final-scale-slice`, `${HEAD}/final-shift-slice`]] },
-      scopedRow(HEAD, ["final-scale-offset", null]),
-      scopedRow(HEAD, ["final-shift-add", null]),
-      scopedRow(HEAD, ["velocity-projection"]),
-      scopedRow("action-flow-decoder/euler-update", ["euler-update"], true),
+      { ...splitRow(`${SUFFIX}/action-projection`, `${SUFFIX}/time-embedding`), label: "动作与时间输入" },
+      splitRow(null, `${SUFFIX}/time-mlp-in`),
+      splitRow(null, `${SUFFIX}/time-silu-in`),
+      splitRow(null, `${SUFFIX}/time-mlp-out`),
+      splitRow(null, `${SUFFIX}/time-silu-out`),
+      ...adarmsRows(ATTENTION_ADARMS, "注意力子层"),
+      computeRow(ATTENTION, ["query-projection", "key-projection", "value-projection"]),
+      computeRow(ATTENTION, ["query-rope", "key-rope", null]),
+      computeRow(ATTENTION, [null, "extract-prefix-key", "extract-prefix-value"]),
+      computeRow(ATTENTION, [null, "key-concat", "value-concat"]),
+      mainRow(`${ATTENTION}/attention`),
+      mainRow(`${ATTENTION}/output-projection`),
+      ...gatedResidualRows(ATTENTION_RESIDUAL, ATTENTION_ADARMS),
+      ...adarmsRows(MLP_ADARMS, "前馈子层"),
+      computeRow(MLP, ["gate-projection", "up-projection"]),
+      computeRow(MLP, ["gate-gelu", null]),
+      mainRow(`${MLP}/gate-product`),
+      mainRow(`${MLP}/down-projection`),
+      ...gatedResidualRows(MLP_RESIDUAL, MLP_ADARMS),
+      { ...splitRow(`${HEAD}/final-rms-norm`, `${HEAD}/final-condition-projection`), gapBefore: true, label: "动作输出" },
+      splitRow(`${HEAD}/final-scale-product`, `${HEAD}/final-scale-slice`),
+      mainRow(`${HEAD}/final-scale-offset`),
+      splitRow(`${HEAD}/final-shift-add`, `${HEAD}/final-shift-slice`),
+      mainRow(`${HEAD}/velocity-projection`),
+      mainRow("action-flow-decoder/euler-update/euler-update"),
     ],
-    "public-output": [
-      scopedRow("public-output/public-action-slice", ["public-action-slice"]),
-    ],
+    "public-output": [mainRow("public-output/public-action-slice/public-action-slice")],
   },
   boundaryLanes: {
     "prefix-encoder": {
@@ -92,10 +98,11 @@ export const pi05Presentation: GraphPresentation = {
     },
     "action-flow-decoder": {
       input: {
-        slotCount: 2,
-        lanes: { "input/initial-noise": 0, "control/action-flow-loop/timestep": 1 },
+        slotCount: 4,
+        lanes: { "input/initial-noise": 1, "control/action-flow-loop/timestep": 3 },
       },
-      loop: { slotCount: 2, lanes: { "loop/action-flow-loop": 0 } },
+      loop: { slotCount: 4, lanes: { "loop/action-flow-loop": 1 } },
+      output: { slotCount: 1, region: COMPUTE_REGION, lanes: { "output/public-action-chunk": 0 } },
     },
   },
   aliases: {
@@ -139,15 +146,30 @@ export const pi05Presentation: GraphPresentation = {
       `${PREFIX_ATTENTION}/value-cache-output`,
       `${ATTENTION}/extract-prefix-value`,
     ]] },
-    { id: "time-condition-rail", kind: "rail", side: "right", railInset: 4, pairs: [
+    { id: "time-condition-rail", kind: "rail", side: "right", targetSide: "top", railInset: 4, pairs: [
+      [`${SUFFIX}/time-silu-out`, `${ATTENTION_ADARMS}/condition-projection`],
       [`${SUFFIX}/time-silu-out`, `${MLP_ADARMS}/condition-projection`],
       [`${SUFFIX}/time-silu-out`, `${HEAD}/final-condition-projection`],
     ] },
-    { id: "attention-gate-rail", kind: "rail", side: "right", railInset: 16, pairs: [
-      [`${ATTENTION_ADARMS}/gate-slice`, `${ATTENTION_RESIDUAL}/residual-gate`],
+    ...[ATTENTION_ADARMS, MLP_ADARMS].flatMap(scope => [
+      { id: `${scope}-parameters`, kind: "rail" as const, side: "right" as const, railInset: 18,
+        pairs: ["scale-slice", "shift-slice", "gate-slice"].map(id => [`${scope}/condition-projection`, `${scope}/${id}`] as const) },
+      { id: `${scope}-rms-offset`, kind: "rail" as const, side: "left" as const, railInset: 82,
+        pairs: [[`${scope}/rms-norm`, `${scope}/scale-offset`]] as const },
+    ]),
+    { id: "head-parameters", kind: "rail", side: "right", railInset: 18, pairs: [
+      [`${HEAD}/final-condition-projection`, `${HEAD}/final-scale-slice`],
+      [`${HEAD}/final-condition-projection`, `${HEAD}/final-shift-slice`],
     ] },
-    { id: "mlp-gate-rail", kind: "rail", side: "right", railInset: 16, pairs: [
-      [`${MLP_ADARMS}/gate-slice`, `${MLP_RESIDUAL}/residual-gate`],
+    { id: "head-rms-offset", kind: "rail", side: "left", railInset: 82,
+      pairs: [[`${HEAD}/final-rms-norm`, `${HEAD}/final-scale-offset`]] },
+    { id: "attention-local-key", kind: "rail", side: "left", railInset: 96,
+      pairs: [[`${ATTENTION}/key-rope`, `${ATTENTION}/key-concat`]] },
+    { id: "attention-local-value", kind: "rail", side: "right", railInset: 96,
+      pairs: [[`${ATTENTION}/value-projection`, `${ATTENTION}/value-concat`]] },
+    { id: "action-state-rail", kind: "rail", side: "left", railInset: 4, pairs: [
+      ["loop/action-flow-loop", "action-flow-decoder/euler-update/euler-update"],
+      ["loop/action-flow-loop", "public-output/public-action-slice/public-action-slice"],
     ] },
   ],
 };

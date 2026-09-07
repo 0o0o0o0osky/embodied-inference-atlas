@@ -114,6 +114,10 @@ export interface LogicalDag {
 
 export interface RowSpec {
   slots: readonly (LogicalRef | readonly LogicalRef[] | null)[];
+  /** Fractional region of the stage content used by this row. */
+  region?: readonly [number, number];
+  slotWeights?: readonly number[];
+  label?: string;
   gapBefore?: boolean;
   offsetY?: number;
   centerBetween?: readonly LogicalRef[];
@@ -123,11 +127,13 @@ export interface RowSpec {
 export interface BoundaryLaneSpec {
   slotCount: number;
   lanes: Readonly<Record<LogicalRef, number>>;
+  region?: readonly [number, number];
 }
 
 export interface StageBoundarySpec {
   input?: BoundaryLaneSpec;
   loop?: BoundaryLaneSpec;
+  output?: BoundaryLaneSpec;
 }
 
 export interface ConnectorHint {
@@ -208,6 +214,7 @@ export interface LogicalLayout {
   nodeBoxes: ReadonlyMap<LogicalRef, NodeBox>;
   stageBoxes: readonly StageBox[];
   scopeBoxes: readonly ScopeBox[];
+  rowLabels?: readonly { ref: LogicalRef; label: string; x: number; y: number; width: number }[];
   diagnostics: readonly string[];
 }
 

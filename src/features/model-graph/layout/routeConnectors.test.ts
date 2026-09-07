@@ -35,4 +35,9 @@ it('routes a cache transfer through the column gap and beside its consumer', () 
   }] };
   expect(resolveConnectorHints(dag, sideBranch, layout).connectors[0]!.paths[0]!.path)
     .toBe('M 310 414 H 318 V 680 H 455 V 700');
+  const separateInput: GraphPresentation = { ...presentation, connectorHints: [{ id: 'condition-input', kind: 'rail',
+    side: 'right', targetSide: 'top', pairs: [['cache', 'read']],
+  }] };
+  expect(resolveConnectorHints(dag, separateInput, layout).connectors[0]!.paths[0]!.path)
+    .toBe('M 310 414 H 322 V 690 H 455 V 700');
 });

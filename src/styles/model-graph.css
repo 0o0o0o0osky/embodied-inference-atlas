@@ -397,6 +397,17 @@
   font-weight: var(--dag-label-weight, 800);
 }
 
+.logical-section-label {
+  fill: var(--dag-quiet-label, #176b68);
+  font-family: var(--display-face);
+  font-size: 10px;
+  font-weight: 600;
+  paint-order: stroke fill;
+  stroke: var(--dag-surface, white);
+  stroke-width: 4px;
+  stroke-linejoin: round;
+}
+
 .logical-tail-badge rect {
   fill: var(--dag-surface, #fff6d8);
   stroke: var(--dag-scope-border, #ad7825);

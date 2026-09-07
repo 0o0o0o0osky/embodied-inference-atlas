@@ -440,6 +440,9 @@ export function LogicalDagSvg({
           return scope ? <ScopeBadge key={scope.id} scope={scope} box={box} /> : null;
         })}
 
+        {layout.rowLabels?.map(label => <text key={label.ref} className="logical-section-label"
+          x={label.x} y={label.y}>{t(label.label)}</text>)}
+
         {[...dag.nodes.values()].map((node) => {
           const box = layout.nodeBoxes.get(node.ref);
           if (!box) return null;
