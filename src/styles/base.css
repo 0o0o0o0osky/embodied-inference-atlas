@@ -17,6 +17,17 @@
   --line-dark: #a0afbd;
   --recess: #edf2f7;
   --white: #ffffff;
+  --analysis-cpu-bg: #f7f9fa;
+  --analysis-gpu-bg: #f5f7f9;
+  --analysis-work-bg: #edf2f6;
+  --analysis-work-stroke: #aebfcb;
+  --analysis-work-text: #365569;
+  --analysis-repeat-bg: #fff1de;
+  --analysis-repeat-stroke: #cb914e;
+  --analysis-repeat-text: #734918;
+  --analysis-prepared-bg: #edf6f0;
+  --analysis-prepared-stroke: #6c9f88;
+  --analysis-prepared-text: #315e4e;
   --danger: #9a3327;
   --roofline-grid: #c5ceca;
   --roofline-roof: #0e5c73;

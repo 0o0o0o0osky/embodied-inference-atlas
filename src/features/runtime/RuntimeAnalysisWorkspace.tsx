@@ -27,7 +27,8 @@ interface Props {
 }
 
 
-export function Pi0RuntimeWorkspace({data, model, record, route, navigate}: Props) {
+/** Shared runtime shell; model descriptors choose workload/comparison policy. */
+export function RuntimeAnalysisWorkspace({data, model, record, route, navigate}: Props) {
   const descriptor = useMemo(()=>modelAnalysisDescriptor(data,model.model_id),[data,model.model_id]);
   const isPi0 = descriptor.comparisonKind === 'pi0-target';
   const overview = useMemo(()=>isPi0 ? buildPi0PerformanceOverview({data,hardwareId:route.hardware}) : null,[data,route.hardware,isPi0]);
@@ -57,8 +58,8 @@ export function Pi0RuntimeWorkspace({data, model, record, route, navigate}: Prop
     entity:route.selectedRun===selection.runId?route.entity:null,
     timelineCapture:route.selectedRun===selection.runId?route.timelineCapture:null,basis:null,rooflineLevel:'overview',
   });
-  return <section className="model-graph-workspace pi0-workspace pi0-runtime-workspace" aria-labelledby="pi0-runtime-title">
-    <h2 id="pi0-runtime-title" className="visually-hidden">{model.display_name} 运行表现</h2>
+  return <section className="model-graph-workspace pi0-workspace pi0-runtime-workspace runtime-analysis-workspace" aria-labelledby="runtime-analysis-title">
+    <h2 id="runtime-analysis-title" className="visually-hidden">{model.display_name} 运行表现</h2>
     <Pi0PerformanceNavigation route={route} navigate={navigate} surface="runtime" />
     <div hidden={Boolean(route.runtime)}>
       {isPi0 ? <Pi0PerformanceOverviewChart model={overview!} selectedRunId={route.selectedRun ?? null} coordinate={coordinate}
@@ -79,7 +80,7 @@ export function Pi0RuntimeWorkspace({data, model, record, route, navigate}: Prop
         {([['system','系统耗时'],['hotspots','执行 DAG'],['reuse','执行优化']] as const).map(([id,label])=><button key={id} type="button" aria-pressed={analysisView === id || id === 'system' && analysisView === 'perfetto'} onClick={()=>navigate({analysisView:id,timelineCapture:nsys.active?.capture.captureId??route.timelineCapture})}>{label}</button>)}
       </nav>
       <div hidden={analysisView !== 'system'}>
-        {implementationRealization?.systemFlow ? <RuntimeSystemFlow key={implementationRealization.realizationId} realization={implementationRealization} /> : null}
+        {implementationRealization?.systemFlow ? <RuntimeSystemFlow key={implementationRealization.realizationId} flow={implementationRealization.systemFlow} runtimeLabel={runtimeLabel} /> : null}
         <Pi0NsysSection view={nsys}
           onSelectEvent={event=>nsys.active && navigate({entity:timelineEventEntity(nsys.active.timeline.timelineId,event.eventId)},true)}
           onOpenDetails={()=>navigate({analysisView:'perfetto'})} />

@@ -1,3 +1,5 @@
+import {resolveReuseMechanisms} from '../presentation/reuseMechanisms';
+import {TimePrecomputeComparison} from './TimePrecomputeComparison';
 import {renderToStaticMarkup} from 'react-dom/server';
 import {expect,it} from 'vitest';
 import type {LogicalDag} from '../../model-graph/domain/types';
@@ -50,8 +52,38 @@ it('describes Graph submission from the recorded launch mode and preserves per-o
  const realtime=adaptRuntimeRealization(atlasSnapshot.datasets.runtime_realizations.find(record=>record.realization_id==='rr-realtime-vla-pi0-thor-bf16-v1')!);
  const native=adaptRuntimeRealization(atlasSnapshot.datasets.runtime_realizations.find(record=>record.realization_id==='rr-vla-cpp-pi0-thor-bf16-f32-v1')!);
  const render=(realization:RuntimeRealizationRecord)=>renderToStaticMarkup(<RuntimeReuseDiagram dag={{nodes:new Map()} as unknown as LogicalDag} realization={realization}/>);
- expect(render({...realtime,reuse:realtime.reuse!.filter(item=>item.kind==='execution_plan')})).toContain('减少逐个 Kernel 提交');
+ expect(render({...realtime,reuse:realtime.reuse!.filter(item=>item.kind==='execution_plan')})).toContain('CUDA Graph 提交前后对照');
  const perPrediction=render({...native,reuse:native.reuse!.filter(item=>item.producerRefs.some(ref=>ref.endsWith('/time-embedding')))});
  expect(perPrediction).toContain('每次观测重新准备');expect(perPrediction).toContain('下一次预测重新计算与上传');
  expect(perPrediction).not.toContain('后续观测继续使用');
+});
+
+it('uses generic Graph rendering for other models and gates the audited time split by exact implementation',()=>{
+ const flash=adaptRuntimeRealization(atlasSnapshot.datasets.runtime_realizations.find(record=>record.realization_id==='rr-flashrt-pi0-thor-fp8-v1')!);
+ const render=(realization:RuntimeRealizationRecord)=>renderToStaticMarkup(<RuntimeReuseDiagram dag={{nodes:new Map()} as unknown as LogicalDag} realization={realization}/>);
+ const alternate={...flash,realizationId:'different-implementation',modelId:'smolvla',runtimeId:'other',runtimeRevision:'unknown',reuse:flash.reuse!.filter(item=>item.kind==='execution_plan')};
+ const markup=render(alternate);
+ expect(markup).toContain('CUDA Graph 提交前后对照');
+ expect(markup).not.toContain('时间预计算前后对照');
+ const unconfirmed=render({...alternate,launch:{...alternate.launch,cudaGraphState:'unknown'}});
+ expect(unconfirmed).not.toContain('CUDA Graph 提交前后对照');
+ expect(render({...flash,runtimeRevision:'different-revision'})).not.toContain('时间预计算前后对照');
+});
+it('supplies time steps through configuration without leaking the default ten-step schedule',()=>{
+ const flash=adaptRuntimeRealization(atlasSnapshot.datasets.runtime_realizations.find(record=>record.realization_id==='rr-flashrt-pi0-thor-fp8-v1')!);
+ const record={...flash,workloadApplicability:{...flash.workloadApplicability,denoiseSteps:6},reuse:flash.reuse!.filter(item=>item.reuseId==='flashrt-time-projection')};
+ const config=resolveReuseMechanisms(record).timeConfigurations.get('flashrt-time-projection')!;
+ const markup=renderToStaticMarkup(<TimePrecomputeComparison config={config}/>);
+ expect(markup).toContain('固定 6 步时间表');expect(markup).toContain('存好 6 步结果');
+ expect(markup).not.toContain('10');expect(markup).not.toContain('FlashRT');expect(markup).not.toContain('Thor');
+});
+
+it('reuses the audited Torch mechanism on another device but rejects another model or frontend',()=>{
+ const original=adaptRuntimeRealization(atlasSnapshot.datasets.runtime_realizations.find(record=>record.realization_id==='rr-flashrt-pi0-thor-fp8-v1')!);
+ const otherDevice={...original,realizationId:'same-implementation-another-device',deviceIds:['another-device']};
+ const resolve=(record:RuntimeRealizationRecord)=>resolveReuseMechanisms(record).timeConfigurations.size;
+ expect(resolve(otherDevice)).toBe(1);
+ expect(resolve({...otherDevice,modelId:'other-model'})).toBe(0);
+ expect(resolve({...otherDevice,runtimeRevision:'other-revision'})).toBe(0);
+ expect(resolve({...otherDevice,evidence:otherDevice.evidence.map(item=>({...item,locator:'another/frontend#set_prompt'}))})).toBe(0);
 });

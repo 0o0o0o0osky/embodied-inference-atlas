@@ -1,5 +1,5 @@
 import {useId, useState} from 'react';
-import type {RuntimeRealizationRecord, RuntimeSystemFlow as Flow} from '../domain/types';
+import type {RuntimeSystemFlow as Flow} from '../domain/types';
 import './runtimeSystemFlow.css';
 
 const WIDTH=132, HEIGHT=80, GAP=166, LEFT=86;
@@ -20,8 +20,7 @@ function lines(label:string):string[] {
 }
 
 /** Ordering and data dependencies only; no measured timestamps or scaled bars. */
-export function RuntimeSystemFlow({realization}:{realization:RuntimeRealizationRecord}) {
- const flow=realization.systemFlow;
+export function RuntimeSystemFlow({flow,runtimeLabel}:{flow:Flow;runtimeLabel:string}) {
  const [selectedId,setSelectedId]=useState<string|null>(null);
  const uid=useId().replace(/:/g,'');
  if(!flow?.nodes.length)return null;
@@ -36,7 +35,7 @@ export function RuntimeSystemFlow({realization}:{realization:RuntimeRealizationR
   </header>
   <div className="system-flow-scroll" tabIndex={0} aria-label="系统过程图，可横向滚动">
    <p className="system-flow-scroll-hint">左右滚动查看完整过程</p>
-   <svg viewBox={`0 0 ${width} 434`} style={{minWidth:width}} role="group" aria-label={`${realization.runtimeId} 的 CPU GPU 模块与交互`}>
+   <svg viewBox={`0 0 ${width} 434`} style={{minWidth:width}} role="group" aria-label={`${runtimeLabel} 的 CPU GPU 模块与交互`}>
     <defs>{(['data','control','reuse'] as const).map(kind=><marker key={kind} id={`${uid}-${kind}`} viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" className={`system-flow-arrow is-${kind}`}/></marker>)}</defs>
     <rect x="0" y="38" width={width} height="138" rx="6" className="system-flow-lane is-cpu"/>
     <rect x="0" y="230" width={width} height="166" rx="6" className="system-flow-lane is-gpu"/>

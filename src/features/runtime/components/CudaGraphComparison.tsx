@@ -32,8 +32,8 @@ export function CudaGraphComparison() {
             </g>
             <text x="420" y="93" className="graph-comparison-saved-label">整段工作已提交，省去逐 Kernel launch</text>
           </> : KERNELS.map((kernel,index) => <g key={index} className="graph-comparison-host-launch">
-            <rect x={launchX(index)} y="69" width="180" height="38" className="graph-comparison-launch" />
-            <text x={launchX(index)+90} y="94" textAnchor="middle" className="graph-comparison-launch-label">{kernel==='…'?'…':`提交 ${kernel}`}</text>
+            <rect x={launchX(index)} y="69" width="168" height="38" className="graph-comparison-launch" />
+            <text x={launchX(index)+84} y="94" textAnchor="middle" className="graph-comparison-launch-label">{kernel==='…'?'…':`提交 ${kernel}`}</text>
           </g>)}
           <text x={graph ? 420 : 380} y="149" className="graph-comparison-explanation">{graph ? 'GPU 按图中依赖推进整段计算' : 'CPU 提交 K₂ 时，GPU 已可执行 K₁'}</text>
           {KERNELS.map((kernel,index) => <g key={index} className="graph-comparison-kernel" data-kernel={kernel}>
@@ -48,9 +48,5 @@ export function CudaGraphComparison() {
       </svg>
     </div>
     <p className="optimization-comparison-note">机制示意：短 Kernel 受提交开销限制；相同 Kernel 用相同宽度表示计算，间隙表示等待。</p>
-    <p className="graph-comparison-runtime">FlashRT 每次推理分别重放视觉图与主推理图，各一次。</p>
-    <details className="graph-comparison-reference"><summary>参考图与说明</summary>
-      <p><a href="https://pytorch.org/blog/accelerating-pytorch-with-cuda-graphs/" target="_blank" rel="noreferrer">PyTorch 官方 Figure 1：CUDA Graph 前后对照</a>；<a href="https://developer.nvidia.com/blog/cuda-graphs/" target="_blank" rel="noreferrer">NVIDIA：提交与 GPU 执行重叠</a>。</p>
-    </details>
   </figure>;
 }

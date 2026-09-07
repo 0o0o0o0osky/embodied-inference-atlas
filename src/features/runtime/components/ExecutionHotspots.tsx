@@ -77,7 +77,7 @@ export function ExecutionHotspots({data, record, route, view, kernels, realizati
   const graphEntity = selectedEntity?.kind === 'runtime-group' || selectedEntity?.kind === 'logical'
     ? route.entity : (rememberedRelevant ? rememberedGraphEntity : null) ?? linkedGroupEntity;
   useEffect(()=>{
-    if (selected && !graphEntity) detailRef.current?.scrollIntoView({block:'start'});
+    if (selected) (graphEntity ? dagRef.current : detailRef.current)?.scrollIntoView({block:'start'});
   },[selected?.id,graphEntity]);
   const sharedConversions = rows.filter(row=>kernels.rows.some(item=>item.capture.captureId===row.captureId && item.signature.kernelSignatureId===row.kernelSignatureId && (isVerifiedConversion(item)||isVerifiedStrideCopy(item))));
   const detail = selected ? <aside ref={detailRef} className="execution-hotspot-detail">
@@ -97,7 +97,7 @@ export function ExecutionHotspots({data, record, route, view, kernels, realizati
             </label>
             <svg className="kernel-duration-distribution" viewBox="0 0 400 48" role="img" aria-label="当前类别各次调用耗时分布，实心点为所选调用">
               <line x1="12" y1="24" x2="388" y2="24" stroke="#a4b4c0" />
-              {[...invocation.events].sort((a,b)=>Number(a.eventId===invocation.selected!.eventId)-Number(b.eventId===invocation.selected!.eventId)).map(event=><circle key={event.eventId} cx={12+376*(event.durationNs-invocation.minNs!)/Math.max(1,invocation.maxNs!-invocation.minNs!)} cy={24} r={event.eventId===invocation.selected!.eventId?6:3} fill={event.eventId===invocation.selected!.eventId?'#17679b':'#9db5c5'}><title>第 {invocation.events.indexOf(event) + 1} 次调用 · {(event.durationNs/1e3).toFixed(2)} μs</title></circle>)}
+              {[...invocation.events].sort((a,b)=>Number(a.eventId===invocation.selected!.eventId)-Number(b.eventId===invocation.selected!.eventId)).map(event=><circle key={event.eventId} cx={12+376*(event.durationNs-invocation.minNs!)/Math.max(1,invocation.maxNs!-invocation.minNs!)} cy={24} r={event.eventId===invocation.selected!.eventId?6:3} fill={event.eventId===invocation.selected!.eventId?'#17679b':'#9db5c5'}><title>{`第 ${invocation.events.indexOf(event) + 1} 次调用 · ${(event.durationNs/1e3).toFixed(2)} μs`}</title></circle>)}
             </svg>
             <p>默认选择最接近类内中位数的真实调用；当前窗口最短 {(invocation.minNs!/1e3).toFixed(2)} / 中位数 {(invocation.medianNs!/1e3).toFixed(2)} / 最长 {(invocation.maxNs!/1e3).toFixed(2)} μs。</p>
             <dl><div><dt>所选单次执行</dt><dd>{(invocation.selected.durationNs/1e3).toFixed(2)} μs</dd></div></dl>
@@ -114,7 +114,7 @@ export function ExecutionHotspots({data, record, route, view, kernels, realizati
           {kernel ? replay.length ? <KernelNcuMetrics sources={data.datasets.sources} rows={replay} /> : <p>当前 Kernel 尚无配置匹配的 NCU 硬件计数器。</p> : null}
         </> : detailView === 'dag' ? groups.length && realization ? <div>{groups.map(id=><button key={id} type="button" onClick={()=>locateGroup(id)}>{locationFor(id)}</button>)}</div> : <p>当前热点的 DAG 位置待关联。</p>
           : singlePairs.length ? singlePairs.map(pair=><RooflinePairChart key={pair.point.point_id} {...pair} />) : <p>{selected.category === 'GPU Kernel' ? '绘制 Roofline 所需的计算量或边界流量待补。' : '当前对象可按耗时分析。'}</p>}
-        <button type="button" aria-label={groups.length === 1 ? "定位当前 Kernel 对应的 DAG 计算位置" : "查看当前 Kernel 的 DAG 关联"} onClick={()=>groups.length === 1 ? locateGroup(groups[0]!) : setDetailView('dag')}>{groups.length > 1 ? '选择 DAG 位置' : 'DAG 定位'}</button>
+        {groups.length ? <button type="button" aria-label={groups.length === 1 ? "定位当前 Kernel 对应的 DAG 计算位置" : "查看当前 Kernel 的 DAG 关联"} onClick={()=>groups.length === 1 ? locateGroup(groups[0]!) : setDetailView('dag')}>{groups.length > 1 ? '选择 DAG 位置' : 'DAG 定位'}</button> : null}
       </aside> : null;
   const renderKernelDetails = (groupIds: readonly string[]) => {
     const associated = realization ? groupKernelRows(kernels.rows,realization,groupIds) : [];

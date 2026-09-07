@@ -54,5 +54,10 @@ Promotion imports reviewed evidence. To compact accumulated evidence, run
 and a manifest under `.local/archive/` before writing the reduced corpus.
 
 See [the single-inference workflow](docs/single-inference-analysis.md) for agent
-analysis and rendering, [methodology](docs/methodology.md) for data semantics,
+analysis and rendering, [the component catalog](docs/analysis-components.md) for
+shared templates and agent-authored content, [methodology](docs/methodology.md) for data semantics,
 and [AGENTS.md](AGENTS.md) for scope and retention rules.
+
+Use `node tools/render_review.mjs --help` for the shared browser capture helper.
+It uses an existing Playwright/Chromium installation, checks local-only loading,
+and saves screenshots and reports under `.local/`.

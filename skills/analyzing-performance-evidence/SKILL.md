@@ -1,29 +1,20 @@
 ---
 name: analyzing-performance-evidence
-description: Use when interpreting a fixed-input inference run, linking profiler evidence to operators, or explaining likely bottlenecks for visualization and human review.
+description: Use when explaining inference bottlenecks or linking measured work to model operators, precision, data movement and reuse.
 ---
 
-# From evidence to an explanation
+# Explain the selected execution
 
-Identify the selected input, implementation and representative trace. Overall
-statistics use the recorded batch median; kernel analysis uses a real event in
-that trace. Keep E2E, Nsys and NCU measurements distinct.
+Use the [complete workflow](../../docs/single-inference-analysis.md) for statistical,
+Nsys/NCU, mapping and Roofline contracts. Use the [component catalog](../../docs/analysis-components.md)
+to render existing evidence before inventing a new panel.
 
-Start with time contribution, then inspect the dominant CPU or GPU work. Match
-operators/fusion/quantization to kernels through actual shape, precision and
-launch evidence. Do not infer shapes from names or allocate a shared kernel's
-entire duration to one logical operator.
+The batch median describes overall performance; one real representative trace
+supplies Kernel calls. Agent analysis establishes implementation semantics and
+source-backed associations; deterministic tools calculate units, intervals,
+formulas and layouts. Keep many-to-many mappings and unknowns explicit.
 
-Explain the operation, data movement and reuse scope with the existing formula
-engine and rendering components. Model-derived bytes are not measured DRAM
-traffic; low occupancy alone is not a bottleneck diagnosis. Separate observed
-facts, plausible explanations and the one missing measurement that would
-resolve uncertainty. Report local limits rather than a promised total speedup.
-
-Retain only the representative trace, required metrics and concise conclusions.
-Leave raw reports and exploratory detail local. Recompute derived what-if points
-instead of committing all combinations. A new panel or dataset must help answer
-the current question.
-
-See [the workflow and interpretation tutorial](../../docs/single-inference-analysis.md).
-Use the technical UI review skill to inspect the actual resulting page.
+A mechanism template explains established work, not measured savings. Reuse a
+confirmed implementation's mechanism across devices, but resolve actual precision,
+launch behavior and hardware ceilings again. Separate observations, supported
+explanations and the smallest unresolved evidence gap.

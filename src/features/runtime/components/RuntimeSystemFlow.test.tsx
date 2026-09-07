@@ -10,7 +10,7 @@ function realization(id: string) {
 const native = realization('rr-vla-cpp-pi0-thor-bf16-f32-v1');
 const flash = realization('rr-flashrt-pi0-thor-fp8-v1');
 const q8 = realization('rr-vla-cpp-pi0-thor-q8-0-v1');
-const render = (record: typeof native) => renderToStaticMarkup(<RuntimeSystemFlow realization={record} />);
+const render = (record: typeof native) => renderToStaticMarkup(<RuntimeSystemFlow flow={record.systemFlow!} runtimeLabel={record.runtimeId} />);
 
 it('exposes CPU/GPU modules as selectable structural steps without measured durations', () => {
   for (const record of [native, flash, q8]) {

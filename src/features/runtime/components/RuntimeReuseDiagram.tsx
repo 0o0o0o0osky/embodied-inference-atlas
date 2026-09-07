@@ -5,56 +5,19 @@ import type { RuntimeRealizationRecord, RuntimeReuseDescriptor } from '../domain
 import { runtimeSourceReferences } from './RuntimeSourceReferences';
 import { CudaGraphComparison } from './CudaGraphComparison';
 import { TimePrecomputeComparison } from './TimePrecomputeComparison';
+import { readableEvidence, repeatedWork, resolveReuseMechanisms } from '../presentation/reuseMechanisms';
 import './runtimeReuse.css';
 import './optimizationComparison.css';
 
 const STATUS = {implemented:'已实现',not_implemented:'未实现',unknown:'待核对'};
 const KIND = {computed_result:'计算结果复用',execution_plan:'执行计划复用',storage:'存储复用'};
-// Display-only translations of audited evidence; unknown values retain their text.
-const EVIDENCE_LABELS: Readonly<Record<string,string>> = {
-  '再次调用 set_prompt 会重算时间表并替换预计算缓冲区；文本内容本身不是时间投影的值依赖':'重新设置提示词时，会重新准备时间表和缓冲区',
-  '拓扑、形状或缓冲区地址改变，或模型实例释放时旧计划不再适用':'计算流程、输入尺寸或缓冲区地址改变时，需要重新捕获执行图',
-  'image content':'图像内容', 'prompt tokens':'提示词 token', 'positions':'位置编码输入', 'model weights':'模型权重',
-  'new observation executes prefix graph again':'新观测重新执行 Prefix 计算',
-  'prefix inputs or model weights change':'Prefix 输入或模型权重变化',
-  'image token count':'图像 token 数', 'prompt token count':'提示词 token 数',
-  'denoise step count':'去噪步数', 'backend graph topology':'后端执行图结构',
-  'MainKey changes rebuild GGML graph':'图像 token 数、提示词 token 数或去噪步数变化时重建执行图',
-  'backend graph update or model lifecycle ends':'后端执行图更新或模型对象生命周期结束',
-  'timestep schedule':'时间步计划', 'embedding width':'嵌入维度', 'chunk length':'动作块长度',
-  'sinusoidal embedding parameters':'正弦时间嵌入参数',
-  'next predict recomputes and uploads all timestep embeddings':'下一次预测重新计算并上传全部时间步嵌入',
-  'schedule or embedding shape changes':'时间步计划或嵌入形状变化',
-};
-const readableEvidence = (value: string) => (EVIDENCE_LABELS[value] ?? value)
-  .replace(/set_prompt\s*时/g, '设置提示词时').replace(/调用 set_prompt/g, '设置提示词')
-  .replace(/set_prompt/g, '设置提示词').replace(/replay/g, '执行已捕获的图');
-
-// Explain the recorded mechanism; isolated latency savings require measurements.
-function repeatedWork(item: RuntimeReuseDescriptor, realization: RuntimeRealizationRecord) {
-  if (item.kind === 'execution_plan') return realization.launch.cudaGraphState === 'present' && (realization.launch.submissionMode === 'cuda_graph_replay' || /CUDA Graph/i.test(item.label))
-    ? 'CPU 通过 Graph 提交一组 GPU 计算，减少逐个 Kernel 提交的开销。'
-    : '沿用已构建的执行计划，减少重复建图。';
-  if (item.kind === 'storage') return '后续计算继续使用已准备的存储空间。';
-  if (item.producerRefs.some(ref => ref.startsWith('prefix-encoder/') && ref.endsWith('/key-projection')))
-    return '去噪步骤直接读取当前观测的前缀 K/V，省去每步重新计算前缀。';
-  if (item.producerRefs.some(ref => ref.endsWith('/time-embedding')))
-    return '去噪步骤直接读取准备好的时间特征，省去循环内对应的生成计算。';
-  return '后续使用时直接读取已有结果，省去有效范围内的重复计算。';
-}
-
 export function RuntimeReuseDiagram({dag, realization, sources}: {
   dag: LogicalDag; realization: RuntimeRealizationRecord; sources?: readonly CanonicalRecord[] | undefined;
 }) {
   const t = useModelText();
   const reuse = realization.reuse ?? [];
-  const isBaselinePrefix = (item: RuntimeReuseDescriptor) => realization.modelId === 'pi0' && item.lifetime === 'observation'
-    && item.producerRefs.some(ref => ref.startsWith('prefix-encoder/') && ref.endsWith('/key-projection'));
-  const optimizations = reuse.filter(item => !isBaselinePrefix(item));
-  const hasDiagrams = realization.realizationId === 'rr-flashrt-pi0-thor-fp8-v1'
-    && optimizations.some(item => item.implementationStatus === 'implemented' && ['flashrt-time-projection', 'flashrt-cuda-graphs'].includes(item.reuseId));
-  const precomputed = realization.mappings.filter(mapping => mapping.reasonCode === 'precomputed_outside_prediction');
-  const graphReplay = !reuse.length && realization.launch.cudaGraphState === 'present' && realization.launch.submissionMode === 'cuda_graph_replay';
+  const {items: optimizations, timeConfigurations, graphItems, graphFallback: graphReplay, precomputed} = resolveReuseMechanisms(realization);
+  const hasDiagrams = timeConfigurations.size > 0 || graphItems.size > 0 || graphReplay;
   const refs = (values: readonly string[]) => [...new Set(values.map(ref => {
     const label = dag.nodes.get(ref)?.label ?? realization.executionGroups?.find(group => group.executionGroupId === ref)?.label;
     return label ? t(label) : null;
@@ -66,10 +29,9 @@ export function RuntimeReuseDiagram({dag, realization, sources}: {
   const commitUrl = repositories.length === 1 ? `${repositories[0]!.url}/commit/${revision}` : null;
 
   const mechanismCard = (item: RuntimeReuseDescriptor) => {
-    const comparison = hasDiagrams && item.implementationStatus === 'implemented'
-      ? item.reuseId === 'flashrt-time-projection' ? <TimePrecomputeComparison />
-        : item.reuseId === 'flashrt-cuda-graphs' ? <CudaGraphComparison /> : null
-      : null;
+    const timeConfig = timeConfigurations.get(item.reuseId);
+    const comparison = timeConfig ? <TimePrecomputeComparison config={timeConfig} />
+      : graphItems.has(item.reuseId) ? <CudaGraphComparison /> : null;
     const producers = refs(item.producerRefs);
     const consumers = refs(item.consumerRefs);
     const costs = [
@@ -109,7 +71,7 @@ export function RuntimeReuseDiagram({dag, realization, sources}: {
         <p>预测前生成结果，预测内直接使用。</p>
       </article>) : null}
       {graphReplay ? <article className="runtime-optimization"><header><h4>CUDA Graph 提交</h4><span>已实现 · 执行计划复用</span></header>
-        <p>准备时捕获执行图，预测时由 CPU 提交整张图，GPU 执行其中的计算。</p>
+        <CudaGraphComparison />
       </article> : null}
     </div>
     {!optimizations.length && !graphReplay && (!precomputed.length || reuse.length > 0) ? <p>当前栈尚无已确认的预计算或执行计划复用记录。</p> : null}

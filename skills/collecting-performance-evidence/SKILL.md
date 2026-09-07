@@ -1,28 +1,16 @@
 ---
 name: collecting-performance-evidence
-description: Use when acquiring profiler or timing evidence for a concrete inference question, including checking stability before choosing a representative trace.
+description: Use when collecting bounded inference timing, CPU/GPU traces or selected Kernel counters for a concrete analysis question.
 ---
 
-# Collect only what answers the question
+# Acquire sufficient evidence
 
-Fix the input content/shape, runtime, actual precision and timing boundary first.
-Inspect available local evidence and the installed profiler's supported options.
-Collect only a named missing measurement; do not start a parameter matrix by default.
+Follow the acquisition sections of the [complete workflow](../../docs/single-inference-analysis.md).
+Start with the concrete input, implementation and timing boundary; inspect existing
+reports and installed capabilities before collecting. A new model needs an audited
+adapter, not another model's shapes, markers or precision assumptions.
 
-For the atlas's steady case, use 5 warmups and 10 measurements. Check the complete
-batch locally, including total wall time and major hotspot counts/durations.
-Use one real stable representative trace for analysis and store a compact check
-summary. Keep all other samples/raw exports local; their existence is not a
-reason to add them to the repository or page. Do not discard outliers to pass.
-For node tracing, enable instrumentation before the same five warmups when
-startup affects the first measurement; label only the ten measured windows.
-
-Use Nsys node events when the question concerns individual kernels; include CPU
-scheduling when the question concerns CPU/GPU execution. Graph envelopes answer
-coarser questions and need not become a parallel default dataset. Acquire NCU
-only for selected hotspots and preserve independent replay identity and policy.
-
-Stop when the evidence is sufficient. Missing counters do not justify exhaustive
-metric collection. Do not change model/runtime behavior or power/clock settings.
-See [the collection tutorial](../../docs/single-inference-analysis.md) for timing,
-CPU sampling and counter interpretation.
+Keep E2E, tracing and counter replay independent. Use the bounded stability and
+representative-selection procedure; preserve failed batches locally. Missing GPU
+counters leave a local gap while available timing remains usable. Do not expand
+sampling or alter the inference path, libraries or operating settings to fill a panel.

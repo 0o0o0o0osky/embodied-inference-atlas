@@ -9,16 +9,16 @@
 .system-flow-scroll { overflow-x:auto; max-width:100%; }
 .system-flow-scroll-hint { display:none; }
 .system-flow-scroll > svg { display:block; width:100%; }
-.system-flow-lane.is-cpu { fill:#f1f5fa; }
-.system-flow-lane.is-gpu { fill:#edf6f4; }
+.system-flow-lane.is-cpu { fill:var(--analysis-cpu-bg); }
+.system-flow-lane.is-gpu { fill:var(--analysis-gpu-bg); }
 .system-flow-lane-label { fill:#364f63; font-size:15px; font-weight:600; }
 .system-flow-lane-note,.system-flow-footnote { fill:#60717d; font-size:12px; }
 .system-flow-time { stroke:#b2bec6; stroke-width:1; }
 .system-flow-time-label { fill:#697b86; font-size:12px; }
 .system-flow-node { cursor:pointer; outline:none; }
-.system-flow-node > rect { fill:#fff; stroke:#7e9bad; stroke-width:1.2; }
-.system-flow-node.is-gpu > rect { stroke:#65948b; }
-.system-flow-node > text { fill:#293e4b; font-size:14px; font-weight:500; }
+.system-flow-node > rect { fill:var(--white); stroke:var(--analysis-work-stroke); stroke-width:1.2; }
+.system-flow-node.is-gpu > rect { stroke:var(--analysis-prepared-stroke); }
+.system-flow-node > text { fill:var(--analysis-work-text); font-size:14px; font-weight:500; }
 .system-flow-node .system-flow-repeat { fill:#68797d; font-size:12px; font-weight:400; }
 .system-flow-node:hover > rect,.system-flow-node:focus > rect,.system-flow-node.is-selected > rect { stroke:#166e9b; stroke-width:2.5; fill:#e4f4fc; }
 .system-flow-edge > path { stroke:#32789d; fill:none; stroke-width:1.7; }

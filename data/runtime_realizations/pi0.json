@@ -180,6 +180,75 @@
             "run-pi0-flashrt-nsys-node-002"
           ],
           "source_id": "source-local-thor"
+        },
+        {
+          "evidence_id": "flashrt-fixed-hotspot-source-0",
+          "kind": "source_code",
+          "locator": "flash_rt/frontends/torch/pi0_thor.py#_capture_enc_ae_graph",
+          "observation_ids": [],
+          "revision": "054bea4d02ebc63f6a0c45991c6061b1e1caa46c",
+          "run_ids": [],
+          "source_id": "source-flashrt"
+        },
+        {
+          "evidence_id": "flashrt-fixed-hotspot-source-1",
+          "kind": "source_code",
+          "locator": "flash_rt/hardware/thor/shared_primitives.py#encoder_forward",
+          "observation_ids": [],
+          "revision": "054bea4d02ebc63f6a0c45991c6061b1e1caa46c",
+          "run_ids": [],
+          "source_id": "source-flashrt"
+        },
+        {
+          "evidence_id": "flashrt-fixed-hotspot-source-2",
+          "kind": "source_code",
+          "locator": "flash_rt/models/pi0/pipeline_thor.py#decoder_forward_pi0",
+          "observation_ids": [],
+          "revision": "054bea4d02ebc63f6a0c45991c6061b1e1caa46c",
+          "run_ids": [],
+          "source_id": "source-flashrt"
+        },
+        {
+          "evidence_id": "flashrt-fixed-hotspot-source-3",
+          "kind": "source_code",
+          "locator": "csrc/kernels/decoder_fused.cu#fp8_gemm_descale_fp16",
+          "observation_ids": [],
+          "revision": "054bea4d02ebc63f6a0c45991c6061b1e1caa46c",
+          "run_ids": [],
+          "source_id": "source-flashrt"
+        },
+        {
+          "evidence_id": "flashrt-fixed-hotspot-source-4",
+          "kind": "source_code",
+          "locator": "csrc/gemm/gemm_types_sm100.h#sm100_wide",
+          "observation_ids": [],
+          "revision": "054bea4d02ebc63f6a0c45991c6061b1e1caa46c",
+          "run_ids": [],
+          "source_id": "source-flashrt"
+        },
+        {
+          "evidence_id": "flashrt-fixed-hotspot-source-5",
+          "kind": "source_code",
+          "locator": "csrc/gemm/cutlass_sm100.cu#cutlass_fp8_wide",
+          "observation_ids": [],
+          "revision": "054bea4d02ebc63f6a0c45991c6061b1e1caa46c",
+          "run_ids": [],
+          "source_id": "source-flashrt"
+        },
+        {
+          "evidence_id": "flashrt-fixed-hotspot-sequence",
+          "kind": "profiler_correlation",
+          "locator": null,
+          "observation_ids": [
+            "kernel-observation-pi0-flashrt-nsys-node_r002_029",
+            "kernel-observation-pi0-flashrt-nsys-node_r002_043",
+            "kernel-observation-pi0-flashrt-nsys-node_r002_041"
+          ],
+          "revision": null,
+          "run_ids": [
+            "run-pi0-flashrt-nsys-node-002"
+          ],
+          "source_id": "source-local-thor"
         }
       ],
       "execution_groups": [
@@ -370,6 +439,155 @@
               ],
               "scope_ref": "prefix-encoder/prefix-blocks",
               "selection": "indices"
+            }
+          ],
+          "unmapped_reason_code": null
+        },
+        {
+          "dependency_group_ids": [],
+          "evidence_ids": [
+            "flashrt-fixed-hotspot-source-0",
+            "flashrt-fixed-hotspot-source-1",
+            "flashrt-fixed-hotspot-source-2",
+            "flashrt-fixed-hotspot-source-3",
+            "flashrt-fixed-hotspot-source-4",
+            "flashrt-fixed-hotspot-source-5",
+            "flashrt-fixed-hotspot-sequence"
+          ],
+          "execution_group_id": "prefix-down-projection",
+          "implementation": "X[304,16384] × W[16384,2048]；静态缩放后输出 FP16。每层 GEGLU 后调用一次，共 17 次。",
+          "kernel_resolution": "resolved",
+          "kernel_signature_ids": [
+            "kernel-signature-pi0-flashrt-second-gemm-029"
+          ],
+          "kind": "backend_op",
+          "label": "前缀 Down 投影",
+          "precision_path_id": "flashrt-fixed-fp8-gemm-fp32-fp16",
+          "repeat_selectors": [
+            {
+              "indices": [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15,
+                16
+              ],
+              "scope_ref": "prefix-encoder/prefix-blocks",
+              "selection": "indices"
+            }
+          ],
+          "unmapped_reason_code": null
+        },
+        {
+          "dependency_group_ids": [],
+          "evidence_ids": [
+            "flashrt-fixed-hotspot-source-0",
+            "flashrt-fixed-hotspot-source-1",
+            "flashrt-fixed-hotspot-source-2",
+            "flashrt-fixed-hotspot-source-3",
+            "flashrt-fixed-hotspot-source-4",
+            "flashrt-fixed-hotspot-source-5",
+            "flashrt-fixed-hotspot-sequence"
+          ],
+          "execution_group_id": "action-merged-gate-up",
+          "implementation": "X[11,1024] × 合并权重[1024,8192]；静态缩放后输出 FP16 Gate/Up，随后独立 GEGLU。10 步 × 18 层。",
+          "kernel_resolution": "resolved",
+          "kernel_signature_ids": [
+            "kernel-signature-pi0-flashrt-nvjet-512x16-043"
+          ],
+          "kind": "backend_op",
+          "label": "动作 Gate/Up 合并投影",
+          "precision_path_id": "flashrt-fixed-fp8-gemm-fp32-fp16",
+          "repeat_selectors": [
+            {
+              "indices": [],
+              "scope_ref": "action-flow-decoder/action-flow-loop",
+              "selection": "all"
+            },
+            {
+              "indices": [],
+              "scope_ref": "action-flow-decoder/action-expert-blocks",
+              "selection": "all"
+            }
+          ],
+          "unmapped_reason_code": null
+        },
+        {
+          "dependency_group_ids": [],
+          "evidence_ids": [
+            "flashrt-fixed-hotspot-source-0",
+            "flashrt-fixed-hotspot-source-1",
+            "flashrt-fixed-hotspot-source-2",
+            "flashrt-fixed-hotspot-source-3",
+            "flashrt-fixed-hotspot-source-4",
+            "flashrt-fixed-hotspot-source-5",
+            "flashrt-fixed-hotspot-sequence"
+          ],
+          "execution_group_id": "action-attention-output",
+          "implementation": "X[11,2048] × W[2048,1024]。与动作 Down 共用同一签名和启动配置；显示两种用途合计 360 次。",
+          "kernel_resolution": "resolved",
+          "kernel_signature_ids": [
+            "kernel-signature-pi0-flashrt-nvjet-64x16-041"
+          ],
+          "kind": "backend_op",
+          "label": "动作注意力输出投影",
+          "precision_path_id": "flashrt-fixed-fp8-gemm-fp32-fp16",
+          "repeat_selectors": [
+            {
+              "indices": [],
+              "scope_ref": "action-flow-decoder/action-flow-loop",
+              "selection": "all"
+            },
+            {
+              "indices": [],
+              "scope_ref": "action-flow-decoder/action-expert-blocks",
+              "selection": "all"
+            }
+          ],
+          "unmapped_reason_code": null
+        },
+        {
+          "dependency_group_ids": [],
+          "evidence_ids": [
+            "flashrt-fixed-hotspot-source-0",
+            "flashrt-fixed-hotspot-source-1",
+            "flashrt-fixed-hotspot-source-2",
+            "flashrt-fixed-hotspot-source-3",
+            "flashrt-fixed-hotspot-source-4",
+            "flashrt-fixed-hotspot-source-5",
+            "flashrt-fixed-hotspot-sequence"
+          ],
+          "execution_group_id": "action-down-projection",
+          "implementation": "X[11,4096] × W[4096,1024]。与注意力输出投影共用同一签名和启动配置；显示两种用途合计 360 次。",
+          "kernel_resolution": "resolved",
+          "kernel_signature_ids": [
+            "kernel-signature-pi0-flashrt-nvjet-64x16-041"
+          ],
+          "kind": "backend_op",
+          "label": "动作 Down 投影",
+          "precision_path_id": "flashrt-fixed-fp8-gemm-fp32-fp16",
+          "repeat_selectors": [
+            {
+              "indices": [],
+              "scope_ref": "action-flow-decoder/action-flow-loop",
+              "selection": "all"
+            },
+            {
+              "indices": [],
+              "scope_ref": "action-flow-decoder/action-expert-blocks",
+              "selection": "all"
             }
           ],
           "unmapped_reason_code": null
@@ -747,6 +965,186 @@
           "path": "primary",
           "reason_code": null,
           "relation": "fused"
+        },
+        {
+          "certainty": "exact",
+          "confidence": "high",
+          "evidence_ids": [
+            "flashrt-fixed-hotspot-source-0",
+            "flashrt-fixed-hotspot-source-1",
+            "flashrt-fixed-hotspot-source-2",
+            "flashrt-fixed-hotspot-source-3",
+            "flashrt-fixed-hotspot-source-4",
+            "flashrt-fixed-hotspot-source-5",
+            "flashrt-fixed-hotspot-sequence"
+          ],
+          "execution_group_ids": [
+            "prefix-down-projection"
+          ],
+          "logical_targets": [
+            {
+              "ref": "prefix-encoder/prefix-blocks/feed-forward/down-projection",
+              "repeat_selectors": [
+                {
+                  "indices": [
+                    0,
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11,
+                    12,
+                    13,
+                    14,
+                    15,
+                    16
+                  ],
+                  "scope_ref": "prefix-encoder/prefix-blocks",
+                  "selection": "indices"
+                }
+              ]
+            }
+          ],
+          "mapping_id": "map-prefix-down-projection",
+          "method": "source_audit",
+          "path": "primary",
+          "reason_code": null,
+          "relation": "preserved"
+        },
+        {
+          "certainty": "exact",
+          "confidence": "high",
+          "evidence_ids": [
+            "flashrt-fixed-hotspot-source-0",
+            "flashrt-fixed-hotspot-source-1",
+            "flashrt-fixed-hotspot-source-2",
+            "flashrt-fixed-hotspot-source-3",
+            "flashrt-fixed-hotspot-source-4",
+            "flashrt-fixed-hotspot-source-5",
+            "flashrt-fixed-hotspot-sequence"
+          ],
+          "execution_group_ids": [
+            "action-merged-gate-up"
+          ],
+          "logical_targets": [
+            {
+              "ref": "action-flow-decoder/action-expert-blocks/feed-forward/gate-projection",
+              "repeat_selectors": [
+                {
+                  "indices": [],
+                  "scope_ref": "action-flow-decoder/action-flow-loop",
+                  "selection": "all"
+                },
+                {
+                  "indices": [],
+                  "scope_ref": "action-flow-decoder/action-expert-blocks",
+                  "selection": "all"
+                }
+              ]
+            },
+            {
+              "ref": "action-flow-decoder/action-expert-blocks/feed-forward/up-projection",
+              "repeat_selectors": [
+                {
+                  "indices": [],
+                  "scope_ref": "action-flow-decoder/action-flow-loop",
+                  "selection": "all"
+                },
+                {
+                  "indices": [],
+                  "scope_ref": "action-flow-decoder/action-expert-blocks",
+                  "selection": "all"
+                }
+              ]
+            }
+          ],
+          "mapping_id": "map-action-merged-gate-up",
+          "method": "source_audit",
+          "path": "primary",
+          "reason_code": null,
+          "relation": "fused"
+        },
+        {
+          "certainty": "exact",
+          "confidence": "high",
+          "evidence_ids": [
+            "flashrt-fixed-hotspot-source-0",
+            "flashrt-fixed-hotspot-source-1",
+            "flashrt-fixed-hotspot-source-2",
+            "flashrt-fixed-hotspot-source-3",
+            "flashrt-fixed-hotspot-source-4",
+            "flashrt-fixed-hotspot-source-5",
+            "flashrt-fixed-hotspot-sequence"
+          ],
+          "execution_group_ids": [
+            "action-attention-output"
+          ],
+          "logical_targets": [
+            {
+              "ref": "action-flow-decoder/action-expert-blocks/self-attention/output-projection",
+              "repeat_selectors": [
+                {
+                  "indices": [],
+                  "scope_ref": "action-flow-decoder/action-flow-loop",
+                  "selection": "all"
+                },
+                {
+                  "indices": [],
+                  "scope_ref": "action-flow-decoder/action-expert-blocks",
+                  "selection": "all"
+                }
+              ]
+            }
+          ],
+          "mapping_id": "map-action-attention-output",
+          "method": "source_audit",
+          "path": "primary",
+          "reason_code": null,
+          "relation": "preserved"
+        },
+        {
+          "certainty": "exact",
+          "confidence": "high",
+          "evidence_ids": [
+            "flashrt-fixed-hotspot-source-0",
+            "flashrt-fixed-hotspot-source-1",
+            "flashrt-fixed-hotspot-source-2",
+            "flashrt-fixed-hotspot-source-3",
+            "flashrt-fixed-hotspot-source-4",
+            "flashrt-fixed-hotspot-source-5",
+            "flashrt-fixed-hotspot-sequence"
+          ],
+          "execution_group_ids": [
+            "action-down-projection"
+          ],
+          "logical_targets": [
+            {
+              "ref": "action-flow-decoder/action-expert-blocks/feed-forward/down-projection",
+              "repeat_selectors": [
+                {
+                  "indices": [],
+                  "scope_ref": "action-flow-decoder/action-flow-loop",
+                  "selection": "all"
+                },
+                {
+                  "indices": [],
+                  "scope_ref": "action-flow-decoder/action-expert-blocks",
+                  "selection": "all"
+                }
+              ]
+            }
+          ],
+          "mapping_id": "map-action-down-projection",
+          "method": "source_audit",
+          "path": "primary",
+          "reason_code": null,
+          "relation": "preserved"
         }
       ],
       "model_artifact_ids": [
@@ -816,6 +1214,25 @@
           "missing_reason_code": null,
           "output_dtype": "fp16",
           "precision_path_id": "flashrt-gate-up-fp8-fp16",
+          "quant_scheme": "static_fp8_e4m3",
+          "weight_dtype": "fp8_e4m3"
+        },
+        {
+          "accumulation_dtype": "fp32",
+          "activation_dtype": "fp8_e4m3",
+          "evidence_ids": [
+            "flashrt-fixed-hotspot-source-0",
+            "flashrt-fixed-hotspot-source-1",
+            "flashrt-fixed-hotspot-source-2",
+            "flashrt-fixed-hotspot-source-3",
+            "flashrt-fixed-hotspot-source-4",
+            "flashrt-fixed-hotspot-source-5"
+          ],
+          "label": "FP8 E4M3 输入与权重 → FP32 累加 → FP16 输出",
+          "missing_fields": [],
+          "missing_reason_code": null,
+          "output_dtype": "fp16",
+          "precision_path_id": "flashrt-fixed-fp8-gemm-fp32-fp16",
           "quant_scheme": "static_fp8_e4m3",
           "weight_dtype": "fp8_e4m3"
         }

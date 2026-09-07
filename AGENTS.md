@@ -23,6 +23,11 @@ maintained code and evidence small; it is not a collection of every experiment.
   `skills/reviewing-technical-model-ui/SKILL.md` for actual rendering/review.
 - UI follows the question and selected object. One representative trace is shared
   by system, DAG and Kernel views; do not add duplicate selectors or data archives.
+- Reuse the modules in `docs/analysis-components.md`. Put implementation-specific
+  operations and evidence-backed prose in typed configuration; share layout,
+  semantic style tokens and the `tools/render_review.mjs` browser helper. The
+  complete sampling-to-review workflow belongs in `docs/single-inference-analysis.md`;
+  skills link to it. Machine paths, credentials and launch settings stay local.
 - Additional collection must resolve a named evidence gap. Stop once the
   question is answerable; do not expand to all kernels, metrics or input combinations.
 - Check changed behavior, typecheck, canonical validation, offline build and a

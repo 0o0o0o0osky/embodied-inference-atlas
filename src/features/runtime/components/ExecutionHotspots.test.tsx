@@ -21,6 +21,15 @@ it('retains a selected kernel event when moving from the system timeline to hots
   const markup = renderToStaticMarkup(<ExecutionHotspots data={data} record={record} route={route}
     view={context.nsys} kernels={context.kernels} realization={null} workload={context.normalizedWorkload} navigate={()=>undefined} />);
   expect(markup).toContain('关闭热点详情');
+  expect(markup).not.toContain('DAG 定位');
+  expect(markup).not.toContain('查看当前 Kernel 的 DAG 关联');
+  const cpu = context.nsys.active!.timeline.events.find(item=>item.eventKind==='cuda_api')!;
+  route.entity=timelineEventEntity(context.nsys.active!.timeline.timelineId,cpu.eventId);
+  const cpuMarkup=renderToStaticMarkup(<ExecutionHotspots data={data} record={record} route={route}
+    view={context.nsys} kernels={context.kernels} realization={context.implementationRealization} workload={context.normalizedWorkload} navigate={()=>undefined}/>);
+  expect(cpuMarkup).toContain('关闭热点详情');
+  expect(cpuMarkup).not.toContain('DAG 定位');
+  expect(cpuMarkup).not.toContain('查看当前 Kernel 的 DAG 关联');
 });
 
 it('makes the implementation DAG primary and keeps the full inventory collapsed',()=>{

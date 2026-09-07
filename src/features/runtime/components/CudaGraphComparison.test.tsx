@@ -20,7 +20,10 @@ it('illustrates asynchronous submission and smaller gaps for one graph with the 
   expect(markup).toContain('机制示意');
   expect(markup).toContain('逐次提交／启动带来的等待');
   expect(markup).toContain('图内启动／调度开销');
-  expect(markup).toContain('FlashRT 每次推理分别重放视觉图与主推理图，各一次');
+  expect(cpu[1]!.x).toBeGreaterThan(cpu[0]!.x+cpu[0]!.width);
+  expect(markup).not.toContain('FlashRT');
+  expect(markup).not.toContain('<details');
+  expect(markup).not.toContain('href=');
   expect(markup).not.toContain('graph-comparison-link');
   expect(markup.replace(/<[^>]*>/g, '')).not.toMatch(/\d+(?:\.\d+)?\s*(?:ms|µs|μs|%)/);
 });

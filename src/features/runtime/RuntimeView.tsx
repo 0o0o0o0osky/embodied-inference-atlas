@@ -19,7 +19,7 @@ import { isInferenceRuntimeForModel } from "./domain/runtimeCatalog";
 import { resolveRuntimeCandidates, type RuntimeCandidate } from "./domain/resolveRuntimeRealization";
 import { buildRuntimeOverlay } from "./overlay/buildRuntimeOverlay";
 import { logicalEntity, logicalRefFromEntity, runtimeGroupEntity } from "../workbench/entityKeys";
-import { Pi0RuntimeWorkspace } from "./Pi0RuntimeWorkspace";
+import { RuntimeAnalysisWorkspace } from "./RuntimeAnalysisWorkspace";
 
 interface RuntimeViewProps {
   data: AtlasData;
@@ -73,7 +73,7 @@ export function RuntimeView({ data, model, route, navigate }: RuntimeViewProps) 
   if (["pi0", "pi05", "smolvla"].includes(model.model_id)) {
     return (
       <ModelDisplayProvider modelId={model.model_id}>
-        <Pi0RuntimeWorkspace
+        <RuntimeAnalysisWorkspace
           data={data}
           model={model}
           record={record}
