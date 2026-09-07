@@ -21,6 +21,7 @@ import { buildRuntimeOverlay } from "../overlay/buildRuntimeOverlay";
 import type { RuntimeBounds } from "../domain/runtimeBounds";
 
 interface Pi0ImplementationDagSectionProps {
+  sources?: readonly CanonicalRecord[] | undefined;
   record: CanonicalRecord;
   route: RouteState;
   activeRealization: RuntimeRealizationRecord | null;
@@ -38,7 +39,7 @@ function contains(viewport: GraphViewport, box: { x: number; y: number; width: n
     && box.y + box.height <= viewport.y + viewport.height;
 }
 
-export function Pi0ImplementationDagSection({ record, route, activeRealization, selectedRuntimeName, navigate, bounds, initialShowPrecision = false, renderKernelDetails }: Pi0ImplementationDagSectionProps) {
+export function Pi0ImplementationDagSection({ sources, record, route, activeRealization, selectedRuntimeName, navigate, bounds, initialShowPrecision = false, renderKernelDetails }: Pi0ImplementationDagSectionProps) {
   const [display, setDisplay] = useState<"theory" | "implementation">("implementation");
   const [showPrecision, setShowPrecision] = useState(initialShowPrecision);
   const defaultGraph = useMemo(() => adaptV1ModelGraph(record), [record]);
@@ -124,7 +125,7 @@ export function Pi0ImplementationDagSection({ record, route, activeRealization, 
         </div>
       </header>
       <div className="runtime-implementation-legend" aria-hidden={display !== "implementation"} style={{ visibility: display === "implementation" ? "visible" : "hidden" }}>
-        <span><i />融合组</span><span><i className="is-precomputed" />预计算 / 共享数据切片 / 消除</span>
+        <span><i />融合计算</span><span><i className="is-precomputed" />预计算 / 共享数据切片 / 消除</span>
         <span>无标记：未标注实现差异</span>
         <label><input type="checkbox" checked={showPrecision} onChange={(event) => setShowPrecision(event.target.checked)} />显示精度</label>
       </div>
@@ -171,6 +172,7 @@ export function Pi0ImplementationDagSection({ record, route, activeRealization, 
         </section>
         {drawerOpen && activeRealization && route.entity ? (
           <Pi0ExecutionInspector
+            sources={sources}
             {...(bounds ? { groupBounds: bounds.groups } : {})}
             {...(renderKernelDetails ? { renderKernelDetails } : {})}
             dag={dag}

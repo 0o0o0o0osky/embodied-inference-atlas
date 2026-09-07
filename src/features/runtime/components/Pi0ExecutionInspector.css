@@ -91,17 +91,16 @@
   font-size: 14px;
 }
 
-.pi0-execution-inspector .pi0-runtime-raw-evidence {
+.pi0-execution-sources {
   margin-top: 20px;
+  color: #657483;
   font-size: 13px;
+  line-height: 1.7;
 }
 
-.pi0-execution-inspector .pi0-runtime-raw-evidence dl > div {
-  display: block;
-}
-
-.pi0-execution-inspector .pi0-runtime-raw-evidence dt {
-  margin-bottom: 6px;
+.pi0-execution-sources a {
+  color: #086c7c;
+  text-underline-offset: 3px;
 }
 
 .pi0-execution-inspector button:focus-visible,

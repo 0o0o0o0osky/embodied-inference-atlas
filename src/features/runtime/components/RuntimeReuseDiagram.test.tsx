@@ -4,10 +4,10 @@ import type {LogicalDag} from '../../model-graph/domain/types';
 import type {RuntimeRealizationRecord} from '../domain/types';
 import {RuntimeReuseDiagram} from './RuntimeReuseDiagram';
 it('selects structured reuse with equal lifecycle stages and no duplicate generic objects',()=>{
- const realization={modelId:'pi0',mappings:[],launch:{cudaGraphState:'present',submissionMode:'cuda_graph_replay',evidenceIds:[]},evidence:[],reuse:[{reuseId:'kv',label:'前缀 K/V 已确认',kind:'computed_result',producerRefs:['prefix'],consumerRefs:['solver'],lifetime:'observation',repeatScope:'当前观测的10次去噪',valueDependencies:['图像'],invalidationConditions:['图像变化'],implementationStatus:'implemented',evidenceIds:[],storageBytes:0,preparationNs:null,readNs:null}]} as unknown as RuntimeRealizationRecord;
+ const realization={modelId:'pi0',executionGroups:[],mappings:[],launch:{cudaGraphState:'present',submissionMode:'cuda_graph_replay',evidenceIds:[]},evidence:[],reuse:[{reuseId:'kv',label:'前缀 K/V 已确认',kind:'computed_result',producerRefs:['prefix'],consumerRefs:['solver'],lifetime:'observation',repeatScope:'当前观测的10次去噪',valueDependencies:['图像'],invalidationConditions:['图像变化'],implementationStatus:'implemented',evidenceIds:[],storageBytes:0,preparationNs:null,readNs:null}]} as unknown as RuntimeRealizationRecord;
  const markup=renderToStaticMarkup(<RuntimeReuseDiagram dag={{nodes:new Map()} as unknown as LogicalDag} realization={realization}/>);
  expect(markup).toContain('选择复用对象');expect(markup).toContain('下一阶段');
- expect(markup).toContain('prefix');expect(markup).toContain('solver');expect(markup).toContain('0 B');
+ expect(markup).not.toContain('prefix');expect(markup).not.toContain('solver');expect(markup).toContain('未记录算子');expect(markup).toContain('0 B');
  expect(markup).not.toContain('模型计算机制 · 当前栈实现待核对');
  expect(markup).not.toContain('准备时捕获，预测时提交');
  expect(markup).toContain('<details class="reuse-evidence">');

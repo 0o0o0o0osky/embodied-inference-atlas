@@ -350,7 +350,7 @@ export function RuntimeOverlay({
             data-group-id={boundary.groupId}
             role="button"
             tabIndex={0}
-            aria-label={`查看融合执行组：${pi0GroupLabel(index.groupById.get(boundary.groupId)?.label ?? boundary.groupId)}`}
+            aria-label={`查看融合计算：${pi0GroupLabel(index.groupById.get(boundary.groupId)?.label ?? boundary.groupId)}`}
             onClick={() => onSelectGroup(boundary.groupId)}
             onKeyDown={(event) => activate(event, () => onSelectGroup(boundary.groupId))}
           >
@@ -373,7 +373,7 @@ export function RuntimeOverlay({
           role="button"
           tabIndex={0}
           aria-label={pi0
-            ? `查看融合执行组：${group ? pi0GroupLabel(group.label) : boundary.groupId}`
+            ? `查看融合计算：${group ? pi0GroupLabel(group.label) : boundary.groupId}`
             : `Inspect fused execution group ${group?.label ?? boundary.groupId}`}
           onClick={() => onSelectGroup(boundary.groupId)}
           onKeyDown={(event) => activate(event, () => onSelectGroup(boundary.groupId))}
@@ -398,7 +398,7 @@ export function RuntimeOverlay({
               role={action ? "button" : undefined}
               tabIndex={action ? 0 : undefined}
               aria-label={action
-                ? pi0 ? `查看执行组：${group ? pi0GroupLabel(group.label) : badge.groupId}` : `Inspect ${group?.label ?? badge.groupId}`
+                ? pi0 ? `查看计算：${group ? pi0GroupLabel(group.label) : badge.groupId}` : `Inspect ${group?.label ?? badge.groupId}`
                 : label}
               onClick={action ?? undefined}
               onKeyDown={action ? (event) => activate(event, action) : undefined}

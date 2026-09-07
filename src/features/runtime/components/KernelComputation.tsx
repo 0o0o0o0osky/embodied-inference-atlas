@@ -1,3 +1,5 @@
+import type { CanonicalRecord } from '../../../types/atlas';
+import { RuntimeSourceReferences } from './RuntimeSourceReferences';
 import type { KernelRow } from '../../performance/domain/buildKernelRows';
 import type { KernelLaunch } from '../../profiler/domain/types';
 import type { RooflinePointRecord } from '../../roofline/domain/types';
@@ -24,7 +26,7 @@ export function KernelPrecisionSummary({row,implementationOutput}:{row:KernelRow
  const conflict=[...Object.values(row.signature.missing),...Object.values(precision.missing)].includes('precision_conflict');
  return <><p>输入 {dtype(precision.inputDtypeClass)}{isVerifiedConversion(row)||isVerifiedStrideCopy(row)?'':`；累加 ${dtype(precision.accumulatorDtypeClass)}`}；输出 {precision.outputDtypeClass == null && implementationOutput ? `${dtype(implementationOutput)}（实现关联）` : dtype(precision.outputDtypeClass)}</p>{conflict?<p role="status">精度证据冲突：运行级精度不能替代本 Kernel 的执行精度。</p>:null}</>;
 }
-export function KernelComputation({row,point}:{row:KernelRow;point?:RooflinePointRecord | undefined}) {
+export function KernelComputation({row,point,sources}:{row:KernelRow;point?:RooflinePointRecord | undefined;sources?:readonly CanonicalRecord[] | undefined}) {
  const precision=row.signature.precisionPath;
  const conversion=isVerifiedConversion(row),strideCopy=isVerifiedStrideCopy(row);
  const fusedGate=row.signature.kernelSignatureId==='kernel-signature-pi0-realtime-vla-gate-up-fusion-017';
@@ -52,7 +54,7 @@ export function KernelComputation({row,point}:{row:KernelRow;point?:RooflinePoin
  </>:conversion?<>
    <div className="kernel-matrix-flow" aria-label="已确认的元素转换"><div><strong>读取 x[ix]</strong><span>FP32 · 4 B / 元素</span></div><b>→</b><div><strong>BF16(x[ix])</strong><span>逐元素类型转换</span></div><b>→</b><div><strong>写出 y[iy]</strong><span>BF16 · 2 B / 元素</span></div></div>
    <p>y[iy] = BF16(x[ix])。输入与输出索引可能包含步幅重排；没有乘加或归约。</p><p>全局存储边界：读取 4E B，写出 2E B，总计 6E B。当前采集未记录元素数 E，不能从 Grid 反推，也不生成数值流量或 FLOPs Roofline。</p>
-   <details><summary>转换语义来源</summary><p>source-vla-cpp · ggml/src/ggml-cuda/convert.cu#convert_unary · revision 458681e1d5d4a29a1463c4732e03226cf384b997。已审计 convert_unary&lt;float, nv_bfloat16&gt; 的读取、类型转换与写入；实际 tile、缓存命中和线程内部复用未记录。</p></details>
+   <p>参考来源：<RuntimeSourceReferences sources={sources} sourceIds={["source-vla-cpp"]} /></p>
  </>:strideCopy?<>
   <div className="kernel-matrix-flow" aria-label="FP32 步幅拷贝"><div><strong>读取 x[ix]</strong><span>FP32 · 4 B / 元素</span></div><b>→</b><div><strong>索引与步幅寻址</strong><span>值保持不变</span></div><b>→</b><div><strong>写出 y[iy]</strong><span>FP32 · 4 B / 元素</span></div></div>
   <p>每个线程将展平索引映射到输入和输出各自的步幅，再执行 y[iy] = x[ix]。没有乘加或归约。</p>

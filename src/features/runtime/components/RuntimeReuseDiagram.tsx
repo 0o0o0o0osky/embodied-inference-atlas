@@ -1,3 +1,5 @@
+import type { CanonicalRecord } from '../../../types/atlas';
+import { RuntimeSourceReferences } from './RuntimeSourceReferences';
 import { useState } from 'react';
 import type { LogicalDag } from '../../model-graph/domain/types';
 import { useModelText } from '../../model-graph/presentation/ModelDisplay';
@@ -25,7 +27,7 @@ const evidenceLabels = (values:readonly string[]) => values.map(value=>EVIDENCE_
 const scopeStages = (item:RuntimeReuseDescriptor) => item.lifetime === 'initialization' ? [0] : item.lifetime === 'observation' ? [1,2] : item.lifetime === 'solver_step' ? [2] : [1,2,3];
 
 /** Equal-width stages communicate scope, not measured time or cache hit rate. */
-export function RuntimeReuseDiagram({dag, realization}: {dag:LogicalDag;realization:RuntimeRealizationRecord}) {
+export function RuntimeReuseDiagram({dag, realization, sources}: {dag:LogicalDag;realization:RuntimeRealizationRecord;sources?:readonly CanonicalRecord[] | undefined}) {
   const t = useModelText();
   const [selectedId,setSelectedId]=useState<string|null>(null);
   const [stage,setStage]=useState(0);
@@ -33,8 +35,8 @@ export function RuntimeReuseDiagram({dag, realization}: {dag:LogicalDag;realizat
   const selected=reuse.find(item=>item.reuseId===selectedId) ?? reuse[0];
   const precomputed = realization.mappings.filter(mapping=>mapping.reasonCode === 'precomputed_outside_prediction');
   const graphReplay = !reuse.length && realization.launch.cudaGraphState === 'present' && realization.launch.submissionMode === 'cuda_graph_replay';
-  const evidence = (ids:readonly string[])=>realization.evidence.filter(item=>ids.includes(item.evidenceId)).map(item=><li key={item.evidenceId}>{item.locator ?? item.evidenceId}{item.revision ? ` · ${item.revision.slice(0,12)}` : ''}</li>);
-  const refs=(values:readonly string[])=>values.map(ref=>t(dag.nodes.get(ref)?.label ?? ref)).join('、') || '未记录';
+  const evidence = (ids:readonly string[])=><RuntimeSourceReferences sources={sources} sourceIds={realization.evidence.filter(item=>ids.includes(item.evidenceId)).map(item=>item.sourceId)} />;
+  const refs=(values:readonly string[])=>values.map(ref=>t(dag.nodes.get(ref)?.label ?? realization.executionGroups.find(group=>group.executionGroupId===ref)?.label ?? '未记录算子')).join('、') || '未记录';
   return <section className="runtime-reuse-view" aria-label="计算与复用生命周期">
     <h3>计算与复用</h3>
     <p>等宽阶段表示生命周期，不表示实测耗时。固定串行执行：观测—推理—动作—观测。</p>
@@ -47,15 +49,15 @@ export function RuntimeReuseDiagram({dag, realization}: {dag:LogicalDag;realizat
       <dl><div><dt>重复范围</dt><dd>{selected.repeatScope || '未记录'}</dd></div><div><dt>值依赖</dt><dd>{evidenceLabels(selected.valueDependencies) || '未记录'}</dd></div><div><dt>失效条件</dt><dd>{evidenceLabels(selected.invalidationConditions) || '未记录'}</dd></div>
         <div><dt>存储</dt><dd>{selected.storageBytes===null?'未记录':`${selected.storageBytes.toLocaleString()} B`}</dd></div><div><dt>准备成本</dt><dd>{selected.preparationNs===null?'未记录':`${(selected.preparationNs/1e3).toLocaleString()} μs`}</dd></div><div><dt>读取成本</dt><dd>{selected.readNs===null?'未记录':`${(selected.readNs/1e3).toLocaleString()} μs`}</dd></div></dl>
       {selected.kind==='execution_plan'?<p>复用提交计划；每次输入仍执行计算，不代表复用上次结果。</p>:selected.kind==='computed_result'?<p>有效范围由全部值依赖共同决定；相同文本不代表多模态输入相同。</p>:null}
-      <details className="reuse-evidence"><summary>实现证据</summary><ul>{evidence(selected.evidenceIds)}</ul>{!selected.evidenceIds.length?<p>未记录来源引用。</p>:null}</details>
+      <details className="reuse-evidence"><summary>参考来源</summary><p>{evidence(selected.evidenceIds)}</p></details>
     </article>:null}
     {!reuse.length ? precomputed.map(mapping=><details className="reuse-object" key={mapping.mappingId}>
-      <summary><strong>{mapping.logicalTargets.map(target=>t(dag.nodes.get(target.ref)?.label ?? target.ref)).join('、')}</strong><span>已实现 · 计算结果预计算</span></summary>
+      <summary><strong>{mapping.logicalTargets.map(target=>t(dag.nodes.get(target.ref)?.label ?? '未记录算子')).join('、')}</strong><span>已实现 · 计算结果预计算</span></summary>
       <dl><dt>生产与消费</dt><dd>预测前生成，预测内对应逻辑算子使用。</dd><dt>重复范围</dt><dd>对应求解循环的预计算项；当前记录确认已移出预测。</dd><dt>值依赖 / 失效</dt><dd>具体依赖与失效条件尚未结构化记录。</dd><dt>成本</dt><dd>存储、准备与读取成本未记录。</dd></dl>
-      <details className="reuse-evidence"><summary>实现证据</summary><ul>{evidence(mapping.evidenceIds)}</ul></details>
+      <details className="reuse-evidence"><summary>参考来源</summary><p>{evidence(mapping.evidenceIds)}</p></details>
     </details>):null}
     {graphReplay ? <details className="reuse-object"><summary><strong>CUDA Graph</strong><span>已实现 · 执行计划复用</span></summary>
-      <p>准备时捕获，预测时提交已捕获的执行图；新输入仍执行计算。当前记录尚未结构化给出兼容性约束与成本。</p><details className="reuse-evidence"><summary>实现证据</summary><ul>{evidence(realization.launch.evidenceIds)}</ul></details>
+      <p>准备时捕获，预测时提交已捕获的执行图；新输入仍执行计算。当前记录尚未结构化给出兼容性约束与成本。</p><details className="reuse-evidence"><summary>参考来源</summary><p>{evidence(realization.launch.evidenceIds)}</p></details>
     </details> : null}
     {!precomputed.length && !graphReplay && !reuse.length ? <p>当前栈尚无已确认的预计算或执行计划复用记录。</p> : null}
   </section>;

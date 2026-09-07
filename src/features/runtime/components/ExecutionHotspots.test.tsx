@@ -84,7 +84,7 @@ it('offers direct DAG location and a readable path for a uniquely mapped selecte
   const markup=renderToStaticMarkup(<ExecutionHotspots data={context.scopedData} record={record} route={route}
     view={context.nsys} kernels={context.kernels} realization={context.implementationRealization} workload={context.normalizedWorkload} navigate={()=>undefined}/>);
   expect(markup).toContain('aria-label="当前 Kernel 的 DAG 位置"');
-  expect(markup).toContain('aria-label="定位当前 Kernel 对应的 DAG 执行组"');
+  expect(markup).toContain('aria-label="定位当前 Kernel 对应的 DAG 计算位置"');
   expect(markup).toContain('选择真实调用');
   expect(markup).not.toContain('在图中选择对应执行组');
   expect(markup).toContain('<details class="hotspot-kernel-inventory">');
@@ -103,7 +103,7 @@ it('asks for an explicit DAG position when a legacy signature is shared by two g
   const markup=renderToStaticMarkup(<ExecutionHotspots data={context.scopedData} record={record} route={route}
     view={context.nsys} kernels={context.kernels} realization={context.implementationRealization} workload={context.normalizedWorkload} navigate={()=>undefined}/>);
   expect(markup).toContain('选择 DAG 位置');
-  expect(markup).not.toContain('aria-label="定位当前 Kernel 对应的 DAG 执行组"');
+  expect(markup).not.toContain('aria-label="定位当前 Kernel 对应的 DAG 计算位置"');
   expect(markup).toContain('前缀编码 /');
   expect(markup).toContain('动作专家 /');
   expect(markup).toContain('第1–17层');

@@ -22,6 +22,9 @@ it('explains only source-audited conversion signatures and leaves element count 
  const markup=renderToStaticMarkup(<KernelComputation row={row}/>);
  expect(markup).toContain('已确认的元素转换');expect(markup).toContain('总计 6E B');expect(markup).toContain('不能从 Grid 反推');
  expect(renderToStaticMarkup(<KernelComputation row={{...row,signature:{...row.signature,kernelSignatureId:'other-conversion'}}}/>)).not.toContain('已确认的元素转换');
+ const withSources=renderToStaticMarkup(<KernelComputation row={row} sources={atlasSnapshot.datasets.sources}/>);
+ expect(withSources).toContain('https://github.com/VinRobotics/vla.cpp');
+ expect(withSources).not.toContain('source-vla-cpp');expect(withSources).not.toContain('458681e1');
 });
 
 it('shows the real stride-copy class with symbolic bytes and an independent NCU replay',()=>{

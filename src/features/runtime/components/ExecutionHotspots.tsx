@@ -97,13 +97,12 @@ export function ExecutionHotspots({data, record, route, view, kernels, realizati
             </label>
             <svg className="kernel-duration-distribution" viewBox="0 0 400 48" role="img" aria-label="当前类别各次调用耗时分布，实心点为所选调用">
               <line x1="12" y1="24" x2="388" y2="24" stroke="#a4b4c0" />
-              {[...invocation.events].sort((a,b)=>Number(a.eventId===invocation.selected!.eventId)-Number(b.eventId===invocation.selected!.eventId)).map(event=><circle key={event.eventId} cx={12+376*(event.durationNs-invocation.minNs!)/Math.max(1,invocation.maxNs!-invocation.minNs!)} cy={24} r={event.eventId===invocation.selected!.eventId?6:3} fill={event.eventId===invocation.selected!.eventId?'#17679b':'#9db5c5'}><title>{event.eventId} · {(event.durationNs/1e3).toFixed(2)} μs</title></circle>)}
+              {[...invocation.events].sort((a,b)=>Number(a.eventId===invocation.selected!.eventId)-Number(b.eventId===invocation.selected!.eventId)).map(event=><circle key={event.eventId} cx={12+376*(event.durationNs-invocation.minNs!)/Math.max(1,invocation.maxNs!-invocation.minNs!)} cy={24} r={event.eventId===invocation.selected!.eventId?6:3} fill={event.eventId===invocation.selected!.eventId?'#17679b':'#9db5c5'}><title>第 {invocation.events.indexOf(event) + 1} 次调用 · {(event.durationNs/1e3).toFixed(2)} μs</title></circle>)}
             </svg>
             <p>默认选择最接近类内中位数的真实调用；当前窗口最短 {(invocation.minNs!/1e3).toFixed(2)} / 中位数 {(invocation.medianNs!/1e3).toFixed(2)} / 最长 {(invocation.maxNs!/1e3).toFixed(2)} μs。</p>
             <dl><div><dt>所选单次执行</dt><dd>{(invocation.selected.durationNs/1e3).toFixed(2)} μs</dd></div></dl>
-            <details><summary>调用身份</summary><p>{invocation.selected.eventId}</p></details>
           </> : <p>此记录未提供可独立选择的精确单次区间。</p>}
-          {kernel ? <KernelComputation row={kernel} point={singlePairs[0]?.point} /> : null}
+          {kernel ? <KernelComputation sources={data.datasets.sources} row={kernel} point={singlePairs[0]?.point} /> : null}
           {singlePairs.map(({point})=><div key={point.point_id} className="kernel-measured-summary"><dl>
             <div><dt>计算吞吐</dt><dd>{(point.work.total_flop / point.timing.observed_second! / 1e12).toFixed(2)} TFLOP/s</dd></div>
             <div><dt>单次计算量</dt><dd>{(point.work.total_flop/1e9).toFixed(2)} GFLOP</dd></div>
@@ -112,35 +111,35 @@ export function ExecutionHotspots({data, record, route, view, kernels, realizati
         </> : detailView === 'resources' ? <>
           {invocation.selected ? <p>当前 Nsys 调用 {(invocation.selected.durationNs/1e3).toFixed(2)} μs；资源配置来自此调用。</p>:null}
           {invocation.selected?.launch ? <KernelResources launch={invocation.selected.launch} label="当前调用的执行资源" /> : kernel ? <KernelResources launch={kernel.observation.launch} /> : <p>此对象没有 GPU launch 资源记录。</p>}
-          {kernel ? replay.length ? <KernelNcuMetrics rows={replay} /> : <p>当前 Kernel 尚无配置匹配的 NCU 硬件计数器。</p> : null}
-        </> : detailView === 'dag' ? groups.length && realization ? <div>{groups.map(id=><button key={id} type="button" onClick={()=>locateGroup(id)}>{locationFor(id)}</button>)}</div> : <p>当前热点尚无已确认的算子或融合组关联，不能凭 Kernel 名称推断 DAG 位置。</p>
+          {kernel ? replay.length ? <KernelNcuMetrics sources={data.datasets.sources} rows={replay} /> : <p>当前 Kernel 尚无配置匹配的 NCU 硬件计数器。</p> : null}
+        </> : detailView === 'dag' ? groups.length && realization ? <div>{groups.map(id=><button key={id} type="button" onClick={()=>locateGroup(id)}>{locationFor(id)}</button>)}</div> : <p>当前热点尚无已确认的算子或融合计算关联，不能凭 Kernel 名称推断 DAG 位置。</p>
           : singlePairs.length ? singlePairs.map(pair=><RooflinePairChart key={pair.point.point_id} {...pair} />) : <p>{selected.category === 'GPU Kernel' ? '当前对象尚缺同口径的工作量或边界流量，保留其实际耗时。' : '此对象没有已确认的 FLOPs，按耗时分析，不强行绘制 Roofline。'}</p>}
-        <button type="button" aria-label={groups.length === 1 ? "定位当前 Kernel 对应的 DAG 执行组" : "查看当前 Kernel 的 DAG 关联"} onClick={()=>groups.length === 1 ? locateGroup(groups[0]!) : setDetailView('dag')}>{groups.length > 1 ? '选择 DAG 位置' : 'DAG 定位'}</button>
+        <button type="button" aria-label={groups.length === 1 ? "定位当前 Kernel 对应的 DAG 计算位置" : "查看当前 Kernel 的 DAG 关联"} onClick={()=>groups.length === 1 ? locateGroup(groups[0]!) : setDetailView('dag')}>{groups.length > 1 ? '选择 DAG 位置' : 'DAG 定位'}</button>
       </aside> : null;
   const renderKernelDetails = (groupIds: readonly string[]) => {
     const associated = realization ? groupKernelRows(kernels.rows,realization,groupIds) : [];
     const measured = associated.filter(item=>item.observation.observationKind !== 'ncu_replayed_launch');
     const replaysOnly = associated.filter(item=>item.observation.observationKind === 'ncu_replayed_launch');
     const selectedHere = kernel && associated.some(item=>item.observation.observationId === kernel.observation.observationId);
-    return <section className="dag-kernel-selection" aria-label="执行组 Kernel">
+    return <section className="dag-kernel-selection" aria-label="当前计算对应的 Kernel">
       <h3>对应 Kernel</h3>
       {measured.length ? <ul>{measured.map(item=><li key={item.observation.observationId}>
         <button type="button" aria-pressed={item.observation.observationId === kernel?.observation.observationId}
           onClick={()=>{setGraphEntity(graphEntity);navigate({timelineCapture:item.capture.captureId,entity:kernelEntity(item.capture.captureId,item.observation.observationId)},true);}}>
           {item.signature.labelSanitized}<span>{(item.observation.duration.valueNs/1e6).toFixed(3)} ms · {item.observation.calls} 次</span>
-        </button></li>)}</ul> : replaysOnly.length ? <KernelNcuMetrics rows={replaysOnly} /> : <p>当前采集尚无此执行组的 Kernel 关联。</p>}
-      {associated.some(item=>item.links.some(link=>link.realizationId === realization?.realizationId && link.executionGroupIds.some(id=>groupIds.includes(id)) && (link.status === 'partial' || link.executionGroupIds.length > 1))) ? <p>跨执行组共享 Kernel：显示当前窗口的整份签名累计，不能归为所选组的专属耗时。NCU 回放也未区分具体调用位置。</p> : null}
+        </button></li>)}</ul> : replaysOnly.length ? <KernelNcuMetrics sources={data.datasets.sources} rows={replaysOnly} /> : <p>当前采集尚无此计算对应的 Kernel。</p>}
+      {associated.some(item=>item.links.some(link=>link.realizationId === realization?.realizationId && link.executionGroupIds.some(id=>groupIds.includes(id)) && (link.status === 'partial' || link.executionGroupIds.length > 1))) ? <p>多个计算步骤共用 Kernel：显示当前窗口的整份签名累计，不能归为当前计算的专属耗时。NCU 回放也未区分具体调用位置。</p> : null}
       {selectedHere ? detail : null}
     </section>;
   };
   return <section className="execution-hotspots" aria-label="执行热点">
     <header className="pi0-funnel-heading"><h3>执行热点</h3></header>
-    <p className="pi0-funnel-note">点击图中的融合组或精度标注，查看对应 Kernel 与性能；完整列表在底部展开。</p>
+    <p className="pi0-funnel-note">点击图中的融合计算或精度标注，查看对应 Kernel 与性能；完整列表在底部展开。</p>
     {sharedConversions.length?<details className="dag-shared-conversions"><summary>数据转换与拷贝 · {sharedConversions.length} 个启动配置类别 · {(sharedConversions.reduce((sum,row)=>sum+row.durationNs,0)/1e6).toFixed(3)} ms</summary>
       <p>逐元素类型转换或步幅拷贝，在多个位置使用，尚不能分配给单一算子。以下为当前 trace 的真实执行类别。</p>
       <ul>{sharedConversions.map(row=><li key={row.id}><button type="button" aria-pressed={selected?.id===row.id} onClick={()=>{setGraphEntity(null);navigate({entity:entityFor(row)},true);}}>{labelFor(row)} · Grid {row.events[0]?.launch?.grid?.join('×') ?? '未知'} · {row.count} 次 · {(row.durationNs/1e6).toFixed(3)} ms</button></li>)}</ul>
     </details>:null}
-    {realization ? <div ref={dagRef} className="hotspot-primary-dag"><Pi0ImplementationDagSection initialShowPrecision record={record}
+    {realization ? <div ref={dagRef} className="hotspot-primary-dag"><Pi0ImplementationDagSection sources={data.datasets.sources} initialShowPrecision record={record}
       route={{...route,workload,entity:graphEntity}} activeRealization={realization} selectedRuntimeName={route.runtime}
       navigate={graphNavigate} renderKernelDetails={renderKernelDetails} /></div> : <p>当前栈尚无执行图映射，可从底部列表查看已记录的性能。</p>}
     {selected && !graphEntity ? <div className="hotspot-unmapped-detail">{detail}</div> : null}

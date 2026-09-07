@@ -1,3 +1,5 @@
+import type { CanonicalRecord } from '../../../types/atlas';
+import { RuntimeSourceReferences } from './RuntimeSourceReferences';
 import { KernelResources, KernelPrecisionSummary } from './KernelComputation';
 import { useState } from 'react';
 import type { KernelRow } from '../../performance/domain/buildKernelRows';
@@ -60,7 +62,7 @@ function valueLabel(metric: ProfilerMetric): string {
   return `${number(value)} ${units[metric.unit] ?? metric.unit}`;
 }
 
-export function KernelNcuMetrics({ rows }: { rows: readonly KernelRow[] }) {
+export function KernelNcuMetrics({ rows, sources }: { rows: readonly KernelRow[];sources?:readonly CanonicalRecord[] | undefined }) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const replays = rows.filter(row => row.capture.tool === 'ncu' && row.observation.observationKind === 'ncu_replayed_launch');
   const active = replays.find(row => row.observation.observationId === selectedId) ?? replays[0];
@@ -102,12 +104,9 @@ export function KernelNcuMetrics({ rows }: { rows: readonly KernelRow[] }) {
         </section>) : <p>本次回放尚无可展示的数值指标。</p>}
         {sysmem ? <p className="kernel-ncu-note">L2 sysmem 项描述 L2 与系统内存的交互，不代表整机内存流量。</p> : null}
         <p className="kernel-ncu-note">结合计算、访存与启动规模判断；低 occupancy 或单一吞吐指标不能独立确定瓶颈。</p>
-        <details className="kernel-ncu-raw"><summary>采集身份与原始计数器</summary>
+        <details className="kernel-ncu-raw"><summary>采集条件与原始计数器</summary>
           <dl className="kernel-ncu-identity">
-            <div><dt>采集</dt><dd>{capture.captureId}</dd></div>
-            <div><dt>观测</dt><dd>{observation.observationId}</dd></div>
-            <div><dt>运行</dt><dd>{capture.runId}</dd></div>
-            <div><dt>来源</dt><dd>{capture.sourceId}</dd></div>
+            <div><dt>来源</dt><dd><RuntimeSourceReferences sources={sources} sourceIds={[capture.sourceId]} /></dd></div>
             <div><dt>选择范围</dt><dd>{capture.selectionPolicy === 'explicit_invocation' ? '指定 invocation' : '名称筛选后选中的 launch'} · {capture.coverage.observedCount} 次已观测 launch</dd></div>
             <div><dt>回放方式</dt><dd>{capture.ncu?.replayMode ?? '未记录'} · NCU {capture.toolVersion}</dd></div>
             {capture.ncu ? <>

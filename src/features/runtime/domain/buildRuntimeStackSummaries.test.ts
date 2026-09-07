@@ -203,9 +203,13 @@ it("builds the executable runtime inventory for the selected hardware", () => {
 
 it("describes an eliminated mapping without inventing an execution group", () => {
   expect(pi0NoExecutionGroupPresentation(["eliminated"])).toEqual({
-    mappingSummary: "已由运行时消除，无独立执行组",
+    mappingSummary: "已由运行时消除，无独立计算",
     implementation: "无独立实现（运行时消除）",
     precision: "不适用",
-    repeatAndKernel: "无独立执行组；Kernel 不适用",
+    repeatAndKernel: "无独立计算；Kernel 不适用",
   });
+});
+
+it("does not infer absent computation from a missing mapping", () => {
+  expect(pi0NoExecutionGroupPresentation([]).repeatAndKernel).toBe("实际计算未关联；Kernel 未关联");
 });

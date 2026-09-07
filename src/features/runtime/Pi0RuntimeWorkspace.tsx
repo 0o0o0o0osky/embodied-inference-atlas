@@ -87,7 +87,7 @@ export function Pi0RuntimeWorkspace({data, model, record, route, navigate}: Prop
       <div hidden={analysisView !== 'hotspots'}>
         <ExecutionHotspots key={`${route.runtime}|${actualPrecision}|${route.workload}`} data={context.scopedData} record={record} route={route} view={nsys} kernels={kernels} realization={implementationRealization} workload={normalizedWorkload} navigate={navigate} />
       </div>
-      <div hidden={analysisView !== 'reuse'}>{implementationRealization ? <RuntimeReuseDiagram dag={dag} realization={implementationRealization} /> : <p className="pi0-funnel-empty">当前推理栈尚无可核对的复用记录。</p>}</div>
+      <div hidden={analysisView !== 'reuse'}>{implementationRealization ? <RuntimeReuseDiagram dag={dag} realization={implementationRealization} sources={data.datasets.sources} /> : <p className="pi0-funnel-empty">当前推理栈尚无可核对的复用记录。</p>}</div>
       {analysisView === 'perfetto' ? <section className="system-perfetto-detail">
         <div className="pi0-funnel-heading"><button type="button" onClick={()=>navigate({analysisView:'system'})}>返回系统概览</button>
 

@@ -89,25 +89,25 @@ export function pi0NoExecutionGroupPresentation(
 ): Pi0NoExecutionGroupPresentation {
   if (relations.includes("eliminated")) {
     return {
-      mappingSummary: "已由运行时消除，无独立执行组",
+      mappingSummary: "已由运行时消除，无独立计算",
       implementation: "无独立实现（运行时消除）",
       precision: "不适用",
-      repeatAndKernel: "无独立执行组；Kernel 不适用",
+      repeatAndKernel: "无独立计算；Kernel 不适用",
     };
   }
   if (relations.length) {
     return {
-      mappingSummary: "已建立源码映射，无独立执行组",
-      implementation: "无独立执行组",
+      mappingSummary: "已关联模型算子，无独立计算",
+      implementation: "无独立计算",
       precision: "不适用",
-      repeatAndKernel: "无独立执行组；Kernel 未关联",
+      repeatAndKernel: "无独立计算；Kernel 未关联",
     };
   }
   return {
-    mappingSummary: "尚无源码审计映射",
+    mappingSummary: "尚未关联实际计算",
     implementation: "实现未建立",
     precision: "未建立",
-    repeatAndKernel: "无执行组；Kernel 未关联",
+    repeatAndKernel: "实际计算未关联；Kernel 未关联",
   };
 }
 
