@@ -2,105 +2,44 @@
 
 [English](README.md) | 简体中文
 
-面向视觉语言动作模型（VLA）、世界模型与世界动作模型的离线推理分析工作台，以可追溯证据解释执行行为。
+Embodied Inference Atlas 是一个具身模型推理分析工作台。以 Pi0 等视觉语言动作模型（VLA）为例，你可以从图像和提示词输入开始，沿着模型结构和 CPU/GPU 执行过程，查看动作如何生成。
 
-项目维护的是一套小而可重复的流程：解析证据、呈现执行过程、辅助判断瓶颈。
-仓库中的规范数据 `data/` 为每个需要分析的场景保留一个代表 trace、稳定性摘要和必要测量；
-其他样本、原始报告与审阅产物留在被 Git 忽略的 `.local/` 中。
-额外精度和形状下的理论点由公式按需生成，避免保存大量重复快照。
-本仓库不下载模型，也不安装推理运行环境。
+你可以用它比较推理栈的延时、寻找主要耗时、查看热点背后的计算，并理解实现如何复用计算结果或执行计划。
 
-## 本地运行
+## 可以看什么
 
-准备 Node.js/npm 与 Python 3，然后在仓库根目录执行：
+- **模型理论**：浏览模型 DAG 和张量形状，通过分步图解理解矩阵乘法、Attention 与归一化计算。
+- **性能比较**：选择输入形状、推理栈和精度路径，比较已有实测延时。
+- **系统执行**：查看 CPU/GPU 处理流程和代表时间线，打开 Perfetto 深入查看线程、调用与 GPU 活动。
+- **执行热点**：在执行 DAG 与已关联的 Kernel 记录之间定位，查看已有的 Nsight Compute 指标。
+- **Roofline 与执行优化**：探索计算和访存上限，理解时间投影预计算、CUDA Graph 提交等实现机制。
+
+目前的分析以 Pi0 为主，包含 vla.cpp、FlashRT 和 realtime-vla 三种推理栈的测量，同时提供 Pi0.5、SmolVLA 的模型结构与已有性能数据。
+
+生成的站点在准备好依赖后可离线使用。浏览仓库已有数据无需 GPU 或模型权重。
+
+## 快速开始
+
+准备 Python 3、Node.js **22.12+** 和 npm。在仓库根目录运行：
 
 ```bash
 npm ci
 python3 tools/vendor_perfetto.py
-npm run typecheck
-python3 -m tools.validate --all
 python3 -m tools.build
-```
-
-Perfetto 查看器只需预先准备一次。若准备环境无法联网，可使用已取得的固定版本发行包：
-
-```bash
-python3 tools/vendor_perfetto.py --archive perfetto-ui.zip
-```
-
-安装器核验固定的发行包哈希。第三方二进制保留在本地、不进入 Git；构建时复制到离线站点 `site/`。
-前端依赖与 Perfetto 就绪后，常规构建不下载资产。
-
-Python 构建器会校验规范 JSON、生成确定性的前端数据、使用锁定依赖执行 Vite 构建，
-并以采用相对路径的离线资产替换 `site/`。
-仅验证构建、不替换现有站点时使用：
-
-```bash
-python3 -m tools.build --check
-```
-
-通过只监听本机的 HTTP 服务查看生成的应用：
-
-```bash
 python3 -m http.server 8000 --bind 127.0.0.1 --directory site
 ```
 
-随后打开 `http://127.0.0.1:8000/`。应用运行时不请求互联网资产。
-`file://` 直接打开不属于支持的发布方式，因为浏览器可能阻止读取生成的 JSON。
-完全离线使用需要提前准备好依赖，而不是依赖浏览器曾经联网留下的缓存。
+打开 **http://127.0.0.1:8000/**。
 
-按改动范围运行相关测试：
+准备命令会取得固定版本的 Perfetto 查看器；构建命令校验数据并生成 `site/`。如果已有发行包，可用 `python3 tools/vendor_perfetto.py --archive perfetto-ui.zip` 准备查看器，详见 [Perfetto 离线配置](docs/offline-perfetto.md)。
 
-```bash
-npm test -- <test-path>
-python3 -m unittest <test-module>
-```
+## 开发或添加分析
 
-## 导入与精简证据
+前端使用 TypeScript、React 与 Vite；Python 工具负责解析报告、校验证据和生成站点。使用 `npm run dev` 启动前端开发服务器，使用 `npm run typecheck` 检查类型。
 
-导入器读取本机报告，将脱敏后的候选数据写入 `.local/staging/`。
-不同导入器的输入参数不同，应先查询对应的 `--help`，例如：
+- [完整分析流程](docs/single-inference-analysis.md)：从固定输入和性能问题出发，完成采集、分析、渲染与审阅。
+- [组件目录与接入契约](docs/analysis-components.md)：添加模型、推理栈或硬件时，复用已有页面和组件。
+- [方法与数据语义](docs/methodology.md)：了解计时边界、精度、建模流量与比较口径。
+- [协作指南](AGENTS.md)：仓库工作流程和验证要求。
 
-```bash
-python3 -m extractors.fixed_case --help
-python3 -m extractors.fixed_case_ncu --help
-```
-
-固定场景导入使用结果、运行模板及可选的 Nsys SQLite；NCU 导入还需独立回放报告与关联证据。
-具体源文件路径、完整 Kernel 符号、输入哈希和原始样本留在本机。
-发布前需核验脱敏与引用关系；形状和 DAG 归属不能仅根据 Kernel 名称或 launch 网格推断。
-
-先查看提升差异，再写入规范数据：
-
-```bash
-python3 -m tools.promote .local/staging/<bundle>.json
-python3 -m tools.promote .local/staging/<bundle>.json --apply
-```
-
-提升工具用于导入已审阅证据。若已有数据积累了重复或被替代的采集，用归档工具精简：
-
-```bash
-python3 -m tools.archive_analysis
-python3 -m tools.archive_analysis --apply
-```
-
-默认命令先校验并预览保留范围和体积变化；`--apply` 在 `.local/archive/` 备份原始文件及清单后，
-写入精简数据。保留一个经检查的代表 trace 和小型统计摘要，其余采集可在本机追溯。
-总体延时中位数、代表 trace 内的调用时间与 NCU 独立回放指标各有自己的采集身份，不混为同一次执行。
-
-## 工作流与组件
-
-- [单次推理分析完整流程](docs/single-inference-analysis.md)：环境能力、稳态采集、代表选择、Nsys/NCU、证据导入、agent 分析与渲染。
-- [组件目录与页面接入契约](docs/analysis-components.md)：共享组件、模板边界，以及新增模型、推理栈或硬件需要填写的结构化内容。
-- [方法与数据语义](docs/methodology.md)：计时、精度、流量和比较口径。
-- [仓库协作规则](AGENTS.md)：工作范围、证据保留与验证要求。
-
-使用共享浏览器脚本检查实际页面：
-
-```bash
-node tools/render_review.mjs --help
-```
-
-脚本使用已安装的 Playwright 与 Chromium，不自动下载浏览器或依赖。
-它检查页面仅加载本地资产，并把截图和报告保存到 `.local/`。
-截图用于检查当前输入、所选对象和页面布局；选择与返回行为还需要在浏览器中实际核验。
+浏览器截图工具的用法见 `node tools/render_review.mjs --help`。相关测试可通过 `npm test -- <test-path>` 或 `python3 -m unittest <test-module>` 运行。

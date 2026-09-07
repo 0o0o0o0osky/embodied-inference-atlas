@@ -2,65 +2,44 @@
 
 English | [简体中文](README.zh-CN.md)
 
-Offline, evidence-backed views of VLA, world-model, and world-action-model inference behavior.
+An interactive workbench for understanding embodied-model inference, starting with vision-language-action (VLA) models. It connects model structure, implementation choices and performance measurements so you can follow a request from its inputs to its GPU work.
 
-The maintained project is a small, repeatable workflow for parsing evidence,
-rendering execution and identifying bottlenecks. Canonical `data/` retains one
-representative trace per required case, its stability summary and the measurements
-needed for analysis. Other samples, raw reports and review artifacts stay under
-ignored `.local/`. Formulas generate additional theoretical points on demand.
-This repository does not download models or install inference runtimes.
+Use it to compare inference stacks, find where time goes, inspect the computation behind a hotspot, and understand how an implementation reuses results or execution plans.
 
-## Local commands
+## Explore the workbench
+
+- **Model theory:** navigate the model DAG, inspect tensor shapes, and step through matrix multiplication, attention and normalization with illustrated calculations.
+- **Runtime comparison:** compare measured latency for a selected input shape, stack and precision path.
+- **System execution:** follow CPU/GPU processing, inspect the representative timeline, and open Perfetto for a closer look at threads, calls and GPU activity.
+- **Execution hotspots:** move between the execution DAG and linked Kernel records, including available Nsight Compute metrics.
+- **Roofline and optimizations:** explore compute and memory bounds, then examine mechanisms such as time-projection precomputation and CUDA Graph submission.
+
+The current analysis focuses on Pi0, with measurements from vla.cpp, FlashRT and realtime-vla. The workbench also includes model graphs and available performance data for Pi0.5 and SmolVLA.
+
+The generated site runs offline after setup. The included data lets you explore the workbench without a GPU or model weights.
+
+## Quick start
+
+You need Python 3, Node.js **22.12+**, and npm. From the repository root:
 
 ```bash
 npm ci
 python3 tools/vendor_perfetto.py
-npm run typecheck
-python3 -m tools.validate --all
 python3 -m tools.build
-python3 -m tools.build --check
-```
-
-Prepare the pinned Perfetto dependency once. For an offline preparation, use
-`python3 tools/vendor_perfetto.py --archive /path/to/perfetto-ui.zip` instead;
-the installer verifies the fixed archive hash. Its binaries remain local and
-are excluded from Git. The build copies them into the runnable offline `site/`.
-Normal builds do not download assets. Run the tests relevant to the change with
-`npm test -- <test-path>` or `python3 -m unittest <test-module>`.
-
-The Python builder validates canonical JSON, creates the deterministic frontend
-payload, runs the locked Vite build, and replaces `site/` with relative,
-offline assets. Review the generated application through a local-only server:
-
-```bash
 python3 -m http.server 8000 --bind 127.0.0.1 --directory site
 ```
 
-Then open `http://127.0.0.1:8000/`. The application makes no runtime internet
-requests. Direct `file://` viewing is not a release target because browsers may
-block the generated JSON request.
+Open **http://127.0.0.1:8000/**.
 
-Source importers read local reports and write sanitized candidate bundles under
-`.local/staging/`. Input flags differ by importer; consult its `--help`, for example
-`python3 -m extractors.fixed_case --help`. Keep source paths and raw reports local.
-Review a promotion diff before applying it:
+The setup command prepares the pinned Perfetto viewer; the build validates the data and creates `site/`. To prepare Perfetto from an existing archive, use `python3 tools/vendor_perfetto.py --archive perfetto-ui.zip`. See [offline Perfetto setup](docs/offline-perfetto.md) for details.
 
-```bash
-python3 -m tools.promote .local/staging/<bundle>.json
-python3 -m tools.promote .local/staging/<bundle>.json --apply
-```
+## Develop or add an analysis
 
-Promotion imports reviewed evidence. To compact accumulated evidence, run
-`python3 -m tools.archive_analysis` for a validated size/selection preview, then
-`python3 -m tools.archive_analysis --apply`. The latter backs up exact originals
-and a manifest under `.local/archive/` before writing the reduced corpus.
+The frontend uses TypeScript, React and Vite. Python tools parse reports, validate evidence and generate the site. Start the frontend development server with `npm run dev`; run type checks with `npm run typecheck`.
 
-See [the single-inference workflow](docs/single-inference-analysis.md) for agent
-analysis and rendering, [the component catalog](docs/analysis-components.md) for
-shared templates and agent-authored content, [methodology](docs/methodology.md) for data semantics,
-and [AGENTS.md](AGENTS.md) for scope and retention rules.
+- [Analysis workflow](docs/single-inference-analysis.md): go from a fixed input and profiling question to a reviewed, interactive analysis.
+- [Component catalog and integration contract](docs/analysis-components.md): reuse the existing views when adding a model, runtime or device.
+- [Methodology](docs/methodology.md): understand timing boundaries, precision, modeled traffic and comparison rules.
+- [Contributor guidance](AGENTS.md): repository workflow and verification.
 
-Use `node tools/render_review.mjs --help` for the shared browser capture helper.
-It uses an existing Playwright/Chromium installation, checks local-only loading,
-and saves screenshots and reports under `.local/`.
+For browser review, `node tools/render_review.mjs --help` describes the screenshot helper. Tests can be run with `npm test -- <test-path>` or `python3 -m unittest <test-module>`.
