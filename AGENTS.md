@@ -28,6 +28,9 @@ maintained code and evidence small; it is not a collection of every experiment.
   semantic style tokens and the `tools/render_review.mjs` browser helper. The
   complete sampling-to-review workflow belongs in `docs/single-inference-analysis.md`;
   skills link to it. Machine paths, credentials and launch settings stay local.
+- New model/runtime/device entries follow the shared page contract: required
+  identity and navigation, explicit capability states, and one available/missing
+  case review. A missing graph must not hide valid timing or Kernel details.
 - Additional collection must resolve a named evidence gap. Stop once the
   question is answerable; do not expand to all kernels, metrics or input combinations.
 - Check changed behavior, typecheck, canonical validation, offline build and a

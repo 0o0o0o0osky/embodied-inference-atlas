@@ -17,7 +17,7 @@ import { buildTraceBatches, endToEndBatch } from './analysisSamples';
 export interface AnalysisContextInput {
   data: AtlasData;
   model: ModelRecord;
-  record: CanonicalRecord;
+  record: CanonicalRecord | null;
   route: RouteState;
   /** A resolved comparison facet for symbolic inputs; never an arbitrary run. */
   facetContext?: ComparisonContextRecord | null;
@@ -36,7 +36,9 @@ export function resolveAnalysisContext({ data, model, record, route, facetContex
       && (!route.runtimePrecision || item.precision.precision_id === route.runtimePrecision));
     if (captureRun) route = {...route,workload:captureRun.configuration_id};
   }
-  const defaultGraph = adaptV1ModelGraph(record);
+  const defaultGraph = record ? adaptV1ModelGraph(record) : null;
+  if (!defaultGraph) reasons.push("model_graph_unavailable");
+  const defaultSymbols = defaultGraph?.editableSymbols ?? [];
   const contextRuns = data.datasets.runs.filter((run) => run.model_id === model.model_id
     && run.runtime_id === route.runtime && run.device_id === route.hardware
     && (!route.runtimePrecision || run.precision.precision_id === route.runtimePrecision));
@@ -64,8 +66,16 @@ export function resolveAnalysisContext({ data, model, record, route, facetContex
     : route.workload && !isConfiguration ? route.workload.split(",").map((binding) => {
       const [name, value] = binding.split("=", 2);
       return `${aliases[name!.trim()] ?? name!.trim()}=${value}`;
-    }).join(",") : defaultGraph.editableSymbols.map((symbol) => `${symbol.symbol}=${symbol.defaultValue}`).join(",");
-  const overrides = workloadOverrides(normalizedWorkload, defaultGraph.editableSymbols);
+    }).join(",") : defaultSymbols.map((symbol) => `${symbol.symbol}=${symbol.defaultValue}`).join(",");
+  // Explicit input remains meaningful before the model DAG is authored.
+  // Only declared dimensions enter this fallback; there are no model defaults.
+  const explicitInput = Object.fromEntries(normalizedWorkload.split(',').flatMap(binding=>{
+    const [name, encoded] = binding.split('=',2);
+    const minimum = name === 'L_PROMPT' ? 0 : ['V','T_ACTION','N_DENOISE'].includes(name ?? '') ? 1 : null;
+    const value = Number(encoded);
+    return minimum !== null && encoded?.trim() && Number.isSafeInteger(value) && value >= minimum ? [[name!,value]] : [];
+  }));
+  const overrides = defaultGraph ? workloadOverrides(normalizedWorkload, defaultSymbols) : explicitInput;
   // Scope configuration lookup before calling the legacy helper: configuration
   // identifiers must never select another model, runtime or precision implicitly.
   const selectionData = { ...data, datasets: { ...data.datasets, runs: selectedRun ? [selectedRun] : [] } };
@@ -82,10 +92,10 @@ export function resolveAnalysisContext({ data, model, record, route, facetContex
     .filter((item) => isRuntimeRealizationRecord(item, model.model_id)).map(adaptRuntimeRealization);
   const canonicalConfigurationIds = new Set([...data.datasets.runs.map((run) => run.configuration_id),
     ...realizations.flatMap((item) => item.configurationIds)]);
-  const summaries = buildRuntimeStackSummaries({ modelId: model.model_id, modelGraphId: defaultGraph.graphId,
+  const summaries = defaultGraph ? buildRuntimeStackSummaries({ modelId: model.model_id, modelGraphId: defaultGraph.graphId,
     hardwareId: route.hardware, workload: null, runtimes: data.datasets.runtimes, realizations,
-    runs: data.datasets.runs, canonicalConfigurationIds });
-  const candidates = route.runtime && route.hardware ? resolveRuntimeCandidates(realizations, data.datasets.runs, {
+    runs: data.datasets.runs, canonicalConfigurationIds }) : [];
+  const candidates = defaultGraph && route.runtime && route.hardware ? resolveRuntimeCandidates(realizations, data.datasets.runs, {
     modelId: model.model_id, modelGraphId: defaultGraph.graphId, runtimeId: route.runtime,
     hardwareId: route.hardware, workload, precisionId: actualPrecision, canonicalConfigurationIds,
   }) : [];

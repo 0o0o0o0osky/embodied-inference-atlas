@@ -18,3 +18,5 @@ A mechanism template explains established work, not measured savings. Reuse a
 confirmed implementation's mechanism across devices, but resolve actual precision,
 launch behavior and hardware ceilings again. Separate observations, supported
 explanations and the smallest unresolved evidence gap.
+
+For new models, runtimes or devices, supply the [minimum structured content](../../docs/analysis-components.md#新页面接入契约): identity, actual input/precision, evidence and applicability. Preserve unlinked timing; do not invent values or prose to make every capability appear complete.

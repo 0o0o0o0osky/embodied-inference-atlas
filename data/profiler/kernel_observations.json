@@ -552,6 +552,46 @@
     },
     {
       "calls": 1,
+      "capture_id": "capture-pi0-flashrt-ncu-flashrt-nvjet-512x16-043-001",
+      "duration": {
+        "sample_count": 1,
+        "statistic": "single",
+        "value_ns": 57440
+      },
+      "duration_share": null,
+      "kernel_signature_id": "kernel-signature-pi0-flashrt-nvjet-512x16-043",
+      "launch": {
+        "block": [
+          256,
+          1,
+          1
+        ],
+        "dynamic_shared_memory_bytes": 216288,
+        "grid": [
+          16,
+          1,
+          1
+        ],
+        "registers_per_thread": 255,
+        "static_shared_memory_bytes": 0,
+        "waves_per_sm": 0.8
+      },
+      "missing": {
+        "duration_share": "not_applicable"
+      },
+      "observation_id": "kernel-observation-pi0-flashrt-ncu-flashrt-nvjet-512x16-043-001",
+      "observation_kind": "ncu_replayed_launch",
+      "population": "one_name_filtered_selected_match_replayed_launch",
+      "quality": [
+        "replayed_launch",
+        "gpu_frequency_not_fixed",
+        "work_id_unavailable"
+      ],
+      "run_id": "run-pi0-flashrt-ncu-flashrt-nvjet-512x16-043-001",
+      "source_id": "source-local-thor"
+    },
+    {
+      "calls": 1,
       "capture_id": "capture-pi0-flashrt-ncu-siglip-broadcast-add-001",
       "duration": {
         "sample_count": 1,

@@ -18,3 +18,5 @@ Use the shared browser helper and inspect a real screenshot plus the changed
 interaction. Check offline loading and payload when assets/data changed. Repair
 visible failures and recheck that path; do not build a screenshot platform or
 repeat broad reviews. Raw captures and detailed review logs stay local.
+
+Every new entry must satisfy the [shared page contract](../../docs/analysis-components.md#新页面接入契约): identity, current input, navigation and required capability states. Inspect an available and a missing case; missing data uses shared defaults, not copied components, zeros or generated explanations.

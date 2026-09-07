@@ -1,3 +1,4 @@
+import { AnalysisPlaceholder, type AnalysisPlaceholderProps } from '../../../components/AnalysisPlaceholder';
 import { captureLabel } from "../domain/captureLabel";
 import { interval, clipInterval, measureIntervals } from "../../profiler/domain/intervals";
 import type { TimelineEvent } from "../../profiler/domain/types";
@@ -7,11 +8,12 @@ import { summarizeSamples } from '../domain/analysisSamples';
 
 export interface Pi0NsysSectionProps {
   view: TimelineViewModel;
+  absence?: AnalysisPlaceholderProps;
   onSelectEvent: (event: TimelineEvent) => void;
   onOpenDetails: () => void;
 }
 
-export function Pi0NsysSection({ view: model, onSelectEvent, onOpenDetails }: Pi0NsysSectionProps) {
+export function Pi0NsysSection({ view: model, onSelectEvent, onOpenDetails, absence }: Pi0NsysSectionProps) {
   const active = model.active;
   const node = active?.capture.nsys?.reportMode === "node";
   const savedSummary=active?.capture.analysisSummary;
@@ -63,7 +65,7 @@ export function Pi0NsysSection({ view: model, onSelectEvent, onOpenDetails }: Pi
           <button className="pi0-funnel-detail" type="button" onClick={onOpenDetails}>打开离线 Perfetto</button>
         </div> : null}
       </header>
-      {!active ? <p className="pi0-funnel-empty">当前选择暂无 Nsys 系统时间线。</p> : <>
+      {!active ? <AnalysisPlaceholder {...(absence ?? {title:"系统时间线尚未采集",state:"not_collected",detail:"补充当前输入的一条代表 trace 后显示。"})} /> : <>
         {model.requestedCaptureUnavailable ? <p className="pi0-funnel-warning" role="status">请求的 capture 不在当前范围内，显示当前推理栈的可用 capture。</p> : null}
         {node && !active.capture.coverage.isCompleteForPopulation ? <p className="pi0-funnel-note">当前窗口的 Kernel 记录为部分覆盖。</p> : null}
         <p className="pi0-funnel-note">{savedSummary || completeBatch?`Nsys 采集统计 · ${savedSummary?.sampleCount ?? batchOptions.length} 次中位数`:'当前 trace 的测量值'}</p>

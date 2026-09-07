@@ -1,3 +1,4 @@
+import { AnalysisPlaceholder } from '../../../components/AnalysisPlaceholder';
 import { pi0GroupLabel } from './runtimePresentation';
 import { KernelComputation, KernelResources, isVerifiedConversion, isVerifiedStrideCopy } from './KernelComputation';
 import { invocationSelection, invocationPoint } from './kernelInvocation';
@@ -16,7 +17,7 @@ import { indexRoofline } from '../../roofline/data/indexRoofline';
 import { RooflinePairChart } from '../../roofline/components/RooflinePairChart';
 
 export function ExecutionHotspots({data, record, route, view, kernels, realization, workload, navigate}: {
-  data: AtlasData; record: CanonicalRecord; route: RouteState; view: TimelineViewModel; kernels: KernelRowsModel;
+  data: AtlasData; record: CanonicalRecord | null; route: RouteState; view: TimelineViewModel; kernels: KernelRowsModel;
   realization: RuntimeRealizationRecord | null; workload: string;
   navigate: (patch: RoutePatch, replace?: boolean) => void;
 }) {
@@ -74,7 +75,7 @@ export function ExecutionHotspots({data, record, route, view, kernels, realizati
   const rememberedKey = parseEntityKey(rememberedGraphEntity);
   const rememberedRelevant = !selected || (rememberedKey?.kind === 'runtime-group' && groups.includes(rememberedKey.executionGroupId))
     || (rememberedKey?.kind === 'logical' && realization?.mappings.some(mapping=>mapping.logicalTargets.some(target=>target.ref===rememberedKey.logicalRef) && mapping.executionGroupIds.some(id=>groups.includes(id))));
-  const graphEntity = selectedEntity?.kind === 'runtime-group' || selectedEntity?.kind === 'logical'
+  const graphEntity = !record || !realization ? null : selectedEntity?.kind === 'runtime-group' || selectedEntity?.kind === 'logical'
     ? route.entity : (rememberedRelevant ? rememberedGraphEntity : null) ?? linkedGroupEntity;
   useEffect(()=>{
     if (selected) (graphEntity ? dagRef.current : detailRef.current)?.scrollIntoView({block:'start'});
@@ -102,7 +103,7 @@ export function ExecutionHotspots({data, record, route, view, kernels, realizati
             <p>默认选择最接近类内中位数的真实调用；当前窗口最短 {(invocation.minNs!/1e3).toFixed(2)} / 中位数 {(invocation.medianNs!/1e3).toFixed(2)} / 最长 {(invocation.maxNs!/1e3).toFixed(2)} μs。</p>
             <dl><div><dt>所选单次执行</dt><dd>{(invocation.selected.durationNs/1e3).toFixed(2)} μs</dd></div></dl>
           </> : <p>此记录未提供可独立选择的精确单次区间。</p>}
-          {kernel ? <KernelComputation sources={data.datasets.sources} row={kernel} point={singlePairs[0]?.point} /> : null}
+          {kernel ? <KernelComputation sources={data.datasets.sources} realization={realization} row={kernel} point={singlePairs[0]?.point} /> : null}
           {singlePairs.map(({point})=><div key={point.point_id} className="kernel-measured-summary"><dl>
             <div><dt>计算吞吐</dt><dd>{(point.work.total_flop / point.timing.observed_second! / 1e12).toFixed(2)} TFLOP/s</dd></div>
             <div><dt>单次计算量</dt><dd>{(point.work.total_flop/1e9).toFixed(2)} GFLOP</dd></div>
@@ -114,7 +115,7 @@ export function ExecutionHotspots({data, record, route, view, kernels, realizati
           {kernel ? replay.length ? <KernelNcuMetrics sources={data.datasets.sources} rows={replay} /> : <p>当前 Kernel 尚无配置匹配的 NCU 硬件计数器。</p> : null}
         </> : detailView === 'dag' ? groups.length && realization ? <div>{groups.map(id=><button key={id} type="button" onClick={()=>locateGroup(id)}>{locationFor(id)}</button>)}</div> : <p>当前热点的 DAG 位置待关联。</p>
           : singlePairs.length ? singlePairs.map(pair=><RooflinePairChart key={pair.point.point_id} {...pair} />) : <p>{selected.category === 'GPU Kernel' ? '绘制 Roofline 所需的计算量或边界流量待补。' : '当前对象可按耗时分析。'}</p>}
-        {groups.length ? <button type="button" aria-label={groups.length === 1 ? "定位当前 Kernel 对应的 DAG 计算位置" : "查看当前 Kernel 的 DAG 关联"} onClick={()=>groups.length === 1 ? locateGroup(groups[0]!) : setDetailView('dag')}>{groups.length > 1 ? '选择 DAG 位置' : 'DAG 定位'}</button> : null}
+        {groups.length && record && realization ? <button type="button" aria-label={groups.length === 1 ? "定位当前 Kernel 对应的 DAG 计算位置" : "查看当前 Kernel 的 DAG 关联"} onClick={()=>groups.length === 1 ? locateGroup(groups[0]!) : setDetailView('dag')}>{groups.length > 1 ? '选择 DAG 位置' : 'DAG 定位'}</button> : null}
       </aside> : null;
   const renderKernelDetails = (groupIds: readonly string[]) => {
     const associated = realization ? groupKernelRows(kernels.rows,realization,groupIds) : [];
@@ -134,16 +135,16 @@ export function ExecutionHotspots({data, record, route, view, kernels, realizati
   };
   return <section className="execution-hotspots" aria-label="执行热点">
     <header className="pi0-funnel-heading"><h3>执行热点</h3></header>
-    <p className="pi0-funnel-note">点击图中的融合计算或精度标注，查看对应 Kernel 与性能；完整列表在底部展开。</p>
+    {realization && record ? <p className="pi0-funnel-note">点击图中的融合计算或精度标注，查看对应 Kernel 与性能；完整列表在底部展开。</p> : null}
     {sharedConversions.length?<details className="dag-shared-conversions"><summary>数据转换与拷贝 · {sharedConversions.length} 个启动配置类别 · {(sharedConversions.reduce((sum,row)=>sum+row.durationNs,0)/1e6).toFixed(3)} ms</summary>
       <p>这些类型转换和步幅拷贝用于多个计算位置，按当前 trace 的调用类别汇总。</p>
       <ul>{sharedConversions.map(row=><li key={row.id}><button type="button" aria-pressed={selected?.id===row.id} onClick={()=>{setGraphEntity(null);navigate({entity:entityFor(row)},true);}}>{labelFor(row)} · Grid {row.events[0]?.launch?.grid?.join('×') ?? '未知'} · {row.count} 次 · {(row.durationNs/1e6).toFixed(3)} ms</button></li>)}</ul>
     </details>:null}
-    {realization ? <div ref={dagRef} className="hotspot-primary-dag"><Pi0ImplementationDagSection sources={data.datasets.sources} initialShowPrecision record={record}
+    {realization && record ? <div ref={dagRef} className="hotspot-primary-dag"><Pi0ImplementationDagSection sources={data.datasets.sources} initialShowPrecision record={record}
       route={{...route,workload,entity:graphEntity}} activeRealization={realization} selectedRuntimeName={route.runtime}
-      navigate={graphNavigate} renderKernelDetails={renderKernelDetails} /></div> : <p>当前栈尚无执行图映射，可从底部列表查看已记录的性能。</p>}
+      navigate={graphNavigate} renderKernelDetails={renderKernelDetails} /></div> : <AnalysisPlaceholder title="执行 DAG" state="not_recorded" detail={rows.length ? "执行结构与算子映射尚未填写；底部列表可查看已记录的耗时。" : "补充模型计算结构与当前推理栈的算子映射后显示。"} />}
     {selected && !graphEntity ? <div className="hotspot-unmapped-detail">{detail}</div> : null}
-    <details className="hotspot-kernel-inventory"><summary>Kernel 与 CPU 热点列表（{rows.length} 项）</summary>
+    <details className="hotspot-kernel-inventory"><summary>Kernel 与 CPU 热点列表{rows.length ? `（${rows.length} 项）` : view.active ? " · 暂无区间" : " · 未采集"}</summary>
       <p className="pi0-funnel-note">按当前 trace 中各类工作的累计时长排序；CPU 与 GPU 可重叠执行。</p>
       {view.active?.capture.nsys?.reportMode === 'node' && !view.active.capture.coverage.isCompleteForPopulation ? <p className="pi0-funnel-note">当前记录覆盖部分 Kernel。</p> : null}
       {rows.length ? <><ol className="execution-hotspot-list">{(showAll ? rows : rows.slice(0,6)).map(row=><li key={row.id}>
@@ -151,7 +152,7 @@ export function ExecutionHotspots({data, record, route, view, kernels, realizati
           <span className="hotspot-kind">{row.category}</span><strong>{labelFor(row)}{row.events[0]?.launch?.block ? <small> · Block {row.events[0].launch.block.join('×')}</small> : null}</strong><span className="hotspot-duration">{(row.durationNs/1e6).toFixed(3)} ms</span>
           <span className="hotspot-duration-bar" aria-hidden="true" style={{width:`${row.durationNs/rows[0]!.durationNs*100}%`}} />
         </button>
-      </li>)}</ol>{rows.length > 6 ? <button type="button" className="pi0-funnel-detail" onClick={()=>setShowAll(!showAll)}>{showAll ? '收起列表' : `查看全部 ${rows.length} 项`}</button> : null}</> : <p>当前采集没有逐 Kernel 区间。</p>}
+      </li>)}</ol>{rows.length > 6 ? <button type="button" className="pi0-funnel-detail" onClick={()=>setShowAll(!showAll)}>{showAll ? '收起列表' : `查看全部 ${rows.length} 项`}</button> : null}</> : <AnalysisPlaceholder title="Kernel 与 CPU 热点" state={view.active ? "not_recorded" : "not_collected"} detail={view.active ? "当前时间线未包含逐 Kernel 或 CPU 工作区间。" : "补充当前输入的系统时间线后，按各类工作的累计时长排序。"} />}
     </details>
   </section>;
 }

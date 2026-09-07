@@ -59,3 +59,35 @@ it('shows the audited FlashRT merged projection only with its resolved implement
  const replay={...row,observation:{...row.observation,observationKind:'ncu_replayed_launch' as const}};
  expect(renderToStaticMarkup(<KernelComputation row={replay}/>)).toContain('输出 未记录');
 });
+
+it('fills missing native precision only from current resolved source-backed groups, never from replay or an unlinked name',()=>{
+ const data=atlasSnapshot,model=data.datasets.models.find(item=>item.model_id==='pi0')!,record=data.datasets.model_graphs.find(item=>item.model_id==='pi0')!;
+ const route=readRoute('?model=pi0&tab=runtime&runtime=flashrt&runtimePrecision=mixed-fp8-e4m3-fp16&workload=config-pi0-flashrt-nsys-node-002');
+ const context=resolveAnalysisContext({data,model,record,route});
+ const row=context.kernels.rows.find(row=>row.capture.captureId===context.nsys.active?.capture.captureId && row.signature.kernelSignatureId==='kernel-signature-pi0-flashrt-nvjet-64x16-041')!;
+ const realization=context.implementationRealization!;
+ const render=(candidate:KernelRow,impl=realization)=>renderToStaticMarkup(<KernelComputation row={candidate} realization={impl} sources={data.datasets.sources}/>);
+ const markup=render(row);
+ expect(markup).toContain('FP8_E4M3（实现关联）');expect(markup).toContain('FP32（实现关联）');expect(markup).toContain('FP16（实现关联）');
+ expect(markup).toContain('https://github.com/flashrt-project/FlashRT');
+ expect(row.signature.precisionPath.inputDtypeClass).toBeNull();
+ expect(render({...row,links:[]})).not.toContain('（实现关联）');
+ expect(render({...row,observation:{...row.observation,observationKind:'ncu_replayed_launch'}})).not.toContain('（实现关联）');
+ expect(render(row,{...realization,evidence:[]})).not.toContain('（实现关联）');
+ expect(render({...row,signature:{...row.signature,missing:{run_precision_linkage:'precision_conflict'}}})).not.toContain('（实现关联）');
+});
+
+it('shows the audited action Gate/Up computation from its current resolved group without a synthetic Roofline',()=>{
+ const data=atlasSnapshot,model=data.datasets.models.find(item=>item.model_id==='pi0')!,record=data.datasets.model_graphs.find(item=>item.model_id==='pi0')!;
+ const route=readRoute('?model=pi0&tab=runtime&runtime=flashrt&runtimePrecision=mixed-fp8-e4m3-fp16&workload=config-pi0-flashrt-nsys-node-002');
+ const context=resolveAnalysisContext({data,model,record,route});
+ const row=context.kernels.rows.find(row=>row.capture.captureId===context.nsys.active?.capture.captureId && row.signature.kernelSignatureId==='kernel-signature-pi0-flashrt-nvjet-512x16-043')!;
+ const markup=renderToStaticMarkup(<KernelComputation row={row} realization={context.implementationRealization} sources={data.datasets.sources}/>);
+ expect(markup).toContain('X[11,1024] × 合并权重[1024,8192]');
+ expect(markup).toContain('FP16 Gate/Up，随后独立 GEGLU');
+ expect(markup).toContain('10 步 × 18 层');
+ expect(markup).not.toContain('当前证据未给出');
+ expect(markup).not.toContain('TFLOP/s');
+ expect(markup).toContain('<details><summary>实现来源</summary>');
+ expect(renderToStaticMarkup(<KernelComputation row={{...row,links:[]}} realization={context.implementationRealization}/>)).not.toContain('X[11,1024]');
+});

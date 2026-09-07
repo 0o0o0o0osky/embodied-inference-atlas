@@ -398,6 +398,41 @@
     },
     {
       "evidence": "measured_local",
+      "measurement_id": "e2e-pi0-flashrt-v2-e2e-001",
+      "measurement_method": "wall_clock",
+      "metric": "latency",
+      "missing_reason": null,
+      "percentile_method": "linear_interpolation",
+      "run_id": "run-pi0-flashrt-v2-e2e-001",
+      "sample_count": 10,
+      "source_id": "source-local-thor",
+      "statistics": [
+        {
+          "statistic": "min",
+          "unit": "ms",
+          "value": 48.257244
+        },
+        {
+          "statistic": "mean",
+          "unit": "ms",
+          "value": 48.77339
+        },
+        {
+          "statistic": "p50",
+          "unit": "ms",
+          "value": 48.761314999999996
+        },
+        {
+          "statistic": "max",
+          "unit": "ms",
+          "value": 49.041505
+        }
+      ],
+      "timing_boundary_id": "predict_cached_graph_sync",
+      "work_unit": "action_chunk"
+    },
+    {
+      "evidence": "measured_local",
       "measurement_id": "e2e-pi0-realtime-vla-w5-r10-001",
       "measurement_method": "wall_clock",
       "metric": "latency",

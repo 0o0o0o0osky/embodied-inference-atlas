@@ -1,3 +1,4 @@
+import { AnalysisPlaceholder } from '../../../components/AnalysisPlaceholder';
 import type { CanonicalRecord } from '../../../types/atlas';
 import type { LogicalDag } from '../../model-graph/domain/types';
 import { useModelText } from '../../model-graph/presentation/ModelDisplay';
@@ -12,14 +13,14 @@ import './optimizationComparison.css';
 const STATUS = {implemented:'已实现',not_implemented:'未实现',unknown:'待核对'};
 const KIND = {computed_result:'计算结果复用',execution_plan:'执行计划复用',storage:'存储复用'};
 export function RuntimeReuseDiagram({dag, realization, sources}: {
-  dag: LogicalDag; realization: RuntimeRealizationRecord; sources?: readonly CanonicalRecord[] | undefined;
+  dag: LogicalDag | null; realization: RuntimeRealizationRecord; sources?: readonly CanonicalRecord[] | undefined;
 }) {
   const t = useModelText();
   const reuse = realization.reuse ?? [];
   const {items: optimizations, timeConfigurations, graphItems, graphFallback: graphReplay, precomputed} = resolveReuseMechanisms(realization);
   const hasDiagrams = timeConfigurations.size > 0 || graphItems.size > 0 || graphReplay;
   const refs = (values: readonly string[]) => [...new Set(values.map(ref => {
-    const label = dag.nodes.get(ref)?.label ?? realization.executionGroups?.find(group => group.executionGroupId === ref)?.label;
+    const label = dag?.nodes.get(ref)?.label ?? realization.executionGroups?.find(group => group.executionGroupId === ref)?.label;
     return label ? t(label) : null;
   }).filter(Boolean))].join('、');
   const revision = /^[a-f0-9]{40}$/i.test(realization.runtimeRevision ?? '') ? realization.runtimeRevision : null;
@@ -74,7 +75,7 @@ export function RuntimeReuseDiagram({dag, realization, sources}: {
         <CudaGraphComparison />
       </article> : null}
     </div>
-    {!optimizations.length && !graphReplay && (!precomputed.length || reuse.length > 0) ? <p>当前栈尚无已确认的预计算或执行计划复用记录。</p> : null}
+    {!optimizations.length && !graphReplay && (!precomputed.length || reuse.length > 0) ? <AnalysisPlaceholder title="优化机制待补充" state="not_recorded" detail="补充当前实现的优化方式、节省的工作与适用条件后显示。" /> : null}
     {revision ? <details className="optimization-version"><summary>实现版本</summary><p>
       {commitUrl ? <a href={commitUrl} target="_blank" rel="noreferrer" title={revision}>commit {revision.slice(0, 7)}</a> : <code title={revision}>commit {revision.slice(0, 7)}</code>}
     </p></details> : null}

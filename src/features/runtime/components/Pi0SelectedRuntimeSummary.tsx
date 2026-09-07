@@ -9,7 +9,8 @@ export type Pi0RuntimeSelectionKind =
   | "native_evidence"
   | "symbolic_target"
   | "unsupported"
-  | "profiler_capture";
+  | "profiler_capture"
+  | "incomplete_input";
 
 interface Pi0SelectedRuntimeSummaryProps {
   runtimeLabel: string;
@@ -27,6 +28,7 @@ const STATISTIC_LABELS: Readonly<Record<string, string>> = {
 };
 
 const SELECTION_LABELS: Readonly<Record<Pi0RuntimeSelectionKind, string>> = {
+  incomplete_input: "输入信息待补",
   target_measurement: "目标点实测",
   native_evidence: "已有原生证据",
   symbolic_target: "目标配置待测",
@@ -35,6 +37,7 @@ const SELECTION_LABELS: Readonly<Record<Pi0RuntimeSelectionKind, string>> = {
 };
 
 const SELECTION_NOTES: Readonly<Record<Pi0RuntimeSelectionKind, string>> = {
+  incomplete_input: "填写当前模型的输入维度后，可关联相应测量。",
   target_measurement: "与当前输入形状匹配；预热 5 次，正式测量 10 次。",
   native_evidence: "这是该推理栈已有的原生测量，未完全匹配当前输入形状或 5+10 采样口径。",
   symbolic_target: "当前只是待采集的目标坐标；没有借用其他输入配置的延时。",
@@ -67,11 +70,11 @@ export function Pi0SelectedRuntimeSummary({
         </div>
         <div className="pi0-selected-latency">
           <span>端到端延时</span>
-          <strong>{latency?.value == null ? selectionKind === "profiler_capture" ? "未关联" : selectionKind === "unsupported" ? "不支持" : "待测" : `${latency.value.toLocaleString("zh-CN", { maximumFractionDigits: 2 })} ${latency.unit}`}</strong>
+          <strong>{latency?.value == null ? selectionKind === "incomplete_input" ? "未填写输入" : selectionKind === "profiler_capture" ? "未关联" : selectionKind === "unsupported" ? "不支持" : "待测" : `${latency.value.toLocaleString("zh-CN", { maximumFractionDigits: 2 })} ${latency.unit}`}</strong>
           <small>{latency ? STATISTIC_LABELS[latency.statistic] ?? latency.statistic : "无匹配实测"}</small>
         </div>
       </header>
-      {workloadStatus === "partial" ? <p className="pi0-selected-runtime-note">部分输入信息未记录，不能视为严格匹配。</p> : null}
+      {workloadStatus === "partial" ? <p className="pi0-selected-runtime-note">输入维度待补充，已知信息列于下方。</p> : null}
       <dl>
         <div><dt>视角</dt><dd>{value(workload.camera_views)}</dd></div>
         <div><dt>提示长度</dt><dd>{value(workload.executed_prompt_tokens)}</dd></div>

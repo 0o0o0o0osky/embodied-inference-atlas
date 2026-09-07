@@ -6,6 +6,12 @@
 时间与精度定义见 [methodology.md](methodology.md)，现成渲染入口见
 [analysis-components.md](analysis-components.md)。
 
+新增模型、推理栈或硬件先对照 [页面接入契约](analysis-components.md#新页面接入契约)：
+填 catalog 身份、当前模型的输入与设备基础规格，绑定共享壳、上下文和导航。
+系统、DAG/热点、优化、Roofline/计数器能力缺失时保留明确缺省状态，不为补齐页面
+伪造 run、规格或图表。agent 最小交付是已确认事实、来源与适用范围的结构化描述；
+标签、空态和机制布局交给共享 presentation。具体矩阵和状态定义只维护在组件目录。
+
 ## 1. 检查环境、输入与已有证据
 
 **问题**：现有数据能回答什么，缺少的证据是否可以取得？

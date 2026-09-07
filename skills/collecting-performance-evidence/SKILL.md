@@ -14,3 +14,5 @@ Keep E2E, tracing and counter replay independent. Use the bounded stability and
 representative-selection procedure; preserve failed batches locally. Missing GPU
 counters leave a local gap while available timing remains usable. Do not expand
 sampling or alter the inference path, libraries or operating settings to fill a panel.
+
+Before acquisition for a new page, check the [onboarding contract](../../docs/analysis-components.md#新页面接入契约). Missing input/specification, uncollected evidence and unsupported capability are different states; only a named evidence gap warrants collection.

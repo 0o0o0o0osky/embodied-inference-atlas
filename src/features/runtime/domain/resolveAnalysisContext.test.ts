@@ -111,3 +111,36 @@ it('retains the ten-sample summary while rendering only the real representative 
   expect(markup).toContain('<dt>Nsys 请求耗时</dt><dd>168.813 ms</dd>');
   expect(markup).toContain('窗口 170.194 ms');
 });
+
+it('keeps measured E2E and the selected real trace available without a model graph', () => {
+  const withoutGraph={...data,datasets:{...data.datasets,model_graphs:[]}};
+  const context=resolve({data:withoutGraph,model,record:null,route});
+  expect(context.defaultGraph).toBeNull();
+  expect(context.selectedRun?.run_id).toBe(run.run_id);
+  expect(context.selectedEvidence?.selected?.value).toBeGreaterThan(0);
+  expect(context.nsys.active?.capture.captureId).toBe('capture-pi0-vla-cpp-nsys-node-021');
+  expect(context.nsys.active!.timeline.events.length).toBeGreaterThan(0);
+  expect(context.candidates).toEqual([]);
+  expect(context.reasons).toContain('model_graph_unavailable');
+});
+it('does not supply another model defaults or evidence to an unknown model without a graph', () => {
+  const unknown={...model,model_id:'new-model',display_name:'New model'};
+  const context=resolve({data,model:unknown,record:null,route:{...route,model:'new-model',workload:null,selectedRun:null,timelineCapture:null,runtimePrecision:null}});
+  expect(context.normalizedWorkload).toBe('');
+  expect(context.actualPrecision).toBeNull();
+  expect(context.overrides).toEqual({});
+  expect(context.selectedRun).toBeNull();
+  expect(context.selectedEvidence).toBeNull();
+  expect(context.nsys.active).toBeNull();
+  expect(context.implementationRealization).toBeNull();
+  expect(context.slice.cameraViews).toBeNull();
+  expect(context.slice.promptTokens).toBeNull();
+});
+
+it('preserves explicitly selected input dimensions without a logical graph',()=>{
+ const context=resolve({data,model,record:null,route:{...route,workload:'v=2,p=48,a=50,n=10',selectedRun:null,timelineCapture:null}});
+ expect(context.slice.cameraViews).toBe(2);
+ expect(context.slice.promptTokens).toBe(48);
+ expect(context.overrides).toEqual({V:2,L_PROMPT:48,T_ACTION:50,N_DENOISE:10});
+ expect(context.nsys.active).toBeNull();
+});

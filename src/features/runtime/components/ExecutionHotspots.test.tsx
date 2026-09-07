@@ -120,3 +120,17 @@ it('asks for an explicit DAG position when a legacy signature is shared by two g
   expect(markup).toContain('第1–17层');
   expect(markup).not.toContain('Prefix GELU × up + FP8 cast');
 });
+
+it('keeps a linked Kernel detail visible when its logical graph has not been provided',()=>{
+ const data=atlasDocument as unknown as AtlasData;
+ const model=data.datasets.models.find(item=>item.model_id==='pi0')!;
+ const route=readRoute('?model=pi0&tab=runtime&runtime=flashrt&runtimePrecision=mixed-fp8-e4m3-fp16&workload=config-pi0-flashrt-nsys-node-002');
+ const context=resolveAnalysisContext({data,model,record:null,route});
+ const event=context.nsys.active!.timeline.events.find(item=>item.kernelSignatureId==='kernel-signature-pi0-flashrt-large-gemm-027')!;
+ route.entity=timelineEventEntity(context.nsys.active!.timeline.timelineId,event.eventId);
+ const html=renderToStaticMarkup(<ExecutionHotspots data={context.scopedData} record={null} route={route}
+   view={context.nsys} kernels={context.kernels} realization={context.implementationRealization} workload={context.normalizedWorkload} navigate={()=>undefined}/>);
+ expect(html).toContain('关闭热点详情');expect(html).toContain('选择真实调用');
+ expect(html).toContain('执行结构与算子映射尚未填写');
+ expect(html).not.toContain('定位当前 Kernel 对应的 DAG 计算位置');
+});

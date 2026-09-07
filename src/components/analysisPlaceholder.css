@@ -1,0 +1,4 @@
+.analysis-placeholder { margin-block: 1rem; padding: 1rem 1.25rem; border: 1px solid #dce3e8; border-radius: 6px; background: var(--analysis-cpu-bg, #f7f9fa); color: #405b6c; }
+.analysis-placeholder > div { display: flex; align-items: baseline; flex-wrap: wrap; gap: .75rem; }
+.analysis-placeholder span { font-size: .8rem; color: #5e7381; }
+.analysis-placeholder p { margin: .5rem 0 0; line-height: 1.6; font-size: .9rem; }

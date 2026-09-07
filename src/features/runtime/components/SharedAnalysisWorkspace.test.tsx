@@ -54,3 +54,33 @@ it('shows measured FlashRT system metrics without empty bounds or audit boilerpl
  expect(markup).not.toContain('局部覆盖不代表端到端下界');
  expect(markup).not.toContain('前端差异不合并成同一次实测流程');
 });
+
+// Missing structure must preserve the same navigation and valid measured evidence.
+it('keeps system analysis available without a model DAG',()=>{
+ const scoped={...data,datasets:{...data.datasets,model_graphs:[]}};
+ const model=data.datasets.models.find(item=>item.model_id==='pi0')!;
+ const route=readRoute('?model=pi0&tab=runtime&runtime=flashrt&runtimePrecision=mixed-fp8-e4m3-fp16&workload=config-pi0-flashrt-nsys-node-002');
+ const html=renderToStaticMarkup(<RuntimeView data={scoped} model={model} route={route} navigate={()=>undefined}/>);
+ expect(html).toContain('Nsys 采集统计 · 10 次中位数');
+ expect(html).toContain('返回性能对比');expect(html).toContain('执行 DAG');
+ expect(html).toContain('data-analysis-state="not_recorded"');
+ expect(html).not.toContain('运行表现暂不可用');
+});
+it('uses the shared shell and concrete placeholders for a new model with no filled analysis',()=>{
+ const model={...data.datasets.models[0]!,model_id:'new-model',display_name:'New model'};
+ const scoped={...data,datasets:{...data.datasets,models:[...data.datasets.models,model]}};
+ const route=readRoute('?model=new-model&tab=runtime&runtime=flashrt');
+ const html=renderToStaticMarkup(<RuntimeView data={scoped} model={model} route={route} navigate={()=>undefined}/>);
+ expect(html).toContain('输入形状尚未填写');expect(html).toContain('系统流程');
+ expect(html).toContain('补充 CPU/GPU 模块');expect(html).toContain('系统时间线尚未采集');
+ expect(html).toContain('执行优化');expect(html).toContain('返回性能对比');
+ expect(html).not.toContain('canonical 逻辑图');expect(html).not.toContain('稳定代表 trace');
+ expect(html).not.toContain('0.000 ms');expect(html).not.toContain('当前配置无匹配测量');
+});
+it('distinguishes another-input capture from no capture or confirmed unsupported shape',()=>{
+ const model=data.datasets.models.find(item=>item.model_id==='pi0')!;
+ const route=readRoute('?model=pi0&tab=runtime&runtime=vla-cpp&runtimePrecision=bf16&workload=v=2,p=48,a=50,n=10');
+ const html=renderToStaticMarkup(<RuntimeView data={data} model={model} route={route} navigate={()=>undefined}/>);
+ expect(html).toContain('当前输入暂无系统时间线');expect(html).toContain('data-analysis-state="no_match"');
+ expect(html).not.toContain('Nsys 采集统计 · 10 次中位数');
+});
